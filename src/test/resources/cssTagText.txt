@@ -1,0 +1,7 @@
+tag1 { att1: yeah;   att2  : \u005Cв^с  [е]м.ъ\u0020\u005C; } 
+
+tag2      { att3: \u2020yeah a #"'`´23 ;   att4  : ye2   2ah2\u003b }  
+
+tag3  
+
+{ att5: asdf;   att6  : hello; }

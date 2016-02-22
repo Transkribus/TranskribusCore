@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- For assistance related to logback-translator or configuration  -->
+<!-- files in general, please contact the logback user mailing list -->
+<!-- at http://www.qos.ch/mailman/listinfo/logback-user             -->
+<!--                                                                -->
+<!-- For professional support please see                            -->
+<!--    http://www.qos.ch/shop/products/professionalSupport         -->
+<!--                                                                -->
+<configuration>
+  <!-- Errors were reported during translation. -->
+  <!-- No root logger configuration was found -->
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+<!-- 	<filter class="ch.qos.logback.classic.filter.LevelFilter"> -->
+<!--       <level>INFO</level> <onMatch>ACCEPT</onMatch> <onMismatch>NEUTRAL</onMismatch> -->
+<!--     </filter> -->
+<!-- 	<filter class="ch.qos.logback.classic.filter.LevelFilter"> -->
+<!--       <level>DEBUG</level> <onMatch>ACCEPT</onMatch> <onMismatch>NEUTRAL</onMismatch> -->
+<!--     </filter> -->
+<!--     <filter class="ch.qos.logback.classic.filter.LevelFilter"> -->
+<!--       <level>TRACE</level> <onMatch>ACCEPT</onMatch> <onMismatch>DENY</onMismatch> -->
+<!--     </filter> -->
+    <encoder>
+      <pattern>%-5p %c - %m%n</pattern>
+    </encoder>
+  </appender>
+  
+<!--   <appender name="CONSOLE_ERR" class="ch.qos.logback.core.ConsoleAppender"> -->
+<!--     <target>System.err</target> -->
+<!--     <filter class="ch.qos.logback.classic.filter.ThresholdFilter"> -->
+<!--       <level>WARN</level> -->
+<!--     </filter> -->
+<!--     <encoder> -->
+<!--       <pattern>%-5p %c - %m%n</pattern> -->
+<!--     </encoder> -->
+<!--   </appender> -->
+
+  <appender name="LOGFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!--See http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
+    <!--and http://logback.qos.ch/manual/appenders.html#TimeBasedRollingPolicy-->
+    <!--for further documentation-->
+    <File>logs${file.separator}TrpCore.log</File>
+    <Append>true</Append>
+    <encoder>
+      <pattern>%d [%t] %-5p %c - %m%n</pattern>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>logs${file.separator}TrpCore.log.%d{.yyyy-MM}</fileNamePattern>
+    </rollingPolicy>
+  </appender>
+  
+  <logger name="org.apache" level="DEBUG">
+    <appender-ref ref="CONSOLE"/>
+<!--     <appender-ref ref="CONSOLE_ERR"/> -->
+    <appender-ref ref="LOGFILE"/>
+  </logger>
+  <logger name="org.dea" level="DEBUG">
+    <appender-ref ref="CONSOLE"/>
+<!--     <appender-ref ref="CONSOLE_ERR"/> -->
+    <appender-ref ref="LOGFILE"/>
+  </logger>
+  <logger name="org.dea.transcript.trp.core.model.builder.TrpPageUnmarshalListener" level="INFO">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="LOGFILE"/>
+  </logger>
+</configuration>

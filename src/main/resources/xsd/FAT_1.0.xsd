@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="RootFolder">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="SubFolder" maxOccurs="unbounded" minOccurs="0"/>
+        <xs:element ref="DocumentFolder" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute name="Date" use="required"/>
+      <xs:attribute name="NCheckedFiles" use="required" type="xs:integer"/>
+      <xs:attribute name="NDocuments" use="required" type="xs:integer"/>
+      <xs:attribute name="NDocumentsMissingMetadata" use="required" type="xs:integer"/>
+      <xs:attribute name="NFileErrors" use="required" type="xs:integer"/>
+      <xs:attribute name="NFileWarnings" use="required" type="xs:integer"/>
+      <xs:attribute name="NFiles" use="required" type="xs:integer"/>
+      <xs:attribute name="NFolders" use="required" type="xs:integer"/>
+      <xs:attribute name="NUncheckedFiles" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SubFolder">
+    <xs:complexType>
+      <xs:sequence minOccurs="0">
+        <xs:element ref="SubFolder" maxOccurs="unbounded" minOccurs="0"/>
+        <xs:element ref="DocumentFolder" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute name="Name" use="required" type="xs:NCName"/>
+      <xs:attribute name="Path" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DocumentFolder">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Order"/>
+        <xs:element maxOccurs="unbounded" ref="FileFolder" minOccurs="1"/>
+      </xs:sequence>
+      <xs:attribute name="NFilesPerFolder" use="required" type="xs:integer"/>
+      <xs:attribute name="Name" use="required" type="xs:NCName"/>
+      <xs:attribute name="Path" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Order">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="OcrMetadata"/>
+        <xs:element ref="FepMetadata"/>
+      </xs:sequence>
+      <xs:attribute name="HasViewingFiles" use="required" type="xs:NCName"/>
+      <xs:attribute name="Services" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="OcrMetadata">
+    <xs:complexType>
+      <xs:attribute name="Languages" use="required"/>
+      <xs:attribute name="Output" use="required"/>
+      <xs:attribute name="Texttype" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FepMetadata">
+    <xs:complexType>
+      <xs:attribute name="Workflow" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FileFolder">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="File"/>
+      </xs:sequence>
+      <xs:attribute name="Name" use="required" type="xs:NCName"/>
+      <xs:attribute name="Path" use="required"/>
+      <xs:attribute name="Type" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="File">
+    <xs:complexType>
+      <xs:attribute name="Bitdepth"/>
+      <xs:attribute name="Checksum"/>
+      <xs:attribute name="ColorType" type="xs:NCName"/>
+      <xs:attribute name="Compression" type="xs:NCName"/>
+      <xs:attribute name="Endian" type="xs:NCName"/>
+      <xs:attribute name="ErrorType" use="required" type="xs:NCName"/>
+      <xs:attribute name="Height" type="xs:integer"/>
+      <xs:attribute name="IsResOverwritten" type="xs:NCName"/>
+      <xs:attribute name="Message" use="required"/>
+      <xs:attribute name="Mimetype"/>
+      <xs:attribute name="Name" use="required" type="xs:NMTOKEN"/>
+      <xs:attribute name="Schema" type="xs:anyURI"/>
+      <xs:attribute name="SchemaType" type="xs:NCName"/>
+      <xs:attribute name="Size" type="xs:integer"/>
+      <xs:attribute name="Status" use="required" type="xs:NCName"/>
+      <xs:attribute name="Width" type="xs:integer"/>
+      <xs:attribute name="XRes" type="xs:integer"/>
+      <xs:attribute name="YRes" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
