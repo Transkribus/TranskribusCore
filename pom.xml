@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>eu.transkribus</groupId>
-	<artifactId>core</artifactId>
+	<artifactId>TranskribusCore</artifactId>
 	<version>0.0.1</version>
 	<packaging>jar</packaging>
 	<name>core</name>
@@ -48,7 +48,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.dea.util</groupId>
-			<artifactId>pdf</artifactId>
+			<artifactId>PdfUtils</artifactId>
 			<version>0.0.1</version>
 <!-- 			<scope>compile</scope> -->
 		</dependency>
