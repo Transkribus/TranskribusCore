@@ -1,4 +1,4 @@
-package eu.transkribus.core.model.beans.pagecontent_extension.observable;
+package eu.transkribus.core.model.beans.pagecontent_trp.observable;
 
 public class TextInsertData {
 	public int start, end;

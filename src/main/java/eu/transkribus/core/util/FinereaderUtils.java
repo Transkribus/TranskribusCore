@@ -28,8 +28,9 @@ import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpElementCoordinatesComparator;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpTextRegionType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementCoordinatesComparator;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 
 public class FinereaderUtils {
 	private static final Logger logger = LoggerFactory.getLogger(FinereaderUtils.class);
@@ -110,7 +111,7 @@ public class FinereaderUtils {
 	 */
 	public static PcGtsType replaceBadChars(PcGtsType pc) {
 		
-		List<RegionType> regs = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+		List<TrpRegionType> regs = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 		boolean success = true;
 		for(RegionType r : regs){
 			

@@ -1,4 +1,4 @@
-package eu.transkribus.core.model.beans.pagecontent_extension;
+package eu.transkribus.core.model.beans.pagecontent_trp;
 
 import java.util.List;
 import java.util.Observer;
@@ -7,7 +7,7 @@ import eu.transkribus.core.model.beans.customtags.CustomTagList;
 import eu.transkribus.core.model.beans.customtags.TextStyleTag;
 import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
 import eu.transkribus.core.model.beans.pagecontent.TextStyleType;
-import eu.transkribus.core.model.beans.pagecontent_extension.observable.TrpObservable;
+import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObservable;
 
 public interface ITrpShapeType {
 	ITrpShapeType copy();

@@ -1,4 +1,4 @@
-package eu.transkribus.core.model.beans.pagecontent_extension;
+package eu.transkribus.core.model.beans.pagecontent_trp;
 
 import java.util.Collections;
 import java.util.List;
@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
-import eu.transkribus.core.model.beans.pagecontent_extension.observable.TrpObserveEvent.TrpReinsertIntoParentEvent;
-import eu.transkribus.core.model.beans.pagecontent_extension.observable.TrpObserveEvent.TrpTextChangedEvent;
+import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpReinsertIntoParentEvent;
+import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpTextChangedEvent;
 import eu.transkribus.core.util.SebisStopWatch;
 
 public class TrpShapeTypeUtils {

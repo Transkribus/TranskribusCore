@@ -1,4 +1,4 @@
-package eu.transkribus.core.model.beans.pagecontent_extension.observable;
+package eu.transkribus.core.model.beans.pagecontent_trp.observable;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -7,7 +7,7 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.transkribus.core.model.beans.pagecontent_extension.ITrpShapeType;
+import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
 
 public class TrpObservable extends Observable {
 	private final static Logger logger = LoggerFactory.getLogger(TrpObservable.class);

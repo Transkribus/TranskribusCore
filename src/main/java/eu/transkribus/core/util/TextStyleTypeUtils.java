@@ -5,11 +5,11 @@ import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.model.beans.customtags.TextStyleTag;
 import eu.transkribus.core.model.beans.pagecontent.TextStyleType;
-import eu.transkribus.core.model.beans.pagecontent_extension.ITrpShapeType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpTextLineType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpTextRegionType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpWordType;
-import eu.transkribus.core.model.beans.pagecontent_extension.observable.TrpObserveEvent.TrpTextStyleChangedEvent;
+import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
+import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpTextStyleChangedEvent;
 
 /**
  * Some utility functions for the {@link TextStyleType} class.

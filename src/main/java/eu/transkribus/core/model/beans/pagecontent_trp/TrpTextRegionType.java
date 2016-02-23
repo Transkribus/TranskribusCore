@@ -1,4 +1,4 @@
-package eu.transkribus.core.model.beans.pagecontent_extension;
+package eu.transkribus.core.model.beans.pagecontent_trp;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,12 +16,12 @@ import eu.transkribus.core.model.beans.pagecontent.CoordsType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextStyleType;
-import eu.transkribus.core.model.beans.pagecontent_extension.observable.TrpObservable;
-import eu.transkribus.core.model.beans.pagecontent_extension.observable.TrpObserveEvent.TrpChildrenClearedEvent;
-import eu.transkribus.core.model.beans.pagecontent_extension.observable.TrpObserveEvent.TrpConstructedWithParentEvent;
-import eu.transkribus.core.model.beans.pagecontent_extension.observable.TrpObserveEvent.TrpCoordsChangedEvent;
-import eu.transkribus.core.model.beans.pagecontent_extension.observable.TrpObserveEvent.TrpReinsertIntoParentEvent;
-import eu.transkribus.core.model.beans.pagecontent_extension.observable.TrpObserveEvent.TrpRemovedEvent;
+import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObservable;
+import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpChildrenClearedEvent;
+import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpConstructedWithParentEvent;
+import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpCoordsChangedEvent;
+import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpReinsertIntoParentEvent;
+import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpRemovedEvent;
 import eu.transkribus.core.util.BeanCopyUtils;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.PrimaUtils;

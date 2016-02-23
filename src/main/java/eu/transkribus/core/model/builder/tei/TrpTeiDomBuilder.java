@@ -23,7 +23,8 @@ import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextTypeSimpleType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpElementCoordinatesComparator;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementCoordinatesComparator;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
 import eu.transkribus.core.util.XmlUtils;
 
 @Deprecated
@@ -190,9 +191,9 @@ public class TrpTeiDomBuilder extends ATeiBuilder {
 			body.appendChild(pb);
 			
 			// append all text-regions / lines / words to the xml:
-			List<RegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+			List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 			Collections.sort(regions, new TrpElementCoordinatesComparator<RegionType>());
-			for(RegionType r : regions){
+			for(TrpRegionType r : regions){
 //				System.out.println(r.getClass());
 				if(r instanceof TextRegionType){
 					setTextRegion((TextRegionType) r, p.getPageNr());
