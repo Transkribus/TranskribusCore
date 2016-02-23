@@ -86,7 +86,7 @@ public class PageXmlUtils {
 	//	public static Schema getSchema() { return schema; }
 
 	private static JAXBContext createPageJAXBContext() throws JAXBException {
-		return JAXBContext.newInstance("org.dea.transcript.trp.core.model.beans.pagecontent");
+		return JAXBContext.newInstance("eu.transkribus.core.model.beans.pagecontent");
 	}
 	
 	private static Unmarshaller createUnmarshaller() throws JAXBException {
