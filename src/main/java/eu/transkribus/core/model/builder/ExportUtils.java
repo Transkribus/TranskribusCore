@@ -62,15 +62,18 @@ public class ExportUtils {
 		int c = 0;
 
 		for (int i=0; i<totalPages; ++i) {
-			if (pageIndices!=null && !pageIndices.contains(i))
+			if (pageIndices!=null && !pageIndices.contains(i)){
+				//fill up with null to have the proper index of each page later on
+				pageTranscripts.add(null);
 				continue;
+			}
 			
 			TrpPage page = pages.get(i);
 			TrpTranscriptMetadata md = page.getCurrentTranscript();
 			
 			JAXBPageTranscript tr = new JAXBPageTranscript(md);
 			tr.build();
-			pageTranscripts.add(i, tr);
+			pageTranscripts.add(tr);
 			
 			logger.debug("Loaded Transcript from page " + (i+1));
 			
