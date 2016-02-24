@@ -1,4 +1,4 @@
-package eu.transkribus.core.model.beans.pagecontent_extension.observable;
+package eu.transkribus.core.model.beans.pagecontent_trp.observable;
 
 import eu.transkribus.core.model.beans.customtags.CustomTagList;
 

@@ -50,13 +50,14 @@ import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TaggedWord;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpElementCoordinatesComparator;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpObjectFactory;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpPageType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpTextLineType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpTextRegionType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpWordType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TaggedWord;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementCoordinatesComparator;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpObjectFactory;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.model.builder.TrpPageMarshalListener;
 import eu.transkribus.core.model.builder.TrpPageUnmarshalListener;
 
@@ -416,7 +417,7 @@ public class PageXmlUtils {
 			return;
 		}
 		
-		List<RegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 		for (RegionType r : regions) {
 			if (r instanceof TextRegionType) {
 				TextRegionType tr = (TextRegionType) r;
@@ -431,7 +432,7 @@ public class PageXmlUtils {
 		if (!hasRegions(pc)){
 			return lines;
 		}
-		List<RegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 		for (RegionType r : regions) {
 			if (r.getId().equals(regId) && r instanceof TextRegionType) {
 				TextRegionType tr = (TextRegionType) r;
@@ -445,8 +446,8 @@ public class PageXmlUtils {
 		if(!hasRegions(origPc) || !hasRegions(newPc)){
 			return;
 		}
-		List<RegionType> origRegs = origPc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
-		List<RegionType> newRegs = newPc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+		List<TrpRegionType> origRegs = origPc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+		List<TrpRegionType> newRegs = newPc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 		//map the regions where we want to keep the textContent
 		Map<String, TextRegionType> textMap = new HashMap<>();
 		//iterate all old regions. Map the ones containing lines
@@ -546,13 +547,13 @@ public class PageXmlUtils {
 		if(source.getPage() == null){
 			throw new IllegalArgumentException("The source pageType is null!");
 		}
-		List<RegionType> oldRegions = target.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+		List<TrpRegionType> oldRegions = target.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 		//clear the target from all regions
 		if(oldRegions != null && !oldRegions.isEmpty()){
 			logger.debug("Clearing regions in target PAGE.");
 			oldRegions.clear();
 		}
-		List<RegionType> newRegions = source.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+		List<TrpRegionType> newRegions = source.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 		if(newRegions != null && !newRegions.isEmpty()){
 			oldRegions.addAll(newRegions);
 		}
@@ -569,7 +570,7 @@ public class PageXmlUtils {
 		if(!hasRegions(pc)){
 			throw new IllegalArgumentException("PAGE XML has no regions!");
 		}
-		List<RegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 		for(int i = 0; i < regions.size(); i++){
 			final String id = regions.get(i).getId();
 			if(id != null && id.equals(regId)){
@@ -602,7 +603,7 @@ public class PageXmlUtils {
 		if (pc.getPage() == null){
 			return false;
 		}
-		List<RegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 		if (regions == null || regions.isEmpty()){
 			return false;
 		}
@@ -613,7 +614,7 @@ public class PageXmlUtils {
 		if (pc.getPage() == null){
 			return false;
 		}
-		List<RegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 		if (regions == null || regions.isEmpty()){
 			return false;
 		}
@@ -637,7 +638,7 @@ public class PageXmlUtils {
 	}
 
 	public static List<TextRegionType> getTextRegions(PcGtsType pc) {
-		List<RegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 		List<TextRegionType> tRegions = new LinkedList<>();
 		if (regions == null || regions.isEmpty()){
 			return tRegions;
@@ -651,7 +652,7 @@ public class PageXmlUtils {
 	}
 
 	public static void removeExcludedRegions(PcGtsType pc, List<String> regIds) {
-		List<RegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 		if (regions == null || regions.isEmpty()){
 			return;
 		}		
@@ -674,7 +675,7 @@ public class PageXmlUtils {
 	public static void cutPolysAtImgBorder(PcGtsType pc) {
 		final int maxX = pc.getPage().getImageWidth();
 		final int maxY = pc.getPage().getImageHeight();
-		List<RegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 		if (regions == null || regions.isEmpty()){
 			return;
 		}

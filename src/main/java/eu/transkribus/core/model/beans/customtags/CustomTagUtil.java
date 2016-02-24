@@ -14,13 +14,13 @@ import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextTypeSimpleType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
-import eu.transkribus.core.model.beans.pagecontent_extension.ITrpShapeType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpPageType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpTextLineType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpTextRegionType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpWordType;
-import eu.transkribus.core.model.beans.pagecontent_extension.observable.TrpObserveEvent.TrpReadingOrderChangedEvent;
-import eu.transkribus.core.model.beans.pagecontent_extension.observable.TrpObserveEvent.TrpStructureChangedEvent;
+import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
+import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpReadingOrderChangedEvent;
+import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpStructureChangedEvent;
 import eu.transkribus.core.util.CoreUtils;
 
 public class CustomTagUtil {

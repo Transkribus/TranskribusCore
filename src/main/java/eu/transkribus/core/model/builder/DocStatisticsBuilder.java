@@ -13,7 +13,7 @@ import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocStatistics;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpPageType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.util.PageXmlUtils;
 
 public class DocStatisticsBuilder extends Observable {

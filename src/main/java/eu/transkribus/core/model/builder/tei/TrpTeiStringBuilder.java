@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXBException;
 
@@ -36,12 +34,13 @@ import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
-import eu.transkribus.core.model.beans.pagecontent_extension.ITrpShapeType;
-import eu.transkribus.core.model.beans.pagecontent_extension.RegionTypeUtil;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpElementCoordinatesComparator;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpTextLineType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpTextRegionType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpWordType;
+import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
+import eu.transkribus.core.model.beans.pagecontent_trp.RegionTypeUtil;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementCoordinatesComparator;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.SebisStringBuilder;
 
@@ -623,9 +622,9 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 			writePageBreak(sbText, p, pc);
 //			
 //			// append all text-regions / lines / words to the xml:
-			List<RegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+			List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 			Collections.sort(regions, new TrpElementCoordinatesComparator<RegionType>());
-			for(RegionType r : regions){
+			for(TrpRegionType r : regions){
 //				System.out.println(r.getClass());
 				if(r instanceof TextRegionType) {
 					if (mode.val > TeiExportMode.SIMPLE.val) {

@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.model.beans.customtags.CustomTagUtil;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpPageType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 
 
 public class TrpPageMarshalListener extends javax.xml.bind.Marshaller.Listener {

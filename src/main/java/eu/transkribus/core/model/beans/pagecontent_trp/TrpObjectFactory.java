@@ -1,4 +1,4 @@
-package eu.transkribus.core.model.beans.pagecontent_extension;
+package eu.transkribus.core.model.beans.pagecontent_trp;
 
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.xpath.XPathFactory;

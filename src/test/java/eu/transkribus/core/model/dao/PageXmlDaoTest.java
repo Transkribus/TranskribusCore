@@ -15,6 +15,7 @@ import eu.transkribus.core.model.beans.pagecontent.PageType;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
 import eu.transkribus.core.model.builder.TrpPageTranscriptBuilder;
 import eu.transkribus.core.model.dao.FakeDocProvider;
 
@@ -62,7 +63,7 @@ public class PageXmlDaoTest {
 				tr.setId(""+i++);
 			}
 			
-			List<RegionType> regions = pageType.getTextRegionOrImageRegionOrLineDrawingRegion();
+			List<TrpRegionType> regions = pageType.getTextRegionOrImageRegionOrLineDrawingRegion();
 			
 			for(RegionType r : regions){
 				if(r instanceof TextRegionType){

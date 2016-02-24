@@ -1,0 +1,13 @@
+<jxb:bindings 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+    version="2.1">
+    
+	<!-- This  binding introduces a middle class between RegionType and its descendants which is used for JAXB customizations on regions -->
+    <jxb:bindings schemaLocation="pagecontent.xsd">
+            <jxb:bindings node="//xs:complexType[@name='RegionType']">
+                <jxb:class implClass="eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType" />
+            </jxb:bindings>
+    </jxb:bindings>
+
+</jxb:bindings>

@@ -16,12 +16,9 @@ import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.itextpdf.text.pdf.PatternColor;
-
-import eu.transkribus.core.model.beans.pagecontent_extension.ITrpShapeType;
-import eu.transkribus.core.model.beans.pagecontent_extension.observable.TrpObserveEvent.TrpTagsChangedEvent;
-import eu.transkribus.core.model.beans.pagecontent_extension.observable.TrpObserveEvent.TrpTagsChangedEvent.Type;
-import eu.transkribus.core.util.CoreUtils;
+import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
+import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpTagsChangedEvent;
+import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpTagsChangedEvent.Type;
 import eu.transkribus.core.util.IntRange;
 import eu.transkribus.core.util.OverlapType;
 

@@ -1,4 +1,4 @@
-package eu.transkribus.core.model.beans.pagecontent_extension;
+package eu.transkribus.core.model.beans.pagecontent_trp;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -380,7 +380,7 @@ public class TrpPageType extends PageType {
 	}
 	
 	public List<TrpTextRegionType> getTextRegions(boolean recursive) {
-		return RegionType.getTextRegions(textRegionOrImageRegionOrLineDrawingRegion, recursive);
+		return TrpRegionType.getTextRegions(textRegionOrImageRegionOrLineDrawingRegion, recursive);
 		
 //		List<TrpTextRegionType> res = new ArrayList<TrpTextRegionType>();
 //				
@@ -450,7 +450,7 @@ public class TrpPageType extends PageType {
 	public void sortRegions() {
 		
 		boolean doSort = false;
-		List<RegionType> regions = getTextRegionOrImageRegionOrLineDrawingRegion();
+		List<TrpRegionType> regions = getTextRegionOrImageRegionOrLineDrawingRegion();
 		
 		//sort only if reading order is not set actually
 		for (int i=0; i<regions.size(); i++) {
@@ -461,15 +461,15 @@ public class TrpPageType extends PageType {
 		}
 		
 		if (doSort){
-			RegionType.sortRegions(regions);
+			TrpRegionType.sortRegions(regions);
 		}
 		
 //		int i=0;
-//		for (RegionType r : getTextRegionOrImageRegionOrLineDrawingRegion()) {
+//		for (TrpRegionType r : getTextRegionOrImageRegionOrLineDrawingRegion()) {
 //			r.setReadingOrder(i++, this);
 //		}
 		for (int i=0; i<textRegionOrImageRegionOrLineDrawingRegion.size(); i++) {
-			RegionType r = (RegionType) textRegionOrImageRegionOrLineDrawingRegion.get(i);
+			TrpRegionType r = (TrpRegionType) textRegionOrImageRegionOrLineDrawingRegion.get(i);
 			if (r.getReadingOrder() == null || !r.getReadingOrder().equals(i)){
 				r.setReadingOrder(i, this);
 			}

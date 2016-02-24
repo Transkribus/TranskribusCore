@@ -11,9 +11,9 @@ import org.slf4j.LoggerFactory;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
 import eu.transkribus.core.model.beans.customtags.CustomTagList;
 import eu.transkribus.core.model.beans.customtags.TextStyleTag;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpPageType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpTextLineType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpTextRegionType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.util.OverlapType;
 
 import org.junit.Assert;

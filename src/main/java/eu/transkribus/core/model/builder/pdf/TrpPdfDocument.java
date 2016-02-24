@@ -1,7 +1,6 @@
 package eu.transkribus.core.model.builder.pdf;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -25,36 +24,27 @@ import java.util.Set;
 import javax.imageio.ImageIO;
 import javax.xml.bind.JAXBException;
 
-import net.sf.saxon.functions.IsWholeNumber;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
 import org.dea.util.pdf.APdfDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.itextpdf.awt.geom.Line2D;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
-import com.itextpdf.text.FontFactory;
-import com.itextpdf.text.FontFactoryImp;
 import com.itextpdf.text.Image;
-import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfContentByte;
-import com.itextpdf.text.pdf.RandomAccessFileOrArray;
-import com.tutego.jrtf.RtfText;
 
 import eu.transkribus.core.model.beans.EdFeature;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.customtags.CommentTag;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
-import eu.transkribus.core.model.beans.customtags.CustomTagAttribute;
 import eu.transkribus.core.model.beans.customtags.CustomTagFactory;
 import eu.transkribus.core.model.beans.customtags.TextStyleTag;
 import eu.transkribus.core.model.beans.pagecontent.BaselineType;
@@ -62,17 +52,17 @@ import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
-import eu.transkribus.core.model.beans.pagecontent.TextStyleType;
 import eu.transkribus.core.model.beans.pagecontent.UnknownRegionType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
-import eu.transkribus.core.model.beans.pagecontent_extension.ITrpShapeType;
-import eu.transkribus.core.model.beans.pagecontent_extension.RegionTypeUtil;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpBaselineType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpElementCoordinatesComparator;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpElementReadingOrderComparator;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpTextLineType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpTextRegionType;
-import eu.transkribus.core.model.beans.pagecontent_extension.TrpWordType;
+import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
+import eu.transkribus.core.model.beans.pagecontent_trp.RegionTypeUtil;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpBaselineType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementCoordinatesComparator;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementReadingOrderComparator;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.model.builder.ExportUtils;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.PageXmlUtils;
@@ -162,7 +152,7 @@ public class TrpPdfDocument extends APdfDocument {
 	    Graphics2D graph = imgBuffer.createGraphics();
 	    graph.setColor(Color.BLACK);
 	    
-		List<RegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 		Collections.sort(regions, new TrpElementCoordinatesComparator<RegionType>());
 		int nrOfTextRegions = 0;
 
@@ -319,7 +309,7 @@ public class TrpPdfDocument extends APdfDocument {
 		cb.beginLayer(ocrLayer);
 		cb.setFontAndSize(bfArial, 32);
 				
-		List<RegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 		Collections.sort(regions, new TrpElementCoordinatesComparator<RegionType>());
 
 		for(RegionType r : regions){
@@ -368,7 +358,7 @@ public class TrpPdfDocument extends APdfDocument {
 		
 		cb.setFontAndSize(bfArial, 10);
 				
-		List<RegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 		Collections.sort(regions, new TrpElementCoordinatesComparator<RegionType>());
 		
 		float textBlockXStart = 0;
@@ -1381,7 +1371,7 @@ public class TrpPdfDocument extends APdfDocument {
 	 * checks if there is at least one text region on the left of the actual one
 	 * But: if text region is completely contained in the other it should not have an effect
 	 */
-	private boolean hasSmallerColumn(List<RegionType> regions, TextRegionType regionToCompare) throws DocumentException, IOException {
+	private boolean hasSmallerColumn(List<TrpRegionType> regions, TextRegionType regionToCompare) throws DocumentException, IOException {
 						
 		float minX = 0;
 		float minY = 0;
