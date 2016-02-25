@@ -718,6 +718,22 @@ public class TrpPdfDocument extends APdfDocument {
 				
 				//compute rotation of text, if rotation higher PI/16 than rotate otherwise even text
 				double rotation = (baseline != null ? computeRotation(baseline) : 0);
+				
+				if(rotation != 0){
+					/*
+					 * if we rotate e.g. 90° than we should use the actual x location of the line
+					 * so vertical text must be treated different than horizontal text 
+					 */
+					if (baseLineRect != null){
+						tmpLineStartX = baseLineRect.x;
+						lineStartY = (float) baseLineRect.getMaxY();
+					}
+					else if(lineRect != null){
+						tmpLineStartX = lineRect.x;
+						lineStartY = (float) lineRect.getMaxY();
+					}
+					
+				}
 
 				//blacken Strings if wanted
 //				Set<Entry<CustomTag, String>> blackSet = CustomTagUtils.getAllTagsOfThisTypeForShapeElement(l, RegionTypeUtil.BLACKENING_REGION.toLowerCase()).entrySet();
