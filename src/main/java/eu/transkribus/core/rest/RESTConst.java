@@ -183,6 +183,8 @@ public final class RESTConst {
 	public static final String HTR_MODEL_NAME_PARAM = "modelName";
 	public static final String WER_PATH = "computeWER";
 	
+	public static final String KWS_SEARCH_PATH = "kwsSearch";
+	
 	//editorial declaration
 	public static final String STORE_EDIT_DECL_FEATURE = "storeEditDeclFeat";
 	public static final String UPDATE_EDIT_DECL_FEATURE = "updateEditDeclFeat";
@@ -221,4 +223,5 @@ public final class RESTConst {
 	public static final String GET_ALL_DOCS_IF_ADMIN_PARAM = "getAllDocsIfAdmin";
 
 	public static final String CHECK_FOR_DUPLICATE_TITLE_PARAM = "checkForDuplicateTitle";
+
 }
