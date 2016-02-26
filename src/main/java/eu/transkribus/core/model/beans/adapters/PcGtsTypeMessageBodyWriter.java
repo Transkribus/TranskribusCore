@@ -1,5 +1,4 @@
-package eu.transkribus.core.model.beans.adapters;
-//package org.dea.transcript.trp.core.model.beans.adapters;
+//package eu.transkribus.core.model.beans.adapters;
 //
 //import java.io.IOException;
 //import java.io.OutputStream;
@@ -18,8 +17,8 @@ package eu.transkribus.core.model.beans.adapters;
 //import javax.xml.bind.JAXBException;
 //import javax.xml.bind.Marshaller;
 //
-//import org.dea.transcript.trp.core.model.beans.pagecontent.ObjectFactory;
-//import org.dea.transcript.trp.core.model.beans.pagecontent.PcGtsType;
+//import eu.transkribus.core.model.beans.pagecontent.ObjectFactory;
+//import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 //
 //@Provider
 //@Produces("application/xml")
