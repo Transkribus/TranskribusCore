@@ -46,13 +46,15 @@ public class CssSyntaxTag {
 //		return StringEscapeUtils.unescapeXml(str);
 	}
 	
+	public final static String CSS_ATTRIBUTE_NAME_STYLE = "[a-zA-Z0-9_\\-]+";
+	
 //	public final static String CSS_ATTRIBUTE_VALUE_STYLE = "([a-zA-Z0-9_\\-.\\\\]+)"; // BUG: what about characters from different alphabets????
 //	public final static String CSS_ATTRIBUTE_VALUE_STYLE = "([\\p{L}0-9\\^\\[\\]_\\-.\\\\ ]+)"; // one more try...
 	public final static String CSS_ATTRIBUTE_VALUE_STYLE = "([^{}:;]+)"; // should work now...
 //	public final static String CSS_ATTRIBUTE_VALUE_STYLE = "\\s*([a-zA-Z0-9_\\-]+)\\s*:\\s*([a-zA-Z0-9_\\-.]+)\\s*;\\s*"; // orig
-	public final static String CSS_ATTRIBUTE_STYLE = "\\s*([a-zA-Z0-9_\\-]+)\\s*:\\s*"+CSS_ATTRIBUTE_VALUE_STYLE+"\\s*;?\\s*";
+	public final static String CSS_ATTRIBUTE_STYLE = "\\s*("+CSS_ATTRIBUTE_NAME_STYLE+")\\s*:\\s*"+CSS_ATTRIBUTE_VALUE_STYLE+"\\s*;?\\s*";
 //	public final static String CSS_ATTRIBUTE_STYLE = "\\s*([a-zA-Z0-9_\\-]+)\\s*:\\s*([a-zA-Z0-9_\\-.]+)\\s*;\\s*";
-	public final static String CSS_STYLE = "\\s*([a-zA-Z0-9_\\-]+)\\s*\\{((\\s*"+CSS_ATTRIBUTE_STYLE+"\\s*)*\\s*)\\}\\s*";
+	public final static String CSS_STYLE = "\\s*("+CSS_ATTRIBUTE_NAME_STYLE+")\\s*\\{((\\s*"+CSS_ATTRIBUTE_STYLE+"\\s*)*\\s*)\\}\\s*";
 		
 	public final static Pattern CSS_ATTRIBUTE_PATTERN = Pattern.compile(CSS_ATTRIBUTE_STYLE, Pattern.UNICODE_CHARACTER_CLASS);
 	public final static Pattern CSS_PATTERN = Pattern.compile(CSS_STYLE);
