@@ -80,6 +80,7 @@ public final class RESTConst {
 	/* Parameters */
 	public static final String DOC_ID_PARAM = "id";
 	public static final String PAGE_NR_PARAM = "page";
+	public static final String TRANSCRIPT_ID_PARAM = "transcriptId";
 	public static final String PAGES_PARAM = "pages";
 	public static final String NR_OF_TRANSCRIPTS_PARAM = "nrOfTranscripts";
 	public static final String STATUS_PARAM = "status";
@@ -93,6 +94,7 @@ public final class RESTConst {
 	public static final String EMAIL_PARAM = "email";
 	public static final String KEY_PARAM = "key";
 	public static final String REF_KEY_PARAM = "ref";
+	public static final String TEI_TAGS_PARAM = "teiTags";
 	
 	public static final String TITLE_PARAM = "title";
 	public static final String DESCRIPTION_PARAM = "descr";
@@ -224,4 +226,5 @@ public final class RESTConst {
 
 	public static final String CHECK_FOR_DUPLICATE_TITLE_PARAM = "checkForDuplicateTitle";
 	public static final String CONFIDENCE_PARAM = "confidence";
+	public static final String TEXT_PATH = "text";
 }

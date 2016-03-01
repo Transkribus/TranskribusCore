@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,6 +14,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,6 +48,10 @@ public class CoreUtils {
 //		System.out.println(tokenizeForCATTI("go,_; - ple\"a[]se ? - \" fuck yourself - 2,000 or 3.000 fuckin' times?"));
 		
 		
+	}
+	
+	public static void scheduleTimerTask(TimerTask task, long delay) {
+		new Timer().schedule(task, delay);
 	}
 	
 	public static <T> void addOrAppend(List<T> list, T element, int index) {
