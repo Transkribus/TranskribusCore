@@ -223,5 +223,5 @@ public final class RESTConst {
 	public static final String GET_ALL_DOCS_IF_ADMIN_PARAM = "getAllDocsIfAdmin";
 
 	public static final String CHECK_FOR_DUPLICATE_TITLE_PARAM = "checkForDuplicateTitle";
-
+	public static final String CONFIDENCE_PARAM = "confidence";
 }
