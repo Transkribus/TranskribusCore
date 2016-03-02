@@ -38,16 +38,39 @@ public class CoreUtils {
 	public final static SimpleDateFormat DATE_FORMAT_USER_FRIENDLY = new SimpleDateFormat(DATE_FORMAT_STR_USER_FRIENDLY);
 	
 	public static void main(String[] args) {
-		String str = "go,_; - ple\"a[]se ? - \" fuck y(our)self - 2,000 or 3.000 fuckin' times?";
-		String tokenized = tokenizeForCATTI(str);
-		String detokenized = detokenizeForCATTI(tokenized);
+		String str = "   go,_; - ple\"a[]se ? - \" f*** y(our)self - 2,000 or 3.000 f****' times?";
+
+		if (false) {
+			String tokenized = tokenizeForCATTI(str);
+			String detokenized = detokenizeForCATTI(tokenized);
+	
+			System.out.println(str);
+			System.out.println(tokenized);
+			System.out.println(detokenized);
+		}
 		
-		System.out.println(str);
-		System.out.println(tokenized);
-		System.out.println(detokenized);
+		if (true) {
+			int N = getNOfRepeatingChars(str, 0, ' ');
+			System.out.println("N = "+N);
+		}
 //		System.out.println(tokenizeForCATTI("go,_; - ple\"a[]se ? - \" fuck yourself - 2,000 or 3.000 fuckin' times?"));
 		
 		
+	}
+	
+	/**
+	 * Counts the number of repeating characters c in a given string str from a starting position startIndex
+	 */
+	public static int getNOfRepeatingChars(String str, int startIndex, char c) {
+		if (str == null)
+			return 0;
+		
+		int count = 0;
+		while (startIndex>= 0 && startIndex < str.length() && str.charAt(startIndex) == c) {
+			++startIndex;
+			++count;
+		}
+		return count;
 	}
 	
 	public static void scheduleTimerTask(TimerTask task, long delay) {
