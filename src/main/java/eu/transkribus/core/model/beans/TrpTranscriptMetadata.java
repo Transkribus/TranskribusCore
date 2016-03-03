@@ -294,7 +294,7 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 		if (getUrl()==null)
 			throw new NullValueException("URL of transcript is null!");
 				
-		return PageXmlUtils.unmarshalFromUrl(getUrl());	
+		return PageXmlUtils.unmarshal(getUrl());	
 	}
 
 //	@Override

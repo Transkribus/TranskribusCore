@@ -116,13 +116,6 @@ public class PageXmlUtils {
 	}
 	
 	/**
-	 * use unmarshal(URL url)
-	 */
-	public static PcGtsType unmarshalFromUrl(URL url) throws JAXBException {
-		return unmarshal(url);
-	}
-	
-	/**
 	 * This method gets called after a PcGtsType was successfully marshalled.
 	 * It is needed e.g. because the {@link TrpPageUnmarshalListener#afterUnmarshal(Object, Object)}
 	 * method is called <em>before</em> idref' are set and thus this information is not available there.
