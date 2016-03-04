@@ -1,5 +1,7 @@
 package eu.transkribus.core.catti;
 
+import java.io.Serializable;
+
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,7 +9,9 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
-public class CattiRequest {
+public class CattiRequest implements Serializable {
+	private static final long serialVersionUID = 8929354184059771278L;
+
 	private final static Logger logger = LoggerFactory.getLogger(CattiRequest.class);
 	
 	int userid;

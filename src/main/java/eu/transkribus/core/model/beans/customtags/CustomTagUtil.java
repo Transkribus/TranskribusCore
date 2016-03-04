@@ -222,6 +222,10 @@ public class CustomTagUtil {
 		
 		shape.getObservable().setChangedAndNotifyObservers(new TrpStructureChangedEvent(who));
 	}
+	
+	public static boolean hasParagraphStructure(ITrpShapeType shape) {
+		return getStructure(shape).equalsIgnoreCase(TextTypeSimpleType.PARAGRAPH.value());
+	}
 		
 	public static String getStructure(ITrpShapeType shape) {
 		if (!isTextregionOrLineOrWord(shape))
