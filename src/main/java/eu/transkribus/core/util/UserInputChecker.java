@@ -60,7 +60,7 @@ public class UserInputChecker {
 	}
 	
 	public static void checkOrcid(String orcid) throws InvalidUserInputException {
-		if(orcid != null && !Pattern.matches(ORCID_PATTERN, orcid)){
+		if(orcid != null && !orcid.isEmpty() && !Pattern.matches(ORCID_PATTERN, orcid)){
 			logger.debug("ORCID does not match pattern: "+orcid);
 			throw new InvalidUserInputException("ORCID is not valid!");			
 		}
