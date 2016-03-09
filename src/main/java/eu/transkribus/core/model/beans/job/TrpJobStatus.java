@@ -18,6 +18,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.model.beans.enums.Task;
 import eu.transkribus.core.util.CoreUtils;
 
 //public class TrpJob extends ATrpJob {
@@ -106,6 +107,9 @@ public class TrpJobStatus implements Serializable {
 	@XmlTransient
 	@Column
 	private Integer session_history_id;
+	
+	@Column
+	private Task task;
 
 //	private Future<?> future = null;
 
@@ -124,11 +128,11 @@ public class TrpJobStatus implements Serializable {
 //		this(jobId, docId, pageNr, userId, userName, type, null, null);
 //	}
 	
-	public TrpJobStatus(String jobId, int docId, int pageNr, int userId, String userName, String type, Integer session_history_id) {
-		this(jobId, docId, pageNr, userId, userName, type, null, session_history_id);
+	public TrpJobStatus(String jobId, int docId, int pageNr, int userId, String userName, String type, Integer session_history_id, Task task) {
+		this(jobId, docId, pageNr, userId, userName, type, null, session_history_id, task);
 	}
 	
-	public TrpJobStatus(String jobId, int docId, int pageNr, int userId, String userName, String type, String jobData, Integer session_history_id) {
+	public TrpJobStatus(String jobId, int docId, int pageNr, int userId, String userName, String type, String jobData, Integer session_history_id, Task task) {
 		this.jobId = jobId;
 		this.docId = docId;
 		this.userId = userId;
@@ -139,6 +143,7 @@ public class TrpJobStatus implements Serializable {
 		this.createTime = System.currentTimeMillis();
 		this.jobData = jobData;
 		this.session_history_id = session_history_id;
+		this.task = task;
 	}
 	
 	public void copy(TrpJobStatus other) {
@@ -315,6 +320,14 @@ public class TrpJobStatus implements Serializable {
 		this.session_history_id = session_history_id;
 	}
 
+	public Task getTask(){
+		return this.task;
+	}
+	
+	public void setTask(Task task){
+		this.task = task;
+	}
+	
 	public boolean isActiveOnPage(int pageNr) {
 		if (this.pageNr == -1) {
 			if (jobData == null)
