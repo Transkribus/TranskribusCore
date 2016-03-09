@@ -57,7 +57,7 @@
 		</dependency>
 		<dependency>
 			<groupId>eu.transkribus</groupId>
-			<artifactId>interfaces</artifactId>
+			<artifactId>TranskribusInterfaces</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
