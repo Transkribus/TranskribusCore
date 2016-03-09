@@ -134,9 +134,8 @@ public class CoreUtils {
 		return buf.toString();
 	}
 	
-	public static int indexOf(String txt, String regex, int startOffset, boolean previous, boolean caseSensitive, boolean wholeWord) {
-		String searchStr = new String(regex);
-		
+	public static int indexOf(String txt, String searchStr, int startOffset, boolean previous, boolean caseSensitive, boolean wholeWord) {
+		searchStr = Pattern.quote(searchStr);
 		if (wholeWord) {
 			searchStr = "\\b"+searchStr+"\\b";
 		}
