@@ -1,6 +1,5 @@
 package eu.transkribus.core.model.beans.pagecontent_trp;
 
-import java.awt.Polygon;
 import java.util.Collections;
 import java.util.List;
 
@@ -9,9 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpTextChangedEvent;
-import eu.transkribus.core.util.PageXmlUtils;
 import eu.transkribus.core.util.SebisStopWatch;
-import eu.transkribus.interfaces.types.Region;
 
 public class TrpShapeTypeUtils {
 	private final static Logger logger = LoggerFactory.getLogger(TrpShapeTypeUtils.class);
@@ -73,14 +70,6 @@ public class TrpShapeTypeUtils {
 					st.getObservable().setActive(true);
 			}
 		}
-	}
-	
-	public static Region toRegion(ITrpShapeType s){
-		String[] properties = {};
-		//TODO set properties
-		String coordsStr = s.getCoordinates();
-		Polygon poly = PageXmlUtils.buildPolygon(coordsStr);
-		return new Region(poly, properties);
 	}
 	
 //	public static void reinsertIntoParent(ITrpShapeType shape) {
