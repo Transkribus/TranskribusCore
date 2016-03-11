@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,6 +57,23 @@ public class CoreUtils {
 //		System.out.println(tokenizeForCATTI("go,_; - ple\"a[]se ? - \" fuck yourself - 2,000 or 3.000 fuckin' times?"));
 		
 		
+	}
+	
+	/**
+	 * returns string representation of a url. if url is a file, the platform specific path 
+	 * is returned i.e. c:\whatever\path\file.jpg instead of file:/c:/whatever/path/file.jpg\n
+	 *  for a null input url, an empty string is returned
+	 */
+	public static String urlToString(URL url) {
+		if (url != null) {
+			File imgFile = FileUtils.toFile(url);
+			if (imgFile!=null)
+				return imgFile.getAbsolutePath();
+			else
+				return url.toString();
+		}
+		
+		return "";
 	}
 	
 	/**
