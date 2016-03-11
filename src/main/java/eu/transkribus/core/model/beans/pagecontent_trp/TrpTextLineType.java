@@ -484,6 +484,8 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	
 	@Override public void setStructure(String structureType, boolean recursive, Object who) {
 		CustomTagUtil.setStructure(this, structureType, recursive, who);
+		if (!recursive)
+			CustomTagUtil.setStructure((TrpBaselineType) getBaseline(), structureType, recursive, who);
 	}
 	
 	@Override public String getStructure() {

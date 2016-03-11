@@ -331,8 +331,13 @@ public class TrpRegionType extends RegionType implements ITrpShapeType {
 	public void setTextStyle(TextStyleType s, boolean recursive, Object who) { }
 	@Override public TextStyleType getTextStyle() { return null; }
 	
-	@Override public void setStructure(String structureType, boolean recursive, Object who) { }
-	@Override public String getStructure() { return ""; }
+	@Override public void setStructure(String structureType, boolean recursive, Object who) {
+		CustomTagUtil.setStructure(this, structureType, recursive, who);
+	}
+	
+	@Override public String getStructure() {
+		return CustomTagUtil.getStructure(this);
+	}
 	
 	@Override public void translate(int x, int y) throws Exception { 
 		setCoordinates(PrimaUtils.translatePoints(getCoordinates(), x, y), this);

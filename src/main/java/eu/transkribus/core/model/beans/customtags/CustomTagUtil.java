@@ -15,6 +15,7 @@ import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextTypeSimpleType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
 import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpBaselineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
@@ -197,16 +198,19 @@ public class CustomTagUtil {
 	}
 	
 	public static void setStructure(ITrpShapeType shape, String structureType, boolean recursive, Object who) {
+		if (shape == null)
+			return;
+		
 		logger.debug("setting structure: "+structureType+" id: "+shape.getId()+" type: "+shape.getClass().getSimpleName()+" recursive: "+recursive);
 		
 		if (!isTextregionOrLineOrWord(shape))
 			return;
 		
-		if (shape instanceof TrpTextRegionType) { // if this is a region, also set PAGE structure field if possible
+		if (shape instanceof TrpTextRegionType) { // if this is a text region, also set PAGE structure field if possible
 			TextTypeSimpleType s = StructureTag.parseTextType(structureType);
-			((TrpTextRegionType) shape).setType(s);				
+			((TrpTextRegionType) shape).setType(s);	
 		}
-		
+						
 		// set custom tag:
 		if (structureType == null || structureType.equals(""))
 			shape.getCustomTagList().removeTags(StructureTag.TAG_NAME);
@@ -236,7 +240,7 @@ public class CustomTagUtil {
 			if (tt != null)
 				return tt.value();
 		}
-		
+				
 		StructureTag t = shape.getCustomTagList().getNonIndexedTag(StructureTag.TAG_NAME);
 		return t==null ? "" : t.getType();
 	}

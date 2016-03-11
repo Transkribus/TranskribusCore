@@ -150,8 +150,16 @@ public class TrpBaselineType extends BaselineType implements ITrpShapeType {
 	@Override public void addTextStyleTag(TextStyleTag s, String addOnlyThisProperty, /*boolean recursive,*/ Object who) {}
 	@Override public List<TextStyleTag> getTextStyleTags() { return new ArrayList<>(); }	
 	
-	@Override public void setStructure(String s, boolean recursive, Object who) {}
-	@Override public String getStructure() { return ""; }
+	@Override public void setStructure(String structureType, boolean recursive, Object who) {
+		CustomTagUtil.setStructure(this, structureType, recursive, who);
+		if (!recursive)
+			CustomTagUtil.setStructure(getLine(), structureType, false, who);
+	}
+	
+	@Override public String getStructure() {
+		return CustomTagUtil.getStructure(getLine());
+//		return CustomTagUtil.getStructure(this);
+	}
 	
 	@Override public String getCustom() { return null; }
 	@Override public void setCustom(String custom) {}
