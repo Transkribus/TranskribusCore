@@ -8,7 +8,8 @@ public enum EditStatus {
 //	RETAINED,
 	DONE(2, "Done"),
 //	APPROVED,
-	FINAL(Integer.MAX_VALUE, "Final");
+	FINAL(3, "Final"),
+	GT(Integer.MAX_VALUE, "Ground Truth");
 	
 	int value=Integer.MIN_VALUE;
 	String str=null;
