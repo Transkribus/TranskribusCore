@@ -1,6 +1,6 @@
-package eu.transkribus.core.model.beans.enums;
+package eu.transkribus.core.model.beans.job.enums;
 
-public enum Task {
+public enum JobType {
 	layoutAnalysis,
 	utility,
 	recognition;

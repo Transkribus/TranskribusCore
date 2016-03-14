@@ -18,7 +18,8 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.transkribus.core.model.beans.enums.Task;
+import eu.transkribus.core.model.beans.job.enums.JobImpl;
+import eu.transkribus.core.model.beans.job.enums.JobType;
 import eu.transkribus.core.util.CoreUtils;
 
 //public class TrpJob extends ATrpJob {
@@ -108,8 +109,8 @@ public class TrpJobStatus implements Serializable {
 	@Column
 	private Integer session_history_id;
 	
-	@Column
-	private Task task;
+	@Column(name="JOB_IMPL")
+	private JobImpl jobImpl;
 
 //	private Future<?> future = null;
 
@@ -128,11 +129,11 @@ public class TrpJobStatus implements Serializable {
 //		this(jobId, docId, pageNr, userId, userName, type, null, null);
 //	}
 	
-	public TrpJobStatus(String jobId, int docId, int pageNr, int userId, String userName, String type, Integer session_history_id, Task task) {
-		this(jobId, docId, pageNr, userId, userName, type, null, session_history_id, task);
+	public TrpJobStatus(String jobId, int docId, int pageNr, int userId, String userName, String type, Integer session_history_id, JobImpl impl) {
+		this(jobId, docId, pageNr, userId, userName, type, null, session_history_id, impl);
 	}
 	
-	public TrpJobStatus(String jobId, int docId, int pageNr, int userId, String userName, String type, String jobData, Integer session_history_id, Task task) {
+	public TrpJobStatus(String jobId, int docId, int pageNr, int userId, String userName, String type, String jobData, Integer session_history_id, JobImpl impl) {
 		this.jobId = jobId;
 		this.docId = docId;
 		this.userId = userId;
@@ -143,7 +144,7 @@ public class TrpJobStatus implements Serializable {
 		this.createTime = System.currentTimeMillis();
 		this.jobData = jobData;
 		this.session_history_id = session_history_id;
-		this.task = task;
+		this.jobImpl = impl;
 	}
 	
 	public void copy(TrpJobStatus other) {
@@ -163,6 +164,7 @@ public class TrpJobStatus implements Serializable {
 	    this.resumable = other.resumable;
 	    this.className = other.className;
 	    this.session_history_id = other.session_history_id;
+	    this.jobImpl = other.jobImpl;
 //	    this.future = trpJobStatus.future;
 	}
 	
@@ -320,12 +322,12 @@ public class TrpJobStatus implements Serializable {
 		this.session_history_id = session_history_id;
 	}
 
-	public Task getTask(){
-		return this.task;
+	public JobImpl getJobImpl(){
+		return this.jobImpl;
 	}
 	
-	public void setTask(Task task){
-		this.task = task;
+	public void setJobImpl(JobImpl jobImpl){
+		this.jobImpl = jobImpl;
 	}
 	
 	public boolean isActiveOnPage(int pageNr) {
