@@ -1,10 +1,13 @@
 package eu.transkribus.core.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple class that encodes pairs of (offset, length) values
  */
 public class IntRange {
+	private final static Logger logger = LoggerFactory.getLogger(IntRange.class);
 	
 	public int offset=0;
 	public int length=0;
@@ -62,14 +65,37 @@ public class IntRange {
 	 * @return {@link OverlapType}
 	 */
 	public OverlapType getOverlapType(int o, int l) {
-		if (l==0 && length==0) { // special case of zero length in/out ranges
-			if (o==offset)
-				return OverlapType.INSIDE;
+//		if (l==0 && length==0) { // special case of zero length in/out ranges
+//			if (o==offset)
+//				return OverlapType.INSIDE;
+//			else
+//				return OverlapType.NONE;
+//		}
+		
+		int e = o + l; // non-inclusive end-index
+		
+		// overlap when one of the ranges is zero-length: 
+		if (l==0 || length==0) {
+			// if this tag is empty or both tags are empty, type is inside, else both... do we need this distincation?? probably not... replace by INSIDE then...
+			OverlapType type = null;
+//			if (l==0 && length==0)
+//				type = OverlapType.INSIDE;
+//			else if (length==0 && l==0)
+//				type = OverlapType.INSIDE;
+//			else
+//				type = OverlapType.BOTH;
+			
+			type = OverlapType.INSIDE;
+						
+			if (o < offset && e >= offset)
+				return type;
+			else if (o >= offset && o <= getEnd())
+				return type;
 			else
 				return OverlapType.NONE;
 		}
 		
-		int e = o + l; // non-inclusive end-index
+		// overlap when both ranges are non-zero-length:
 		if (o < offset) {
 			if (e <= offset)
 				return OverlapType.NONE;
@@ -78,9 +104,7 @@ public class IntRange {
 			else
 				return OverlapType.BOTH;
 		} else {
-//			if (length==0 && o<=getEnd())
-//				return OverlapType.INSIDE;
-			if (length>0 && o >= getEnd())
+			if (o >= getEnd())
 				return OverlapType.NONE;
 			else if (e <= getEnd())
 				return OverlapType.INSIDE;
