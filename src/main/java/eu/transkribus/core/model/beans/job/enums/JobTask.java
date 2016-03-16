@@ -15,14 +15,14 @@ public enum JobTask {
 	Ocr(JobType.recognition, "Optical Character Recognition");
 	
 	private JobType type;
-	private String name;
+	private String label;
 	JobTask(JobType type, String name){
 		this.type = type;
-		this.name = name;
+		this.label = name;
 	}
 	
-	public String getName(){
-		return name;
+	public String getLabel(){
+		return label;
 	}
 	
 	public JobType getJobType(){
