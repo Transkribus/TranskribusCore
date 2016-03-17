@@ -415,13 +415,13 @@ public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {
 	
 	@Override public TextStyleType getTextStyle() { return textStyle; }
 	
-	@Override public void setStructure(String structureType, boolean recursive, Object who) {
-		CustomTagUtil.setStructure(this, structureType, recursive, who);
-	}
-	
-	@Override public String getStructure() {
-		return CustomTagUtil.getStructure(this);
-	}
+//	@Override public void setStructure(String structureType, boolean recursive, Object who) {
+//		CustomTagUtil.setStructure(this, structureType, recursive, who);
+//	}
+//	
+//	@Override public String getStructure() {
+//		return CustomTagUtil.getStructure(this);
+//	}
 	
 //	@Override public void translate(int x, int y) throws Exception { 
 //		setCoordinates(PrimaUtils.translatePoints(getCoordinates(), x, y), this);

@@ -755,15 +755,19 @@ public class CustomTagList {
 		// delete tags in edit-range:
 		deleteTagsInRange(start, end - start, false);
 
+		// adjust indices according to edit position:
 		final int adjust = -(end - start) + replacement.length();
-		// adjust indices:
 		for (CustomTag t : tags) {
 			if (!t.isIndexed())
 				continue;
 
-			if (t.getOffset() < start && t.getEnd() > start) {
+			if (t.getOffset() < start && t.getEnd() > start) { // edit on right side of tag start
 				t.setLength(t.getLength() + adjust);
-			} else if (t.getOffset() >= start) {
+			}
+			else if (t.getOffset() == start && !t.isEmpty()) { // edit on tag start -> exclude empty tags to prevent copying of them!
+				t.setOffset(t.getOffset() + adjust);
+			}
+			else if (t.getOffset() > start) { // edit on left side of tag start
 				t.setOffset(t.getOffset() + adjust);
 			}
 		}
@@ -801,6 +805,11 @@ public class CustomTagList {
 			return;
 
 		List<CustomTag> overlapping = getOverlappingTags(null, offset, length);
+		
+		logger.debug("overlapping tags are: "+overlapping.size());
+		for (CustomTag t : overlapping) {
+			logger.debug("t = "+t);
+		}
 
 		IntRange range = new IntRange(offset, length);
 
@@ -834,7 +843,7 @@ public class CustomTagList {
 				right.setLength(overlapTag.getEnd() - range.getEnd());
 				break;
 			case NONE:
-				throw new RuntimeException("Fatal error: tag overlap cannot be == NONE here!");
+				throw new RuntimeException("Fatal error: tag overlap cannot be == NONE here, overlapTag = "+overlapTag);
 			}
 
 			// remove the overlapTag and add the left and right overlaps if
@@ -883,6 +892,7 @@ public class CustomTagList {
 	 */
 	public List<CustomTag> getOverlappingTags(String tagName, int offset, int length) {
 		List<CustomTag> overlapping = new ArrayList<>();
+		
 		for (CustomTag st : tags) {
 			if (!st.isIndexed())
 				continue;
