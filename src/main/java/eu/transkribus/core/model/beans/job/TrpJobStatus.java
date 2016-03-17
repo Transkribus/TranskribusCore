@@ -1,5 +1,6 @@
 package eu.transkribus.core.model.beans.job;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -289,9 +290,21 @@ public class TrpJobStatus implements Serializable {
 	public String getJobData() {
 		return jobData;
 	}
-
+	
+	public Properties getJobDataProps(){
+		try {
+			return CoreUtils.readPropertiesFromString(jobData);
+		} catch (IOException e) {
+			return new Properties();
+		}
+	}
+	
 	public void setJobData(String jobData) {
 		this.jobData = jobData;
+	}
+	
+	public void setJobData(Properties jobData) {
+		this.jobData = CoreUtils.writePropertiesToString(jobData);
 	}
 
 	public boolean isResumable() {
