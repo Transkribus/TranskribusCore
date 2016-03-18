@@ -9,6 +9,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -127,16 +128,18 @@ public class CoreUtils {
 	 * Generates a comma separated list string out of the given collection, e.g. (2,4,2,1)
 	 */
 	public static String toListString(Collection<?> list) {
-		String str = "(";
-		for (Object o : list) {
-			str += o+",";
-		}
-		str = StringUtils.removeEnd(str, ",");
+		return "("+StringUtils.join(list)+")";
 		
-		str += ")";
-		return str;
+//		String str = "(";
+//		for (Object o : list) {
+//			str += o+",";
+//		}
+//		str = StringUtils.removeEnd(str, ",");
+//		
+//		str += ")";
+//		return str;
 	}
-	
+		
 	public static String removeFileTypeFromUrl(String urlStr) {
 		StringBuffer buf = new StringBuffer(urlStr);
 		int s = urlStr.indexOf("&fileType=");
@@ -432,7 +435,7 @@ public class CoreUtils {
 		}
 		return pi;
 	}
-	
+			
 	/**
 	 * Returns a string of comma seperated ranges (starting from 1) indicating which values are true in the given list.
 	 */
