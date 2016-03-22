@@ -16,8 +16,10 @@ public enum JobImpl {
 	
 	HmmHtrJob(JobTask.Htr, "HMM " + JobTask.Htr.getLabel(), "HtrJob"),
 	HmmHtrTrainingJob(JobTask.HtrTraining, "HMM " + JobTask.HtrTraining.getLabel(), "HtrTrainingJob"),
-	FinereaderOcrJob(JobTask.Ocr, JobTask.Ocr.getLabel(), "OcrJob");
+	FinereaderOcrJob(JobTask.Ocr, JobTask.Ocr.getLabel(), "OcrJob"),
 	
+	//for testing
+	DummyJob(JobTask.CreateDocument, "Dummy Job", "DummyJob");
 	
 	private JobTask task;
 	private String label;

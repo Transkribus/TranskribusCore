@@ -85,7 +85,7 @@ public class LocalDocReader {
 	private final static Logger logger = LoggerFactory.getLogger(LocalDocReader.class);
 
 
-	public static TrpDoc load(final String path) throws IOException, UnsupportedFormatException {
+	public static TrpDoc load(final String path) throws IOException {
 		return load(path, true, true, false, true);
 	}
 	
@@ -96,7 +96,7 @@ public class LocalDocReader {
 	 * @throws IOException
 	 * @throws UnsupportedFormatException
 	 */
-	public static TrpDoc load(final String path, boolean forceCreatePageXml) throws IOException, UnsupportedFormatException {
+	public static TrpDoc load(final String path, boolean forceCreatePageXml) throws IOException {
 		return load(path, true, true, false, forceCreatePageXml);
 	}
 	
@@ -125,7 +125,7 @@ public class LocalDocReader {
 	 * @throws IOException
 	 * @throws WrongPageFormatVersionException
 	 */
-	public static TrpDoc load(final String path, boolean preserveOcrTxtStyles, boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml) throws IOException, UnsupportedFormatException {
+	public static TrpDoc load(final String path, boolean preserveOcrTxtStyles, boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml) throws IOException {
 		//check OS and adjust URL protocol
 		final String os = System.getProperty("os.name");
 		if (os.toLowerCase().contains("win")) {
