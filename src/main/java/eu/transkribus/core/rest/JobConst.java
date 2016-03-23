@@ -20,6 +20,7 @@ public class JobConst {
 	public static final String PROP_SESSION_ID = "sessionId";
 	public static final String PROP_COLLECTION_ID = "colId";
 	public static final String PROP_TITLE = "title";
+	public static final String PROP_TRANSCRIPT_ID = "transcriptId";
 	
 	public static final String PROP_STATE = "state";
 	public static final String PROP_MODELNAME = "modelName";

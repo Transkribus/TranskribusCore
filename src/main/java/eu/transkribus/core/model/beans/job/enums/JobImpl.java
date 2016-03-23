@@ -9,10 +9,10 @@ public enum JobImpl {
 	DuplicateDocumentJob(JobTask.DuplicateDocument, JobTask.DuplicateDocument.getLabel(), "DuplicateDocJob"),
 	DeleteDocJob(JobTask.DeleteDocument, JobTask.DeleteDocument.getLabel(), "DeleteDocJob"),
 	
-	NcsrDetectBaselinesJob(JobTask.DetectBaselines, JobTask.DetectBaselines.getLabel(), "DetectBaselinesJob"),
-	NcsrDetectLinesJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LineSegmentationJob"),
-	NcsrDetectBlocksJob(JobTask.DetectBlocks, JobTask.DetectBlocks.getLabel(), "BlockSegmentationJob"),
-	NcsrDetectWordsJob(JobTask.DetectWords, JobTask.DetectWords.getLabel(), "WordSegmentationJob"),
+	NcsrDetectBaselinesJob(JobTask.DetectBaselines, JobTask.DetectBaselines.getLabel(), "NcsrDetectBaselinesJob"),
+	NcsrDetectLinesJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "NcsrDetectLinesJob"),
+	NcsrDetectBlocksJob(JobTask.DetectBlocks, JobTask.DetectBlocks.getLabel(), "NcsrDetectBlocksJob"),
+	NcsrDetectWordsJob(JobTask.DetectWords, JobTask.DetectWords.getLabel(), "NcsrDetectWordsJob"),
 	
 	HmmHtrJob(JobTask.Htr, "HMM " + JobTask.Htr.getLabel(), "HtrJob"),
 	HmmHtrTrainingJob(JobTask.HtrTraining, "HMM " + JobTask.HtrTraining.getLabel(), "HtrTrainingJob"),
