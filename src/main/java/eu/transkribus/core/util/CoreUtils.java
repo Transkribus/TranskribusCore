@@ -40,7 +40,7 @@ public class CoreUtils {
 	public final static SimpleDateFormat DATE_FORMAT_USER_FRIENDLY = new SimpleDateFormat(DATE_FORMAT_STR_USER_FRIENDLY);
 	
 	public static void main(String[] args) {
-		String str = "   go,_; - ple\"a[]se ? - \" f*** y(our)self - 2,000 or 3.000 f****' times?";
+		String str = " Gregor S,_;amsa wacht eines M\"orgens auf u[]nd stellt fe(st, dass er „zu) einem ungeheueren 2,000 Ungeziefer verwandelt“ wurde 3.000";
 
 		if (false) {
 			String tokenized = tokenizeForCATTI(str);
@@ -54,9 +54,7 @@ public class CoreUtils {
 		if (true) {
 			int N = getNOfRepeatingChars(str, 0, ' ');
 			System.out.println("N = "+N);
-		}
-//		System.out.println(tokenizeForCATTI("go,_; - ple\"a[]se ? - \" fuck yourself - 2,000 or 3.000 fuckin' times?"));
-		
+		}		
 		
 	}
 	

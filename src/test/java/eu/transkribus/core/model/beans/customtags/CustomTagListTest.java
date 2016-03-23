@@ -109,12 +109,22 @@ public class CustomTagListTest /*extends CustomTagList*/ {
 			logger.error(ie.getMessage(), ie);
 		}		
 		
+//		for (CustomTag t : tl.getTags()) {
+//			System.out.println("t = "+t);
+//		}
+		
 		logger.trace("checking integrity of customtaglist at each position!");
 		Set<String> tagNames = tl.getIndexedTagNames();
 		for (int i=0; i<tl.getTextLength(); ++i) {
 			for (String tn : tagNames) {
+//				System.out.println("tn = "+tn);
 				List<CustomTag> tagsAtOffset = tl.getOverlappingTags(tn, i, 0);
-				Assert.assertTrue("More than one tag at a single selection: "+i+", n = "+tagsAtOffset.size(), tagsAtOffset.size()<=1);
+				Assert.assertTrue("More than two tags with same name at a single selection: "+i+", n = "+tagsAtOffset.size(), tagsAtOffset.size()<=2); // !!!!
+				if (tagsAtOffset.size() == 2) {
+					Assert.assertTrue("Two tags with same name at a single selection but not in a series: "+tagsAtOffset.get(0)+" - "+tagsAtOffset.get(1),
+							tagsAtOffset.get(0).getEnd() == tagsAtOffset.get(1).getOffset());
+					
+				}
 			}
 		}
 	}

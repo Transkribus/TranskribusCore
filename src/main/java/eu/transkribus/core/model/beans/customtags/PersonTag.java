@@ -10,6 +10,7 @@ public class PersonTag extends CustomTag {
 			new CustomTagAttribute("lastname", true, "Firstname", "The lastname of the person"),
 			new CustomTagAttribute("dateOfBirth", true, "Date of Birth", ""),
 			new CustomTagAttribute("dateOfDeath", true, "Date of Death", ""),
+			new CustomTagAttribute("occupation", true, "Occupation", ""),
 			new CustomTagAttribute("notice", true, "Notice", ""),
 	};
 	
@@ -17,6 +18,7 @@ public class PersonTag extends CustomTag {
 	
 	String firstname, lastname;
 	String dateOfBirth, dateOfDeath;
+	String occupation;
 	String notice;
 
 	public PersonTag() {
@@ -74,6 +76,14 @@ public class PersonTag extends CustomTag {
 	public void setNotice(String notice) {
 		this.notice = notice;
 	}
+	
+	public String getOccupation() {
+		return occupation;
+	}
+
+	public void setOccupation(String occupation) {
+		this.occupation = occupation;
+	}
 
 	@Override protected void reset(boolean withIndices) {
 		super.reset(withIndices);
@@ -87,7 +97,7 @@ public class PersonTag extends CustomTag {
 	@Override public boolean isDeleteable() {
 		return false;
 	}
-	
+
 	@Override public boolean showInTagWidget() { return true; }
 //	@Override public boolean canAddAttribute() { return false; }
 	

@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 
 /** A simple stopwatch */
 public class SebisStopWatch {
-	public static SebisStopWatch SW = new SebisStopWatch(); 
+	public static final SebisStopWatch SW = new SebisStopWatch(); 
 	
 	long start = 0, diff = 0;
 	String name="";
