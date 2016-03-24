@@ -2,8 +2,11 @@ package eu.transkribus.core.model.beans.customtags;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -351,6 +354,14 @@ public class CustomTagFactory {
 	}
 	
 	public static Set<String> getRegisteredTagNames() { return registry.keySet(); }
+	
+	public static List<String> getRegisteredTagNamesSorted() {
+		List<String> tags = new ArrayList<>();
+		tags.addAll(getRegisteredTagNames());
+		Collections.sort(tags);
+		return tags;
+	}
+	
 	public static Collection<CustomTag> getRegisteredTagObjects() { return objectRegistry.values(); }
 //	public static Map<String, CustomTag> getRegisteredObjects() { return objectRegistry; } 
 	
