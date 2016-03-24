@@ -61,6 +61,7 @@ import org.docx4j.wml.P;
 import org.docx4j.wml.PPr;
 import org.docx4j.wml.ParaRPr;
 import org.docx4j.wml.RPr;
+import org.docx4j.wml.RStyle;
 import org.docx4j.wml.STBrType;
 import org.docx4j.wml.STVerticalAlignRun;
 import org.docx4j.wml.Style;
@@ -83,10 +84,12 @@ import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
+import eu.transkribus.core.model.beans.customtags.AbbrevTag;
 import eu.transkribus.core.model.beans.customtags.CommentTag;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
 import eu.transkribus.core.model.beans.customtags.CustomTagList;
 import eu.transkribus.core.model.beans.customtags.TextStyleTag;
+import eu.transkribus.core.model.beans.customtags.UnclearTag;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextStyleType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
@@ -106,6 +109,8 @@ public class DocxBuilder {
 	TrpDoc doc;
 	static boolean exportTags = true;
 	static boolean doBlackening = true;
+	static boolean markUnclearWords = false;
+	static boolean expandAbbrevs = false;
 	
 	//static Map<CustomTag, String> tags = new HashMap<CustomTag, String>();
 	static Set<String> tagnames = new HashSet<String>();
@@ -245,10 +250,12 @@ public class DocxBuilder {
 //		System.out.println("Done.");
 	}
 	
-	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackening, File file, Set<Integer> pageIndices, IProgressMonitor monitor, Set<String> selectedTags, boolean createTitle) throws JAXBException, IOException, Docx4JException {
+	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackening, File file, Set<Integer> pageIndices, IProgressMonitor monitor, Set<String> selectedTags, boolean createTitle, boolean markUnclear, boolean expandAbbreviations) throws JAXBException, IOException, Docx4JException {
 		
 		exportTags = writeTags;
 		tagnames = selectedTags;
+		markUnclearWords = markUnclear;
+		expandAbbrevs = expandAbbreviations;
 		
 		/*
 		 * get all names of tags
@@ -604,9 +611,19 @@ public class DocxBuilder {
 		String textStr = element.getUnicodeText();
 		CustomTagList cl = element.getCustomTagList();
 		
+		//Todo: add lists for abbrev tag: abbrev(expansion) and for unclear: [Beispiel]
+		
 		//contains all gap offsets
 		ArrayList<Integer> gapList = new ArrayList<Integer>();
 		LinkedHashMap<Integer, String> commentList = new LinkedHashMap<Integer, String>();
+		
+		//unclear list contains unclear begin as key and unclear end as value
+		HashMap<Integer, Integer> unclearList = new HashMap<Integer, Integer>();
+		
+		//Integer used for storing the offset: this is where the abbrev ends resp. (expansion) starts, and String contains the 'expansion' itself
+		LinkedHashMap<Integer, String> abbrevList = new LinkedHashMap<Integer, String>();
+		
+		
 		
 		if (textStr == null || cl == null)
 			throw new IOException("Element has no text or custom tag list: "+element+", class: "+element.getClass().getName());
@@ -629,11 +646,19 @@ public class DocxBuilder {
 				gapList.add(nonIndexedTag.getOffset());
 			}
 			
-			if (nonIndexedTag.getTagName().equals("comment")){
-				logger.debug("nonindexed comment tag found ");
-				CommentTag ct = (CommentTag) nonIndexedTag;
-				commentList.put(nonIndexedTag.getEnd()-1, ct.getComment());
-			}
+			//unclear and comments can not be non-indexed
+			
+//			if (nonIndexedTag.getTagName().equals("comment")){
+//				logger.debug("nonindexed comment tag found ");
+//				CommentTag ct = (CommentTag) nonIndexedTag;
+//				commentList.put(nonIndexedTag.getEnd()-1, ct.getComment());
+//			}
+
+//			if(nonIndexedTag.getTagName().equals("unclear")){
+//				logger.debug("unclear tag found ");
+//				unclearList.put(nonIndexedTag.getOffset(), nonIndexedTag.getOffset()+nonIndexedTag.getLength());
+//			}
+			
 			
 		}
 		for (CustomTag indexedTag : cl.getIndexedTags()) {
@@ -653,6 +678,25 @@ public class DocxBuilder {
 				CommentTag ct = (CommentTag) indexedTag;
 				commentList.put(indexedTag.getEnd()-1, ct.getComment());
 			}
+			
+			//if(exportTags){
+			if(markUnclearWords && indexedTag.getTagName().equals("unclear")){
+				logger.debug("unclear tag found ");
+				unclearList.put(indexedTag.getOffset(), indexedTag.getEnd()-1);
+			}
+			
+			if(expandAbbrevs && indexedTag.getTagName().equals("abbrev")){
+				logger.debug("abbrev tag found ");
+				AbbrevTag at = (AbbrevTag) indexedTag;
+				String expansion = at.getExpansion();
+				//only add if an expansion was typed
+				if (!expansion.equals("")){
+					abbrevList.put(indexedTag.getEnd(), at.getExpansion());
+				}
+			}
+			//}
+			
+			
 		}
 		
 		
@@ -661,6 +705,18 @@ public class DocxBuilder {
 		//ArrayList<R> runs = new ArrayList<R>();
 		
 		for (int i=0; i<textStr.length(); ++i) {
+			
+			//add expansion in brackets behind the abbrev
+			if(abbrevList.containsKey(i)){
+				String exp = abbrevList.get(i);
+				
+				org.docx4j.wml.Text  t = factory.createText();
+				t.setValue("("+exp+")");
+				
+				org.docx4j.wml.R  run = factory.createR();
+				p.getContent().add(run);
+				run.getContent().add(t);
+			}
 
 			/*
 			 * gap is at this position
@@ -676,14 +732,35 @@ public class DocxBuilder {
 				run.getContent().add(t);
 			}
 			
+			//begin of unclear word should be marked with [ and end with ]
+			if(unclearList.containsKey(i)){
+				org.docx4j.wml.Text  t = factory.createText();
+				t.setValue("[");
+				
+				org.docx4j.wml.R  run = factory.createR();
+				p.getContent().add(run);
+				run.getContent().add(t);
+			}
+			
 			org.docx4j.wml.Text  t = factory.createText();
 			t.setValue(textStr.substring(i, i+1));
 			t.setSpace("preserve");
 			
 			org.docx4j.wml.R  run = factory.createR();
 			p.getContent().add(run);
-			run.getContent().add(t);				
+			run.getContent().add(t);
 			
+			//end of unclear tag
+			if(unclearList.containsValue(i)){
+				org.docx4j.wml.Text unclearEnd = factory.createText();
+				unclearEnd.setValue("]");
+				
+				org.docx4j.wml.R  unclearRun = factory.createR();
+				p.getContent().add(unclearRun);
+				run.getContent().add(unclearEnd);
+			}
+
+			//the properties of this text section
 			org.docx4j.wml.RPr rpr = factory.createRPr();
 						
 			/*
@@ -754,7 +831,9 @@ public class DocxBuilder {
 //				logger.debug("value of comment: " + commentList.get(i));
 				
 				//creates the footnote at the end of the wished text - this position was found at the beginning of this method
-				createFootnote(commentList.get(i), run, mdp);
+				org.docx4j.wml.R  fnRun = factory.createR();
+				p.getContent().add(fnRun);
+				createFootnote(commentList.get(i), fnRun, mdp);
 			}
 
 			//runs.add(run);
@@ -806,7 +885,7 @@ public class DocxBuilder {
 		}
 		
 		mdp.getPropertyResolver().activateStyle("FootnoteReference");
-		mdp.getPropertyResolver().activateStyle("FootnoteText");
+		//mdp.getPropertyResolver().activateStyle("FootnoteText");
 		
 		// OK, add a footnote
 		addFootnote(footnoteCounter++, fnComment, footnotesPart, r);  
@@ -820,7 +899,19 @@ public class DocxBuilder {
 	    CTFtnEdnRef ftnednref = factory.createCTFtnEdnRef(); 
 	    JAXBElement<org.docx4j.wml.CTFtnEdnRef> ftnednrefWrapped = factory.createRFootnoteReference(ftnednref); 
 	    r.getContent().add( ftnednrefWrapped); 
-	        ftnednref.setId( BigInteger.valueOf( i) );
+	    
+	    ftnednref.setId( BigInteger.valueOf(i) );
+	        
+	    /*
+	     * Test: try to set footnote reference
+	     */
+	    org.docx4j.wml.RPr props = factory.createRPr();
+		RStyle rStyle = new RStyle();
+		rStyle.setVal("FootnoteReference");
+		props.setRStyle(rStyle);
+		
+		r.setRPr(props);
+
 	        
 		    // Create a footnote in the footnotesPart
 	        String openXML = "<w:footnote w:id=\"" + i + "\" xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\">"

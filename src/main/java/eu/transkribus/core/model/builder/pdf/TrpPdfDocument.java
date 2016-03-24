@@ -176,10 +176,15 @@ public class TrpPdfDocument extends APdfDocument {
 		}
 		
 		graph.dispose();
+		
 		ByteArrayOutputStream baos=new ByteArrayOutputStream();
 		ImageIO.write(imgBuffer,"JPEG",baos);
 		byte[] imageBytes = baos.toByteArray();
 		Image img = Image.getInstance(imageBytes);
+		
+		baos.close();
+		imgBuffer.flush();
+		imgBuffer = null;
 		
 		/*
 		 * take resolution from metadata of image store, values in img are not always set
