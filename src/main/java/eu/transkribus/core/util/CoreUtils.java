@@ -212,12 +212,21 @@ public class CoreUtils {
 			return v;	
 	}
 	
-	public static String createRegexFromSearchString(String ss, boolean wildcardAlsoWhitespaces) {
+	public static String createRegexFromSearchString(String ss, boolean wildcardAlsoWhitespaces, boolean wholeWord, boolean caseSensitive) {
 		String anyChar = wildcardAlsoWhitespaces ? "." : "\\w"; // \w for only words charactesr or . for ANY character (+ whitespaces!)
 
 		String nss = new String(ss); // needed???
 		nss = nss.replace("*", anyChar+"*");
 		nss = nss.replace("?", anyChar);
+		
+		if (nss.isEmpty())
+			return nss;
+		
+		if (wholeWord)
+			nss = "\\b"+nss+"\\b";
+		
+		if (!caseSensitive)
+			nss = "(?i:"+nss+")";
 		
 		return nss;
 	}

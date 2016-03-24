@@ -16,6 +16,8 @@ import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.model.beans.customtags.search.CustomTagSearchFacets;
+import eu.transkribus.core.model.beans.customtags.search.TextSearchFacets;
 import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpTagsChangedEvent;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpTagsChangedEvent.Type;
@@ -941,22 +943,23 @@ public class CustomTagList {
 		logger.info("----------------");
 	}
 	
-	// TEST
-	public List<CustomTag> findText(CustomTagSearchFacets facets, boolean stopOnFirst, int startOffset, boolean previous) {
+	public List<CustomTag> findText(TextSearchFacets facets, boolean stopOnFirst, int startOffset, boolean previous) {
 		List<CustomTag> ft = new ArrayList<>();
 		
 //		 sortTags(); // should be sorted, just to be sure...
 //		 printTags();
 		
-		String textRegex = facets.getTagName(true);
-		if (facets.isWholeWord()) {
-			textRegex = "\\b"+textRegex+"\\b";
-		}
+		String textRegex = facets.getText(true);
+//		if (facets.isWholeWord()) {
+//			textRegex = "\\b"+textRegex+"\\b";
+//		}
 		
 		String txt = getShape().getUnicodeText();
 		logger.debug("searching for text: "+textRegex+" in line: "+txt);
 		
-		Pattern p = Pattern.compile(textRegex, facets.isCaseSensitive() ? 0 : Pattern.CASE_INSENSITIVE);
+//		Pattern p = Pattern.compile(textRegex, facets.isCaseSensitive() ? 0 : Pattern.CASE_INSENSITIVE);
+		Pattern p = Pattern.compile(textRegex);
+		
 		Matcher m = p.matcher(txt);
 		while (m.find()) {
 			if (!previous && startOffset!=-1 && m.start() < startOffset)
