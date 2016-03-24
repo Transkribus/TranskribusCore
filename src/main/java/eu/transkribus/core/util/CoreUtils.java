@@ -9,6 +9,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,7 +40,7 @@ public class CoreUtils {
 	public final static SimpleDateFormat DATE_FORMAT_USER_FRIENDLY = new SimpleDateFormat(DATE_FORMAT_STR_USER_FRIENDLY);
 	
 	public static void main(String[] args) {
-		String str = "   go,_; - ple\"a[]se ? - \" f*** y(our)self - 2,000 or 3.000 f****' times?";
+		String str = " Gregor S,_;amsa wacht eines M\"orgens auf u[]nd stellt fe(st, dass er „zu) einem ungeheueren 2,000 Ungeziefer verwandelt“ wurde 3.000";
 
 		if (false) {
 			String tokenized = tokenizeForCATTI(str);
@@ -53,9 +54,7 @@ public class CoreUtils {
 		if (true) {
 			int N = getNOfRepeatingChars(str, 0, ' ');
 			System.out.println("N = "+N);
-		}
-//		System.out.println(tokenizeForCATTI("go,_; - ple\"a[]se ? - \" fuck yourself - 2,000 or 3.000 fuckin' times?"));
-		
+		}		
 		
 	}
 	
@@ -127,16 +126,18 @@ public class CoreUtils {
 	 * Generates a comma separated list string out of the given collection, e.g. (2,4,2,1)
 	 */
 	public static String toListString(Collection<?> list) {
-		String str = "(";
-		for (Object o : list) {
-			str += o+",";
-		}
-		str = StringUtils.removeEnd(str, ",");
+		return "("+StringUtils.join(list)+")";
 		
-		str += ")";
-		return str;
+//		String str = "(";
+//		for (Object o : list) {
+//			str += o+",";
+//		}
+//		str = StringUtils.removeEnd(str, ",");
+//		
+//		str += ")";
+//		return str;
 	}
-	
+		
 	public static String removeFileTypeFromUrl(String urlStr) {
 		StringBuffer buf = new StringBuffer(urlStr);
 		int s = urlStr.indexOf("&fileType=");
@@ -432,7 +433,7 @@ public class CoreUtils {
 		}
 		return pi;
 	}
-	
+			
 	/**
 	 * Returns a string of comma seperated ranges (starting from 1) indicating which values are true in the given list.
 	 */

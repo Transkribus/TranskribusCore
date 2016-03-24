@@ -27,7 +27,7 @@ import eu.transkribus.core.util.OverlapType;
  * ITrpShapeType object It merges indexed tags according to their start and end
  * indices and removes empty valued tags. Non indexed tags are not added again
  * if already present.<br>
- * <em>Warning:</em> the code in this class is fucking complicated and was the
+ * <em>Warning:</em> the code in this class is pretty complicated and was the
  * effort of <a
  * href="http://en.wikipedia.org/wiki/Blood,_toil,_tears,_and_sweat"
  * >"Blood, toil, tears and sweat"</a><br>
@@ -1008,9 +1008,9 @@ public class CustomTagList {
 //		 printTags();
 		
 		int inc = previous ? -1 : 1;
-		logger.debug("searching for tags in shape, startOffset = "+startOffset);
+		logger.debug("searching for tags in shape="+shape.getId()+", startOffset = "+startOffset);
 		
-		// FIXME EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE!!!!
+		// FIXME ?
 		for (int i=previous?tags.size()-1:0; previous && i>=0 || !previous && i<tags.size(); i+=inc) {
 			CustomTag t = tags.get(i);
 			if (!previous && startOffset!=-1 && t.getOffset() < startOffset)

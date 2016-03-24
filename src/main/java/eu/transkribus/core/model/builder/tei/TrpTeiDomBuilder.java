@@ -29,7 +29,7 @@ import eu.transkribus.core.util.XmlUtils;
 
 @Deprecated
 /**
- * Outdated class - live with it or go fuck yourself!
+ * Outdated class
  */
 public class TrpTeiDomBuilder extends ATeiBuilder {
 	private static final Logger logger = LoggerFactory.getLogger(TrpTeiDomBuilder.class);
