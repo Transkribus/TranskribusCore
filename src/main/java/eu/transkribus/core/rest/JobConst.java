@@ -21,6 +21,7 @@ public class JobConst {
 	public static final String PROP_COLLECTION_ID = "colId";
 	public static final String PROP_TITLE = "title";
 	public static final String PROP_TRANSCRIPT_ID = "transcriptId";
+	public static final String PROP_REG_IDS = "regIds";
 	
 	public static final String PROP_STATE = "state";
 	public static final String PROP_MODELNAME = "modelName";
@@ -31,5 +32,6 @@ public class JobConst {
 	
 	public static final String TYPE_HTR_TRAINING = "HTR Training";
 	public static final String TYPE_HTR = "HTR";
+
 	
 }
