@@ -29,20 +29,32 @@ public class JAXBPageTranscript extends AbstractPageTranscript<PcGtsType> {
 		this.setPageData(pageData);
 	}
 	
-	@Override public void setMd(TrpTranscriptMetadata md) {
-		super.setMd(md);
-		updateMdOnPage();
+	public void clear() {
+		super.setMd(null);
+		super.setPageData(null);
 	}
+	
+	public void setData(TrpTranscriptMetadata md, PcGtsType page) {
+		super.setMd(md);
+		super.setPageData(page);
+		
+		updateMdOnTrpPageType();
+	}
+	
+//	@Override protected void setMd(TrpTranscriptMetadata md) {
+//		super.setMd(md);
+//		
+////		updateMdOnPage();
+//	}
 		
 	@Override public void setPageData(PcGtsType page) {
 		super.setPageData(page);
-		updateMdOnPage();
+		updateMdOnTrpPageType();
 	}
 	
-	void updateMdOnPage() {
-		TrpPageType p = getPage();
-		if (p!=null)
-			p.setMd(md);
+	void updateMdOnTrpPageType() {
+		if (md!=null && getPage()!=null)
+			getPage().setMd(md);
 	}
 	
 //	public BorderType getBorder() {
