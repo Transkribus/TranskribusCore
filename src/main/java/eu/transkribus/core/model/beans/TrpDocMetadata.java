@@ -265,7 +265,14 @@ public class TrpDocMetadata implements Serializable, Comparable<TrpDocMetadata> 
 	
 	public void setCreatedToDate(Date createdToDate) {
 		this.createdToTimestamp = createdToDate == null ? null : createdToDate.getTime();
-		
+	}
+	
+	public TrpCollection getCollection(int collId) {
+		for (TrpCollection c : getColList()) {
+			if (c.getColId() == collId)
+				return c;
+		}
+		return null;
 	}
 
 	public List<TrpCollection> getColList() {

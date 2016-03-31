@@ -2,12 +2,16 @@ package eu.transkribus.core.model.beans.pagecontent_trp;
 
 import java.io.File;
 
-import eu.transkribus.core.model.beans.TrpPage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
 import eu.transkribus.core.model.beans.customtags.CustomTagList;
 
 public class TrpLocation {
+	private final static Logger logger = LoggerFactory.getLogger(TrpLocation.class);
+	
 	public int docId = -1;
 	public int collectionId = -1;
 	public File localFolder = null;
@@ -52,6 +56,7 @@ public class TrpLocation {
 			ITrpShapeType s = ctl.getShape();
 			p = s.getPage();
 			md = p.getMd();
+//			logger.debug("md = "+md);
 			if (md != null) {
 				docId = md.getDocId();
 				

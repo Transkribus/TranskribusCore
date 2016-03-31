@@ -11,7 +11,7 @@ public abstract class AbstractPageTranscript<T> implements Comparable<AbstractPa
 		return md;
 	}
 	
-	public void setMd(TrpTranscriptMetadata md) {
+	protected void setMd(TrpTranscriptMetadata md) {
 //		if (md == null) {
 //			throw new IllegalArgumentException("Metadata is null!");
 //		}
@@ -22,7 +22,7 @@ public abstract class AbstractPageTranscript<T> implements Comparable<AbstractPa
 		return this.pageData;
 	}
 	
-	public void setPageData(T page) {
+	protected void setPageData(T page) {
 		this.pageData = page;
 	}
 	
