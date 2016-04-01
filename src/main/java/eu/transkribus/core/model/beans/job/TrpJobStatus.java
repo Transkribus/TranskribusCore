@@ -107,9 +107,6 @@ public class TrpJobStatus implements Serializable {
 	@XmlTransient
 	@Column
 	private Integer session_history_id;
-	
-	@Column
-	private Task task;
 
 //	private Future<?> future = null;
 
@@ -143,7 +140,6 @@ public class TrpJobStatus implements Serializable {
 		this.createTime = System.currentTimeMillis();
 		this.jobData = jobData;
 		this.session_history_id = session_history_id;
-		this.task = task;
 	}
 	
 	public void copy(TrpJobStatus other) {
@@ -318,14 +314,6 @@ public class TrpJobStatus implements Serializable {
 
 	public void setSession_history_id(Integer session_history_id) {
 		this.session_history_id = session_history_id;
-	}
-
-	public Task getTask(){
-		return this.task;
-	}
-	
-	public void setTask(Task task){
-		this.task = task;
 	}
 	
 	public boolean isActiveOnPage(int pageNr) {
