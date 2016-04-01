@@ -34,18 +34,17 @@ public class JAXBPageTranscript extends AbstractPageTranscript<PcGtsType> {
 		super.setPageData(null);
 	}
 	
-	public void setData(TrpTranscriptMetadata md, PcGtsType page) {
-		super.setMd(md);
-		super.setPageData(page);
-		
-		updateMdOnTrpPageType();
-	}
-	
-//	@Override protected void setMd(TrpTranscriptMetadata md) {
+//	public void setData(TrpTranscriptMetadata md, PcGtsType page) {
 //		super.setMd(md);
+//		super.setPageData(page);
 //		
-////		updateMdOnPage();
+//		updateMdOnTrpPageType();
 //	}
+	
+	@Override
+	public void setMd(TrpTranscriptMetadata md) {
+		super.setMd(md);
+	}
 		
 	@Override public void setPageData(PcGtsType page) {
 		super.setPageData(page);
