@@ -189,13 +189,14 @@ public class TrpPdfDocument extends APdfDocument {
 		/*
 		 * take resolution from metadata of image store, values in img are not always set
 		 */
-		double resolutionX = (float) md.getXResolution();
-		double resolutionY = (float) md.getYResolution();
-		logger.debug("Dpi: " + md.getXResolution());
+		if(md != null){
+			double resolutionX = (float) md.getXResolution();
+			double resolutionY = (float) md.getYResolution();
+			//logger.debug("Dpi: " + md.getXResolution());
+			img.setDpi((int)resolutionX, (int)resolutionY);
+		}
 		
-		img.setDpi((int)resolutionX, (int)resolutionY);
-		
-		
+
 //		else{
 //		
 //		 Image img = Image.getInstance(imgUrl);
@@ -236,10 +237,10 @@ public class TrpPdfDocument extends APdfDocument {
 		 * calculate size of image with respect to Dpi of the image and the default points of PDF which is 72
 		 * PDF also uses the same basic measurement unit as PostScript: 72 points == 1 inch
 		 */
-		if (md.getXResolution() > 72f){
-			 xSize = (float) (img.getPlainWidth() / resolutionX*72);
-			 ySize = (float) (img.getPlainHeight() / resolutionY*72);
-			 scaleFactorX = scaleFactorY = (float) (72f / resolutionX);
+		if (img.getDpiX() > 72f){
+			 xSize = (float) (img.getPlainWidth() / img.getDpiX()*72);
+			 ySize = (float) (img.getPlainHeight() / img.getDpiY()*72);
+			 scaleFactorX = scaleFactorY = (float) (72f / img.getDpiX());
 		}
 		else{
 			xSize = (float) (img.getPlainWidth() / 300*72);
@@ -476,7 +477,28 @@ public class TrpPdfDocument extends APdfDocument {
 			java.awt.Rectangle firstLineRect = PageXmlUtils.buildPolygon(lines.get(0).getCoords().getPoints()).getBounds();
 			java.awt.Rectangle lastLineRect = PageXmlUtils.buildPolygon(lines.get(maxIdx).getCoords().getPoints()).getBounds();
 			
-			minY = firstLineRect.getMinY();
+			double firstLineRotation = computeRotation((TrpBaselineType) lines.get(0).getBaseline());
+			double lastLineRotation = computeRotation((TrpBaselineType) lines.get(maxIdx).getBaseline());
+			
+			//first and last line rotated -> seems to be vertical
+			//use X coords to compute the total line gap
+			if (firstLineRotation == 90 && lastLineRotation == 90){
+				
+				//since the reading order is not clear if the text is vertically -> could be right to left or vice versa
+				double tmpMinX1 = firstLineRect.getMinX();
+				double tmpMinX2 = lastLineRect.getMinX();
+				
+				double tmpMaxX1 = firstLineRect.getMaxX();
+				double tmpMaxX2 = lastLineRect.getMaxX();
+				
+				minY = Math.min(tmpMinX1, tmpMinX2);
+				maxY = Math.max(tmpMaxX1, tmpMaxX2);
+			}
+			else{
+			
+				minY = firstLineRect.getMinY();
+				maxY = lastLineRect.getMaxY();
+			}
 			
 			/*
 			 * if start of line is too tight on the upper bound - set to the first 1/12 of t page from above
@@ -485,7 +507,7 @@ public class TrpPdfDocument extends APdfDocument {
 //			if (minY < twelfthPoints[1][1]){
 //				minY = twelfthPoints[1][1];
 //			}
-			maxY = lastLineRect.getMaxY();
+			
 			
 //			for(TextLineType lt : lines){
 //				

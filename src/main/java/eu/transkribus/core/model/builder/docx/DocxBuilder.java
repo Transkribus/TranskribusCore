@@ -704,18 +704,27 @@ public class DocxBuilder {
 		
 		//ArrayList<R> runs = new ArrayList<R>();
 		
+		boolean shapeEnded = false;
+		int abbrevIdx = 0;
+		
 		for (int i=0; i<textStr.length(); ++i) {
 			
+			//use of abbrevIdx: this is necessary for the appearance at the end of a textline
+			//otherwise the abbrev expansion would not appear at the end of a line because then the index i would be too small
+			abbrevIdx = i;
+			shapeEnded = (i+1 == textStr.length() ? true : false);
+			
 			//add expansion in brackets behind the abbrev
+			
 			if(abbrevList.containsKey(i)){
 				String exp = abbrevList.get(i);
 				
-				org.docx4j.wml.Text  t = factory.createText();
-				t.setValue("("+exp+")");
+				org.docx4j.wml.Text  abbrevText = factory.createText();
+				abbrevText.setValue("("+exp+")");
 				
-				org.docx4j.wml.R  run = factory.createR();
-				p.getContent().add(run);
-				run.getContent().add(t);
+				org.docx4j.wml.R  abbrevRun = factory.createR();
+				p.getContent().add(abbrevRun);
+				abbrevRun.getContent().add(abbrevText);
 			}
 
 			/*
@@ -823,7 +832,24 @@ public class DocxBuilder {
 			
 			//at the run properties (= text styles) to the run
 			run.setRPr(rpr);
-
+			
+			/*
+			 * abbrev at end of shape -> means use (index + 1)
+			 */
+			if (shapeEnded){
+				if(abbrevList.containsKey(i+1)){
+					logger.debug("abbrev is at end of shape!");
+					String exp = abbrevList.get(i+1);
+					
+					org.docx4j.wml.Text  abbrevText = factory.createText();
+					abbrevText.setValue("("+exp+")");
+					
+					org.docx4j.wml.R  abbrevRun = factory.createR();
+					p.getContent().add(abbrevRun);
+					abbrevRun.getContent().add(abbrevText);
+				}
+			}
+			
 			
 			//find position of footnote/comment
 			if (commentList.containsKey(i)){
