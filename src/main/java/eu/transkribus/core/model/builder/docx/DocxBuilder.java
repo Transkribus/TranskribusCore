@@ -720,7 +720,7 @@ public class DocxBuilder {
 				String exp = abbrevList.get(i);
 				
 				org.docx4j.wml.Text  abbrevText = factory.createText();
-				abbrevText.setValue("("+exp+")");
+				abbrevText.setValue("["+exp+"]");
 				
 				org.docx4j.wml.R  abbrevRun = factory.createR();
 				p.getContent().add(abbrevRun);
@@ -842,7 +842,7 @@ public class DocxBuilder {
 					String exp = abbrevList.get(i+1);
 					
 					org.docx4j.wml.Text  abbrevText = factory.createText();
-					abbrevText.setValue("("+exp+")");
+					abbrevText.setValue("["+exp+"]");
 					
 					org.docx4j.wml.R  abbrevRun = factory.createR();
 					p.getContent().add(abbrevRun);
