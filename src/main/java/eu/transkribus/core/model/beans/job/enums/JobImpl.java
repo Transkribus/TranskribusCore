@@ -14,8 +14,9 @@ public enum JobImpl {
 	NcsrDetectBlocksJob(JobTask.DetectBlocks, JobTask.DetectBlocks.getLabel(), "NcsrDetectBlocksJob"),
 	NcsrDetectWordsJob(JobTask.DetectWords, JobTask.DetectWords.getLabel(), "NcsrDetectWordsJob"),
 	
-	HmmHtrJob(JobTask.Htr, "HMM " + JobTask.Htr.getLabel(), "HtrJob"),
-	HmmHtrTrainingJob(JobTask.HtrTraining, "HMM " + JobTask.HtrTraining.getLabel(), "HtrTrainingJob"),
+	HmmHtrJob(JobTask.Htr, "HMM " + JobTask.Htr.getLabel(), "HmmHtrJob"),
+	HmmHtrTrainingJob(JobTask.HtrTraining, "HMM " + JobTask.HtrTraining.getLabel(), "HmmHtrTrainingJob"),
+	RnnHtrJob(JobTask.Htr, "RNN " + JobTask.Htr.getLabel(), "RnnHtrJob"),
 	FinereaderOcrJob(JobTask.Ocr, JobTask.Ocr.getLabel(), "OcrJob"),
 	
 	//for testing
