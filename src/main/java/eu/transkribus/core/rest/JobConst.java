@@ -28,10 +28,5 @@ public class JobConst {
 	public static final String PROP_PAGES = "pages";
 	public static final String PROP_DOC_IDS = "docIds";
 	public static final String PROP_PATH = "path";
-	public static final String PROP_DEALOG_DOC_ID = "dealogDocId";
-	
-	public static final String TYPE_HTR_TRAINING = "HTR Training";
-	public static final String TYPE_HTR = "HTR";
-
-	
+	public static final String PROP_DEALOG_DOC_ID = "dealogDocId";	
 }
