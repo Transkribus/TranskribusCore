@@ -453,13 +453,14 @@ public class TrpPageType extends PageType {
 		List<TrpRegionType> regions = getTextRegionOrImageRegionOrLineDrawingRegion();
 		
 		//sort only if reading order is not set actually
-		for (int i=0; i<regions.size(); i++) {
-			ITrpShapeType o = (ITrpShapeType) regions.get(i);
+		for (ITrpShapeType o : regions) {
 			if (o.getReadingOrder() == null){
 				doSort = true;
 				break;
 			}
 		}
+		logger.trace("sortRegions, doSort = "+doSort);
+//		doSort = false;
 		
 		if (doSort){
 			TrpRegionType.sortRegions(regions);

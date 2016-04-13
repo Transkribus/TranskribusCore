@@ -234,6 +234,11 @@ public class TrpRegionType extends RegionType implements ITrpShapeType {
 	@Override public boolean hasChildren() { 
 		return !getTextRegionOrImageRegionOrLineDrawingRegion().isEmpty();
 	}
+	
+	@Override public void setCustom(String custom) {
+		super.setCustom(custom);
+		customTagList = new CustomTagList(this);
+	}
 				
 	@Override
 	public void setCoordinates(String value, Object who) {
