@@ -250,7 +250,7 @@ public class DocxBuilder {
 //		System.out.println("Done.");
 	}
 	
-	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackening, File file, Set<Integer> pageIndices, IProgressMonitor monitor, Set<String> selectedTags, boolean createTitle, boolean markUnclear, boolean expandAbbreviations) throws JAXBException, IOException, Docx4JException {
+	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackening, File file, Set<Integer> pageIndices, IProgressMonitor monitor, Set<String> selectedTags, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean preserveLineBreaks) throws JAXBException, IOException, Docx4JException {
 		
 		exportTags = writeTags;
 		tagnames = selectedTags;
@@ -320,15 +320,19 @@ public class DocxBuilder {
 			logger.debug("writing docx for page "+(i+1)+"/"+doc.getNPages());
 			
 
-			writeDocxForTranscript(mdp, trpPage, wordBased);
+			writeDocxForTranscript(mdp, trpPage, wordBased, preserveLineBreaks);
 			atLeastOnePageWritten = true;
 			++c;
 			
-			//page break after first page for each page except the last one
-			
-			if (atLeastOnePageWritten && c < pageIndices.size()){
-				mdp.addObject(pageBreakP);
-			}
+			/* Old:
+			 * page break after first page for each page except the last one
+			 * 
+			 * New:
+			 * no page break - lets do this automatically
+			 */
+//			if (atLeastOnePageWritten && c < pageIndices.size()){
+//				mdp.addObject(pageBreakP);
+//			}
 			
 			
 			if (monitor!=null) {
@@ -487,55 +491,71 @@ public class DocxBuilder {
 	}
 
 	private static void writeDocxForTranscript(MainDocumentPart mdp, TrpPageType trpPage,
-			boolean wordBased) {
+			boolean wordBased, boolean preserveLineBreaks) {
 		boolean rtl = false;
 		List<TrpTextRegionType> textRegions = trpPage.getTextRegions(true);
 
 		for (int j=0; j<textRegions.size(); ++j) {
 			TrpTextRegionType r = textRegions.get(j);
 			
+			
 //			if (exportTags){
 //				getTagsForShapeElement(r);
 //			}
 			
-			//create one paragraph for each text region
-			org.docx4j.wml.P  p = factory.createP();
+			/*
+			 * create one paragraph for each text region
+			 * but only if there is some text in it
+			 */
+			String helper = r.getUnicodeText().replaceAll("\n", "");
 			
-			mdp.addObject(p);
+			//logger.debug("region unicode text " + helper);
+			
+			if (!helper.equals("")){
+				org.docx4j.wml.P  p = factory.createP();
+				mdp.addObject(p);
+			
 
-			List<TextLineType> lines = r.getTextLine();
-			for (int i=0; i<lines.size(); ++i) {
-				TrpTextLineType trpL = (TrpTextLineType) lines.get(i);
-				
-				try {
-					if (wordBased && trpL.getWord().size()>0){
-						getFormattedTextForLineElement(trpL.getWord(), p, mdp);
-					}
-					else {
-						getFormattedTextForShapeElement(trpL, p, mdp);
-					}
-
-
-				
-//				org.docx4j.wml.Text  t = factory.createText();
-//				//create for each textline a run and add the text to it and than to the paragraph
-//				t.setValue(trpL.getUnicodeText());
-				//org.docx4j.wml.R  run = factory.createR();
-				//run.getContent().add(t);		
-				
-//					for (R run : runs){
-//						p.getContent().add(run);
-//					}
+				List<TextLineType> lines = r.getTextLine();
+				for (int i=0; i<lines.size(); ++i) {
+					TrpTextLineType trpL = (TrpTextLineType) lines.get(i);
 					
+					try {
+						if (wordBased && trpL.getWord().size()>0){
+							getFormattedTextForLineElement(trpL.getWord(), p, mdp);
+						}
+						else {
+							getFormattedTextForShapeElement(trpL, p, mdp);
+						}
+	
+	
 					
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+	//				org.docx4j.wml.Text  t = factory.createText();
+	//				//create for each textline a run and add the text to it and than to the paragraph
+	//				t.setValue(trpL.getUnicodeText());
+					//org.docx4j.wml.R  run = factory.createR();
+					//run.getContent().add(t);		
+					
+	//					for (R run : runs){
+	//						p.getContent().add(run);
+	//					}
+						
+						
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					/*add line break after each text line
+					 * or omit this if explicitely wished to have dense lines
+					 * No line break at end of paragraph
+					 */
+					if (preserveLineBreaks && !(i+1==lines.size()) ){
+						Br br = factory.createBr(); // this Br element is used break the current and go for next line
+						p.getContent().add(br);
+					}
+	
 				}
-				
-				//add line break after each text line
-				Br br = factory.createBr(); // this Br element is used break the current and go for next line
-				p.getContent().add(br);
 //								
 //				linesTexts[i] = ((trpL.getUnicodeText().equals("") || wordBased) && trpL.getWord().size()>0) ? getRtfTextForLineFromWords(trpL) : getRtfTextForShapeElement(trpL);
 //				linesTexts[i] = RtfText.text(linesTexts[i], "\n");

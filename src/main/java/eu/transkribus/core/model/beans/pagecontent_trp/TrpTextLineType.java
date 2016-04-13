@@ -335,6 +335,7 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 			ITrpShapeType o = (ITrpShapeType) words.get(i);
 			if (o.getReadingOrder() == null){
 				doSort = true;
+				break;
 			}
 		}
 		

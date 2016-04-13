@@ -457,6 +457,7 @@ public class TrpPageType extends PageType {
 			ITrpShapeType o = (ITrpShapeType) regions.get(i);
 			if (o.getReadingOrder() == null){
 				doSort = true;
+				break;
 			}
 		}
 		
@@ -468,8 +469,8 @@ public class TrpPageType extends PageType {
 //		for (TrpRegionType r : getTextRegionOrImageRegionOrLineDrawingRegion()) {
 //			r.setReadingOrder(i++, this);
 //		}
-		for (int i=0; i<textRegionOrImageRegionOrLineDrawingRegion.size(); i++) {
-			TrpRegionType r = (TrpRegionType) textRegionOrImageRegionOrLineDrawingRegion.get(i);
+		for (int i=0; i<regions.size(); i++) {
+			TrpRegionType r = (TrpRegionType) regions.get(i);
 			if (r.getReadingOrder() == null || !r.getReadingOrder().equals(i)){
 				r.setReadingOrder(i, this);
 			}
@@ -507,6 +508,30 @@ public class TrpPageType extends PageType {
 	public List<TrpTextRegionType> getTextRegionsOrTableRegions(boolean b) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public int getIndexAccordingToCoordinates(ITrpShapeType o1) {
+		// TODO Auto-generated method stub
+		for (int i=0; i<textRegionOrImageRegionOrLineDrawingRegion.size(); i++) {
+			ITrpShapeType o2 = (ITrpShapeType) textRegionOrImageRegionOrLineDrawingRegion.get(i);
+			
+//			logger.debug("o1 coords " + o1.getCoordinates());
+//			logger.debug("o2 coords " + o2.getCoordinates());
+			
+			int ordering = new TrpElementCoordinatesComparator().compare(o1, o2);
+			
+			//o1 is smaller the second shape according to their coordinates
+			if (ordering < 0){
+				//logger.debug(" o1 smaller o2 ");
+				//i is than the index in the parent shape to insert the child shape
+				return i;
+			}
+						
+		}
+		//logger.debug(" no smaller shape found: return last index " + (textLine.size()-1));
+		//int idx = (textLine.size()>0? (textLine.size()):0);
+
+		return textRegionOrImageRegionOrLineDrawingRegion.size();
 	}
 	
 	
