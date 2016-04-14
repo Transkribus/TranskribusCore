@@ -41,6 +41,9 @@ public class HtrUtils {
 //	private static final String LATTICE_TOOL_LINE_PATTERN_STR = "-?[0-9]+\\.[0-9]+\\s-?[0-9]+\\.[0-9]+\\s[0-9]+\\s<s>\\s(.*)\\s</s>";
 	private static final String LATTICE_TOOL_LINE_PATTERN_STR = FLOAT_NR+"\\s"+FLOAT_NR+"\\s[0-9]+\\s<s>\\s(.*)\\s</s>";
 	static final Pattern LATTICE_TOOL_LINE_PATTERN = Pattern.compile(LATTICE_TOOL_LINE_PATTERN_STR);
+
+	private static final String NET_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/net";
+	private static final String DICT_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/dict";
 	
 	
 	/**
@@ -344,6 +347,48 @@ public class HtrUtils {
 			@Override
 			public boolean accept(File pathname) {
 				return pathname.isDirectory();
+			}
+		});
+		
+		String modelStr = "";
+		boolean isFirst = true;
+		for(File model : models){
+			if(isFirst){
+				modelStr += model.getName();
+				isFirst = false;
+			} else {
+				modelStr += "\n" + model.getName();
+			}
+		}
+		return modelStr;
+	}
+	
+	public static String getNetListStr() {
+		File[] models = new File(HtrUtils.NET_PATH).listFiles(new FileFilter() {
+			@Override
+			public boolean accept(File pathname) {
+				return pathname.isFile() && pathname.getName().endsWith(".sprnn");
+			}
+		});
+		
+		String modelStr = "";
+		boolean isFirst = true;
+		for(File model : models){
+			if(isFirst){
+				modelStr += model.getName();
+				isFirst = false;
+			} else {
+				modelStr += "\n" + model.getName();
+			}
+		}
+		return modelStr;
+	}
+	
+	public static String getDictListStr() {
+		File[] models = new File(HtrUtils.DICT_PATH).listFiles(new FileFilter() {
+			@Override
+			public boolean accept(File pathname) {
+				return pathname.isFile() && pathname.getName().endsWith(".dict");
 			}
 		});
 		

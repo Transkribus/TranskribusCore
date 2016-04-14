@@ -227,4 +227,10 @@ public final class RESTConst {
 	public static final String CHECK_FOR_DUPLICATE_TITLE_PARAM = "checkForDuplicateTitle";
 	public static final String CONFIDENCE_PARAM = "confidence";
 	public static final String TEXT_PATH = "text";
+
+	public static final String HTR_LIST_NETS_PATH = "nets";
+	public static final String HTR_LIST_DICTS_PATH = "dicts";
+	public static final String HTR_RNN_PATH = "rnn";
+
+	public static final String HTR_DICT_NAME_PARAM = "dict";
 }
