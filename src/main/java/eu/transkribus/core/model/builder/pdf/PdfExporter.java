@@ -77,9 +77,16 @@ public class PdfExporter extends Observable {
 			TrpPage p = doc.getPages().get(i);
 			URL imgUrl = p.getUrl();
 			
-			FimgStoreGetClient getter = new FimgStoreGetClient(p.getUrl());
-			FimgStoreImgMd md = (FimgStoreImgMd)getter.getFileMd(p.getKey());
-						
+			/*
+			 * md is only needed for getting resolution because in the image it may be missing
+			 * But if it is a local doc we have to try to get from img because md is null
+			 */
+			FimgStoreImgMd md = null;
+			if(doc.isRemoteDoc()){
+				FimgStoreGetClient getter = new FimgStoreGetClient(p.getUrl());
+				md = (FimgStoreImgMd)getter.getFileMd(p.getKey());
+			}
+		
 			URL xmlUrl = p.getCurrentTranscript().getUrl();
 			
 			//logger.debug("xmlUrl " + xmlUrl);

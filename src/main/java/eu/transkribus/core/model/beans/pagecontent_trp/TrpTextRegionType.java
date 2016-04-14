@@ -96,6 +96,8 @@ public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {
 		secondaryScript = src.secondaryScript;
 		production = src.production;
 		
+		
+		
 		// copy new fields:
 //		page = src.page;
 //		data = src.data;
@@ -277,20 +279,20 @@ public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {
 		for (int i=0; i<textLine.size(); i++) {
 			ITrpShapeType o2 = (ITrpShapeType) getTextLine().get(i);
 			
-			logger.debug("o1 coords " + o1.getCoordinates());
-			logger.debug("o2 coords " + o2.getCoordinates());
+//			logger.debug("o1 coords " + o1.getCoordinates());
+//			logger.debug("o2 coords " + o2.getCoordinates());
 			
 			int ordering = new TrpElementCoordinatesComparator().compare(o1, o2);
 			
 			//o1 is smaller the second shape according to their coordinates
 			if (ordering < 0){
-				logger.debug(" o1 smaller o2 ");
+				//logger.debug(" o1 smaller o2 ");
 				//i is than the index in the parent shape to insert the child shape
 				return i;
 			}
 						
 		}
-		logger.debug(" no smaller shape found: return last index " + (textLine.size()-1));
+		//logger.debug(" no smaller shape found: return last index " + (textLine.size()-1));
 		//int idx = (textLine.size()>0? (textLine.size()):0);
 
 		return textLine.size();
@@ -322,20 +324,20 @@ public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {
 		return getCoords().getPoints();
 	}	
 	
-	@Override
-	public void reInsertIntoParent() {
-		reInsertIntoParent(-1);
-	}	
-	
-	@Override
-	public void reInsertIntoParent(int index) {
-		if (!getPage().getTextRegionOrImageRegionOrLineDrawingRegion().contains(this)) {
-			CoreUtils.addOrAppend(getPage().getTextRegionOrImageRegionOrLineDrawingRegion(), this, index);
-			getPage().sortRegions();
-			observable.setChangedAndNotifyObservers(new TrpReinsertIntoParentEvent(this));
-		}
-		
-	}
+//	@Override
+//	public void reInsertIntoParent() {
+//		reInsertIntoParent(-1);
+//	}	
+//	
+//	@Override
+//	public void reInsertIntoParent(int index) {
+//		if (!getPage().getTextRegionOrImageRegionOrLineDrawingRegion().contains(this)) {
+//			CoreUtils.addOrAppend(getPage().getTextRegionOrImageRegionOrLineDrawingRegion(), this, index);
+//			getPage().sortRegions();
+//			observable.setChangedAndNotifyObservers(new TrpReinsertIntoParentEvent(this));
+//		}
+//		
+//	}
 	
 	@Override
 	public void removeFromParent() {

@@ -149,7 +149,7 @@ public class TrpRegionType extends RegionType implements ITrpShapeType {
 	public static void sortRegions(List<TrpRegionType> textRegionOrImageRegionOrLineDrawingRegion) {
 		Collections.sort(textRegionOrImageRegionOrLineDrawingRegion, new TrpElementReadingOrderComparator<RegionType>(true));
 	}
-	
+
 	@Override
 	public Object getParent() { return parent; }
 	
@@ -233,6 +233,11 @@ public class TrpRegionType extends RegionType implements ITrpShapeType {
 	
 	@Override public boolean hasChildren() { 
 		return !getTextRegionOrImageRegionOrLineDrawingRegion().isEmpty();
+	}
+	
+	@Override public void setCustom(String custom) {
+		super.setCustom(custom);
+		customTagList = new CustomTagList(this);
 	}
 				
 	@Override

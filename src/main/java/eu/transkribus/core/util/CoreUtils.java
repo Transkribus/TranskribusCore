@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -56,6 +57,15 @@ public class CoreUtils {
 			System.out.println("N = "+N);
 		}		
 		
+	}
+	
+	public static void setLibraryPath(String path) throws Exception {
+		System.setProperty("java.library.path", path);
+
+		// set sys_paths to null so that java.library.path will be reevalueted next time it is needed
+		final Field sysPathsField = ClassLoader.class.getDeclaredField("sys_paths");
+		sysPathsField.setAccessible(true);
+		sysPathsField.set(null, null);
 	}
 	
 	/**
