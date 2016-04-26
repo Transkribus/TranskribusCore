@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
-import eu.transkribus.core.util.PrimaUtils;
+import eu.transkribus.core.util.PointStrUtils;
 
 public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 	private final static Logger logger = LoggerFactory.getLogger(TrpElementCoordinatesComparator.class);
@@ -53,7 +53,7 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 			
 			java.awt.Polygon p1 = new java.awt.Polygon();
 			try {
-				for (java.awt.Point p : PrimaUtils.parsePoints(coords1))
+				for (java.awt.Point p : PointStrUtils.parsePoints(coords1))
 					p1.addPoint(p.x, p.y);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
@@ -61,7 +61,7 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 			
 			java.awt.Polygon p2 = new java.awt.Polygon();
 			try {
-				for (java.awt.Point p : PrimaUtils.parsePoints(coords2))
+				for (java.awt.Point p : PointStrUtils.parsePoints(coords2))
 					p2.addPoint(p.x, p.y);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);

@@ -24,7 +24,7 @@ import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEven
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpRemovedEvent;
 import eu.transkribus.core.util.BeanCopyUtils;
 import eu.transkribus.core.util.CoreUtils;
-import eu.transkribus.core.util.PrimaUtils;
+import eu.transkribus.core.util.PointStrUtils;
 import eu.transkribus.core.util.TextStyleTypeUtils;
 
 public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {

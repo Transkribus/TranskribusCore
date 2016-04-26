@@ -53,6 +53,10 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	@XmlElementWrapper(name="tsList")
 	@XmlElement
 	private List<TrpTranscriptMetadata> transcripts;
+	
+	@XmlElementWrapper(name="imageVersions")
+	@XmlElement
+	private List<TrpPageImageVersion> imageVersions;
 
 	public TrpPage() {
 		transcripts = new LinkedList<>();
@@ -96,6 +100,14 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	
 	public void setTranscripts(List<TrpTranscriptMetadata> transcripts) {
 		this.transcripts = transcripts;
+	}
+
+	public List<TrpPageImageVersion> getImageVersions() {
+		return imageVersions;
+	}
+
+	public void setImageVersions(List<TrpPageImageVersion> imageVersions) {
+		this.imageVersions = imageVersions;
 	}
 
 	public URL getUrl() {

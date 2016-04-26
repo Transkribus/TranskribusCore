@@ -32,7 +32,7 @@ import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextStyleType;
 import eu.transkribus.core.util.BeanCopyUtils;
 import eu.transkribus.core.util.CoreUtils;
-import eu.transkribus.core.util.PrimaUtils;
+import eu.transkribus.core.util.PointStrUtils;
 
 @XmlTransient
 public class TrpRegionType extends RegionType implements ITrpShapeType {
@@ -345,11 +345,11 @@ public class TrpRegionType extends RegionType implements ITrpShapeType {
 	}
 	
 	@Override public void translate(int x, int y) throws Exception { 
-		setCoordinates(PrimaUtils.translatePoints(getCoordinates(), x, y), this);
+		setCoordinates(PointStrUtils.translatePoints(getCoordinates(), x, y), this);
 	}
 	
 	@Override public void rotate(double degrees) throws Exception {
-		setCoordinates(PrimaUtils.rotatePoints(getCoordinates(), Math.toRadians(degrees)), this);
+		setCoordinates(PointStrUtils.rotatePoints(getCoordinates(), Math.toRadians(degrees)), this);
 	}
 		
 	@Override public void setReadingOrder(Integer readingOrder, Object who) {

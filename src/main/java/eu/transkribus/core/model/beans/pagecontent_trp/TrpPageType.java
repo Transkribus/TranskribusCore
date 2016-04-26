@@ -492,6 +492,10 @@ public class TrpPageType extends PageType {
 		}
 		return -1;
 	}
+	
+	public List<TrpRegionType> getRegions() {
+		return getTextRegionOrImageRegionOrLineDrawingRegion();
+	}
 
 	public void setEdited(boolean edited) {
 		this.edited = edited;
@@ -506,10 +510,10 @@ public class TrpPageType extends PageType {
 		this.pcGtsType = pcGtsType;
 	}
 
-	public List<TrpTextRegionType> getTextRegionsOrTableRegions(boolean b) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	public List<TrpTextRegionType> getTextRegionsOrTableRegions(boolean b) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
 	public int getIndexAccordingToCoordinates(ITrpShapeType o1) {
 		// TODO Auto-generated method stub

@@ -2,6 +2,7 @@ package eu.transkribus.core.util;
 
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,9 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class PrimaUtils {
+public class PointStrUtils {
 	
-	static Logger logger = LoggerFactory.getLogger(PrimaUtils.class);
+	static Logger logger = LoggerFactory.getLogger(PointStrUtils.class);
 	
 	public static String affineTransPoints(String ptsStr, double tx, double ty, double sx, double sy, double rot) throws Exception {
 		List<Point> pts = parsePoints(ptsStr);
@@ -59,8 +60,33 @@ public class PrimaUtils {
 		return awtPoly;
 	}
 	
+	/**
+	 * Parse points from String and do not throw an exception if some point could not be parsed
+	 */
+	public static List<Point> parsePoints2(String pts) {
+		logger.trace("parsing points2: "+pts);
+		List<Point> ptsList = new ArrayList<Point>();
+		for (String pt : pts.trim().split("\\s+")) {
+			try {			
+				if (pt.isEmpty())
+					continue;
+				logger.trace("pt = "+pt);
+				String [] tmp = pt.split(",");
+				int x = Integer.valueOf(tmp[0].trim());
+				int y = Integer.valueOf(tmp[1].trim());
+				ptsList.add(new Point(x, y));
+			}
+			catch (Exception e) {
+				logger.warn("Could not parse point: '"+pt+"' ptsStr = "+pts, e);
+			}
+		}
+
+		
+		return ptsList;
+	}
+	
 	/** Parse points from String in format "x1,y1 x2,y2 ..." */
-	public static List<Point> parsePoints(String pts) throws Exception {
+	public static List<Point> parsePoints(String pts) throws IOException {
 		logger.trace("parsing points: "+pts);
 		List<Point> ptsList = new ArrayList<Point>();
 		try {
@@ -75,7 +101,7 @@ public class PrimaUtils {
 			}
 		}
 		catch (Exception e) {
-			throw new Exception("Could not fully parse points: '"+pts+"', message: "+e.getMessage(), e);
+			throw new IOException("Could not fully parse points: '"+pts+"', message: "+e.getMessage(), e);
 //			logger.warn("Could not fully parse points: '"+pts+"'", e);
 		}
 		

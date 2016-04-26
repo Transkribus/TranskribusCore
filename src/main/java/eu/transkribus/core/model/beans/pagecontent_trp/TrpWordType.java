@@ -29,7 +29,7 @@ import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEven
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpTextChangedEvent;
 import eu.transkribus.core.util.BeanCopyUtils;
 import eu.transkribus.core.util.CoreUtils;
-import eu.transkribus.core.util.PrimaUtils;
+import eu.transkribus.core.util.PointStrUtils;
 import eu.transkribus.core.util.TextStyleTypeUtils;
 
 public class TrpWordType extends WordType implements ITrpShapeType {
@@ -298,11 +298,11 @@ public class TrpWordType extends WordType implements ITrpShapeType {
 	}
 	
 	@Override public void translate(int x, int y) throws Exception { 
-		setCoordinates(PrimaUtils.translatePoints(getCoordinates(), x, y), this);
+		setCoordinates(PointStrUtils.translatePoints(getCoordinates(), x, y), this);
 	}
 	
 	@Override public void rotate(double degrees) throws Exception {
-		setCoordinates(PrimaUtils.rotatePoints(getCoordinates(), Math.toRadians(degrees)), this);
+		setCoordinates(PointStrUtils.rotatePoints(getCoordinates(), Math.toRadians(degrees)), this);
 	}
 	
 	@Override public CustomTagList getCustomTagList() { return customTagList; }

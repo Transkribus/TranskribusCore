@@ -1,5 +1,6 @@
 package eu.transkribus.core.model.beans.pagecontent_trp;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +23,7 @@ import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.SeparatorRegionType;
 import eu.transkribus.core.model.beans.pagecontent.TableRegionType;
 import eu.transkribus.core.model.beans.pagecontent.UnknownRegionType;
+import eu.transkribus.core.util.PointStrUtils;
 
 public class RegionTypeUtil {
 
@@ -115,6 +117,35 @@ public class RegionTypeUtil {
 		REGIONS.put(UNKNOWN_REGION, UnknownRegionType.class);
 		REGIONS.put(BLACKENING_REGION, UnknownRegionType.class);
 	}
+	
+	public static boolean hasBlackenings(TrpPageType page) {
+		return !getBlackeningRegions(page).isEmpty();
+	}
+	
+	public static List<TrpRegionType> getBlackeningRegions(TrpPageType page) {
+		List<TrpRegionType> blackenings = new ArrayList<>();
+		for (TrpRegionType r : page.getTextRegionOrImageRegionOrLineDrawingRegion()) {
+			if (isBlackening(r))
+				blackenings.add(r);
+		}
+		
+		return blackenings;
+	}
+	
+	public static List<List<Point>> getBlackeningRegionsPoints(TrpPageType page) {
+		List<List<Point>> ptsList = new ArrayList<>();
+		for (TrpRegionType b : getBlackeningRegions(page)) {
+			List<Point> pts = PointStrUtils.parsePoints2(b.getCoordinates());
+			if (!pts.isEmpty())
+				ptsList.add(PointStrUtils.parsePoints2(b.getCoordinates()));
+		}
+		
+		return ptsList;
+	}
+	
+	
+	
+//	public List<List<Point>> getBlackeningPoints
 	
 	public static boolean isBlackening(ITrpShapeType s) {
 		return getRegionType(s).equals(BLACKENING_REGION);

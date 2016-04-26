@@ -16,7 +16,7 @@ import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEven
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpCoordsChangedEvent;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpReinsertIntoParentEvent;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpRemovedEvent;
-import eu.transkribus.core.util.PrimaUtils;
+import eu.transkribus.core.util.PointStrUtils;
 
 public class TrpBaselineType extends BaselineType implements ITrpShapeType {	
 	TrpObservable observable = new TrpObservable(this);
@@ -165,11 +165,11 @@ public class TrpBaselineType extends BaselineType implements ITrpShapeType {
 	@Override public void setCustom(String custom) {}
 
 	@Override public void translate(int x, int y) throws Exception { 
-		setCoordinates(PrimaUtils.translatePoints(getCoordinates(), x, y), this);
+		setCoordinates(PointStrUtils.translatePoints(getCoordinates(), x, y), this);
 	}
 	
 	@Override public void rotate(double degrees) throws Exception {
-		setCoordinates(PrimaUtils.rotatePoints(getCoordinates(), Math.toRadians(degrees)), this);
+		setCoordinates(PointStrUtils.rotatePoints(getCoordinates(), Math.toRadians(degrees)), this);
 	}
 	
 	@Override public CustomTagList getCustomTagList() { return null; }

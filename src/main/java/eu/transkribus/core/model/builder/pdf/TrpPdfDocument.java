@@ -66,7 +66,7 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.model.builder.ExportUtils;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.PageXmlUtils;
-import eu.transkribus.core.util.PrimaUtils;
+import eu.transkribus.core.util.PointStrUtils;
 
 
 /**
@@ -819,7 +819,7 @@ public class TrpPdfDocument extends APdfDocument {
 		List<Point> lp;
 		try {
 			
-			lp = PrimaUtils.parsePoints(baseline.getCoordinates());
+			lp = PointStrUtils.parsePoints(baseline.getCoordinates());
 	
 			Point p2 = lp.get(lp.size()-1);
 			Point p1 = lp.get(0);
@@ -1255,7 +1255,7 @@ public class TrpPdfDocument extends APdfDocument {
 		try {
 			List<Point> ptsList = null;
 			if (baseline != null){
-				ptsList = PrimaUtils.parsePoints(baseline.getPoints());
+				ptsList = PointStrUtils.parsePoints(baseline.getPoints());
 			}
 			if (ptsList != null){
 				int size = ptsList.size();
