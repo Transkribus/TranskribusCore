@@ -1,5 +1,6 @@
 package eu.transkribus.core.util;
 
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,11 +61,37 @@ public class UnicodeList implements Comparable<UnicodeList> {
 //		return false;
 //	}
 	
+//	public boolean isPrintableChar( char c ) {
+//	    Character.UnicodeBlock block = Character.UnicodeBlock.of( c );
+//	    return (!Character.isISOControl(c)) &&
+//	            c != KeyEvent.CHAR_UNDEFINED &&
+//	            block != null &&
+//	            block != Character.UnicodeBlock.SPECIALS;
+//	}
+	
+	public static Character toCharacter(String unicodeString) {
+		try {
+			return unicodeString.toCharArray()[0];
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
 	public static String toUnicodeString(int c) {
 		return "U+"+StringUtils.leftPad(Integer.toHexString(c), 4, "0");
 	}
 	
 	private static void appendHexRange(StringBuilder sb, int begin, int end) {
+		// new: deprecated
+//		sb.append(" ");
+//		if (begin == end) { // if only one char, try to add it as 
+//			sb.append(toUnicodeString(begin));	
+//		}
+//		else {
+//			sb.append(toUnicodeString(begin)).append("-").append(toUnicodeString(end));
+//		}
+		
+		// old:
 	    sb.append(" ").append(toUnicodeString(begin));
 	    if (end != begin)
 	        sb.append("-").append(toUnicodeString(end));
