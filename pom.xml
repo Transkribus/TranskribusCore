@@ -36,7 +36,13 @@
 <!--         <url>http://www.dcm4che.org/maven2</url> -->
 <!--     </repository>		 -->
 		</repositories>
-
+	<distributionManagement>
+	    <repository>
+	        <id>dbis-halvar-artifactory</id>
+	        <name>dbis-halvar-releases</name>
+	        <url>http://dbis-halvar.uibk.ac.at/artifactory/libs-release-local</url>
+	    </repository>
+	</distributionManagement>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
