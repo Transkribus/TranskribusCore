@@ -78,7 +78,8 @@ public enum XmlFormat {
 	/**
 	 * Either compiles the schema or returns the previously compiled schema.
 	 * @return The compiled schema
-	 * @throws Exception If schema compilation fails
+	 * @throws SAXException if parsing or schema compilation fails
+	 * @throws MalformedURLException if the schema URL is invalid
 	 */
 	public Schema getOrCompileSchema() throws SAXException, MalformedURLException  {
 		if (schema != null)

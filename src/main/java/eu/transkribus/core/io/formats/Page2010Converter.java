@@ -39,12 +39,15 @@ public class Page2010Converter {
 	}
 	
 	/**
-	 * Migrate PAGE to current version on complete dir.
+	 * Migrate PAGE to current version on complete dir.<br>
 	 * 
 	 * This method works on directories that contain different page format
-	 * versions Backups of old files are created Calling the method on a folder
+	 * versions. Backups of old files are created. Calling the method on a folder
 	 * with all new page XMLs has no effect.
-	 * 
+	 * @param inputDir the directory with page XMLs
+	 * @param backupDirStr the subdirectory name where to put backups
+	 * @throws IOException if something can't be read or written
+	 * @throws UnsupportedFormatException some file is not a valid page XML version
 	 */
 	public static void updatePageFormat(final File inputDir, final String backupDirStr)
 			throws IOException, UnsupportedFormatException {
@@ -187,6 +190,9 @@ public class Page2010Converter {
 
 	/**
 	 * TODO Remove this proprietary stuff
+	 * @param source source page File
+	 * @return the version String 
+	 * @throws IOException if the format version can't be determined
 	 */
 	@Deprecated
 	private static String getFormatVersion(InputSource source) throws IOException {

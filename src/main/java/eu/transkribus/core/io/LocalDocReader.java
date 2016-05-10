@@ -63,7 +63,7 @@ import eu.transkribus.core.util.XmlUtils;
  * Order of pages is implied by order of filenames. The metadata XML is
  * marshalled to a TrpDocMetadata Object and thus has to match the bean's
  * fieldnames.<br>
- * <br/>
+ * <br>
  * <pre>
  * &lt;trpDocMetadata&gt;
  * 	&lt;docId&gt;-1&lt;/docId&gt;
@@ -113,7 +113,7 @@ public class LocalDocReader {
 	 * <li>./alto: ALTO v2 XMls
 	 * </ol>
 	 * Testdoc is in $dea_scratch/TRP/TrpTestDoc <br>
-	 * <b>No versioning of files for local use!<br>
+	 * No versioning of files for local use!<br>
 	 * 
 	 * @param path the path where the document is stored
 	 * @param preserveOcrTxtStyles when creating the pageXML from alto/finereader XMLs, preserve the text style information
@@ -323,7 +323,7 @@ public class LocalDocReader {
 	 * Read a local doc based on its mets.xml file that has to contain file
 	 * paths relative to parentDir
 	 * 
-	 * @param metsFile the mets object
+	 * @param mets the mets object
 	 * @param parentDir the directory of the local document
 	 * @return the constructed Document
 	 * @throws IOException if the path can't be read
@@ -450,6 +450,8 @@ public class LocalDocReader {
 	 *            the img file to include
 	 * @param pageXml
 	 *            the corresponding PAGE XML
+	 * @param thumb
+	 * 			  the thumbnail file for this image
 	 * @return a TrpPage object with Transcript. The Transcript is null, if
 	 *         pageXml is null.
 	 * @throws MalformedURLException if an URL can't be constructed from parentDir
@@ -531,6 +533,7 @@ public class LocalDocReader {
 	 * @param inputDir
 	 *            that is searched for image files
 	 * @return a sorted Map with page image files
+	 * @throws IOException if the inputDir can't be read or no image file is found there
 	 */
 	public static TreeMap<String, File> findImgFiles(File inputDir) throws IOException {
 		File[] imgArr = inputDir.listFiles(new ImgFileFilter());
