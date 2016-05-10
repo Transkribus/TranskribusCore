@@ -44,9 +44,9 @@ import eu.transkribus.core.util.PageXmlUtils;
 import eu.transkribus.core.util.XmlUtils;
 
 /**
- * Reader class for loading a TRP Document from the local filesystem.<br/>
- * The files (Images and optionally XML transcipts) get first fetched from URLs (they are read from Mets as well as the metadata)<br/>
- * The given path/mets should contain:<br/>
+ * Reader class for loading a TRP Document from the local filesystem.<br>
+ * The files (Images and optionally XML transcipts) get first fetched from URLs (they are read from Mets as well as the metadata)<br>
+ * The given path/mets should contain:<br>
  * <ul>
  * <li>Image files of type JPG or TIFF (allowed types and priorities defined in
  * {@link ImgPriority})</li>
@@ -56,7 +56,7 @@ import eu.transkribus.core.util.XmlUtils;
  * </ul>
  * Order of pages is implied by order of filenames. The metadata XML is
  * marshalled to a TrpDocMetadata Object and thus has to match the bean's
- * fieldnames.<br/>
+ * fieldnames.<br>
  * <br/>
  * <pre>
  * &lt;trpDocMetadata&gt;
@@ -69,7 +69,7 @@ import eu.transkribus.core.util.XmlUtils;
  * 	&lt;nrOfPages&gt;5&lt;/nrOfPages&gt;
  * &lt;/trpDocMetadata&gt;
  * </pre>
- * <br/>
+ * <br>
  * 
  * @author giorgio
  * 

@@ -50,8 +50,8 @@ import eu.transkribus.core.util.PageXmlUtils;
 import eu.transkribus.core.util.XmlUtils;
 
 /**
- * Reader class for loading a TRP Document from the local filesystem.<br/>
- * The given path should contain:<br/>
+ * Reader class for loading a TRP Document from the local filesystem.<br>
+ * The given path should contain:<br>
  * <ul>
  * <li>Image files of type JPG or TIFF (allowed types and priorities defined in
  * {@link ImgPriority})</li>
@@ -62,7 +62,7 @@ import eu.transkribus.core.util.XmlUtils;
  * </ul>
  * Order of pages is implied by order of filenames. The metadata XML is
  * marshalled to a TrpDocMetadata Object and thus has to match the bean's
- * fieldnames.<br/>
+ * fieldnames.<br>
  * <br/>
  * <pre>
  * &lt;trpDocMetadata&gt;
@@ -75,7 +75,7 @@ import eu.transkribus.core.util.XmlUtils;
  * 	&lt;nrOfPages&gt;5&lt;/nrOfPages&gt;
  * &lt;/trpDocMetadata&gt;
  * </pre>
- * <br/>
+ * <br>
  * 
  * @author philip
  * 
@@ -90,40 +90,38 @@ public class LocalDocReader {
 	}
 	
 	/**
-	 * @param path
-	 * @param forceCreatePageXml
-	 * @return
-	 * @throws IOException
-	 * @throws UnsupportedFormatException
+	 * @param path the path where the document is stored
+	 * @param forceCreatePageXml if true, then a Page XML skeleton is created for pages where none exists
+	 * @return the constructed document
+	 * @throws IOException if the path can't be read or is malformed or an invalid XML format is found
 	 */
 	public static TrpDoc load(final String path, boolean forceCreatePageXml) throws IOException {
 		return load(path, true, true, false, forceCreatePageXml);
 	}
 	
 	/**
-	 * Loads a document from path.<br/>
+	 * Loads a document from path.<br>
 	 * 
-	 * Document metadata has to be in an XML called "metadata.xml".<br/>
+	 * Document metadata has to be in an XML called "metadata.xml".<br>
 	 * 
-	 * Image files and corresponding XML files have to have the same name. <br/>
-	 * Lexicographic order of image names will imply order of pages.<br/>
+	 * Image files and corresponding XML files have to have the same name. <br>
+	 * Lexicographic order of image names will imply order of pages.<br>
 	 * Types of XML files are searched in this order:
 	 * <ol>
 	 * <li>./page: PAGE XMLs according to schema 2010/2013</li>
 	 * <li>./ocr: Abbyy Finereader XMLs schema version 10</li>
 	 * <li>./alto: ALTO v2 XMls
 	 * </ol>
-	 * Testdoc is in $dea_scratch/TRP/TrpTestDoc <br/>
-	 * <b>No versioning of files for local use!<br/>
+	 * Testdoc is in $dea_scratch/TRP/TrpTestDoc <br>
+	 * <b>No versioning of files for local use!<br>
 	 * 
-	 * @param path
-	 * @param preserveOcrTxtStyles
-	 * @param preserveOcrFontFamily
-	 * @param replaceBadChars
-	 * @param forceCreatePageXml
-	 * @return
-	 * @throws IOException
-	 * @throws WrongPageFormatVersionException
+	 * @param path the path where the document is stored
+	 * @param preserveOcrTxtStyles when creating the pageXML from alto/finereader XMLs, preserve the text style information
+	 * @param preserveOcrFontFamily when creating the pageXML from alto/finereader XMLs, preserve the font information
+	 * @param replaceBadChars TODO when creating the pageXML from alto/finereader XMLs, specific characters are replaced. see FinereaderUtils
+	 * @param forceCreatePageXml if true, then a Page XML skeleton is created for pages where none exists
+	 * @return the constructed document
+	 * @throws IOException if the path can't be read or is malformed
 	 */
 	public static TrpDoc load(final String path, boolean preserveOcrTxtStyles, boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml) throws IOException {
 		//check OS and adjust URL protocol
@@ -325,9 +323,10 @@ public class LocalDocReader {
 	 * Read a local doc based on its mets.xml file that has to contain file
 	 * paths relative to parentDir
 	 * 
-	 * @param metsFile
-	 * @return
-	 * @throws IOException
+	 * @param metsFile the mets object
+	 * @param parentDir the directory of the local document
+	 * @return the constructed Document
+	 * @throws IOException if the path can't be read
 	 */
 	public static TrpDoc load(Mets mets, File parentDir) throws IOException {
 		final TrpDoc doc = new TrpDoc();
@@ -443,7 +442,7 @@ public class LocalDocReader {
 
 	/**
 	 * Builds a TrpPage object with file URLs set
-	 * @param inputDir 
+	 * @param inputDir the path where the local document is stored
 	 * 
 	 * @param pageNr
 	 *            of the page to be built
@@ -453,7 +452,7 @@ public class LocalDocReader {
 	 *            the corresponding PAGE XML
 	 * @return a TrpPage object with Transcript. The Transcript is null, if
 	 *         pageXml is null.
-	 * @throws MalformedURLException
+	 * @throws MalformedURLException if an URL can't be constructed from parentDir
 	 */
 	public static TrpPage buildPage(File inputDir, int pageNr, File img, File pageXml, File thumb) throws IOException {
 		logger.debug(pageNr + ": XML = " + (pageXml == null ? "null" : pageXml.getName())
@@ -524,9 +523,9 @@ public class LocalDocReader {
 	
 	/**
 	 * Finds image files and builds a list with distinct pages (based on
-	 * filenames).<br/>
+	 * filenames).<br>
 	 * If several image files in different formats are found for one page, the
-	 * one with the highest priority (according to {@link ImgPriority}) is
+	 * one with the highest priority (according to {@link eu.transkribus.core.io.util.ImgPriority}) is
 	 * returned in the list.
 	 * 
 	 * @param inputDir
