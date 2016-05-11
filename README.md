@@ -15,6 +15,7 @@ to build your project.
 ### Build Steps
 ```
 git clone https://github.com/Transkribus/TranskribusCore
+cd TranskribusCore
 mvn install
 ```
 
