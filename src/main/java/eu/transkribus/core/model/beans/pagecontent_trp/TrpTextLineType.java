@@ -55,7 +55,7 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 		observable.setChangedAndNotifyObservers(new TrpConstructedWithParentEvent(this));
 	}
 	
-	/** Copy constructor - NOTE: the contained words are <emph>not</emph> deep copied, only their references! */
+	/** Copy constructor - NOTE: the contained words are <b>not</b> deep copied, only their references! */
 	public TrpTextLineType(TrpTextLineType src) {
 		copyFields(src);
 	}
