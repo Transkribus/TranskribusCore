@@ -10,7 +10,7 @@ to build your project.
 ### Requirements
 - Java >= version 7
 - Maven
-- All further dependencies are gathered via maven
+- All further dependencies are gathered via Maven
 
 ### Build Steps
 ```
