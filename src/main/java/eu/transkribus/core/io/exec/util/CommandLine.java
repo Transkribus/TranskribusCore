@@ -62,6 +62,8 @@ public class CommandLine {
 	 *            A list of strings with the standard output
 	 * @param stdErr
 	 *            A list of strings with the standard error output
+	 * @param workingDirectory the directory to work in
+	 * @param env environment variables to be set for the process
 	 * @param command
 	 *            The command and its options. IMPORTANT NOTE: all whitespaces
 	 *            in each given option string are escaped (for filenames with
@@ -69,9 +71,10 @@ public class CommandLine {
 	 *            its value parameter as different strings, e.g.: 'gm convert
 	 *            -scale 120x120' should be given as an array of ['gm',
 	 *            'convert', '-scale', '120x120']
-	 * @throws IOException 
-	 * @throws TimeoutException 
-	 * @throws InterruptedException 
+	 * @return exit code
+	 * @throws IOException if the workingDirectory is not writeable
+	 * @throws TimeoutException if Timeout occurs
+	 * @throws InterruptedException if the execution is interrupted
 	 * @throws Exception
 	 *             If something goes wrong, i.e. the exit code of the
 	 *             application is greater than 0

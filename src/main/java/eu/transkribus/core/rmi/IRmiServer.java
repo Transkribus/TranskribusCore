@@ -10,7 +10,7 @@ import javax.xml.bind.JAXBException;
 import eu.transkribus.core.rmi.util.NcsrToolException;
 
 public interface IRmiServer extends Remote {
-	/** DEBUG */
+
 	public String checkConnection() throws RemoteException;
 
 	public String getBlockSeg(final String imgKey, String pcGts, boolean usePrintspaceOnly)

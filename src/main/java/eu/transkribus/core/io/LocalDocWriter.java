@@ -69,7 +69,7 @@ public class LocalDocWriter {
 //		return outFile.getAbsolutePath();
 //	}
 	
-	/** @deprecated Does not work on mac */
+	/* @deprecated Does not work on mac */
 	@Deprecated
 	public static void createThumbsForDoc(TrpDoc doc, boolean overwrite) throws Exception {
 		checkIfLocalDoc(doc);
@@ -180,7 +180,7 @@ public class LocalDocWriter {
 	}
 	
 	@Deprecated
-	/**
+	/*
 	 * Use {@link DocExporter#writeRawDoc}
 	 * @deprecated
 	 */

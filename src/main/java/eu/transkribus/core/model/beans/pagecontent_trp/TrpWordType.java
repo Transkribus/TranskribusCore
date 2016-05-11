@@ -54,7 +54,7 @@ public class TrpWordType extends WordType implements ITrpShapeType {
 		observable.setChangedAndNotifyObservers(new TrpConstructedWithParentEvent(this));
 	}
 	
-	/** Copy constructor - NOTE: contained glyphs are <emph>not</emph> deep copied, only their references! */ 
+	/** Copy constructor - NOTE: contained glyphs are <b>not</b> deep copied, only their references! */ 
 	public TrpWordType(TrpWordType src) {
 		super();
 		

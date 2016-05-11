@@ -54,7 +54,12 @@ public class LocalFimagestoreClient {
 		}
 	}
 		
-	/** This one returns null for a FileNotFoundException */
+	/** This one returns null for a FileNotFoundException 
+	 * @param dir the directory
+	 * @param fileType
+	 * @return
+	 * @throws Exception
+	 */
 	public static File getFile2(File dir, String fileType) throws Exception {
 		try {
 			return getFile(dir, fileType);

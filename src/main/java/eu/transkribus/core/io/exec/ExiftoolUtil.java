@@ -75,9 +75,6 @@ public class ExiftoolUtil {
 		return tags;
 	}
 
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
 		
 		//FIXME exiftool doesn't work for files with spaces in name (linux, windows untested)

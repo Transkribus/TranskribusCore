@@ -43,7 +43,7 @@ public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {
 		observable.setChangedAndNotifyObservers(new TrpConstructedWithParentEvent(this));
 	}
 	
-	/** Copy constructor - NOTE: the contained lines are <emph>not</emph> deep copied, only their references! */
+	/** Copy constructor - NOTE: the contained lines are <b>not</b> deep copied, only their references! */
 	public TrpTextRegionType(TrpTextRegionType src) {
 		super();
 		
