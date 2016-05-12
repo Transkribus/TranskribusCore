@@ -1,6 +1,8 @@
 package eu.transkribus.core.model.beans;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -86,9 +88,15 @@ public class JAXBPageTranscript extends AbstractPageTranscript<PcGtsType> {
 			throw new IOException("Metadata is null!");
 		
 		PcGtsType pageData;
-		if (md.getUrl()!=null) {
+		URL url = md.getUrl();
+		if (url != null) {
 			try {
-				pageData = PageXmlUtils.unmarshal(md.getUrl());
+				if(url.getProtocol().startsWith("file")){
+					final String path = url.toExternalForm().replaceFirst("file:", "");
+					pageData = PageXmlUtils.unmarshal(new File(path));
+				} else {
+					pageData = PageXmlUtils.unmarshal(url);
+				}
 			} catch (JAXBException e) {
 				throw new IOException(e);
 			}

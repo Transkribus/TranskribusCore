@@ -6,6 +6,8 @@ import java.awt.Rectangle;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URISyntaxException;
@@ -130,9 +132,18 @@ public class PageXmlUtils {
 
 	public static PcGtsType unmarshal(File file) throws JAXBException {	
 		Unmarshaller u = createUnmarshaller();
-	
+		
+		//Use FileInputStream because JaxB handles File objects via URL internally and thus does not
+		//allow all POSIX compliant file names, e.g. containing "#"
+		FileInputStream fis;
+		try {
+			fis = new FileInputStream(file);
+		} catch (FileNotFoundException e) {
+			throw new JAXBException("File not found: " + file.getAbsolutePath(), e);
+		}
+		
 		@SuppressWarnings("unchecked")
-		PcGtsType pageData = ((JAXBElement<PcGtsType>) u.unmarshal(file)).getValue();
+		PcGtsType pageData = ((JAXBElement<PcGtsType>) u.unmarshal(fis)).getValue();
 		onPostConstruct(pageData);
 		
 		return pageData;
