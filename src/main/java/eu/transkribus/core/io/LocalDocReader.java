@@ -465,14 +465,14 @@ public class LocalDocReader {
 		page.setKey(null);
 		page.setImgFileName(img.getName());
 		page.setDocId(-1);
-		final URL imgUrl = new URL(LocalDocConst.URL_PROT_CONST + img.getAbsolutePath());
+		final URL imgUrl = img.toURI().toURL();
 		page.setUrl(imgUrl);
 //		page.setThumbUrl(new File(LocalDocWriter.getThumbFileName(page)).toURI().toURL());
-		final URL thumbUrl = new URL(LocalDocConst.URL_PROT_CONST + thumb.getAbsolutePath());
+		final URL thumbUrl = thumb.toURI().toURL();
 		page.setThumbUrl(thumbUrl);
 		
 		if(pageXml != null){
-			final URL xmlUrl = new URL(LocalDocConst.URL_PROT_CONST + pageXml.getAbsolutePath());	
+			final URL xmlUrl = pageXml.toURI().toURL();	
 			TrpTranscriptMetadata tmd = new TrpTranscriptMetadata();
 			tmd.setPageReferenceForLocalDocs(page);
 			tmd.setPageNr(pageNr);

@@ -91,12 +91,7 @@ public class JAXBPageTranscript extends AbstractPageTranscript<PcGtsType> {
 		URL url = md.getUrl();
 		if (url != null) {
 			try {
-				if(url.getProtocol().startsWith("file")){
-					final String path = url.toExternalForm().replaceFirst("file:", "");
-					pageData = PageXmlUtils.unmarshal(new File(path));
-				} else {
-					pageData = PageXmlUtils.unmarshal(url);
-				}
+				pageData = PageXmlUtils.unmarshal(url);
 			} catch (JAXBException e) {
 				throw new IOException(e);
 			}
