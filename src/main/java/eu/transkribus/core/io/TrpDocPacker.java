@@ -9,6 +9,7 @@ import java.util.Observable;
 
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +20,8 @@ import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.mets.FileGrpType;
 import eu.transkribus.core.model.beans.mets.FileType;
-import eu.transkribus.core.model.beans.mets.Mets;
 import eu.transkribus.core.model.beans.mets.FileType.FLocat;
+import eu.transkribus.core.model.beans.mets.Mets;
 import eu.transkribus.core.model.builder.mets.TrpMetsBuilder;
 import eu.transkribus.core.util.ChecksumUtils;
 import eu.transkribus.core.util.JaxbUtils;
@@ -151,8 +152,7 @@ public class TrpDocPacker extends Observable {
 			throw new IOException(url + " is not a local file!");
 		}
 		final String chkSum;
-		final String path = url.getPath();
-		File f = new File(path);
+		File f = FileUtils.toFile(url);
 		updateStatus("Computing checksum: " + f.getAbsolutePath());
 		chkSum = ChecksumUtils.getMd5SumHex(f);
 		return chkSum;

@@ -321,7 +321,7 @@ public class PageXmlUtils {
 			pcGts = createEmptyPcGtsTypeForRemoteImg(imgUrl);
 		} else {
 			//try to deal with it as local file
-			final File imgFile = new File(imgUrl.getPath());
+			final File imgFile = FileUtils.toFile(imgUrl);
 			pcGts = createEmptyPcGtsType(imgFile);
 		}
 		return pcGts;
