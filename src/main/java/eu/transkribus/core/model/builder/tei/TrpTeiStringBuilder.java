@@ -305,7 +305,7 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		}
 		else if (t instanceof PersonTag) {
 			PersonTag pt = (PersonTag) t;
-			ts = "<name type='person'>";
+			ts = "<persName>";
 			
 			if (!StringUtils.isEmpty(pt.getFirstname())) {
 				ts +="<forename>"+pt.getFirstname()+"</forename>";
@@ -325,14 +325,14 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		}
 		else if (t instanceof PlaceTag) {
 			PlaceTag pt = (PlaceTag) t;
-			ts = "<name type='place'>";
+			ts = "<placeName>";
 			if (!StringUtils.isEmpty(pt.getCountry())) {
 				ts += "<country>"+pt.getCountry()+"</country>";
 			}
 		}
 		else if (t instanceof OrganizationTag) {
 			OrganizationTag ot = (OrganizationTag) t;
-			ts = "<name type='org'>";	
+			ts = "<orgName>";
 		}
 		else if (t instanceof SpeechTag) {
 			SpeechTag st = (SpeechTag) t;
@@ -369,8 +369,14 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		else if (t instanceof AbbrevTag) {
 			te = "</abbr></choice>";
 		}
-		else if (t instanceof PersonTag || t instanceof PlaceTag || t instanceof OrganizationTag) {
-			te = "</name>";
+		else if (t instanceof PersonTag) {
+			te = "</persName>";
+		}
+		else if  (t instanceof PlaceTag) {
+			te = "</placeName>";
+		}
+		else if (t instanceof OrganizationTag) {
+			 te = "</orgName>";
 		}
 		else if (t instanceof SpeechTag) {
 			te = "</sp>";
