@@ -135,6 +135,7 @@ public class CustomTagFactory {
 			CustomTagFactory.addToRegistry(new UnclearTag());
 			CustomTagFactory.addToRegistry(new BlackeningTag());
 			CustomTagFactory.addToRegistry(new SuppliedTag());
+			CustomTagFactory.addToRegistry(new AdditionTag());
 			
 			CustomTagFactory.addToRegistry(new CommentTag()); // no color needed since extra rendering is done!
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e) {

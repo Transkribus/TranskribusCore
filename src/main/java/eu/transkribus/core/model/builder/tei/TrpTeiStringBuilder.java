@@ -12,6 +12,7 @@ import org.apache.commons.lang3.text.translate.AggregateTranslator;
 import org.apache.commons.lang3.text.translate.CharSequenceTranslator;
 import org.apache.commons.lang3.text.translate.LookupTranslator;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.hamcrest.core.IsNot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +42,8 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
+import eu.transkribus.core.model.builder.tei.TeiExportPars.TeiExportMode;
+import eu.transkribus.core.model.builder.tei.TeiExportPars.TeiLinebreakMode;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.SebisStringBuilder;
 
@@ -56,22 +59,26 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 
 	SebisStringBuilder sbTotal = new SebisStringBuilder();
 	
-	boolean writeTextOnWordLevel=true;
-	boolean doBlackening=false;
+//	boolean writeTextOnWordLevel=true;
+//	boolean doBlackening=false;
 	
 	public TrpTeiStringBuilder(TrpDoc doc, TeiExportMode mode, boolean writeTextOnWordLevel, boolean doBlackening, IProgressMonitor monitor, Set<Integer> pageIndices, Set<String> selectedTags) {
 		super(doc, mode, monitor, pageIndices, selectedTags);
-		this.writeTextOnWordLevel = writeTextOnWordLevel;
-		this.doBlackening = doBlackening;
+		this.pars.writeTextOnWordLevel = writeTextOnWordLevel;
+		this.pars.doBlackening = doBlackening;
+	}
+	
+	public TrpTeiStringBuilder(TrpDoc doc, TeiExportPars pars, IProgressMonitor monitor) {
+		super(doc, pars, monitor);
 	}
 
-	public boolean isWriteTextOnWordLevel() {
-		return writeTextOnWordLevel;
-	}
-
-	public void setWriteTextOnWordLevel(boolean writeTextOnWordLevel) {
-		this.writeTextOnWordLevel = writeTextOnWordLevel;
-	}
+//	public boolean isWriteTextOnWordLevel() {
+//		return pars.writeTextOnWordLevel;
+//	}
+//
+//	public void setWriteTextOnWordLevel(boolean writeTextOnWordLevel) {
+//		this.pars.writeTextOnWordLevel = writeTextOnWordLevel;
+//	}
 
 	@Override public String getTeiAsString() {
 		return sbTotal.toString();
@@ -234,13 +241,13 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 	void writeZonesForTextRegion(SebisStringBuilder sb, TextRegionType r, int pageNr) {
 		String facsId = FACS_ID_PREFIX+pageNr;
 
-		writeZoneForShape(sb, (TrpTextRegionType) r, facsId, mode.val <= TeiExportMode.ZONE_PER_PAR.val);
-		if (mode.val > TeiExportMode.ZONE_PER_PAR.val) {
+		writeZoneForShape(sb, (TrpTextRegionType) r, facsId, pars.mode.val <= TeiExportMode.ZONE_PER_PAR.val);
+		if (pars.mode.val > TeiExportMode.ZONE_PER_PAR.val) {
 			for (TextLineType tl : r.getTextLine()) {
 				TrpTextLineType ttl = (TrpTextLineType) tl;
 				
-				writeZoneForShape(sb, ttl, facsId, mode.val <= TeiExportMode.ZONE_PER_LINE.val);
-				if (mode.val > TeiExportMode.ZONE_PER_LINE.val) {
+				writeZoneForShape(sb, ttl, facsId, pars.mode.val <= TeiExportMode.ZONE_PER_LINE.val);
+				if (pars.mode.val > TeiExportMode.ZONE_PER_LINE.val) {
 					 for (WordType w : ttl.getWord()) {
 						 TrpWordType tw = (TrpWordType) w;
 						 writeZoneForShape(sb, tw, facsId, true);
@@ -256,7 +263,7 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 	
 	void writePageBreak(SebisStringBuilder sb, TrpPage p, PcGtsType pc) {
 		String facsId = "#"+FACS_ID_PREFIX+p.getPageNr();
-		if (mode.val <= TeiExportMode.SIMPLE.val) {
+		if (pars.mode.val <= TeiExportMode.SIMPLE.val) {
 			String graphicUrl = getPageGraphicsUrl(p, pc);
 			facsId = graphicUrl;
 		}
@@ -266,7 +273,7 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 	
 	void writeTextRegion(SebisStringBuilder sb, TextRegionType region, String facsId) {
 		String pStr = "<p";
-		if (mode.val > TeiExportMode.SIMPLE.val) {
+		if (pars.mode.val > TeiExportMode.SIMPLE.val) {
 			String id = "#"+facsId+"_"+region.getId();	
 			pStr += " facs='"+id+"'";
 		}
@@ -274,8 +281,10 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		
 		sb.incIndent();
 		sb.addLine(pStr);
-		sb.incIndent();
-		sb.addLine("<lg>");
+		if (pars.linebreakMode == TeiLinebreakMode.LINE_TAG) {
+			sb.incIndent();
+			sb.addLine("<lg>");
+		}
 	}
 	
 	void correctTagOffsets(int insertOffset, int insertLength, List<CustomTag> tags) {
@@ -431,14 +440,14 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		for (CustomTag t : ctList) {
 		
 			
-			if ( selectedTags == null || selectedTags.contains(t.getTagName()) 
-				|| (doBlackening && t.getTagName().equals(BlackeningTag.TAG_NAME)) || t.getTagName().equals(TextStyleTag.TAG_NAME) ) {
+			if ( pars.selectedTags == null || pars.selectedTags.contains(t.getTagName()) 
+				|| (pars.doBlackening && t.getTagName().equals(BlackeningTag.TAG_NAME)) || t.getTagName().equals(TextStyleTag.TAG_NAME) ) {
 				text = insertTag(text, t, ctList);
 			}
 		}
 		
 		// replace blackened text:
-		if (doBlackening) {
+		if (pars.doBlackening) {
 			text = hideBlackenedText(text);
 		}
 		
@@ -459,26 +468,46 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 	}
 	
 	String getLineOrWordStart(ITrpShapeType shape, String facsId) {
+		
 		boolean isLine = shape instanceof TrpTextLineType;
 		String el = isLine ? "l" : "w";
 		
 		String id = "#"+facsId+"_"+shape.getId();
 		
-		String lStr = "<"+el;
-		if (mode.val > TeiExportMode.ZONE_PER_PAR.val && isLine) {
-			lStr += " facs='"+id+"'";
-		} else if (mode.val > TeiExportMode.ZONE_PER_LINE.val && !isLine) {
-			lStr += " facs='"+id+"'";
+		if (!isLine || pars.linebreakMode == TeiLinebreakMode.LINE_TAG) {
+			String lStr = "<"+el;
+			if (pars.mode.val > TeiExportMode.ZONE_PER_PAR.val && isLine) {
+				lStr += " facs='"+id+"'";
+			} else if (pars.mode.val > TeiExportMode.ZONE_PER_LINE.val && !isLine) {
+				lStr += " facs='"+id+"'";
+			}
+			lStr += ">";
+			return lStr;
+		} else { // if line and linebreak mode != LINE_TAG
+			return "";
 		}
-		lStr += ">";
-		
-		return lStr;
 	}
 	
-	String getLineOrWordEnd(ITrpShapeType shape) {
+	String getLineOrWordEnd(ITrpShapeType shape, String facsId) {
 		boolean isLine = shape instanceof TrpTextLineType;
-		String el = isLine ? "l" : "w";
-		return "</"+el+">";
+		
+		if (!isLine || pars.linebreakMode == TeiLinebreakMode.LINE_TAG) {
+			String el = isLine ? "l" : "w";
+			return "</"+el+">";
+		} else {
+			if (! (shape instanceof TrpTextLineType) ) {
+				// error!
+				logger.error("Unexpected error: not a line given!");
+				return "";
+			}
+			
+			TrpTextLineType line = (TrpTextLineType) shape;
+			String nStr = "N"+StringUtils.leftPad(""+(line.getIndex()+1), 3, '0');
+
+			String id = "#"+facsId+"_"+shape.getId();
+			String lbStr = "<lb facs='"+id+"' n='"+nStr+"'/>";
+			return lbStr;
+		}
 	}
 	
 	void writeLineOrWord(SebisStringBuilder sb, ITrpShapeType shape, String facsId) {
@@ -492,7 +521,7 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		String escapedContent = ESCAPE_XML_CONTENT.translate(content);
 		
 		logger.debug("CONTENT = "+content+" escaped: "+escapedContent);
-		lStr+=escapedContent+getLineOrWordEnd(shape);
+		lStr+=escapedContent+getLineOrWordEnd(shape, facsId);
 		
 //		if (isLine)
 			sb.incIndent();
@@ -544,7 +573,10 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 //	}
 	
 	void closeTextRegion(SebisStringBuilder sb) {
-		closeElement(sb, "lg");
+		if (pars.linebreakMode == TeiLinebreakMode.LINE_TAG) {
+			closeElement(sb, "lg");
+		}
+		
 		closeElement(sb, "p");
 	}
 	
@@ -561,7 +593,7 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		for (TextLineType tl : r.getTextLine()) {
 			TrpTextLineType ttl = (TrpTextLineType) tl;
 			
-			if (!writeTextOnWordLevel) {
+			if (!pars.writeTextOnWordLevel) {
 				writeLineOrWord(sb, ttl, facsId);
 			} else {
 				String lStart = getLineOrWordStart(ttl, facsId);
@@ -573,7 +605,7 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 					writeLineOrWord(sb, (TrpWordType) w, facsId);
 				}
 				
-				String lEnd = getLineOrWordEnd(ttl);
+				String lEnd = getLineOrWordEnd(ttl, facsId);
 				sb.addLine(lEnd);
 //				sb.append("\n");
 				sb.decIndent();
@@ -597,14 +629,14 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 //		text = tei.createElementNS(TEI_NS, "text");
 //		body = tei.createElementNS(TEI_NS, "body");
 		
-		int totalPages = pageIndices==null ? pages.size() : pageIndices.size();
+		int totalPages = pars.pageIndices==null ? pages.size() : pars.pageIndices.size();
 		if (monitor != null) {
 			monitor.beginTask("Creating TEI", totalPages);
 		}
 		
 		int c=0;
 		for (int i=0; i<pages.size(); ++i) {
-			if (pageIndices!=null && !pageIndices.contains(i))
+			if (pars.pageIndices!=null && !pars.pageIndices.contains(i))
 				continue;
 			
 			if (monitor != null) {
@@ -619,7 +651,7 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 			//check buffer for transcript or unmarshal the page XML
 			PcGtsType pc = this.getPcGtsTypeForPage(p);
 		
-			if (mode.val > TeiExportMode.SIMPLE.val) {
+			if (pars.mode.val > TeiExportMode.SIMPLE.val) {
 				// create a facsimile element for each page that are appended to the root element of the TEI after header
 				openFacsimileElement(sbFacsimile, p, pc);
 			}
@@ -633,20 +665,20 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 			for(TrpRegionType r : regions){
 //				System.out.println(r.getClass());
 				if(r instanceof TextRegionType) {
-					if (mode.val > TeiExportMode.SIMPLE.val) {
+					if (pars.mode.val > TeiExportMode.SIMPLE.val) {
 						writeZonesForTextRegion(sbFacsimile, (TrpTextRegionType) r, p.getPageNr());
 					}
 					writeTextForTextRegion(sbText, (TrpTextRegionType) r, p.getPageNr());
 				}
 				else { // write other regions
-					if (mode.val > TeiExportMode.SIMPLE.val) {
+					if (pars.mode.val > TeiExportMode.SIMPLE.val) {
 						String facsId = FACS_ID_PREFIX+p.getPageNr();
 						writeZoneForShape(sbFacsimile, r, facsId, true);
 					}
 				}
 			}
 
-			if (mode.val > TeiExportMode.SIMPLE.val) {
+			if (pars.mode.val > TeiExportMode.SIMPLE.val) {
 				closeFacsimilieElement(sbFacsimile);
 			}
 			

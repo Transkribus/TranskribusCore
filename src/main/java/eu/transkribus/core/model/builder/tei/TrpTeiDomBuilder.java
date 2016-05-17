@@ -25,6 +25,7 @@ import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextTypeSimpleType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementCoordinatesComparator;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
+import eu.transkribus.core.model.builder.tei.TeiExportPars.TeiExportMode;
 import eu.transkribus.core.util.XmlUtils;
 
 @Deprecated
@@ -118,14 +119,14 @@ public class TrpTeiDomBuilder extends ATeiBuilder {
 		text = tei.createElementNS(TEI_NS, "text");
 		body = tei.createElementNS(TEI_NS, "body");
 		
-		int totalPages = pageIndices==null ? pages.size() : pageIndices.size();
+		int totalPages = pars.pageIndices==null ? pages.size() : pars.pageIndices.size();
 		if (monitor != null) {
 			monitor.beginTask("Creating TEI", totalPages);
 		}
 		
 		int c=0;
 		for (int i=0; i<pages.size(); ++i) {
-			if (pageIndices!=null && !pageIndices.contains(i))
+			if (pars.pageIndices!=null && !pars.pageIndices.contains(i))
 				continue;
 			
 			if (monitor != null) {
@@ -258,7 +259,7 @@ public class TrpTeiDomBuilder extends ATeiBuilder {
 		if(content != null){
 			
 			String zoneId = null;
-			if(this.mode.val > TeiExportMode.SIMPLE.val) {
+			if(this.pars.mode.val > TeiExportMode.SIMPLE.val) {
 				zone = tei.createElementNS(TEI_NS, "zone");
 				zone.setAttribute("type", zoneType);
 				//set regionId and coords on zone
@@ -278,7 +279,7 @@ public class TrpTeiDomBuilder extends ATeiBuilder {
 				if(l.getTextEquiv() != null && l.getTextEquiv().getUnicode() != null){
 					final String lineText = l.getTextEquiv().getUnicode();
 					
-					if (this.mode.val >= TeiExportMode.ZONE_PER_LINE.val) {
+					if (this.pars.mode.val >= TeiExportMode.ZONE_PER_LINE.val) {
 						final String linePoints = l.getCoords().getPoints();
 						final String lineZoneId = zoneId + "_l_" + i;
 						Element lineZone = tei.createElementNS(TEI_NS, "zone");
@@ -297,7 +298,7 @@ public class TrpTeiDomBuilder extends ATeiBuilder {
 			}
 			content.setTextContent(sb.toString());
 			body.appendChild(content);
-			if(this.mode.val > TeiExportMode.SIMPLE.val){
+			if(this.pars.mode.val > TeiExportMode.SIMPLE.val){
 				currParentSurface.appendChild(zone);
 			}
 		}

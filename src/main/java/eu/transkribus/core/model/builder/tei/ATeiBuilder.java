@@ -14,6 +14,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,10 +24,8 @@ import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
-import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.builder.ExportUtils;
-import eu.transkribus.core.model.builder.TrpPageTranscriptBuilder;
-import eu.transkribus.core.util.PageXmlUtils;
+import eu.transkribus.core.model.builder.tei.TeiExportPars.TeiExportMode;
 
 public abstract class ATeiBuilder {
 	@SuppressWarnings("unused")
@@ -38,22 +37,47 @@ public abstract class ATeiBuilder {
 	public static final String DEFAULT_PUBLISHER = "tranScriptorium";
 	
 	protected final TrpDoc trpDoc;
-	protected TeiExportMode mode = TeiExportMode.SIMPLE;
+	
+//	protected TeiExportMode mode = TeiExportMode.SIMPLE;
 	
 	//keep the transcripts here. When changing the mode we won't need to get them again
 	protected Map<Integer, PcGtsType> transcrBuffer;
 	
 	IProgressMonitor monitor;
-	Set<Integer> pageIndices;
-	Set<String> selectedTags;
+	
+//	Set<Integer> pageIndices;
+//	Set<String> selectedTags;
+	
+	TeiExportPars pars;
 	
 	public ATeiBuilder(TrpDoc doc, TeiExportMode mode, IProgressMonitor monitor, Set<Integer> pageIndices, Set<String> selectedTags) {
 		this.trpDoc = doc;
 		this.transcrBuffer = new HashMap<>();
-		this.mode = mode;
+		
+		this.pars = new TeiExportPars();
+		pars.mode = mode;
+		pars.pageIndices = pageIndices;
+		pars.selectedTags = selectedTags;
+		
+//		this.mode = mode;
 		this.monitor = monitor;
-		this.pageIndices = pageIndices;
-		this.selectedTags = selectedTags;
+//		this.pageIndices = pageIndices;
+//		this.selectedTags = selectedTags;
+		
+		Assert.assertNotNull("tei pars is null!", this.pars);
+	}
+	
+	public ATeiBuilder(TrpDoc doc, TeiExportPars pars, IProgressMonitor monitor) {
+		this.trpDoc = doc;
+		this.transcrBuffer = new HashMap<>();
+		this.monitor = monitor;
+		
+		if (pars != null)
+			this.pars = pars;
+		else
+			this.pars = new TeiExportPars();
+		
+		Assert.assertNotNull("tei pars is null!", this.pars);
 	}
 	
 	public IProgressMonitor getMonitor() {
@@ -65,7 +89,7 @@ public abstract class ATeiBuilder {
 	}
 
 	public void setMode(final TeiExportMode mode) throws JAXBException, ParserConfigurationException{
-		this.mode = mode;
+		this.pars.mode = mode;
 	}
 	
 	public abstract String getTeiAsString();
