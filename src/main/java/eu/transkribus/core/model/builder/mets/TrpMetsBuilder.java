@@ -459,7 +459,7 @@ public class TrpMetsBuilder extends Observable {
 		} else {
 			logger.info("Page " + page.getPageNr() + " image: " + imgFile.getAbsolutePath());
 		}
-		page.setUrl(new URL(LocalDocConst.URL_PROT_CONST + imgFile.getAbsolutePath()));
+		page.setUrl(imgFile.toURI().toURL());
 		page.setKey(null);
 		page.setDocId(-1);
 		page.setImgFileName(imgFile.getName());
@@ -472,7 +472,7 @@ public class TrpMetsBuilder extends Observable {
 		TrpTranscriptMetadata tmd = new TrpTranscriptMetadata();
 		tmd.setPageReferenceForLocalDocs(page);
 		tmd.setPageId(page.getPageId());
-		tmd.setUrl(new URL(LocalDocConst.URL_PROT_CONST + xmlFile.getAbsolutePath()));
+		tmd.setUrl(xmlFile.toURI().toURL());
 		tmd.setKey(null);
 		tmd.setStatus(EditStatus.NEW);
 		tmd.setTimestamp(new Date().getTime());
