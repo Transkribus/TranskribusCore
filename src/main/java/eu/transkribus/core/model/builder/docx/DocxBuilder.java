@@ -12,6 +12,7 @@ import javax.xml.bind.JAXBException;
 
 import java.util.Calendar;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.docx4j.convert.out.flatOpcXml.FlatOpcXmlCreator;
 import org.docx4j.jaxb.Context;
 import org.docx4j.XmlUtils;
@@ -941,12 +942,17 @@ public class DocxBuilder {
 	
 	public static void addFootnote(int i, String text, FootnotesPart footnotesPart, R r) throws JAXBException, Docx4JException {
 		
+		
+		
 		// Add the note number in the run
 	    CTFtnEdnRef ftnednref = factory.createCTFtnEdnRef(); 
 	    JAXBElement<org.docx4j.wml.CTFtnEdnRef> ftnednrefWrapped = factory.createRFootnoteReference(ftnednref); 
 	    r.getContent().add( ftnednrefWrapped); 
 	    
 	    ftnednref.setId( BigInteger.valueOf(i) );
+	    
+	    //escape the special chars for XML
+	    String escapedText = StringEscapeUtils.escapeXml(text);
 	        
 	    /*
 	     * Test: try to set footnote reference
@@ -982,7 +988,7 @@ public class DocxBuilder {
 	                        + "<w:rPr>"
 	                            + "<w:lang w:val=\"en-AU\"/>"
 	                        +"</w:rPr>"
-	                        + "<w:t>" + text +"</w:t>"
+	                        + "<w:t>" + escapedText +"</w:t>"
 	                    +"</w:r>"
 	                +"</w:p>"
 	            +"</w:footnote>";		 

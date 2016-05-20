@@ -43,6 +43,7 @@ public class DocExporter extends Observable {
 		public boolean exportAltoXml=true;
 		public boolean exportFatXml=false;
 		public String fileNamePattern = "${filename}";
+		public boolean useHttps=true;
 	}
 
 	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, boolean exportPage, boolean exportAlto) throws IOException,
@@ -100,7 +101,9 @@ public class DocExporter extends Observable {
 		if (doc.isRemoteDoc()) {
 			//FIXME fimagestore path should be read from docMd!
 			getter = new FimgStoreGetClient("dbis-thure.uibk.ac.at", "f");
-			uriBuilder = new FimgStoreUriBuilder("http", getter.getHost(), 80,
+			final String scheme = opts.useHttps ? "https" : "http";
+			final int port = opts.useHttps ? 443 : 80;
+			uriBuilder = new FimgStoreUriBuilder(scheme, getter.getHost(), port,
 					getter.getServerContext());
 		}
 

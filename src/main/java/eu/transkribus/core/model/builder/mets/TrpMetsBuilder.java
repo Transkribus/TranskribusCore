@@ -11,6 +11,7 @@ import java.util.Observable;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.dea.fimgstoreclient.FimgStoreGetClient;
 import org.dea.fimgstoreclient.beans.FimgStoreFileMd;
@@ -180,7 +181,8 @@ public class TrpMetsBuilder extends Observable {
 				fLocat.setHref(relAltoPath);
 				
 				//String absAltoPath = tMd.getUrl().getPath().replace("page", "alto");
-				String absAltoPath = p.getUrl().getPath().substring(0, p.getUrl().getPath().lastIndexOf("/"));
+				final String path = FileUtils.toFile(p.getUrl()).getAbsolutePath();
+				String absAltoPath = path.substring(0, path.lastIndexOf("/"));
 				absAltoPath = absAltoPath.concat("/alto/").concat(p.getImgFileName().substring(0, p.getImgFileName().lastIndexOf(".")).concat(".xml"));
 				//logger.info("alto path starts with: " + absAltoPath);
 				if (absAltoPath.startsWith("\\") || absAltoPath.startsWith("/")){
@@ -295,7 +297,7 @@ public class TrpMetsBuilder extends Observable {
 			if(!url.getProtocol().contains("file")){
 				throw new IOException("Doc contains local folder reference but an URL refers to a non-local file! " + url.toString());
 			}
-			final String path = url.getPath();
+			final String path = FileUtils.toFile(url).getAbsolutePath();
 			File f = new File(path);
 			mime = MimeTypes.getMimeType(FilenameUtils.getExtension(f.getName()));
 			date = new Date(f.lastModified());
@@ -457,7 +459,7 @@ public class TrpMetsBuilder extends Observable {
 		} else {
 			logger.info("Page " + page.getPageNr() + " image: " + imgFile.getAbsolutePath());
 		}
-		page.setUrl(new URL(LocalDocConst.URL_PROT_CONST + imgFile.getAbsolutePath()));
+		page.setUrl(imgFile.toURI().toURL());
 		page.setKey(null);
 		page.setDocId(-1);
 		page.setImgFileName(imgFile.getName());
@@ -470,7 +472,7 @@ public class TrpMetsBuilder extends Observable {
 		TrpTranscriptMetadata tmd = new TrpTranscriptMetadata();
 		tmd.setPageReferenceForLocalDocs(page);
 		tmd.setPageId(page.getPageId());
-		tmd.setUrl(new URL(LocalDocConst.URL_PROT_CONST + xmlFile.getAbsolutePath()));
+		tmd.setUrl(xmlFile.toURI().toURL());
 		tmd.setKey(null);
 		tmd.setStatus(EditStatus.NEW);
 		tmd.setTimestamp(new Date().getTime());

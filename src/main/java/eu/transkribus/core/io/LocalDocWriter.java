@@ -132,7 +132,7 @@ public class LocalDocWriter {
 		}
 		
 		//update img file name and dimensions in page XML
-		Dimension dim = ImgUtils.readImageDimensions(new File(page.getUrl().getPath()));
+		Dimension dim = ImgUtils.readImageDimensions(FileUtils.toFile(page.getUrl()));
 		final String imgFileName = page.getImgFileName();
 		transcript.getPage().setImageFilename(imgFileName);
 		transcript.getPage().setImageHeight(dim.height);
@@ -219,7 +219,7 @@ public class LocalDocWriter {
 		if (u.getProtocol().toLowerCase().contains("file")) {
 			logger.debug("path: "+u.getPath());
 							
-			imgFn = FilenameUtils.getName(u.getPath());
+			imgFn = FilenameUtils.getName(FileUtils.toFile(u).getAbsolutePath());
 		}
 		else if (u.getProtocol().toLowerCase().contains("http")) {
 			// parse filename from
@@ -245,7 +245,7 @@ public class LocalDocWriter {
 			if (u.getProtocol().toLowerCase().contains("file")) {
 				logger.debug("path: "+u.getPath());
 								
-				xmlFn = FilenameUtils.getName(u.getPath());
+				xmlFn = FilenameUtils.getName(FileUtils.toFile(u).getAbsolutePath());
 			}
 			else if (u.getProtocol().toLowerCase().contains("http")) {
 				// parse filename from

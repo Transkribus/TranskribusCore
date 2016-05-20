@@ -434,13 +434,13 @@ public class CoreUtils {
 					int s = CoreUtils.bound(Integer.parseInt(numbers[0]), 1, nrOfPages);
 					int e = CoreUtils.bound(Integer.parseInt(numbers[1]), 1, nrOfPages);
 					for (int i=s-1; i<e; ++i) {
-						logger.debug("adding page index: "+i);
+						logger.trace("adding page index: "+i);
 						pi.add(i);
 					}
 				} else if (numbers.length == 1) {
 					int s = Integer.parseInt(numbers[0]);
 					if (s>=1 && s<=nrOfPages) {
-						logger.debug("adding page index: "+(s-1));
+						logger.trace("adding page index: "+(s-1));
 						pi.add(s-1);
 					}
 				} else {

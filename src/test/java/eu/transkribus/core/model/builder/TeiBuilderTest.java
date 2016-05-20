@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.io.LocalDocReader;
 import eu.transkribus.core.model.beans.TrpDoc;
-import eu.transkribus.core.model.builder.tei.TeiExportMode;
+import eu.transkribus.core.model.builder.tei.TeiExportPars.TeiExportMode;
 import eu.transkribus.core.model.builder.tei.TrpTeiStringBuilder;
 import eu.transkribus.core.util.SebisStopWatch;
 

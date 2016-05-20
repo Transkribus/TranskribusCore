@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -338,7 +339,7 @@ public class FinereaderUtils {
 		for(TrpPage p : doc.getPages()){
 			System.out.println("Processing page: " + p.getPageNr());
 			URL url = p.getCurrentTranscript().getUrl();
-			final String xmlPath = url.getPath();
+			final String xmlPath = FileUtils.toFile(url).getAbsolutePath();
 			File xmlFile = new File(xmlPath);
 			PcGtsType pc = JaxbUtils.unmarshal(xmlFile, PcGtsType.class);
 			List<TextRegionType> regions = PageXmlUtils.getTextRegions(pc);

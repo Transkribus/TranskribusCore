@@ -9,14 +9,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.itextpdf.text.io.GetBufferedRandomAccessSource;
-
 import eu.transkribus.core.model.beans.customtags.CustomTagList;
 import eu.transkribus.core.model.beans.customtags.CustomTagUtil;
 import eu.transkribus.core.model.beans.customtags.TextStyleTag;
 import eu.transkribus.core.model.beans.pagecontent.CoordsType;
 import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
+import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextStyleType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObservable;
@@ -129,7 +128,7 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	public TrpTextRegionType getRegion() { return region; }
 	
 	public int getIndex() { return region.getLineIndex(this); }
-	
+		
 	@Deprecated
 	public List<TaggedWord> getTaggedWords() {
 		return taggedWords;
