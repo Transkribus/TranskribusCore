@@ -311,16 +311,25 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 //		return this.getTime().compareTo(md.getTime());
 //	}
 	
-	@Override
-	public String toString(){
-		StringBuffer sb = new StringBuffer(this.getClass().getSimpleName() + " {");
-		sb.append(this.getTsId() + " - ");
-		sb.append(this.getPageId() + " - ");
-		sb.append(this.getStatus() + " - ");
-		sb.append(this.getKey() + " - ");
-		sb.append((new Date(this.getTimestamp())).toString() + " - ");
-		sb.append(this.getUserName() + " - ");
-		sb.append(this.getUrl() + "}");
-		return sb.toString();
+	
+	
+////	@Override
+//	public String toString2(){
+//		StringBuffer sb = new StringBuffer(this.getClass().getSimpleName() + " {");
+//		sb.append(this.getTsId() + " - ");
+//		sb.append(this.getPageId() + " - ");
+//		sb.append(this.getStatus() + " - ");
+//		sb.append(this.getKey() + " - ");
+//		sb.append((new Date(this.getTimestamp())).toString() + " - ");
+//		sb.append(this.getUserName() + " - ");
+//		sb.append(this.getUrl() + "}");
+//		return sb.toString();
+//	}
+
+	@Override public String toString() {
+		return "TrpTranscriptMetadata [tsId=" + tsId + ", parentTsId=" + parentTsId + ", key="
+				+ key + ", pageId=" + pageId + ", docId=" + docId + ", pageNr=" + pageNr + ", localFolder=" + localFolder + ", url=" + url + ", status="
+				+ status + ", userName=" + userName + ", userId=" + userId + ", timestamp=" + timestamp + ", toolName=" + toolName + ", note=" + note
+				+ ", md5Sum=" + md5Sum + ", pageReferenceForLocalDocs=" + pageReferenceForLocalDocs + "]";
 	}
 }

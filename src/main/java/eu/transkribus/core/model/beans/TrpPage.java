@@ -93,6 +93,10 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	public void setKey(String imageKey) {
 		this.key = imageKey;
 	}
+	
+	public int getNTranscripts() {
+		return transcripts!=null ? transcripts.size() : 0;
+	}
 
 	public List<TrpTranscriptMetadata> getTranscripts() {
 		return transcripts;
@@ -172,20 +176,44 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		}
 		return 0;
 	}
-
-	@Override
-	public String toString() {
-		StringBuffer sb = new StringBuffer(this.getClass().getSimpleName() + " {" 
-				+ this.getPageId() + " - "+ this.getDocId() + " - ");
-		sb.append(this.getImgFileName() + " - ");
-		sb.append(this.getKey() + " - ");
-		sb.append(this.getPageNr() + " - ");
-		sb.append(this.getTranscripts().size() + " - ");
-		sb.append(this.getUrl() + " - ");
-		sb.append(this.getThumbUrl() + "}");
-		for (TrpTranscriptMetadata md : this.getTranscripts()) {
-			sb.append("\n\t\t" + md.toString());
-		}
-		return sb.toString();
+	
+	@Override public String toString() {
+		return "TrpPage [pageId=" + pageId + ", docId=" + docId + ", pageNr=" + pageNr + ", key=" + key + ", url=" + url + ", thumbUrl=" + thumbUrl
+				+ ", md5Sum=" + md5Sum + ", imgFileName=" + imgFileName+", nTranscripts="+getNTranscripts()+"]";
 	}
+	
+	public String toString(boolean withTranscripts) {
+		String str = toString();
+		
+		if (withTranscripts) {
+			str += "Transcripts: \n"+getTranscriptsStr();
+		}
+		
+		return str;
+	}
+	
+	public String getTranscriptsStr() {
+		String str="";
+		for (TrpTranscriptMetadata md : this.getTranscripts()) {
+			 str += md.toString()+"\n";
+		}
+		
+		return str;
+	}
+
+//	@Override
+//	public String toString() {
+//		StringBuffer sb = new StringBuffer(this.getClass().getSimpleName() + " {" 
+//				+ this.getPageId() + " - "+ this.getDocId() + " - ");
+//		sb.append(this.getImgFileName() + " - ");
+//		sb.append(this.getKey() + " - ");
+//		sb.append(this.getPageNr() + " - ");
+//		sb.append(this.getTranscripts().size() + " - ");
+//		sb.append(this.getUrl() + " - ");
+//		sb.append(this.getThumbUrl() + "}");
+//		for (TrpTranscriptMetadata md : this.getTranscripts()) {
+//			sb.append("\n\t\t" + md.toString());
+//		}
+//		return sb.toString();
+//	}
 }
