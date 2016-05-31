@@ -365,14 +365,14 @@ public class TrpJobStatus implements Serializable {
 			return this.pageNr == pageNr;
 	}
 	
+	public boolean isCancelled() {
+		return this.getState().equals(TrpJobStatus.CANCELED);
+	}
+	
 	@Override public String toString() {
 		return "TrpJobStatus [jobId=" + jobId + ", docId=" + docId + ", pageNr=" + pageNr + ", type=" + type + ", state=" + state + ", success=" + success
 				+ ", description=" + description + ", userName=" + userName + ", userId=" + userId + ", createTime=" + createTime + ", startTime=" + startTime
 				+ ", endTime=" + endTime + ", jobData=" + jobData + ", resumable=" + resumable + ", className=" + className
 				+ ", session_history_id=" + session_history_id + "]";
 	}
-	
-	
-
-	
 }
