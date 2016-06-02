@@ -1,0 +1,33 @@
+<jxb:bindings 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+    xmlns:annox="http://annox.dev.java.net"
+    version="2.1">
+    
+<!-- <jxb:bindings  -->
+<!--   xmlns:jxb="http://java.sun.com/xml/ns/jaxb" -->
+<!--   xmlns:xs="http://www.w3.org/2001/XMLSchema"  -->
+<!--   xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" -->
+<!--   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   -->
+<!--   xmlns:annox="http://annox.dev.java.net" -->
+<!--   xsi:schemaLocation="http://java.sun.com/xml/ns/jaxb http://java.sun.com/xml/ns/jaxb/bindingschema_2_0.xsd" -->
+<!--   jxb:extensionBindingPrefixes="xjc annox" version="2.1">     -->
+    
+	<!-- This  binding introduces a middle class between RegionType and its descendants which is used for JAXB customizations on regions -->
+    <jxb:bindings schemaLocation="pagecontent_extension.xsd">
+            <jxb:bindings node="//xs:complexType[@name='RegionType']">
+                <jxb:class implClass="eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType" />
+            </jxb:bindings>
+            
+<!-- 			<jxb:bindings node="xs:complexType[@name='PcGtsType']"> -->
+<!-- 				<annox:annotate> -->
+<!-- 					<annox:annotate annox:class="javax.xml.bind.annotation.XmlRootElement" -->
+<!-- 						name="PcGtsType" /> -->
+<!-- 				</annox:annotate> -->
+<!-- 			</jxb:bindings>             -->
+            
+    </jxb:bindings>
+
+
+
+</jxb:bindings>

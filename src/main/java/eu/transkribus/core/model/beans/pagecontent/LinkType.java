@@ -15,16 +15,17 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for AlternativeImageType complex type.
+ * <p>Java class for LinkType complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="AlternativeImageType">
+ * &lt;complexType name="LinkType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="filename" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="comments" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="ref" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="type" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="description" type="{http://www.w3.org/2001/XMLSchema}string" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -33,60 +34,86 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "AlternativeImageType")
-public class AlternativeImageType {
+@XmlType(name = "LinkType")
+public class LinkType {
 
     @XmlAttribute(required = true)
-    protected String filename;
+    protected String ref;
     @XmlAttribute
-    protected String comments;
+    protected String type;
+    @XmlAttribute
+    protected String description;
 
     /**
-     * Gets the value of the filename property.
+     * Gets the value of the ref property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getFilename() {
-        return filename;
+    public String getRef() {
+        return ref;
     }
 
     /**
-     * Sets the value of the filename property.
+     * Sets the value of the ref property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setFilename(String value) {
-        this.filename = value;
+    public void setRef(String value) {
+        this.ref = value;
     }
 
     /**
-     * Gets the value of the comments property.
+     * Gets the value of the type property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getComments() {
-        return comments;
+    public String getType() {
+        return type;
     }
 
     /**
-     * Sets the value of the comments property.
+     * Sets the value of the type property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setComments(String value) {
-        this.comments = value;
+    public void setType(String value) {
+        this.type = value;
+    }
+
+    /**
+     * Gets the value of the description property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Sets the value of the description property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setDescription(String value) {
+        this.description = value;
     }
 
 }
