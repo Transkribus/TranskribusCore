@@ -14,7 +14,6 @@ public class AuthUtils {
 	 * @return
 	 */
 	public static boolean canManage(TrpRole role) {
-//		return role != null && (role.equals(TrpRole.Admin) || role.equals(TrpRole.Owner) || role.equals(TrpRole.Editor));
 		return role != null && role.getValue() >= TrpRole.Editor.getValue();
 	}
 
@@ -23,12 +22,12 @@ public class AuthUtils {
 	 * @param role
 	 * @return
 	 */
-//	public static boolean canTranscribe(TrpRole role) {
-//		return role != null && (role.equals(TrpRole.Admin) || role.equals(TrpRole.Owner) 
-//				|| role.equals(TrpRole.Editor) || role.equals(TrpRole.Transcriber));
-//	}
 	public static boolean canTranscribe(TrpRole role) {
 		return role != null && role.getValue() >= TrpRole.CrowdTranscriber.getValue();
+	}
+	
+	public static boolean canRead(TrpRole role){
+		return role != null && role.getValue() >= TrpRole.Reader.getValue();
 	}
 	
 }
