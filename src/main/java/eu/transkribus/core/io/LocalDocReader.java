@@ -22,10 +22,13 @@ import javax.xml.transform.TransformerException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.dea.util.pdf.ImageExtractor;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
+
+import com.itextpdf.text.DocumentException;
 
 import eu.transkribus.core.io.formats.Page2010Converter;
 import eu.transkribus.core.io.formats.XmlFormat;
@@ -87,6 +90,25 @@ public class LocalDocReader {
 
 	public static TrpDoc load(final String path) throws IOException {
 		return load(path, true, true, false, true);
+	}
+
+	/**
+	 * Extracts images from a pdf into the given directory. 
+	 * Further loads the document from the specified image directory.
+	 * @param file absolute path of the pdf document
+	 * @param path absolute path of the directory to which the pdf images should be extracted to
+	 * @return new TrpDoc
+	 * @throws IOException
+	 * @throws SecurityException
+	 * @throws DocumentException
+	 */
+	public static TrpDoc loadPdf(final String file, final String path) 
+			throws IOException, SecurityException, DocumentException {
+		logger.info("Extracting pdf " + file + " to folder " + path);
+		ImageExtractor imgExtractor = new ImageExtractor();
+		imgExtractor.extractImages(file, path);
+		
+		return load(imgExtractor.getExtractDirectory());
 	}
 	
 	/**
