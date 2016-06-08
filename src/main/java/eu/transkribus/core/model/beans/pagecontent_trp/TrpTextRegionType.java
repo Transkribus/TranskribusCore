@@ -3,14 +3,11 @@ package eu.transkribus.core.model.beans.pagecontent_trp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Observer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.transkribus.core.model.beans.customtags.CustomTagList;
-import eu.transkribus.core.model.beans.customtags.CustomTagUtil;
 import eu.transkribus.core.model.beans.customtags.TextStyleTag;
 import eu.transkribus.core.model.beans.pagecontent.CoordsType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
@@ -20,11 +17,8 @@ import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObservable;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpChildrenClearedEvent;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpConstructedWithParentEvent;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpCoordsChangedEvent;
-import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpReinsertIntoParentEvent;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpRemovedEvent;
 import eu.transkribus.core.util.BeanCopyUtils;
-import eu.transkribus.core.util.CoreUtils;
-import eu.transkribus.core.util.PointStrUtils;
 import eu.transkribus.core.util.TextStyleTypeUtils;
 
 public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {

@@ -34,7 +34,6 @@ public final class RESTConst {
 	public static final String TRANSCRIPT_PATH = "text";
 	public static final String FULLDOC_PATH = "fulldoc";
 	public static final String METS_PATH = "mets";
-	public static final String TEI_PATH = "tei";
 	public static final String UPLOAD_PATH = "upload";
 	public static final String UPLOAD_PATH_MULTIPART = "uploadMultipart";
 	public static final String UPLOAD_PATH_FTP = "uploadFromFtp";

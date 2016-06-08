@@ -5,21 +5,13 @@ import java.util.List;
 import eu.transkribus.core.util.AuthUtils;
 
 public enum TrpRole {
-	/*TODO 
-	 * Admin -> Owner
-	 * Curator -> Editor
-	 * User -> Transcriber
-	 */
 	Admin(Integer.MAX_VALUE),
 	Owner(10),
 	Editor(9),
-	Transcriber(1),
-	CrowdTranscriber(0), // not used currently -> for users that can only transcribe but not change the segmentation
-	None(-1),
-	//Old roles:
-//	User(-2),
-//	Curator(-2);
-	;
+	Transcriber(2),
+	CrowdTranscriber(1), // not used currently -> for users that can only transcribe but not change the segmentation
+	Reader(0),
+	None(-1);
 	
 	int value=Integer.MIN_VALUE;
 	
@@ -33,7 +25,7 @@ public enum TrpRole {
 	public boolean canTranscribe() { return AuthUtils.canTranscribe(this); }
 	
 	public boolean isVirtual() {
-		return value > Owner.value || value <= CrowdTranscriber.value; // currently CrowdTranscriber is also virtual!!
+		return value > Owner.value || value == CrowdTranscriber.value || value <= None.value; // currently CrowdTranscriber is also virtual!!
 	}
 			
 	public static TrpRole fromStringNonVirtual(final String roleStr) {
