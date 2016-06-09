@@ -171,9 +171,9 @@ public class GoobiMetsImporter
 		List<FileGrp> fileGrps = mets.getFileSec().getFileGrp();
 		List<FileType> xmlGrp = null;
 		List<FileType> imgGrp = null;
+		List<FileType> defaultImgGrp = null;
 		for (FileGrpType type : fileGrps) {
 			switch (type.getUSE()) {
-			//unclear if img in MAX are the wright one, abklären ob noch bessere Bilder verlinkt werden können
 			case "MAX":
 				imgGrp = type.getFile();
 				break;
@@ -181,7 +181,7 @@ public class GoobiMetsImporter
 				 * could also be that USE='Content' and ID="AltoFiles" or ID="AbbyyXmlFiles"  is necessara to get the transcriptions
 				 */
 			case "DEFAULT":
-				imgGrp = type.getFile();
+				defaultImgGrp = type.getFile();
 				break;
 			case "XML":
 				//possibility to load also an existent Alto or Abbyy XML and convert it to Page later on
@@ -192,6 +192,12 @@ public class GoobiMetsImporter
 				break;
 			}
 		}
+	
+		//take default images if no MAX images are available
+		if (imgGrp == null && defaultImgGrp != null){
+			imgGrp = defaultImgGrp;
+		}
+		
 		if (imgGrp == null)
 			throw new IOException("METS file has no image file list!");
 		if (xmlGrp == null){
@@ -235,29 +241,47 @@ public class GoobiMetsImporter
 		String xmlDir = dir + File.separator + "ocr";
 		String altoDir = dir + File.separator + "alto";
 		
+		logger.debug("fetchFilesFromUrl ");
+		
 		//FIXME this will only work for local files
 		for(Fptr ptr : div.getFptr()){
 			FileType type = (FileType) ptr.getFILEID();
 			//logger.debug("tmp.getID().contains MAX " + tmp.getID().contains("MAX"));
-			if(type.getID().contains("MAX") || type.getID().contains("DEFAULT")){
-								
-				if(imgGrp.contains(type)){ 
-					FLocat fLocat = type.getFLocat().get(0);
-					if(fLocat.getLOCTYPE() != null && fLocat.getLOCTYPE().equals("URL")){
-						String href = fLocat.getHref();				
-						
-						String filename = type.getID();
-						String fileEnding = href.substring(href.lastIndexOf("."));
-						
-						imgFile = new File(imgDir + File.separator + filename + fileEnding);
-						
-						//fetch file from this URL and store locally
-						FileUtils.copyURLToFile(new URL(href), imgFile);
+			//if(type.getID().contains("MAX") || type.getID().contains("DEFAULT")){
+				
+			String mimetype = type.getMIMETYPE();//MIMETYPE="image/jpeg"
+			
+			logger.debug("mimetype " + mimetype);
+							
+			if(imgGrp.contains(type)){ 
+				FLocat fLocat = type.getFLocat().get(0);
+				if(fLocat.getLOCTYPE() != null && fLocat.getLOCTYPE().equals("URL")){
+					String href = fLocat.getHref();				
 					
-						logger.debug("file loaded from URL: " + href);
-						//System.in.read();
+					String filename = type.getID();
+					String fileEnding = href.substring(href.lastIndexOf("."));
+					
+					logger.debug("fileEnding " + fileEnding);
+					
+					if (mimetype.equals("image/jpeg")){
+						fileEnding = ".jpg";
 					}
+					else if(mimetype.equals("image/tiff")){
+						fileEnding = ".tif";
+					}
+					else if(mimetype.equals("image/png")){
+						fileEnding = ".png";
+					}
+					
+					imgFile = new File(imgDir + File.separator + filename + fileEnding);
+					
+					//fetch file from this URL and store locally
+					FileUtils.copyURLToFile(new URL(href), imgFile);
+				
+					logger.debug("file loaded from URL: " + href);
+					//System.in.read();
 				}
+				//}
 			}
 			else if (type.getID().contains("AbbyyXml")){
 				logger.debug("fptr id equals: " + type.getID());
@@ -429,6 +453,8 @@ public class GoobiMetsImporter
 		}
 		else{
 			logger.debug("mods section is null");
+			result.setTitle("unknownTitle");
+			result.setAuthor("unknownAuthor");
 		}
 
 		return result;
