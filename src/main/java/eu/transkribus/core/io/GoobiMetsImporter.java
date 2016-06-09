@@ -90,13 +90,11 @@ public class GoobiMetsImporter
 	 * @throws SAXException 
 	 * @throws JAXBException 
 	 */
-	public static TrpDoc unmarshalMetsAndLoadDocFromGoobiMets(String localDirPath) throws IOException, JAXBException, SAXException {
+	public static TrpDoc unmarshalMetsAndLoadDocFromGoobiMets(File metsFile) throws IOException, JAXBException, SAXException {
 		
-		String metsPath = localDirPath + File.separator + "mets.xml";
-		
-		Mets mets = unmarshalMets(new File(metsPath), true);
-		
-		return loadDocFromGoobiMets(mets, localDirPath);
+		String localDirPath = metsFile.getParent();
+	
+		return loadDocFromGoobiMets(metsFile, localDirPath);
 
 	}
 	
@@ -110,11 +108,13 @@ public class GoobiMetsImporter
 	 * @throws SAXException 
 	 * @throws JAXBException 
 	 */
-	public static TrpDoc loadDocFromGoobiMets(Mets mets, String localDirPath) throws IOException, JAXBException, SAXException {
+	public static TrpDoc loadDocFromGoobiMets(File metsFile, String localDirPath) throws IOException, JAXBException, SAXException {
 		
 		TrpDocMetadata md;
 		
-		String metsPath = localDirPath + File.separator + "mets.xml";
+		Mets mets = JaxbUtils.unmarshal(metsFile, Mets.class, TrpDocMetadata.class);
+		
+		String metsPath = metsFile.getAbsolutePath();
 
 		//unmarshal TrpDocMetadata
 		md = readModsMetadata(XmlUtils.getDocumentFromFileWOE(metsPath));
