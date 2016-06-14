@@ -53,7 +53,7 @@ public class TrpPrintSpaceType extends PrintSpaceType implements ITrpShapeType {
 		TrpPrintSpaceType src = (TrpPrintSpaceType) srcShape;
 		
 		if (src.coords != null)
-			coords = BeanCopyUtils.copyCoordsType(src.coords);
+			coords = BeanCopyUtils.copyCellCoordsType(src.coords);
 		
 		page = src.page;
 		data = src.data;

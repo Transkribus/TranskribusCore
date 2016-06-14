@@ -11,6 +11,8 @@ import eu.transkribus.core.model.beans.pagecontent.ImageRegionType;
 import eu.transkribus.core.model.beans.pagecontent.ObjectFactory;
 import eu.transkribus.core.model.beans.pagecontent.PageType;
 import eu.transkribus.core.model.beans.pagecontent.PrintSpaceType;
+import eu.transkribus.core.model.beans.pagecontent.TableCellType;
+import eu.transkribus.core.model.beans.pagecontent.TableRegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
@@ -50,6 +52,14 @@ public class TrpObjectFactory extends ObjectFactory {
 		logger.trace("creating textregion...");
         return new TrpTextRegionType();
     }
+	
+	@Override public TableRegionType createTableRegionType() {
+		return new TrpTableRegionType();
+	}
+	
+	@Override public TableCellType createTableCellType() {
+		return new TrpTableCellType();
+	}
 	
 	@Override
     public TextLineType createTextLineType() {

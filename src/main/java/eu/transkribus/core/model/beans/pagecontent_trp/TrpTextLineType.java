@@ -81,7 +81,7 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 		
 		// copy base fields:
 		if (src.coords!=null)
-			coords = BeanCopyUtils.copyCoordsType(src.coords);
+			coords = BeanCopyUtils.copyCellCoordsType(src.coords);
 	    if (src.baseline!=null)
 	    	baseline = new TrpBaselineType((TrpBaselineType) src.baseline);
 	    if (src.word!=null)

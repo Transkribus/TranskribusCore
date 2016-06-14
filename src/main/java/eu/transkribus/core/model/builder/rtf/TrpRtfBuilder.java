@@ -1,5 +1,11 @@
 package eu.transkribus.core.model.builder.rtf;
 
+//import ch.qos.logback.classic.Logger;
+
+//import static com.tutego.jrtf.Rtf.rtf;
+//import static com.tutego.jrtf.RtfDocfmt.*;
+import static com.tutego.jrtf.RtfHeader.color;
+
 //import static com.tutego.jrtf.Rtf.rtf;
 //import static com.tutego.jrtf.RtfPara.p;
 //import static com.tutego.jrtf.RtfText.italic;
@@ -23,22 +29,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//import ch.qos.logback.classic.Logger;
-
-//import static com.tutego.jrtf.Rtf.rtf;
-//import static com.tutego.jrtf.RtfDocfmt.*;
-import static com.tutego.jrtf.RtfHeader.*;
-//import static com.tutego.jrtf.RtfInfo.*;
-//import static com.tutego.jrtf.RtfFields.*;
-import static com.tutego.jrtf.RtfPara.*;
-//import static com.tutego.jrtf.RtfSectionFormatAndHeaderFooter.*;
-import static com.tutego.jrtf.RtfText.*;
-//import static com.tutego.jrtf.RtfUnit.*;
-
 import com.tutego.jrtf.Rtf;
-import com.tutego.jrtf.RtfHeaderColor;
 import com.tutego.jrtf.RtfPara;
-import com.tutego.jrtf.RtfSectionFormatAndHeaderFooter;
 import com.tutego.jrtf.RtfText;
 
 import eu.transkribus.core.io.LocalDocReader;
@@ -59,7 +51,6 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.model.builder.ExportUtils;
-import eu.transkribus.core.model.builder.TrpPageTranscriptBuilder;
 import eu.transkribus.core.util.CoreUtils;
 
 public class TrpRtfBuilder {

@@ -1,12 +1,7 @@
 package eu.transkribus.core.model.dao;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.rmi.activation.UnknownObjectException;
 import java.util.List;
-import java.util.Map.Entry;
-
-import javax.xml.bind.JAXBException;
 
 import eu.transkribus.core.model.beans.JAXBPageTranscript;
 import eu.transkribus.core.model.beans.TrpDoc;
@@ -16,8 +11,6 @@ import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
-import eu.transkribus.core.model.builder.TrpPageTranscriptBuilder;
-import eu.transkribus.core.model.dao.FakeDocProvider;
 
 public class PageXmlDaoTest {
 	public static void main(String[] args) {

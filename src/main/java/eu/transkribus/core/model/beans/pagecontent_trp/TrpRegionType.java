@@ -8,16 +8,20 @@ import java.util.Observer;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import eu.transkribus.core.exceptions.NotImplementedException;
 import eu.transkribus.core.model.beans.customtags.CustomTagList;
 import eu.transkribus.core.model.beans.customtags.CustomTagUtil;
 import eu.transkribus.core.model.beans.customtags.TextStyleTag;
+import eu.transkribus.core.model.beans.pagecontent.CoordsType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
-import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
-import eu.transkribus.core.model.beans.pagecontent_trp.RegionTypeUtil;
-import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementReadingOrderComparator;
-import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
-import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
+import eu.transkribus.core.model.beans.pagecontent.TableRegionType;
+import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
+import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
+import eu.transkribus.core.model.beans.pagecontent.TextStyleType;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObservable;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpChildrenClearedEvent;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpConstructedWithParentEvent;
@@ -25,19 +29,14 @@ import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEven
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpReadingOrderChangedEvent;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpReinsertIntoParentEvent;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpRemovedEvent;
-import eu.transkribus.core.model.beans.pagecontent.CoordsType;
-import eu.transkribus.core.model.beans.pagecontent.TableRegionType;
-import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
-import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
-import eu.transkribus.core.model.beans.pagecontent.TextStyleType;
 import eu.transkribus.core.util.BeanCopyUtils;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.PointStrUtils;
 
 @XmlTransient
 public class TrpRegionType extends RegionType implements ITrpShapeType {
+	private final static Logger logger = LoggerFactory.getLogger(TrpRegionType.class);
 	
-	 // --- THE NEW SHIT ---
  	@XmlTransient
  	protected TrpObservable observable;
  	@XmlTransient
@@ -63,7 +62,7 @@ public class TrpRegionType extends RegionType implements ITrpShapeType {
 	
 	/** Copy constructor - NOTE: the contained lines are <b>not</b> deep copied, only their references! */
 	public TrpRegionType(TrpRegionType src) {
-		super();
+		this();
 		
 		copyFields(src);
 	}
@@ -73,17 +72,17 @@ public class TrpRegionType extends RegionType implements ITrpShapeType {
 	}
 	
 	@Override public void copyFields(ITrpShapeType srcShape) {
-		if (!(srcShape instanceof TrpTextRegionType))
-			return;
+		if (!(srcShape instanceof TrpRegionType))
+			throw new RuntimeException("copyFields: not a TrpRegionType: "+srcShape);
 		
 		TrpRegionType src = (TrpRegionType) srcShape;
 		
 		// set new id:
 //	    id = getName()+"_"+System.currentTimeMillis();
-	    id = TrpPageType.getUniqueId("region");
+	    id = TrpPageType.getUniqueId(getName());
 
 		// copy base fields:
-		coords = BeanCopyUtils.copyCoordsType(src.coords);
+		coords = BeanCopyUtils.copyCellCoordsType(src.coords);
 		// copy child regions
 		textRegionOrImageRegionOrLineDrawingRegion = 
 				src.textRegionOrImageRegionOrLineDrawingRegion != null ? 
@@ -101,6 +100,7 @@ public class TrpRegionType extends RegionType implements ITrpShapeType {
 		parent = src.parent;
 		data = src.data;
 		
+		observable = new TrpObservable(this);
 		customTagList = new CustomTagList(this);
 	}
 	
@@ -166,12 +166,7 @@ public class TrpRegionType extends RegionType implements ITrpShapeType {
 	public String getName() {
 		XmlType t = this.getClass().getAnnotation(XmlType.class);
 				
-		if (t != null) {
-			if (t.name().endsWith("Type"))
-				return t.name().substring(0, t.name().length()-4);
-			else return t.name();
-		} else
-			return "UnknownRegionType";
+		return t!=null ? StringUtils.removeEnd(t.name(), "Type") : "UnknownRegion";
 	}
 	
 	@Override

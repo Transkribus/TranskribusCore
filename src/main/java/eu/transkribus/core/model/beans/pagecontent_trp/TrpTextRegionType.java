@@ -24,13 +24,14 @@ import eu.transkribus.core.util.TextStyleTypeUtils;
 public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {
 	final static Logger logger = LoggerFactory.getLogger(TrpTextRegionType.class);
 	
-	TrpObservable observable = new TrpObservable(this);
+//	TrpObservable observable = new TrpObservable(this);
 //	TrpPageType page=null;
 //	Object data;
 	
 	public TrpTextRegionType() {
 		super();
 	}
+	
 	public TrpTextRegionType(TrpPageType page) {
 		this();
 		setParent(page);
@@ -49,7 +50,7 @@ public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {
 	
 	@Override public void copyFields(ITrpShapeType srcShape) {
 		if (!(srcShape instanceof TrpTextRegionType))
-			return;
+			throw new RuntimeException("copyFields: not a TrpTextRegionType: "+srcShape);
 		
 		TrpTextRegionType src = (TrpTextRegionType) srcShape;
 		
@@ -57,20 +58,7 @@ public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {
 		textEquiv = BeanCopyUtils.copyTextEquivType(src.textEquiv);
 		
 		super.copyFields(srcShape);
-//	    id = TrpPageType.getUniqueId("region");
-//
-//		// copy base fields:
-//		coords = BeanCopyUtils.copyCoordsType(src.coords);
-//		// FIXME: should be null always --> error in JAXB generator??
-//	    textRegionOrImageRegionOrLineDrawingRegion = null;
-	    
-//	    if (src.getCustomTagList() != null)
-//	    	src.getCustomTagList().writeToCustomTag();
-//	    if (src.custom != null)
-//	    	custom = new String(src.custom);
-//	    
-//	    if (src.comments != null)
-//	    	comments = new String(src.comments);
+//	    id = TrpPageType.getUniqueId("region"); // set text_region as suffix??
 		
 		// specific to text regions:
 		if (src.textLine!=null)
@@ -89,8 +77,6 @@ public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {
 		primaryScript = src.primaryScript;
 		secondaryScript = src.secondaryScript;
 		production = src.production;
-		
-		
 		
 		// copy new fields:
 //		page = src.page;
@@ -304,19 +290,19 @@ public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {
 		return -1;
 	}
 		
-	@Override
-	public void setCoordinates(String value, Object who) {
-		CoordsType coords = new CoordsType();
-		coords.setPoints(value);
-		setCoords(coords);
+//	@Override
+//	public void setCoordinates(String value, Object who) {
+//		CoordsType coords = new CoordsType();
+//		coords.setPoints(value);
+//		setCoords(coords);
+//		
+//		observable.setChangedAndNotifyObservers(new TrpCoordsChangedEvent(who));
+//	}
 		
-		observable.setChangedAndNotifyObservers(new TrpCoordsChangedEvent(who));
-	}
-		
-	@Override
-	public String getCoordinates() {
-		return getCoords().getPoints();
-	}	
+//	@Override
+//	public String getCoordinates() {
+//		return getCoords().getPoints();
+//	}	
 	
 //	@Override
 //	public void reInsertIntoParent() {
@@ -333,13 +319,13 @@ public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {
 //		
 //	}
 	
-	@Override
-	public void removeFromParent() {
-//		System.out.println("removing from parent before: "+getPage().getTextRegionOrImageRegionOrLineDrawingRegion().size());
-		getPage().getTextRegionOrImageRegionOrLineDrawingRegion().remove(this);
-//		System.out.println("removing from parent after: "+getPage().getTextRegionOrImageRegionOrLineDrawingRegion().size());
-		observable.setChangedAndNotifyObservers(new TrpRemovedEvent(this));
-	}
+//	@Override
+//	public void removeFromParent() {
+////		System.out.println("removing from parent before: "+getPage().getTextRegionOrImageRegionOrLineDrawingRegion().size());
+//		getPage().getTextRegionOrImageRegionOrLineDrawingRegion().remove(this);
+////		System.out.println("removing from parent after: "+getPage().getTextRegionOrImageRegionOrLineDrawingRegion().size());
+//		observable.setChangedAndNotifyObservers(new TrpRemovedEvent(this));
+//	}
 	
 	@Override public void removeChildren() {
 		super.removeChildren();
