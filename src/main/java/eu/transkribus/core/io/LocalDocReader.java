@@ -407,7 +407,8 @@ public class LocalDocReader {
 				continue;
 			}
 			final String name = d.getName();
-			final long size = FileUtils.sizeOf(d);
+//			final long size = FileUtils.sizeOf(d);
+			final long size = -1; // too slow...
 			final Date date = new Date(d.lastModified());
 			TrpDocDir docDir = new TrpDocDir();
 			docDir.setName(name);
