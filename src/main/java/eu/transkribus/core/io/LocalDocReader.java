@@ -22,7 +22,7 @@ import javax.xml.transform.TransformerException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.dea.util.pdf.ImageExtractor;
+import org.dea.util.pdf.PageImageWriter;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,10 +105,10 @@ public class LocalDocReader {
 	public static TrpDoc loadPdf(final String file, final String path) 
 			throws IOException, SecurityException, DocumentException {
 		logger.info("Extracting pdf " + file + " to folder " + path);
-		ImageExtractor imgExtractor = new ImageExtractor();
-		imgExtractor.extractImages(file, path);
+		PageImageWriter imgWriter = new PageImageWriter();
+		imgWriter.extractImages(file, path);
 		
-		return load(imgExtractor.getExtractDirectory());
+		return load(imgWriter.getExtractDirectory());
 	}
 	
 	/**
