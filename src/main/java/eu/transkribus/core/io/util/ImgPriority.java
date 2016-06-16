@@ -16,6 +16,10 @@ public class ImgPriority {
 		priorities.put(MimeTypes.MIME_IMAGE_JPEG, 3);
 		priorities.put(MimeTypes.MIME_IMAGE_PNG, 2);
 		priorities.put(MimeTypes.MIME_IMAGE_TIFF, 1);
+		
+		// pdf
+		// TODO: check value - 4 correct here?
+		priorities.put(MimeTypes.MIME_APPLICATION_PDF, 4);
 	}
 
 	public static Integer getPriority(File f) {

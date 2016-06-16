@@ -93,6 +93,9 @@ public class TrpDocMetadata implements Serializable, Comparable<TrpDocMetadata> 
 	@Column(name="CREATEDTO")
 	private Long createdToTimestamp;
 	
+	@Column
+	private Integer origDocId = null;
+	
 	@XmlElementWrapper(name="collectionList")
 	@XmlElement
 	protected List<TrpCollection> colList = new ArrayList<>();
@@ -289,6 +292,14 @@ public class TrpDocMetadata implements Serializable, Comparable<TrpDocMetadata> 
 
 	public void setStatus(Integer status) {
 		this.status = status;
+	}
+	
+	public Integer getOrigDocId(){
+		return origDocId;
+	}
+	
+	public void setOrigDocId(Integer origDocId){
+		this.origDocId = origDocId;
 	}
 	
 	public String getColString() {
