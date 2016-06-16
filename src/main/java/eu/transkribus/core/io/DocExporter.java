@@ -46,20 +46,20 @@ public class DocExporter extends Observable {
 		public boolean useHttps=true;
 	}
 
-	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, boolean exportPage, boolean exportAlto) throws IOException,
+	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, boolean exportImg, boolean exportPage, boolean exportAlto) throws IOException,
 	IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
-		return writeRawDoc(doc, dir, doOverwrite, pageIndices, exportPage, exportAlto, null);
+		return writeRawDoc(doc, dir, doOverwrite, pageIndices, exportImg, exportPage, exportAlto, null);
 	}
 	
 	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, 
-			boolean exportPage, boolean exportAlto, String fileNamePattern) throws IOException,
+			boolean exportImg, boolean exportPage, boolean exportAlto, String fileNamePattern) throws IOException,
 			IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
 		ExportOptions opts = new ExportOptions();
 		opts.dir = dir;
 		opts.doOverwrite = doOverwrite;
 		opts.writeMets = true;
 		opts.useOcrMasterDir = false;
-		opts.doWriteImages = true;
+		opts.doWriteImages = exportImg;
 		opts.exportPageXml = exportPage;
 		opts.exportAltoXml = exportAlto;
 		opts.pageIndices = pageIndices;
