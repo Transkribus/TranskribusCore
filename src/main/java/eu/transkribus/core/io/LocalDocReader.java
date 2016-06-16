@@ -413,7 +413,6 @@ public class LocalDocReader {
 			TrpDocDir docDir = new TrpDocDir();
 			docDir.setName(name);
 			docDir.setNrOfImgs(imgs.size());
-			docDir.setSize(size);
 			docDir.setCreateDate(date);
 			TrpDocMetadata md = findOrCreateDocMd(d);
 			md.setLocalFolder(null); // delete local folder s.t. server dir is not visible for clients!
