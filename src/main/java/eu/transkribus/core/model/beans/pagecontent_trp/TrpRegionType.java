@@ -171,7 +171,7 @@ public class TrpRegionType extends RegionType implements ITrpShapeType {
 	
 	@Override
 	public int getLevel() {
-		// regions are either on level 0, if they are directly attached to a page or on level 1 elsewise:
+		// regions are either on level 0, if they are directly attached to a page or on level +1 elsewise:
 		if (RegionTypeUtil.isBlackening(this)) {
 			return 4;
 		}

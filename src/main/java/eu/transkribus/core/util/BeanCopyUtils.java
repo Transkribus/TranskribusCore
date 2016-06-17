@@ -22,10 +22,9 @@ public class BeanCopyUtils {
 			return null;
 		
 		CellCoordsType copy = new CellCoordsType();
-		copy.setPoints0(coords.getPoints0());
-		copy.setPoints1(coords.getPoints1());
-		copy.setPoints2(coords.getPoints2());
-		copy.setPoints3(coords.getPoints3());
+		copy.setPoints(coords.getPoints());
+		copy.setCornerPts(coords.getCornerPts());
+		
 		return copy;
 	}
 	

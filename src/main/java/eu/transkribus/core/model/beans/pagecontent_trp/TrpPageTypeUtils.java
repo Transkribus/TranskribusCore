@@ -18,9 +18,9 @@ public class TrpPageTypeUtils {
 	
 	public static void applyAffineTransformation(ITrpShapeType shape, double tx, double ty, double sx, double sy, double rot) throws Exception {
 		String coords = shape.getCoordinates();
-		logger.debug("old coords = "+coords);
+		logger.trace("applyAffineTransformation, old coords = "+coords);
 		String newCoords = PointStrUtils.affineTransPoints(coords, tx, ty, sx, sy, rot);
-		logger.debug("new coords = "+newCoords);
+		logger.trace("applyAffineTransformation, new coords = "+newCoords);
 		
 		shape.setCoordinates(newCoords, null);
 	}

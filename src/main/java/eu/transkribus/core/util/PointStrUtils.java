@@ -124,6 +124,28 @@ public class PointStrUtils {
 		return ptsStr.trim();
 	}
 	
+	public static String cornerPtsToString(int[] corners) {
+		return corners[0]+" "+corners[1]+" "+corners[2]+" "+corners[3];
+	}
+	
+	public static int[] parseCornerPts(String str) {
+		String[] splits = str.split(" ");
+		if (splits==null || splits.length!=4)
+			throw new RuntimeException("invalid corner point string: "+str);
+		
+		int[] corners = new int[4];
+		
+		for (int i=0; i<4; ++i) {
+			try {
+				corners[i] = Integer.parseInt(splits[i]);
+			} catch (Exception e) {
+				throw new RuntimeException("invalid corner point string: "+str, e);	
+			}
+		}
+		
+		return corners;
+	}
+	
 	public static void main(String[] args) {
 		try {
 			List<Point> pts = parsePoints("");

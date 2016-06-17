@@ -9,15 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.model.beans.customtags.TextStyleTag;
-import eu.transkribus.core.model.beans.pagecontent.CoordsType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextStyleType;
-import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObservable;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpChildrenClearedEvent;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpConstructedWithParentEvent;
-import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpCoordsChangedEvent;
-import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpRemovedEvent;
 import eu.transkribus.core.util.BeanCopyUtils;
 import eu.transkribus.core.util.TextStyleTypeUtils;
 
@@ -220,14 +216,8 @@ public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {
 		}
 	}
 	
-	public void sortLines() {
-//		Collections.sort(getTextLine(), new TrpElementCoordinatesComparator<TextLineType>());
-//		for (int i = 0; i<getTextLine().size(); i++){
-//		logger.debug("i line in text " + getTextLine().get(i).getId());	
-//		}
-		
+	public static void sortLines(List<TextLineType> textLines, Object who) {
 		boolean doSort = false;
-		List<TextLineType> textLines = getTextLine();
 		
 		//sort only if reading order is not set actually
 		for (int i=0; i<textLines.size(); i++) {
@@ -247,11 +237,14 @@ public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {
 			//logger.debug("line " + i + " line.getid " + line.getId() + " + line.getReadingOrder " + line.getReadingOrder());
 			if (line.getReadingOrder() == null || !line.getReadingOrder().equals(i)){
 				//logger.debug("line " + i + " + line.getReadingOrder " + line.getReadingOrder());
-				line.setReadingOrder(i, this);
+				line.setReadingOrder(i, who);
 				//logger.debug("line " + i + " with id " + line.getId() + " + line.setReadingOrder " + i);
 			}
 		}
-		
+	}
+	
+	public void sortLines() {
+		sortLines(getTextLine(), this);		
 	}
 	
 	public int getIndexAccordingToCoordinates(ITrpShapeType o1){
@@ -349,7 +342,9 @@ public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {
 		return c;
 	}
 	
-	@Override public boolean hasChildren() { return !getTextLine().isEmpty(); }
+	@Override public boolean hasChildren() {
+		return !getTextLine().isEmpty();
+	}
 	
 	@Override public String getUnicodeText() {
 		return (getTextEquiv()!=null&&getTextEquiv().getUnicode()!=null) ? getTextEquiv().getUnicode() : "";
