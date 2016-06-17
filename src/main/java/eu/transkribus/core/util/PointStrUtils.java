@@ -2,19 +2,41 @@ package eu.transkribus.core.util;
 
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class PointStrUtils {
+	
+	public static class PointParseException extends RuntimeException {
+		private static final long serialVersionUID = 6286123241743808364L;
+
+		public PointParseException() {
+			super();
+		}
+
+		public PointParseException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+			super(message, cause, enableSuppression, writableStackTrace);
+		}
+
+		public PointParseException(String message, Throwable cause) {
+			super(message, cause);
+		}
+
+		public PointParseException(String message) {
+			super(message);
+		}
+
+		public PointParseException(Throwable cause) {
+			super(cause);
+		}
+	}
 	
 	static Logger logger = LoggerFactory.getLogger(PointStrUtils.class);
 	
-	public static String affineTransPoints(String ptsStr, double tx, double ty, double sx, double sy, double rot) throws Exception {
+	public static String affineTransPoints(String ptsStr, double tx, double ty, double sx, double sy, double rot) throws PointParseException {
 		List<Point> pts = parsePoints(ptsStr);
 		
 		AffineTransform at = new AffineTransform();
@@ -29,7 +51,7 @@ public class PointStrUtils {
 		return pointsToString(pts);
 	}
 	
-	public static String translatePoints(String ptsStr, int x, int y) throws Exception {
+	public static String translatePoints(String ptsStr, int x, int y) throws PointParseException {
 		List<Point> pts = parsePoints(ptsStr);
 		
 		for (Point p : pts) {
@@ -39,7 +61,7 @@ public class PointStrUtils {
 		return pointsToString(pts);		
 	}
 	
-	public static String rotatePoints(String ptsStr, double theta) throws Exception {
+	public static String rotatePoints(String ptsStr, double theta) throws PointParseException {
 		List<Point> pts = parsePoints(ptsStr);
 		
 		AffineTransform rotT = AffineTransform.getRotateInstance(theta);
@@ -86,7 +108,7 @@ public class PointStrUtils {
 	}
 	
 	/** Parse points from String in format "x1,y1 x2,y2 ..." */
-	public static List<Point> parsePoints(String pts) throws IOException {
+	public static List<Point> parsePoints(String pts) throws PointParseException  {
 		logger.trace("parsing points: "+pts);
 		List<Point> ptsList = new ArrayList<Point>();
 		try {
@@ -101,7 +123,7 @@ public class PointStrUtils {
 			}
 		}
 		catch (Exception e) {
-			throw new IOException("Could not fully parse points: '"+pts+"', message: "+e.getMessage(), e);
+			throw new PointParseException("Could not fully parse points: '"+pts+"', message: "+e.getMessage(), e);
 //			logger.warn("Could not fully parse points: '"+pts+"'", e);
 		}
 		

@@ -32,6 +32,8 @@ public class RegionTypeUtil {
 	public static final String LINE_TYPE = "Line";
 	public static final String BASELINE_TYPE = "Baseline";
 	public static final String WORD_TYPE = "Word";
+	public static final String TABLE_REGION = "Table";
+	public static final String TABLE_CELL = "TableCell";
 	public static final String PRINTSPACE_TYPE = "Printspace";
 	
 	public static final String ADVERT_REGION = "Advert";
@@ -44,7 +46,6 @@ public class RegionTypeUtil {
 	public static final String MUSIC_REGION = "Music";
 	public static final String NOISE_REGION = "Noise";
 	public static final String SEPARATOR_REGION = "Separator";
-	public static final String TABLE_REGION = "Table";
 	public static final String UNKNOWN_REGION = "UnknownRegion";
 	public static final String BLACKENING_REGION = "Blackening";
 	
@@ -59,7 +60,6 @@ public class RegionTypeUtil {
 		add(MUSIC_REGION);
 		add(NOISE_REGION);
 		add(SEPARATOR_REGION);
-		add(TABLE_REGION);
 		add(UNKNOWN_REGION);
 		add(BLACKENING_REGION);
 	}};	
@@ -70,6 +70,8 @@ public class RegionTypeUtil {
 			add(BASELINE_TYPE);
 			add(WORD_TYPE);
 			add(PRINTSPACE_TYPE);
+			add(TABLE_REGION);
+			add(TABLE_CELL);
 
 			addAll(SPECIAL_REGIONS);
 	}};
@@ -101,7 +103,9 @@ public class RegionTypeUtil {
 		REGIONS.put(LINE_TYPE, TrpTextLineType.class);
 		REGIONS.put(BASELINE_TYPE, TrpBaselineType.class);
 		REGIONS.put(WORD_TYPE, TrpWordType.class);
-		REGIONS.put(PRINTSPACE_TYPE, TrpPrintSpaceType.class);	
+		REGIONS.put(PRINTSPACE_TYPE, TrpPrintSpaceType.class);
+		REGIONS.put(TABLE_REGION, TrpTableRegionType.class);
+		REGIONS.put(TABLE_CELL, TrpTableCellType.class);
 		
 		REGIONS.put(ADVERT_REGION, AdvertRegionType.class);
 		REGIONS.put(CHART_REGION, ChartRegionType.class);
@@ -113,7 +117,7 @@ public class RegionTypeUtil {
 		REGIONS.put(MUSIC_REGION, MusicRegionType.class);
 		REGIONS.put(NOISE_REGION, NoiseRegionType.class);
 		REGIONS.put(SEPARATOR_REGION, SeparatorRegionType.class);
-		REGIONS.put(TABLE_REGION, TableRegionType.class);
+		
 		REGIONS.put(UNKNOWN_REGION, UnknownRegionType.class);
 		REGIONS.put(BLACKENING_REGION, UnknownRegionType.class);
 	}

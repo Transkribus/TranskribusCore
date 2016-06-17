@@ -5,18 +5,22 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import eu.transkribus.core.model.beans.pagecontent.TableCellType;
 import eu.transkribus.core.model.beans.pagecontent.TableRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpChildrenClearedEvent;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpConstructedWithParentEvent;
 
 public class TrpTableRegionType extends TableRegionType implements ITrpShapeType {
+	private final static Logger logger = LoggerFactory.getLogger(TrpTableRegionType.class);
 	
 	
 	public TrpTableRegionType() {
 		super();
 			
-		System.out.println("TRP TABLE REGION TYPE!");
+		logger.debug("created trp table region type!");
 	}
 	
 	public TrpTableRegionType(TrpPageType page) {
