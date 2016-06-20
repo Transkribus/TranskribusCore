@@ -160,6 +160,16 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 	@Override public String getCoordinates() {		
 		return getCoords().getPoints();
 	}
+	
+    public void setCornerPts(String value, Object who) {
+        getCoords().setCornerPts(value);
+        
+        observable.setChangedAndNotifyObservers(new TrpCoordsChangedEvent(who));
+    }
+    
+    public String getCornerPts() {
+    	return getCoords().getCornerPts();
+    }
 
 	@Override
 	public List<ITrpShapeType> getChildren(boolean recursive) {

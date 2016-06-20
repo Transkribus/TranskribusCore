@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,7 +112,51 @@ public class TrpTableRegionType extends TableRegionType implements ITrpShapeType
 	
 	@Override public boolean hasChildren() { return !getTableCell().isEmpty(); }
 	
+	public Pair<Integer, Integer> getMaxRowCol() {
+		int maxR = -1;
+		int maxC = -1;
+		
+		for (TableCellType c : tableCell) {
+			if (c.getRow() > maxR)
+				maxR = c.getRow();
+			
+			if (c.getCol() > maxC)
+				maxC = c.getCol();	
+		}
+		
+		return Pair.of(maxR, maxC);
+	}
 	
+	public int getNRows() {
+		return getMaxRowCol().getLeft()+1;
+	}
 	
-
+	public int getNCols() {
+		return getMaxRowCol().getRight()+1;
+	}
+		
+	public List<TrpTableCellType> getCells(boolean rowCells, int index) {
+		if (rowCells)
+			return getRowCells(index);
+		else
+			return getColCells(index);
+	}
+	
+	public List<TrpTableCellType> getRowCells(int row) {
+		List<TrpTableCellType> rowCells = new ArrayList<>();
+		for (TableCellType c : tableCell) {
+			if (c.getRow() == row)
+				rowCells.add((TrpTableCellType) c);
+		}
+		return rowCells;
+	}
+	
+	public List<TrpTableCellType> getColCells(int col) {
+		List<TrpTableCellType> rowCells = new ArrayList<>();
+		for (TableCellType c : tableCell) {
+			if (c.getCol() == col)
+				rowCells.add((TrpTableCellType) c);
+		}
+		return rowCells;
+	}
 }
