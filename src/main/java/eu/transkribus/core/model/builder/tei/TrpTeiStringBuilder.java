@@ -9,11 +9,7 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.translate.AggregateTranslator;
-import org.apache.commons.lang3.text.translate.CharSequenceTranslator;
-import org.apache.commons.lang3.text.translate.LookupTranslator;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.hamcrest.core.IsNot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
