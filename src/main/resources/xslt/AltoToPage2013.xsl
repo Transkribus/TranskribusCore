@@ -133,11 +133,13 @@
     <!-- blocks to Regions -->    
     <xsl:template match="TextBlock">
         <xsl:variable name="actId" select="@ID"/>
+        <xsl:variable name="seq" select="number(substring-after($actId,'Page1_Block')) - 1"/>
         <xsl:variable name="font" select="./@STYLEREFS"/>
         <xsl:variable name="fontFamily" select="//TextStyle[@ID=$font]/@FONTFAMILY"/>
         <xsl:variable name="fontSize" select="//TextStyle[@ID=$font]/@FONTSIZE"/>
         <TextRegion>
             <xsl:attribute name="id" select="$actId"/>
+            <xsl:attribute name="custom" select="concat('readingOrder ', (concat((concat('{index:', $seq)), ';}') ) )"/>
 <!--         We don't know the type from ALTO...    <xsl:attribute name="type" select="'paragraph'"/> -->
             <xsl:choose>
                 <xsl:when test="count(./Shape/Polygon) > 0">
@@ -186,12 +188,15 @@
     <xsl:template name="OtherRegion">
         <xsl:param name="id"/>
         <xsl:param name="elemName"/>
+        <xsl:variable name="seq" select="number(substring-after($id,'Page1_Block'))-1"/>
         <xsl:element name="{$elemName}">
             <xsl:attribute name="id" select="$id"/>
+            <xsl:attribute name="custom" select="concat('readingOrder ', (concat((concat('{index:', $seq)), ';}') ) )"/>
             <xsl:call-template name="writeCoords"/>
         </xsl:element>
     </xsl:template>
     
+    <!-- custom="readingOrder {index:0;}" -->
     <xsl:template match="TextLine">
         <xsl:variable name="actId" select="generate-id(.)"/>
         <xsl:variable name="seq">
@@ -201,10 +206,11 @@
                 </xsl:if>
             </xsl:for-each>
         </xsl:variable>
+        <xsl:variable name="seq2" select="number($seq)-1"/>
         <xsl:variable name="font" select="./@STYLEREFS"/>
         <xsl:variable name="fontFamily" select="//TextStyle[@ID=$font]/@FONTFAMILY"/>
         <xsl:variable name="fontSize" select="//TextStyle[@ID=$font]/@FONTSIZE"/>
-            <TextLine id="{concat('tl_', $seq)}">
+            <TextLine id="{concat('tl_', $seq)}" custom="readingOrder {concat(concat('{index:', $seq2), ';}')}">
                 <xsl:call-template name="writeCoords">
                     <xsl:with-param name="l" select="./@HPOS - 1"/>
                     <xsl:with-param name="t" select="./@VPOS - 1"/>
@@ -249,10 +255,13 @@
                 </xsl:if>
             </xsl:for-each>
         </xsl:variable>
+        <xsl:variable name="seq2" select="number($seq)-1"/>
         <xsl:variable name="font" select="./@STYLEREFS"/>
         <xsl:variable name="fontFamily" select="//TextStyle[@ID=$font]/@FONTFAMILY"/>
         <xsl:variable name="fontSize" select="//TextStyle[@ID=$font]/@FONTSIZE"/>
         <Word id="{concat('w_', $seq)}">
+        <!-- does not start with 0 for each new text region or line -->
+        <!-- Word id="{concat('w_', $seq)}" custom="readingOrder {concat(concat('{index:', $seq2), ';}')}"-->
 <!--        <Word id="{$actId}"> fast variant -->
         <xsl:call-template name="writeCoords">
                 <xsl:with-param name="l" select="./@HPOS"/>
