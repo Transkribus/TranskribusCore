@@ -58,7 +58,7 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 	}
 	
 	@Override public ITrpShapeType copy() {
-		return null;
+		return new TrpTableCellType(this);
 	}
 
 	@Override public void copyFields(ITrpShapeType src) {
@@ -291,6 +291,14 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 	@Override public ITrpShapeType getSiblingShape(boolean previous) {
 		return null;
 	}
+
+	@Override public String toString() {
+		return "TrpTableCellType [coords=" + coords
+				+ ", row=" + row + ", col=" + col + ", rowSpan=" + rowSpan + ", colSpan=" + colSpan + ", id=" + id + ", custom="
+				+ custom+"]";
+	}
+	
+	
 	
 //	public static void main(String[] args) {
 //		TrpTableCellType tc = new TrpTableCellType();

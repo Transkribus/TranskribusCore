@@ -159,4 +159,27 @@ public class TrpTableRegionType extends TableRegionType implements ITrpShapeType
 		}
 		return rowCells;
 	}
+	
+//	public void adjustCellIndexesOnRowOrColInsert(int insertIndex, boolean isRowInserted) {
+//		logger.debug("adjustCellIndexesOnRowOrColInsert, insertIndex: "+insertIndex+" isRowInserted = "+isRowInserted);
+//		
+//		// adjust row/cell indices according to split:
+//		for (TableCellType c : getTableCell()) {
+//			if (!isRowInserted) { // adjust columns
+//				if (c.getCol() >== i) {
+//					c.setCol(c.getCol()+1);
+//					
+//				}
+//				
+//				
+//			} else {
+//				
+//				
+//			}
+//			
+//			
+//		}
+//		
+//		
+//	}
 }
