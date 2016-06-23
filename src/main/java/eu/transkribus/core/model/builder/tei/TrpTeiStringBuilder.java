@@ -7,12 +7,9 @@ import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.translate.AggregateTranslator;
-import org.apache.commons.lang3.text.translate.CharSequenceTranslator;
-import org.apache.commons.lang3.text.translate.LookupTranslator;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.hamcrest.core.IsNot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,13 +46,6 @@ import eu.transkribus.core.util.SebisStringBuilder;
 
 public class TrpTeiStringBuilder extends ATeiBuilder {
 	private final static Logger logger = LoggerFactory.getLogger(TrpTeiStringBuilder.class);
-	
-	final static CharSequenceTranslator ESCAPE_XML_CONTENT = 
-	        new AggregateTranslator(new LookupTranslator(new String[][] {
-	       		// a list of character that need to be escaped in xml content and its replactement:
-	            {"&", "&amp;"}
-	        })
-	    );
 
 	SebisStringBuilder sbTotal = new SebisStringBuilder();
 	
@@ -518,8 +508,8 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		String lStr = getLineOrWordStart(shape, facsId);
 				
 		String content = getTaggedContent(shape);
-		String escapedContent = ESCAPE_XML_CONTENT.translate(content);
 		
+		final String escapedContent = StringEscapeUtils.escapeXml(content);
 		logger.debug("CONTENT = "+content+" escaped: "+escapedContent);
 		lStr+=escapedContent+getLineOrWordEnd(shape, facsId);
 		

@@ -66,9 +66,9 @@ public class TrpXlsxBuilder {
 		 */
 		for (CustomTag nonIndexedTag : cl.getNonIndexedTags()) {
 			
-			if (!nonIndexedTag.getTagName().equals("textStyle")){
+			if (!nonIndexedTag.getTagName().equals("textStyle") && !nonIndexedTag.getTagName().equals("readingOrder")){
 				nonIndexedTag.getAttributesValuesMap();
-				logger.debug("nonindexed tag found ");
+				//logger.debug("nonindexed tag found " + nonIndexedTag.getTagName());
 			}
 
 		}
@@ -77,6 +77,8 @@ public class TrpXlsxBuilder {
 		for (CustomTag indexedTag : cl.getIndexedTags()) {
 
 			if (!indexedTag.getTagName().equals("textStyle")){
+				
+				logger.debug("indexed tag found " + indexedTag.getTagName());
 				
 				Sheet firstSheet;
 				Sheet currSheet;
@@ -232,7 +234,6 @@ public class TrpXlsxBuilder {
 	public static void writeXlsxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor, Set<String> selectedTags) throws Exception {
 			
 
-		
 		List<TrpPage> pages = doc.getPages();
 		String exportPath = exportFile.getPath();
 		
@@ -331,14 +332,19 @@ public class TrpXlsxBuilder {
 
 		FileOutputStream fOut;
 		try {
+			//means no tags at all
+			if (wb.getNumberOfSheets() == 0){
+				throw new IOException("Sorry - No tags available for export");
+			}
 			fOut = new FileOutputStream(exportPath);
 			wb.write(fOut);
 			fOut.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw e;
 		}
-		logger.info("wrote rtf to: "+ exportPath);
+		logger.info("wrote xlsx to: "+ exportPath);
 	}
 	
 	private static void ExcelTest(String Path) {

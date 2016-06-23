@@ -112,6 +112,7 @@ public class DocxBuilder {
 	static boolean doBlackening = true;
 	static boolean markUnclearWords = false;
 	static boolean expandAbbrevs = false;
+	static boolean preserveLineBreaks = false;
 	
 	//static Map<CustomTag, String> tags = new HashMap<CustomTag, String>();
 	static Set<String> tagnames = new HashSet<String>();
@@ -251,12 +252,13 @@ public class DocxBuilder {
 //		System.out.println("Done.");
 	}
 	
-	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackening, File file, Set<Integer> pageIndices, IProgressMonitor monitor, Set<String> selectedTags, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean preserveLineBreaks) throws JAXBException, IOException, Docx4JException {
+	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackening, File file, Set<Integer> pageIndices, IProgressMonitor monitor, Set<String> selectedTags, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean keepLineBreaks) throws JAXBException, IOException, Docx4JException {
 		
 		exportTags = writeTags;
 		tagnames = selectedTags;
 		markUnclearWords = markUnclear;
 		expandAbbrevs = expandAbbreviations;
+		preserveLineBreaks = keepLineBreaks;
 		
 		/*
 		 * get all names of tags
@@ -555,6 +557,7 @@ public class DocxBuilder {
 						Br br = factory.createBr(); // this Br element is used break the current and go for next line
 						p.getContent().add(br);
 					}
+
 	
 				}
 //								
@@ -772,8 +775,22 @@ public class DocxBuilder {
 				run.getContent().add(t);
 			}
 			
+			String currText = textStr.substring(i, i+1);
+			
+			//soft break
+			if (currText.equals("¬") && !preserveLineBreaks){
+				break;
+			}
+			/*
+			 * add space at end of line if line breaks are not preserved
+			 */
+			if (!preserveLineBreaks && shapeEnded){
+				currText = currText.concat(" ");
+			}
+			
+			
 			org.docx4j.wml.Text  t = factory.createText();
-			t.setValue(textStr.substring(i, i+1));
+			t.setValue(currText);
 			t.setSpace("preserve");
 			
 			org.docx4j.wml.R  run = factory.createR();

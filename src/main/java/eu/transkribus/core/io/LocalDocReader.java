@@ -19,7 +19,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dea.util.pdf.PageImageWriter;
@@ -407,12 +406,12 @@ public class LocalDocReader {
 				continue;
 			}
 			final String name = d.getName();
-			final long size = FileUtils.sizeOf(d);
+//			final long size = FileUtils.sizeOf(d);
+			final long size = -1; // too slow...
 			final Date date = new Date(d.lastModified());
 			TrpDocDir docDir = new TrpDocDir();
 			docDir.setName(name);
 			docDir.setNrOfImgs(imgs.size());
-			docDir.setSize(size);
 			docDir.setCreateDate(date);
 			TrpDocMetadata md = findOrCreateDocMd(d);
 			md.setLocalFolder(null); // delete local folder s.t. server dir is not visible for clients!

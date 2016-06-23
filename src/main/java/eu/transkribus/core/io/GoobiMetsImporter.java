@@ -241,8 +241,6 @@ public class GoobiMetsImporter
 		String xmlDir = dir + File.separator + "ocr";
 		String altoDir = dir + File.separator + "alto";
 		
-		logger.debug("fetchFilesFromUrl ");
-		
 		//FIXME this will only work for local files
 		for(Fptr ptr : div.getFptr()){
 			FileType type = (FileType) ptr.getFILEID();
@@ -261,7 +259,7 @@ public class GoobiMetsImporter
 					String filename = type.getID();
 					String fileEnding = href.substring(href.lastIndexOf("."));
 					
-					logger.debug("fileEnding " + fileEnding);
+					//logger.debug("fileEnding " + fileEnding);
 					
 					if (mimetype.equals("image/jpeg")){
 						fileEnding = ".jpg";

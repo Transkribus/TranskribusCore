@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class TrpDocDir {
 	private String name;
 	private int nrOfImgs;
+	@Deprecated
 	private long size;
 	private Date createDate;
 	private TrpDocMetadata metadata;
@@ -33,11 +34,11 @@ public class TrpDocDir {
 	public void setNrOfImgs(int nrOfImgs) {
 		this.nrOfImgs = nrOfImgs;
 	}
-
+	@Deprecated
 	public long getSize() {
 		return size;
 	}
-
+	@Deprecated
 	public void setSize(long size) {
 		this.size = size;
 	}
