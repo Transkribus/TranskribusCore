@@ -152,12 +152,12 @@ public class TrpTableRegionType extends TableRegionType implements ITrpShapeType
 	}
 	
 	public List<TrpTableCellType> getColCells(int col) {
-		List<TrpTableCellType> rowCells = new ArrayList<>();
+		List<TrpTableCellType> colCells = new ArrayList<>();
 		for (TableCellType c : tableCell) {
 			if (c.getCol() == col)
-				rowCells.add((TrpTableCellType) c);
+				colCells.add((TrpTableCellType) c);
 		}
-		return rowCells;
+		return colCells;
 	}
 	
 //	public void adjustCellIndexesOnRowOrColInsert(int insertIndex, boolean isRowInserted) {

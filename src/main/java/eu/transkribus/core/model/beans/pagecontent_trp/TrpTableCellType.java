@@ -148,6 +148,26 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 //	@Override public String getStructure() {
 //		return null;
 //	}
+	
+	@Override public void setRow(int value) {
+		super.setRow(value);
+		observable.setChangedAndNotifyObservers(new TrpCoordsChangedEvent(this));
+	}
+	
+	@Override public void setCol(int value) {
+		super.setCol(value);
+		observable.setChangedAndNotifyObservers(new TrpCoordsChangedEvent(this));
+	}
+	
+	@Override public void setRowSpan(Integer value) {
+		super.setRowSpan(value);
+		observable.setChangedAndNotifyObservers(new TrpCoordsChangedEvent(this));
+	}
+	
+	@Override public void setColSpan(Integer value) {
+		super.setColSpan(value);
+		observable.setChangedAndNotifyObservers(new TrpCoordsChangedEvent(this));
+	}
 
 	@Override public void setCoordinates(String value, Object who) {
 		CellCoordsType coords = new CellCoordsType();

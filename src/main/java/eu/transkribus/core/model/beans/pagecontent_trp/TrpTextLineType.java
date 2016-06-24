@@ -115,11 +115,9 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 		this.setRegion((TrpTextRegionType)parent);
 	}
 	
-	@Override
-	public String getName() { return "Line"; }
+	@Override public String getName() { return "Line"; }
 	
-	@Override
-	public int getLevel() { return 1; }
+	@Override public int getLevel() { return 1; }
 
 	public void setRegion(TrpTextRegionType region) {
 		this.region = region;
