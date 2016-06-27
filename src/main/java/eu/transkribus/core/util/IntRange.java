@@ -49,6 +49,10 @@ public class IntRange {
 		return length<=0;
 	}
 	
+	public OverlapType getOverlapType(IntRange r) {
+		return getOverlapType(r.getOffset(), r.getLength());
+	}
+	
 	/**
 	 * Returns the {@link OverlapType} of the given range with offset o and length l
 	 * with this range. The types have the following meaning:

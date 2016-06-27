@@ -24,6 +24,8 @@ import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEven
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpRemovedEvent;
 import eu.transkribus.core.util.BeanCopyUtils;
 import eu.transkribus.core.util.CoreUtils;
+import eu.transkribus.core.util.IntRange;
+import eu.transkribus.core.util.OverlapType;
 import eu.transkribus.core.util.PointStrUtils;
 
 public class TrpTableCellType extends TableCellType implements ITrpShapeType {
@@ -149,6 +151,99 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 //		return null;
 //	}
 	
+	public int getRowEnd() {
+		return getRow() + getRowSpan();
+	}
+	
+	public int getColEnd() {
+		return getCol() + getColSpan();
+	}
+	
+	public boolean isNeighborCell(TrpTableCellType tc, int position) {
+		IntRange rr, cr;
+		if (position == 0) { // left
+			if (getCol() <= 0)
+				return false;
+			
+			rr = new IntRange(getRow(), 1);
+			cr = new IntRange(getCol()-1, 1);
+		} else if (position == 1) { // bottom
+			if (getRowEnd() >= table.getNRows())
+				return false;
+			
+			rr = new IntRange(getRow()+1, 1);
+			cr = new IntRange(getCol(), 1);
+		} else if (position == 2) { // right
+			if (getColEnd() >= table.getNCols())
+				return false;			
+			
+			rr = new IntRange(getRow(), 1);
+			cr = new IntRange(getCol()+1, 1);
+		} else if (position == 3) { // top
+			if (getRow() <= 0)
+				return false;
+			
+			rr = new IntRange(getRow()-1, 1);
+			cr = new IntRange(getCol(), 1);
+		}
+		else { // no valid position specified -> all neighbors
+			rr = new IntRange(getRow()-1, getRowSpan()+2);
+			cr = new IntRange(getCol()-1, getColSpan()+2);
+		}
+
+		IntRange rr0 = new IntRange(tc.getRow(), tc.getRowSpan());
+		IntRange cr0 = new IntRange(tc.getCol(), tc.getColSpan());
+		
+		boolean isNc = rr.getOverlapType(rr0) != OverlapType.NONE && cr.getOverlapType(cr0) != OverlapType.NONE;
+		
+		logger.trace(this.print()+" - "+tc.print()+" isNc: "+isNc);
+		
+		return isNc;
+	}
+	
+//	public boolean isNeihgborCell(TrpTableCellType tc, )
+	
+	/**
+	 * Get neighbor cell according to position =
+	 * 0 -> left
+	 * 1 -> bottom
+	 * 2 -> right
+	 * 3 -> top
+	 */
+	public TrpTableCellType getNeighborCell(int position) {
+		
+		if (table != null) {
+			for (TableCellType c : table.getTableCell()) {
+				if (c == this)
+					continue;
+				
+				TrpTableCellType tc = (TrpTableCellType) c;
+				if (isNeighborCell(tc, position)) {
+					return tc;
+				}
+			}
+		}
+		return null;
+	}
+	
+	public List<TrpTableCellType> getNeighborCells() {
+		List<TrpTableCellType> neighbors = new ArrayList<>();
+		
+		if (table != null) {
+			for (TableCellType c : table.getTableCell()) {
+				if (c == this)
+					continue;
+				
+				TrpTableCellType tc = (TrpTableCellType) c;
+				if (isNeighborCell(tc, -1)) {
+					neighbors.add(tc);
+				}
+			}
+		}
+		
+		return neighbors;
+	}
+	
 	@Override public void setRow(int value) {
 		super.setRow(value);
 		observable.setChangedAndNotifyObservers(new TrpCoordsChangedEvent(this));
@@ -235,10 +330,9 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 	}
 
 	public String print() {
-		return "TrpTableCellType: id = " + getId() + ", text = " + getUnicodeText() + ", level = " + getLevel() + ", parent = " + getParent() + ", nChildren = "
-				+ getChildren(false).size();
+		return "TrpTableCellType: id = " + getId()+", row = "+getRow()+", col = "+getCol()+" rowSpan = "+getRowSpan()+" colSpan = "+getColSpan();
 	}
-
+	
 	@Override public void translate(int x, int y) throws Exception { 
 		setCoordinates(PointStrUtils.translatePoints(getCoordinates(), x, y), this);
 	}
