@@ -70,10 +70,11 @@ public class TrpMetsBuilder extends Observable {
 	 * If a local document is passed, all hrefs will contain the relative paths to files based on the localFolder!
 	 * 
 	 * @param doc
+	 * @param exportImages 
 	 * @return
 	 * @throws IOException if image/xml files can't be accessed for reading the mimetype etc.
 	 */
-	public static Mets buildMets(TrpDoc doc, boolean exportPage, boolean exportAlto) throws IOException {
+	public static Mets buildMets(TrpDoc doc, boolean exportPage, boolean exportAlto, boolean exportImages) throws IOException {
 		Mets mets = new Mets();
 		TrpDocMetadata md = doc.getMd();
 		File localFolder = md.getLocalFolder();
@@ -147,12 +148,14 @@ public class TrpMetsBuilder extends Observable {
 			 * TODO how to deal with imagestore files? use orig image? right now, it's just the view file...
 			 * TODO thumbnails not yet included
 			*/
-			FileType img = buildFileType(localFolder, imgId, p, p.getPageNr(), client);
-			imgGrp.getFile().add(img);
-	
-			//linking images
-			Fptr imgPtr = buildFptr(img);			
-			pageDiv.getFptr().add(imgPtr);
+			if (exportImages){
+				FileType img = buildFileType(localFolder, imgId, p, p.getPageNr(), client);
+				imgGrp.getFile().add(img);
+		
+				//linking images
+				Fptr imgPtr = buildFptr(img);			
+				pageDiv.getFptr().add(imgPtr);
+			}
 			//TODO error handling.. if no transcript??
 			if (exportPage){
 				// xmlfiletype: just add the most recent transcript
@@ -176,8 +179,8 @@ public class TrpMetsBuilder extends Observable {
 				altoFt.setID(altoId);
 				altoFt.setSEQ(p.getPageNr());
 
-				String tmpImgName = img.getFLocat().get(0).getHref();
-				String relAltoPath = "alto".concat(File.separator).concat(tmpImgName.substring(0, tmpImgName.lastIndexOf(".")).concat(".xml"));
+				//String tmpImgName = img.getFLocat().get(0).getHref();
+				String relAltoPath = "alto".concat(File.separator).concat(p.getImgFileName().substring(0, p.getImgFileName().lastIndexOf(".")).concat(".xml"));
 				fLocat.setHref(relAltoPath);
 				
 				//String absAltoPath = tMd.getUrl().getPath().replace("page", "alto");
@@ -224,13 +227,16 @@ public class TrpMetsBuilder extends Observable {
 		fileSec.getFileGrp().add(masterGrp);
 		mets.setFileSec(fileSec);
 		
-		masterGrp.getFileGrp().add(imgGrp);
+		if (exportImages){
+			masterGrp.getFileGrp().add(imgGrp);
+		}
 		if (exportPage){
 			masterGrp.getFileGrp().add(pageGrp);
 		}
 		if (exportAlto){
 			masterGrp.getFileGrp().add(altoGrp);
 		}
+		
 		mets.getStructMap().add(structMap);		
 		
 		return mets;

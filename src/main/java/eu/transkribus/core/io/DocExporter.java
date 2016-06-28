@@ -208,7 +208,7 @@ public class DocExporter extends Observable {
 			//load the exported doc from its new location
 			final TrpDoc localDoc = LocalDocReader.load(outputDir.getAbsolutePath(), false);
 			//write mets with file pointers to local files
-			Mets mets = TrpMetsBuilder.buildMets(localDoc, opts.exportPageXml, opts.exportAltoXml);
+			Mets mets = TrpMetsBuilder.buildMets(localDoc, opts.exportPageXml, opts.exportAltoXml, opts.doWriteImages);
 			File metsFile = new File(outputDir.getAbsolutePath() + File.separator
 					+ TrpMetsBuilder.METS_FILE_NAME);
 	
