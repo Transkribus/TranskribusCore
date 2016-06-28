@@ -201,6 +201,14 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 		return isNc;
 	}
 	
+//	public static boolean isCellsMergeable(List<TrpTableCellType> cells) {
+//		
+//		
+//		
+//		
+//		
+//	}
+	
 //	public boolean isNeihgborCell(TrpTableCellType tc, )
 	
 	/**
@@ -243,6 +251,8 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 		
 		return neighbors;
 	}
+	
+	
 	
 	@Override public void setRow(int value) {
 		super.setRow(value);

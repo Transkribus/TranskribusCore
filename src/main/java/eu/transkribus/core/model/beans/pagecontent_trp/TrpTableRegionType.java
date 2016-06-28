@@ -135,11 +135,29 @@ public class TrpTableRegionType extends TableRegionType implements ITrpShapeType
 		return getMaxRowCol().getRight()+1;
 	}
 		
-	public List<TrpTableCellType> getCells(boolean rowCells, int index) {
+	public List<TrpTableCellType> getCells(boolean rowCells, boolean startIndex, int index) {
 		if (rowCells)
-			return getRowCells(index);
+			return startIndex ? getRowCells(index) : getRowEndCells(index);
 		else
-			return getColCells(index);
+			return startIndex ? getColCells(index) : getColEndCells(index);
+	}
+	
+	public List<TrpTableCellType> getRowEndCells(int rowEnd) {
+		List<TrpTableCellType> rowCells = new ArrayList<>();
+		for (TableCellType c : tableCell) {
+			if (((TrpTableCellType)c).getRowEnd() == rowEnd)
+				rowCells.add((TrpTableCellType) c);
+		}
+		return rowCells;
+	}
+	
+	public List<TrpTableCellType> getColEndCells(int colEnd) {
+		List<TrpTableCellType> rowCells = new ArrayList<>();
+		for (TableCellType c : tableCell) {
+			if (((TrpTableCellType)c).getColEnd() == colEnd)
+				rowCells.add((TrpTableCellType) c);
+		}
+		return rowCells;
 	}
 	
 	public List<TrpTableCellType> getRowCells(int row) {
