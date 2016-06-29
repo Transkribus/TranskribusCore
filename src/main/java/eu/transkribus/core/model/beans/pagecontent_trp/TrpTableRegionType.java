@@ -178,6 +178,12 @@ public class TrpTableRegionType extends TableRegionType implements ITrpShapeType
 		return colCells;
 	}
 	
+	public boolean checkForMissingCells() {
+		sortChildren(false);
+		
+		
+	}
+	
 //	public void adjustCellIndexesOnRowOrColInsert(int insertIndex, boolean isRowInserted) {
 //		logger.debug("adjustCellIndexesOnRowOrColInsert, insertIndex: "+insertIndex+" isRowInserted = "+isRowInserted);
 //		
