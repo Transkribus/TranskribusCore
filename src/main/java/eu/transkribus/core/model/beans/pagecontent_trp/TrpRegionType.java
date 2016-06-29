@@ -119,7 +119,11 @@ public class TrpRegionType extends RegionType implements ITrpShapeType {
 	 */
 	public static List<TrpTextRegionType> getTextRegions(List<TrpRegionType> textRegionOrImageRegionOrLineDrawingRegion, boolean recursive) {
 		List<TrpTextRegionType> res = new ArrayList<TrpTextRegionType>();
-				
+		
+		if(textRegionOrImageRegionOrLineDrawingRegion == null) {
+			return res;
+		}
+		
 		for (TrpRegionType region : textRegionOrImageRegionOrLineDrawingRegion) {
 			if (region instanceof TextRegionType) {
 				res.add((TrpTextRegionType) region);

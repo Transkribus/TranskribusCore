@@ -349,6 +349,7 @@ public class PageXmlUtils {
 
 	public static PcGtsType createEmptyPcGtsType(final File imgFile) throws IOException {
 		Dimension dim = ImgUtils.readImageDimensions(imgFile);
+		logger.debug("width = " + dim.width + " | height = " + dim.height);
 		return createEmptyPcGtsType(imgFile.getName(), dim.width, dim.height);
 	}
 
