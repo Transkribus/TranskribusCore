@@ -140,6 +140,11 @@ public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {
 		// then apply from lines to region:
 		applyTextFromLines();
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<TrpTextLineType> getTrpTextLine() {
+		return (List<TrpTextLineType>)(Object) getTextLine();
+	}
 		
 	public boolean isLinesInSyncWithWordsText() {
 //		logger.debug("diff word/line text = "+StringUtils.difference(getTextFromWords(false), getTextFromLines()));

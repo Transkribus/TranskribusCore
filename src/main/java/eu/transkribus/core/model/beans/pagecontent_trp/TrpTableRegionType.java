@@ -112,27 +112,29 @@ public class TrpTableRegionType extends TableRegionType implements ITrpShapeType
 	
 	@Override public boolean hasChildren() { return !getTableCell().isEmpty(); }
 	
-	public Pair<Integer, Integer> getMaxRowCol() {
+	public Pair<Integer, Integer> getDimensions() {
 		int maxR = -1;
 		int maxC = -1;
 		
 		for (TableCellType c : tableCell) {
-			if (c.getRow() > maxR)
-				maxR = c.getRow();
+			TrpTableCellType tc = (TrpTableCellType) c;
 			
-			if (c.getCol() > maxC)
-				maxC = c.getCol();	
+			if (tc.getRowEnd() > maxR)
+				maxR = tc.getRowEnd();
+			
+			if (tc.getColEnd() > maxC)
+				maxC = tc.getColEnd();	
 		}
 		
 		return Pair.of(maxR, maxC);
 	}
 	
 	public int getNRows() {
-		return getMaxRowCol().getLeft()+1;
+		return getDimensions().getLeft();
 	}
 	
 	public int getNCols() {
-		return getMaxRowCol().getRight()+1;
+		return getDimensions().getRight();
 	}
 		
 	public List<TrpTableCellType> getCells(boolean rowCells, boolean startIndex, int index) {
@@ -178,11 +180,10 @@ public class TrpTableRegionType extends TableRegionType implements ITrpShapeType
 		return colCells;
 	}
 	
-	public boolean checkForMissingCells() {
-		sortChildren(false);
-		
-		
-	}
+    @SuppressWarnings("unchecked")
+	public List<TrpTableCellType> getTrpTableCell() {
+    	return (List<TrpTableCellType>) (Object) getTableCell();
+    }
 	
 //	public void adjustCellIndexesOnRowOrColInsert(int insertIndex, boolean isRowInserted) {
 //		logger.debug("adjustCellIndexesOnRowOrColInsert, insertIndex: "+insertIndex+" isRowInserted = "+isRowInserted);
