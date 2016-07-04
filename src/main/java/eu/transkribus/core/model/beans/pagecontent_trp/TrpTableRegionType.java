@@ -62,17 +62,13 @@ public class TrpTableRegionType extends TableRegionType implements ITrpShapeType
 	@Override
 	public String getName() { return "TableRegion"; }
 	
+	public static void sortTableCells(List<TableCellType> cells) {
+		Collections.sort(cells, TrpTableCellType.TABLE_CELL_COMPARATOR);
+	}
+	
 	public void sortTableCells() {
 		// sort table cells first by row then col index
-		Collections.sort(tableCell, new Comparator<TableCellType>() {
-			@Override public int compare(TableCellType o1, TableCellType o2) {
-				int rc = Integer.compare(o1.getRow(), o2.getRow());
-				if (rc != 0) 
-					return rc;
-				
-				return Integer.compare(o1.getCol(), o2.getCol());
-			}
-		});
+		Collections.sort(tableCell, TrpTableCellType.TABLE_CELL_COMPARATOR);
 	}
 	
 	@Override public void sortChildren(boolean recursive) {

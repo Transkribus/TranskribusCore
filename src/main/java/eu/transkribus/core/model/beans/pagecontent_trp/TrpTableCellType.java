@@ -1,11 +1,14 @@
 package eu.transkribus.core.model.beans.pagecontent_trp;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Observer;
 
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +44,16 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 	protected CustomTagList customTagList;
  	
  	@XmlTransient Object data;
+ 	
+ 	public static final Comparator<TableCellType> TABLE_CELL_COMPARATOR = new Comparator<TableCellType>() {
+		@Override public int compare(TableCellType o1, TableCellType o2) {
+			int rc = Integer.compare(o1.getRow(), o2.getRow());
+			if (rc != 0) 
+				return rc;
+			
+			return Integer.compare(o1.getCol(), o2.getCol());
+		}
+	};
  		
 	public TrpTableCellType() {
 		logger.debug("created TrpTableCellType!");	
@@ -151,6 +164,10 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 //		return null;
 //	}
 	
+	public Pair<Integer, Integer> getSpan() {
+		return Pair.of(getRowSpan(), getColSpan());
+	}
+	
 	public int getRowEnd() {
 		return getRow() + getRowSpan();
 	}
@@ -165,26 +182,26 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 			if (getCol() <= 0)
 				return false;
 			
-			rr = new IntRange(getRow(), 1);
+			rr = new IntRange(getRow(), getRowSpan());
 			cr = new IntRange(getCol()-1, 1);
 		} else if (position == 1) { // bottom
 			if (getRowEnd() >= table.getNRows())
 				return false;
 			
 			rr = new IntRange(getRow()+1, 1);
-			cr = new IntRange(getCol(), 1);
+			cr = new IntRange(getCol(), getColSpan());
 		} else if (position == 2) { // right
 			if (getColEnd() >= table.getNCols())
 				return false;			
 			
-			rr = new IntRange(getRow(), 1);
+			rr = new IntRange(getRow(), getRowSpan());
 			cr = new IntRange(getCol()+1, 1);
 		} else if (position == 3) { // top
 			if (getRow() <= 0)
 				return false;
 			
 			rr = new IntRange(getRow()-1, 1);
-			cr = new IntRange(getCol(), 1);
+			cr = new IntRange(getCol(), getColSpan());
 		}
 		else { // no valid position specified -> all neighbors
 			rr = new IntRange(getRow()-1, getRowSpan()+2);
@@ -218,7 +235,9 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 	 * 2 -> right
 	 * 3 -> top
 	 */
-	public TrpTableCellType getNeighborCell(int position) {
+	public List<TrpTableCellType> getNeighborCells(int position) {
+		
+		List<TrpTableCellType> neighbors = new ArrayList<>();
 		
 		if (table != null) {
 			for (TableCellType c : table.getTableCell()) {
@@ -227,11 +246,13 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 				
 				TrpTableCellType tc = (TrpTableCellType) c;
 				if (isNeighborCell(tc, position)) {
-					return tc;
+					neighbors.add(tc);
 				}
 			}
 		}
-		return null;
+		Collections.sort(neighbors, TrpTableCellType.TABLE_CELL_COMPARATOR);
+		
+		return neighbors;
 	}
 	
 	public List<TrpTableCellType> getNeighborCells() {
