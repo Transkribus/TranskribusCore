@@ -188,14 +188,14 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 			if (getRowEnd() >= table.getNRows())
 				return false;
 			
-			rr = new IntRange(getRow()+1, 1);
+			rr = new IntRange(getRowEnd(), 1); // FIXME
 			cr = new IntRange(getCol(), getColSpan());
 		} else if (position == 2) { // right
 			if (getColEnd() >= table.getNCols())
 				return false;			
 			
 			rr = new IntRange(getRow(), getRowSpan());
-			cr = new IntRange(getCol()+1, 1);
+			cr = new IntRange(getColEnd(), 1); // FIXME
 		} else if (position == 3) { // top
 			if (getRow() <= 0)
 				return false;
