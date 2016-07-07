@@ -164,9 +164,19 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 //		return null;
 //	}
 	
-	public Pair<Integer, Integer> getSpan() {
-		return Pair.of(getRowSpan(), getColSpan());
+//	public Pair<Integer, Integer> getSpan() {
+//		return Pair.of(getRowSpan(), getColSpan());
+//	}
+	
+	public int[] getSpan() {
+		return new int[] { getRowSpan(), getColSpan() };
 	}
+	
+	public int[] getPos() {
+		return new int[] { getRow(), getCol() };
+	}
+	
+//	public 
 	
 	public int getRowEnd() {
 		return getRow() + getRowSpan();

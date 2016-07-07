@@ -117,6 +117,10 @@ public class IntRange {
 		}
 	}	
 	
+	public static int getOverlapLength(int o1, int l1, int o2, int l2) {
+		return Math.min(o1+l1, o2+l2)-Math.max(o1, o2);
+	}
+	
 	@Override public boolean equals(Object o) {
 		if (o==null || !(o instanceof IntRange)) return false;
 		IntRange r = (IntRange) o;

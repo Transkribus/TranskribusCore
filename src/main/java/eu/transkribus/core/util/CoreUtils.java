@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -25,6 +26,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.docx4j.model.datastorage.XPathEnhancerParser.main_return;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,24 +42,24 @@ public class CoreUtils {
 	public final static String DATE_FORMAT_STR_USER_FRIENDLY = "dd.MM.YY HH:mm:ss";
 	public final static SimpleDateFormat DATE_FORMAT_USER_FRIENDLY = new SimpleDateFormat(DATE_FORMAT_STR_USER_FRIENDLY);
 	
-	public static void main(String[] args) {
-		String str = " Gregor S,_;amsa wacht eines M\"orgens auf u[]nd stellt fe(st, dass er „zu) einem ungeheueren 2,000 Ungeziefer verwandelt“ wurde 3.000";
-
-		if (false) {
-			String tokenized = tokenizeForCATTI(str);
-			String detokenized = detokenizeForCATTI(tokenized);
-	
-			System.out.println(str);
-			System.out.println(tokenized);
-			System.out.println(detokenized);
-		}
-		
-		if (true) {
-			int N = getNOfRepeatingChars(str, 0, ' ');
-			System.out.println("N = "+N);
-		}		
-		
-	}
+//	public static void main(String[] args) {
+//		String str = " Gregor S,_;amsa wacht eines M\"orgens auf u[]nd stellt fe(st, dass er „zu) einem ungeheueren 2,000 Ungeziefer verwandelt“ wurde 3.000";
+//
+//		if (false) {
+//			String tokenized = tokenizeForCATTI(str);
+//			String detokenized = detokenizeForCATTI(tokenized);
+//	
+//			System.out.println(str);
+//			System.out.println(tokenized);
+//			System.out.println(detokenized);
+//		}
+//		
+//		if (true) {
+//			int N = getNOfRepeatingChars(str, 0, ' ');
+//			System.out.println("N = "+N);
+//		}		
+//		
+//	}
 	
 	public static void setLibraryPath(String path) throws Exception {
 		System.setProperty("java.library.path", path);
@@ -83,6 +85,28 @@ public class CoreUtils {
 		}
 		
 		return "";
+	}
+	
+	public static <T> List<T> getFirstCommonSequence(List<T> base, List<T> search) {
+		List<T> common = new ArrayList<>();
+		
+		int li=-1;
+		for (T s : search) {
+			int i = base.indexOf(s);			
+			if (i == -1) { // not found
+				if (li==-1)
+					continue;
+				else // if element has been found already
+					break;
+			} else if (li != -1 && i-1 != li) { // element found but not after last found elment!
+				break;
+			} else {
+				li = i;
+				common.add(s);
+			}
+		}
+		
+		return common;
 	}
 	
 	/**
@@ -523,5 +547,18 @@ public class CoreUtils {
 //			return v1 || v2;
 //		}
 //	}	
+	
+	public static void main(String[] args) {
+		List<Integer> base = Arrays.asList(1, 3, 4, 5, 7, 10);
+		List<Integer> search = Arrays.asList(111, 45, 3, 4, 6, 8, 12);
+		
+		List<Integer> common = CoreUtils.getFirstCommonSequence(base, search);
+		
+		System.out.println("common = "+StringUtils.join(common));
+		
+		
+		
+		
+	}
 
 }
