@@ -148,8 +148,10 @@ public class ExportUtils {
 
 			}
 			
-			monitor.setTaskName("Loaded tags for page " + (i+1));
-			monitor.worked(++c);
+			if (monitor != null){
+				monitor.setTaskName("Loaded tags for page " + (i+1));
+				monitor.worked(++c);
+			}
 
 		}
 
