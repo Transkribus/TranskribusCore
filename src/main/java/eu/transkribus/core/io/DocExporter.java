@@ -40,6 +40,7 @@ public class DocExporter extends Observable {
 		public boolean useOcrMasterDir=true;
 		public boolean doWriteImages=true;
 		public boolean exportPageXml=true;
+		public String pageDirName = LocalDocConst.PAGE_FILE_SUB_FOLDER;
 		public boolean exportAltoXml=true;
 		public boolean exportFatXml=false;
 		public String fileNamePattern = "${filename}";
@@ -94,7 +95,7 @@ public class DocExporter extends Observable {
 		return outputDir;
 	}
 
-	private File exportDoc(TrpDoc doc, final ExportOptions opts) throws IOException, IllegalArgumentException,
+	public File exportDoc(TrpDoc doc, final ExportOptions opts) throws IOException, IllegalArgumentException,
 			URISyntaxException, JAXBException, TransformerException {
 		FimgStoreGetClient getter = null;
 		FimgStoreUriBuilder uriBuilder = null;
@@ -117,7 +118,7 @@ public class DocExporter extends Observable {
 				
 		if(opts.exportPageXml){
 			pageOutputDir = new File(outputDir.getAbsolutePath() + File.separatorChar
-					+ LocalDocConst.PAGE_FILE_SUB_FOLDER);
+					+ opts.pageDirName);
 			pageOutputDir.mkdir();
 		}
 		
