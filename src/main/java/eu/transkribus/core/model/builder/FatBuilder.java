@@ -213,7 +213,14 @@ public class FatBuilder {
 	}
 	
 	private static BigInteger getBigIntValue(String nStr) {
-		return BigInteger.valueOf(Integer.parseInt(nStr));
+		int val;
+		try {
+			val = Integer.parseInt(nStr);
+		} catch(NumberFormatException e) {
+			logger.error("Could not parse number: " + nStr, e);
+			val = 0;
+		}
+		return BigInteger.valueOf(val);
 	}
 	
 	public static void main(String[] args){
