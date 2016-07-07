@@ -42,8 +42,8 @@ public class HtrUtils {
 	private static final String LATTICE_TOOL_LINE_PATTERN_STR = FLOAT_NR+"\\s"+FLOAT_NR+"\\s[0-9]+\\s<s>\\s(.*)\\s</s>";
 	static final Pattern LATTICE_TOOL_LINE_PATTERN = Pattern.compile(LATTICE_TOOL_LINE_PATTERN_STR);
 
-	private static final String NET_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/net";
-	private static final String DICT_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/dict";
+	public static final String NET_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/net";
+	public static final String DICT_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/dict";
 	
 	
 	/**
@@ -363,13 +363,18 @@ public class HtrUtils {
 		return modelStr;
 	}
 	
-	public static String getNetListStr() {
+	public static File[] getNetList() {
 		File[] models = new File(HtrUtils.NET_PATH).listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File pathname) {
 				return pathname.isFile() && pathname.getName().endsWith(".sprnn");
 			}
 		});
+		return models;
+	}
+	
+	public static String getNetListStr() {
+		File[] models = getNetList();
 		
 		String modelStr = "";
 		boolean isFirst = true;
