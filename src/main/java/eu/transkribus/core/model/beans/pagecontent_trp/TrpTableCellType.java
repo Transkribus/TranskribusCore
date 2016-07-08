@@ -176,6 +176,14 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 		return new int[] { getRow(), getCol() };
 	}
 	
+	public IntRange getRowRange() {
+		return new IntRange(getRow(), getRowSpan());
+	}
+	
+	public IntRange getColRange() {
+		return new IntRange(getCol(), getColSpan());
+	}	
+	
 //	public 
 	
 	public int getRowEnd() {

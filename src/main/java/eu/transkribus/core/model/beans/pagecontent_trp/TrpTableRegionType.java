@@ -2,7 +2,6 @@ package eu.transkribus.core.model.beans.pagecontent_trp;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -13,6 +12,8 @@ import eu.transkribus.core.model.beans.pagecontent.TableCellType;
 import eu.transkribus.core.model.beans.pagecontent.TableRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpChildrenClearedEvent;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpConstructedWithParentEvent;
+import eu.transkribus.core.util.IntRange;
+import eu.transkribus.core.util.OverlapType;
 
 public class TrpTableRegionType extends TableRegionType implements ITrpShapeType {
 	private final static Logger logger = LoggerFactory.getLogger(TrpTableRegionType.class);
@@ -132,46 +133,89 @@ public class TrpTableRegionType extends TableRegionType implements ITrpShapeType
 	public int getNCols() {
 		return getDimensions().getRight();
 	}
-		
-	public List<TrpTableCellType> getCells(boolean rowCells, boolean startIndex, int index) {
-		if (rowCells)
-			return startIndex ? getRowCells(index) : getRowEndCells(index);
-		else
-			return startIndex ? getColCells(index) : getColEndCells(index);
+	
+	public enum GetCellsType {
+		START_INDEX,
+		END_INDEX,
+		OVERLAP;
 	}
+	
+	public List<TrpTableCellType> getCells(boolean rowCells, GetCellsType type, int index) {
+		if (rowCells) {
+			switch (type) {
+			case START_INDEX:
+				return getRowCells(index);
+			case END_INDEX:
+				return getRowEndCells(index);
+			case OVERLAP:
+				return getRowOverlapCells(index);
+			}
+		}
+		else {
+			switch (type) {
+			case START_INDEX:
+				return getColCells(index);
+			case END_INDEX:
+				return getColEndCells(index);
+			case OVERLAP:
+				return getColOverlapCells(index);
+			}
+		}
+		
+		return new ArrayList<>();
+	}
+	
+	public List<TrpTableCellType> getRowOverlapCells(int index) {
+		List<TrpTableCellType> rowCells = new ArrayList<>();
+		for (TrpTableCellType c : getTrpTableCell()) {
+			
+			if (c.getRowRange().getOverlapType(new IntRange(index, 1))!=OverlapType.NONE)
+				rowCells.add(c);
+		}
+		return rowCells;
+	}
+	
+	public List<TrpTableCellType> getColOverlapCells(int index) {
+		List<TrpTableCellType> rowCells = new ArrayList<>();
+		for (TrpTableCellType c : getTrpTableCell()) {
+			if (c.getColRange().getOverlapType(new IntRange(index, 1))!=OverlapType.NONE)
+				rowCells.add(c);
+		}
+		return rowCells;
+	}	
 	
 	public List<TrpTableCellType> getRowEndCells(int rowEnd) {
 		List<TrpTableCellType> rowCells = new ArrayList<>();
-		for (TableCellType c : tableCell) {
-			if (((TrpTableCellType)c).getRowEnd() == rowEnd)
-				rowCells.add((TrpTableCellType) c);
+		for (TrpTableCellType c : getTrpTableCell()) {
+			if (c.getRowEnd() == rowEnd)
+				rowCells.add(c);
 		}
 		return rowCells;
 	}
 	
 	public List<TrpTableCellType> getColEndCells(int colEnd) {
 		List<TrpTableCellType> rowCells = new ArrayList<>();
-		for (TableCellType c : tableCell) {
-			if (((TrpTableCellType)c).getColEnd() == colEnd)
-				rowCells.add((TrpTableCellType) c);
+		for (TrpTableCellType c : getTrpTableCell()) {
+			if (c.getColEnd() == colEnd)
+				rowCells.add(c);
 		}
 		return rowCells;
 	}
 	
 	public List<TrpTableCellType> getRowCells(int row) {
 		List<TrpTableCellType> rowCells = new ArrayList<>();
-		for (TableCellType c : tableCell) {
+		for (TrpTableCellType c : getTrpTableCell()) {
 			if (c.getRow() == row)
-				rowCells.add((TrpTableCellType) c);
+				rowCells.add(c);
 		}
 		return rowCells;
 	}
 	
 	public List<TrpTableCellType> getColCells(int col) {
 		List<TrpTableCellType> colCells = new ArrayList<>();
-		for (TableCellType c : tableCell) {
+		for (TrpTableCellType c : getTrpTableCell()) {
 			if (c.getCol() == col)
-				colCells.add((TrpTableCellType) c);
+				colCells.add( c);
 		}
 		return colCells;
 	}
