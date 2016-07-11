@@ -312,6 +312,20 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 		super.setColSpan(value);
 		observable.setChangedAndNotifyObservers(new TrpCoordsChangedEvent(this));
 	}
+	
+	public void setSpan(int index, Integer value) {
+		if (index == 0)
+			setRowSpan(value);
+		else
+			setColSpan(value);
+	}
+	
+	public void setPos(int index, int value) {
+		if (index == 0)
+			setRow(value);
+		else
+			setCol(value);
+	}
 
 	@Override public void setCoordinates(String value, Object who) {
 		CellCoordsType coords = new CellCoordsType();
