@@ -72,7 +72,7 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 		copyFields(src);
 	}
 	
-	@Override public ITrpShapeType copy() {
+	@Override public TrpTableCellType copy() {
 		return new TrpTableCellType(this);
 	}
 
@@ -340,14 +340,15 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 	}
 	
     public void setCornerPts(String value, Object who) {
-        getCoords().setCornerPts(value);
+//        getCoords().setCornerPts(value);
+        setCornerPts(value);
         
         observable.setChangedAndNotifyObservers(new TrpCoordsChangedEvent(who));
     }
     
-    public String getCornerPts() {
-    	return getCoords().getCornerPts();
-    }
+//    public String getCornerPts() {
+//    	return getCoords().getCornerPts();
+//    }
 
 	@Override
 	public List<ITrpShapeType> getChildren(boolean recursive) {

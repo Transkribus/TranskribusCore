@@ -19,6 +19,10 @@
                 <jxb:class implClass="eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType" />
             </jxb:bindings>
             
+            <jxb:bindings node="//xs:complexType[@name='TextRegionType']">
+                <jxb:class implClass="eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType" />
+            </jxb:bindings>            
+            
 <!-- 			<jxb:bindings node="xs:complexType[@name='PcGtsType']"> -->
 <!-- 				<annox:annotate> -->
 <!-- 					<annox:annotate annox:class="javax.xml.bind.annotation.XmlRootElement" -->
