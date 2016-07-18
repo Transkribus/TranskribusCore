@@ -137,7 +137,7 @@ public class TrpPdfDocument extends APdfDocument {
 	
 
 	@SuppressWarnings("unused")
-	public void addPage(URL imgUrl, TrpDoc doc, PcGtsType pc, boolean addAdditionalPlainTextPage, Set<String> selectedTags, FimgStoreImgMd md, boolean doBlackening) throws MalformedURLException, IOException, DocumentException, JAXBException, URISyntaxException {
+	public void addPage(URL imgUrl, TrpDoc doc, PcGtsType pc, boolean addAdditionalPlainTextPage, boolean imageOnly, Set<String> selectedTags, FimgStoreImgMd md, boolean doBlackening) throws MalformedURLException, IOException, DocumentException, JAXBException, URISyntaxException {
 		
 		//FIXME use this only on cropped (printspace) images!!
 		java.awt.Rectangle printspace = null;
@@ -291,7 +291,7 @@ public class TrpPdfDocument extends APdfDocument {
 		}
 		
 		document.newPage();
-		addTextAndImage(pc ,cutoffLeft,cutoffTop, img);	
+		addTextAndImage(pc ,cutoffLeft,cutoffTop, img, imageOnly);	
 		
 		if(addAdditionalPlainTextPage){
 
@@ -304,7 +304,7 @@ public class TrpPdfDocument extends APdfDocument {
 	
 
 
-	private void addTextAndImage(PcGtsType pc, int cutoffLeft, int cutoffTop, Image img) throws DocumentException, IOException {
+	private void addTextAndImage(PcGtsType pc, int cutoffLeft, int cutoffTop, Image img, boolean imageOnly) throws DocumentException, IOException {
 		lineAndColorList.clear();
 		
 		PdfContentByte cb = writer.getDirectContentUnder();
@@ -312,25 +312,27 @@ public class TrpPdfDocument extends APdfDocument {
 		cb.setColorFill(BaseColor.BLACK);
 		cb.setColorStroke(BaseColor.BLACK);
 		//BaseFont bf = BaseFont.createFont(BaseFont.TIMES_ROMAN, "UTF-8", BaseFont.NOT_EMBEDDED);
-		cb.beginLayer(ocrLayer);
-		cb.setFontAndSize(bfArial, 32);
-				
-		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
-		Collections.sort(regions, new TrpElementCoordinatesComparator<RegionType>());
-
-		for(RegionType r : regions){
-			//TODO add paths for tables etc.
-			if(r instanceof TextRegionType){
-				TextRegionType tr = (TextRegionType)r;
-				PageXmlUtils.buildPolygon(tr.getCoords().getPoints()).getBounds().getMinX();
-				addTextFromTextRegion(tr, cb, cutoffLeft, cutoffTop, bfArial);
+		if (!imageOnly){
+			cb.beginLayer(ocrLayer);
+			cb.setFontAndSize(bfArial, 32);
+					
+			List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+			Collections.sort(regions, new TrpElementCoordinatesComparator<RegionType>());
+	
+			for(RegionType r : regions){
+				//TODO add paths for tables etc.
+				if(r instanceof TextRegionType){
+					TextRegionType tr = (TextRegionType)r;
+					PageXmlUtils.buildPolygon(tr.getCoords().getPoints()).getBounds().getMinX();
+					addTextFromTextRegion(tr, cb, cutoffLeft, cutoffTop, bfArial);
+				}
 			}
+			
+			//scale after calculating lineMeanHeightForAllRegions
+			//lineMeanHeight = lineMeanHeight/scaleFactorX;
+			
+			cb.endLayer();
 		}
-		
-		//scale after calculating lineMeanHeightForAllRegions
-		//lineMeanHeight = lineMeanHeight/scaleFactorX;
-		
-		cb.endLayer();
 				
 		cb.beginLayer(imgLayer);		
 		cb.addImage(img);
