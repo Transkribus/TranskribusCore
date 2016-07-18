@@ -1,5 +1,6 @@
 package eu.transkribus.core.model.beans.pagecontent_trp;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,6 +31,7 @@ import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.IntRange;
 import eu.transkribus.core.util.OverlapType;
 import eu.transkribus.core.util.PointStrUtils;
+import eu.transkribus.core.util.PointStrUtils.PointParseException;
 
 public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 	
@@ -245,6 +247,28 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 //	}
 	
 //	public boolean isNeihgborCell(TrpTableCellType tc, )
+	
+	public List<Pair<Integer, TrpTableCellType>> getPointsOnNeighborCells(int x, int y) {
+		List<Pair<Integer, TrpTableCellType>> res = new ArrayList<>();
+		
+		Point pt = new Point(x, y); 
+		for (int pos=0; pos<4; ++pos) {
+//			int oPos = (pos+2)%4; // opposite side
+			for (TrpTableCellType nc : getNeighborCells(pos)) {
+				try {
+					int i = PointStrUtils.parsePoints(nc.getCoordinates()).indexOf(pt);
+					if (i != -1) {
+						res.add(Pair.of(i, nc));
+					}
+				} catch (PointParseException e) {
+					logger.warn("Could not parse points for cell "+nc.getId()+": "+nc.getCoordinates());
+					continue;
+				}
+			}
+		}
+		
+		return res;
+	}
 	
 	/**
 	 * Get neighbor cell according to position =
