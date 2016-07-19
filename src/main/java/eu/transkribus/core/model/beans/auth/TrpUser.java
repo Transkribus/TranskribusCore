@@ -27,6 +27,7 @@ public class TrpUser implements Serializable {
 	protected String lastname;
 	protected String gender;
 	protected String orcid;
+	protected String profilePicUrl;
 	
 	protected int isActive=1;
 	protected boolean isAdmin = false;
@@ -58,6 +59,7 @@ public class TrpUser implements Serializable {
 	    this.password = trpUser.password;
 	    this.isActive = trpUser.isActive;
 	    this.created = trpUser.created;
+	    this.profilePicUrl = trpUser.profilePicUrl;
 	}
 
 	public TrpUser(final int userId, final String userName){
@@ -154,6 +156,14 @@ public class TrpUser implements Serializable {
 	
 	public void setOrcid(String orcid){
 		this.orcid = orcid;
+	}
+
+	public String getProfilePicUrl() {
+		return profilePicUrl;
+	}
+
+	public void setProfilePicUrl(String profilePicUrl) {
+		this.profilePicUrl = profilePicUrl;
 	}
 
 	public String getPassword() {

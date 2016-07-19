@@ -232,4 +232,10 @@ public final class RESTConst {
 	public static final String HTR_RNN_PATH = "rnn";
 
 	public static final String HTR_DICT_NAME_PARAM = "dict";
+
+	//OAuth stuff
+	public static final String LOGIN_OAUTH_PATH = "oauth";
+	public static final String CODE_PARAM = "code";
+	public static final String STATE_PARAM = "state";
+	public static final String PROVIDER_PARAM = "prov";
 }
