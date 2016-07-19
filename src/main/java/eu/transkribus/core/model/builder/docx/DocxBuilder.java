@@ -112,6 +112,7 @@ public class DocxBuilder {
 	static boolean doBlackening = true;
 	static boolean markUnclearWords = false;
 	static boolean expandAbbrevs = false;
+	static boolean substituteAbbrevs = false;
 	static boolean preserveLineBreaks = false;
 	
 	//static Map<CustomTag, String> tags = new HashMap<CustomTag, String>();
@@ -252,13 +253,14 @@ public class DocxBuilder {
 //		System.out.println("Done.");
 	}
 	
-	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackening, File file, Set<Integer> pageIndices, IProgressMonitor monitor, Set<String> selectedTags, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean keepLineBreaks) throws JAXBException, IOException, Docx4JException {
+	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackening, File file, Set<Integer> pageIndices, IProgressMonitor monitor, Set<String> selectedTags, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean replaceAbbrevs, boolean keepLineBreaks) throws JAXBException, IOException, Docx4JException {
 		
 		exportTags = writeTags;
 		tagnames = selectedTags;
 		markUnclearWords = markUnclear;
 		expandAbbrevs = expandAbbreviations;
 		preserveLineBreaks = keepLineBreaks;
+		substituteAbbrevs = replaceAbbrevs;
 		
 		/*
 		 * get all names of tags
@@ -314,6 +316,7 @@ public class DocxBuilder {
 			if (tr == null){
 				TrpPage page = pages.get(i);
 				TrpTranscriptMetadata md = page.getCurrentTranscript();
+				//md.getStatus().equals("Done");
 				tr = new JAXBPageTranscript(md);
 				tr.build();
 			}
@@ -645,7 +648,8 @@ public class DocxBuilder {
 		HashMap<Integer, Integer> unclearList = new HashMap<Integer, Integer>();
 		
 		//Integer used for storing the offset: this is where the abbrev ends resp. (expansion) starts, and String contains the 'expansion' itself
-		LinkedHashMap<Integer, String> abbrevList = new LinkedHashMap<Integer, String>();
+		LinkedHashMap<Integer, String> expandAbbrevList = new LinkedHashMap<Integer, String>();
+		LinkedHashMap<Integer, AbbrevTag> substituteAbbrevList = new LinkedHashMap<Integer, AbbrevTag>();
 		
 		
 		
@@ -715,7 +719,17 @@ public class DocxBuilder {
 				String expansion = at.getExpansion();
 				//only add if an expansion was typed
 				if (!expansion.equals("")){
-					abbrevList.put(indexedTag.getEnd(), at.getExpansion());
+					expandAbbrevList.put(indexedTag.getEnd(), at.getExpansion());
+				}
+			}
+			
+			if(substituteAbbrevs && indexedTag.getTagName().equals("abbrev")){
+				logger.debug("abbrev tag found ");
+				AbbrevTag at = (AbbrevTag) indexedTag;
+				String expansion = at.getExpansion();
+				//key is the start of the abbrev
+				if (!expansion.equals("")){
+					substituteAbbrevList.put(indexedTag.getOffset(), at);
 				}
 			}
 			//}
@@ -738,10 +752,30 @@ public class DocxBuilder {
 			abbrevIdx = i;
 			shapeEnded = (i+1 == textStr.length() ? true : false);
 			
-			//add expansion in brackets behind the abbrev
+			/*
+			 * is this case the abbrev gets totally replaced by its expansion
+			 * so if the start of the abbrev was found the expansion is written and we can break the writing of the abbrev
+			 */
+			if(substituteAbbrevList.containsKey(i)){
+				String exp = substituteAbbrevList.get(i).getExpansion();
+				
+				org.docx4j.wml.Text  abbrevText = factory.createText();
+				abbrevText.setValue(exp);
+				
+				org.docx4j.wml.R  abbrevRun = factory.createR();
+				p.getContent().add(abbrevRun);
+				abbrevRun.getContent().add(abbrevText);
+				//go to end of the abbreviation and proceed with remaining text
+				i += substituteAbbrevList.get(i).getLength();
+				shapeEnded = (i == textStr.length() ? true : false);
+			}
 			
-			if(abbrevList.containsKey(i)){
-				String exp = abbrevList.get(i);
+			/*
+			 * add expansion in brackets behind the abbrev		
+			 * the abbrev list contains as key the end index of the abbrev	
+			 */
+			if(expandAbbrevList.containsKey(i)){
+				String exp = expandAbbrevList.get(i);
 				
 				org.docx4j.wml.Text  abbrevText = factory.createText();
 				abbrevText.setValue("["+exp+"]");
@@ -775,19 +809,15 @@ public class DocxBuilder {
 				run.getContent().add(t);
 			}
 			
-			String currText = textStr.substring(i, i+1);
+			String currText = "";
+			if (i+1 <= textStr.length()){
+				currText = textStr.substring(i, i+1);
+			}
 			
 			//soft break
 			if (currText.equals("¬") && !preserveLineBreaks){
 				break;
-			}
-			/*
-			 * add space at end of line if line breaks are not preserved
-			 */
-			if (!preserveLineBreaks && shapeEnded){
-				currText = currText.concat(" ");
-			}
-			
+			}		
 			
 			org.docx4j.wml.Text  t = factory.createText();
 			t.setValue(currText);
@@ -872,12 +902,12 @@ public class DocxBuilder {
 			run.setRPr(rpr);
 			
 			/*
-			 * abbrev at end of shape -> means use (index + 1)
+			 * abbrev at end of shape (= line) -> means use (index + 1)
 			 */
 			if (shapeEnded){
-				if(abbrevList.containsKey(i+1)){
+				if(expandAbbrevList.containsKey(i+1)){
 					logger.debug("abbrev is at end of shape!");
-					String exp = abbrevList.get(i+1);
+					String exp = expandAbbrevList.get(i+1);
 					
 					org.docx4j.wml.Text  abbrevText = factory.createText();
 					abbrevText.setValue("["+exp+"]");
@@ -899,6 +929,22 @@ public class DocxBuilder {
 				p.getContent().add(fnRun);
 				createFootnote(commentList.get(i), fnRun, mdp);
 			}
+			
+			/*
+			 * add space at end of line if line breaks are not preserved
+			 */
+			if (!preserveLineBreaks && shapeEnded){
+				org.docx4j.wml.Text  space = factory.createText();
+				space.setValue(" ");
+				space.setSpace("preserve");
+				
+				org.docx4j.wml.R  runSpace = factory.createR();
+				p.getContent().add(runSpace);
+				runSpace.getContent().add(space);
+			}
+			
+			
+
 
 			//runs.add(run);
 			

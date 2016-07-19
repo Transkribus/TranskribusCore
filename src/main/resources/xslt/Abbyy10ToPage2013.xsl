@@ -101,18 +101,21 @@
                 <!-- Use GraphicRegion or ImageRegion? -->
                 <xsl:call-template name="OtherRegion">
                     <xsl:with-param name="id" select="concat('r_', $seq)"/>
+                    <xsl:with-param name="seq" select="$seq"/>
                     <xsl:with-param name="elemName" select="'GraphicRegion'"/>
                 </xsl:call-template>
             </xsl:when>
             <xsl:when test="@blockType='Barcode'">
                 <xsl:call-template name="OtherRegion">
                     <xsl:with-param name="id" select="concat('r_', $seq)"/>
+                    <xsl:with-param name="seq" select="$seq"/>
                     <xsl:with-param name="elemName" select="'GraphicRegion'"/>
                 </xsl:call-template>
             </xsl:when>
             <xsl:when test="@blockType='Separator'">
                 <xsl:call-template name="OtherRegion">
                     <xsl:with-param name="id" select="concat('r_', $seq)"/>
+                    <xsl:with-param name="seq" select="$seq"/>
                     <xsl:with-param name="elemName" select="'SeparatorRegion'"/>
                 </xsl:call-template>
             </xsl:when>
@@ -120,6 +123,7 @@
                 <xsl:for-each select="./abbyy:separatorsBox/abbyy:separator">
                     <xsl:call-template name="OtherRegion">
                         <xsl:with-param name="id" select="concat('r_', $seq, '_', position())"/>
+                        <xsl:with-param name="seq" select="$seq"/>
                         <xsl:with-param name="elemName" select="'SeparatorRegion'"/>
                     </xsl:call-template>
                 </xsl:for-each>
@@ -169,7 +173,9 @@
                 <TextRegion>
                     <xsl:attribute name="id" select="concat('r_', $seq, '_', position())"/>
                     <xsl:attribute name="type" select="'paragraph'"/>
-<!--                     <xsl:attribute name="custom" select="concat('readingOrder {index:', $seq - 1, '}')"/> -->
+					<xsl:if test="number($seq)">
+                   		<xsl:attribute name="custom" select="concat('readingOrder {index:', $seq - 1, ';}')"/>
+                   	</xsl:if>
                     <xsl:call-template name="writeCoords">
                         <xsl:with-param name="l" select="min(./abbyy:line/@l)-$padding"/>
                         <xsl:with-param name="t" select="min(./abbyy:line/@t)-$padding"/>
@@ -222,9 +228,11 @@
     <!-- Simple Region template with ID and coordinates but no text content -->
     <xsl:template name="OtherRegion">
         <xsl:param name="id"/>
+        <xsl:param name="seq"/>
         <xsl:param name="elemName"/>
         <xsl:element name="{$elemName}">
             <xsl:attribute name="id" select="$id"/>
+            <xsl:attribute name="custom" select="concat('readingOrder {index:', $seq - 1, ';}')"/>
             <xsl:call-template name="writeCoords"/>
         </xsl:element>
     </xsl:template>
@@ -240,6 +248,7 @@
         </xsl:variable>
         <xsl:variable name="numberOfFormats" select="count(./abbyy:formatting)"/>
             <TextLine id="{concat('tl_', $seq)}">
+            	<xsl:attribute name="custom" select="concat('readingOrder {index:', $seq - 1, ';}')"/>
                 <xsl:attribute name="primaryLanguage">
                     <xsl:call-template name="determinePrimaryLanguage">
                         <xsl:with-param name="formatting" select="./abbyy:formatting"/>

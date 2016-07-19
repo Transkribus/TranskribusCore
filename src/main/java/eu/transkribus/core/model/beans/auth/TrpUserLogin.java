@@ -1,20 +1,15 @@
 package eu.transkribus.core.model.beans.auth;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import eu.transkribus.core.model.beans.TrpCollection;
+import eu.transkribus.core.model.beans.adapters.OAuthProviderAdapter;
+import eu.transkribus.core.model.beans.enums.OAuthProvider;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -25,20 +20,10 @@ public class TrpUserLogin extends TrpUser implements Serializable {
 	private String userAgent;
 	private String ip;
 	private String guiVersion;
-	
-//	@Deprecated
-//	@XmlElementWrapper(name="roleList")
-//	@XmlElement
-//	private List<TrpRole> roles = new ArrayList<>();
-//	
-//	@Deprecated
-//	@XmlElementWrapper(name="permissionMap")
-//	@XmlElement
-//	private Map<Integer, TrpRole> permissions = new HashMap<>();
-	
-//	@XmlElementWrapper(name="collectionList")
-//	@XmlElement
-//	protected List<TrpCollection> colList = new ArrayList<>();
+	private String refreshToken;
+	private String pic;
+	@XmlJavaTypeAdapter(OAuthProviderAdapter.class)
+	private OAuthProvider oAuthProvider;
 	
 	/**
 	 * DO NOT USE! Just here because JaxB needs it :-/
@@ -74,25 +59,6 @@ public class TrpUserLogin extends TrpUser implements Serializable {
 	public void setUserAgent(String userAgent) {
 		this.userAgent = userAgent;
 	}
-
-//	@Deprecated
-//	public List<TrpRole> getRoles() {
-//		return roles;
-//	}
-//	@Deprecated
-//	public void setRoles(List<TrpRole> roles) {
-//		this.roles = roles;
-//	}
-	
-	
-	
-//	public boolean isAdmin() {
-//		return TrpRole.hasRole(roles, TrpRole.Admin);		
-//	}
-//			
-//	public boolean isCurator() {
-//		return TrpRole.hasRole(roles, TrpRole.Curator);
-//	}
 	
 	public String getIp() {
 		return ip;
@@ -110,33 +76,29 @@ public class TrpUserLogin extends TrpUser implements Serializable {
 		return guiVersion;
 	}
 
-//	public Map<Integer, TrpRole> getPermissions(){
-//		return permissions;
-//	}
-//	public void setPermissions(Map<Integer, TrpRole> permissions) {
-//		this.permissions = permissions;
-//	}
+	public void setRefreshToken(String refreshToken){
+		this.refreshToken = refreshToken;
+	}
 	
-//	public List<TrpCollection> getColList() {
-//		return colList;
-//	}
-//
-//	public void setColList(List<TrpCollection> colList) {
-//		this.colList = colList;
-//	}
-//	
-//	public boolean hasCollection(int colId) {		
-//		boolean found = false;
-//		if (colId != 0 && colList != null){
-//			for(TrpCollection c : colList){
-//				if(c.getColId() == colId){
-//					found = true;
-//					break;
-//				}
-//			}
-//		}
-//		return found;
-//	}	
+	public String getRefreshToken(){
+		return refreshToken;
+	}
+	
+	public void setPic(String pic) {
+		this.pic = pic;		
+	}
+	
+	public String getPic() {
+		return pic;		
+	}
+	
+	public void setOAuthProvider(OAuthProvider prov) {
+		this.oAuthProvider = prov;
+	}
+	
+	public OAuthProvider getOAuthProvider(){
+		return oAuthProvider;
+	}
 	
 	@Override
 	public String toString(){

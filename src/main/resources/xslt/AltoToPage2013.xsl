@@ -260,7 +260,7 @@
         <xsl:variable name="fontFamily" select="//TextStyle[@ID=$font]/@FONTFAMILY"/>
         <xsl:variable name="fontSize" select="//TextStyle[@ID=$font]/@FONTSIZE"/>
         <Word id="{concat('w_', $seq)}">
-        <!-- does not start with 0 for each new text region or line -->
+        <!-- reading order does not start with 0 for each new text region - so leave this to the Transkribus import  -->
         <!-- Word id="{concat('w_', $seq)}" custom="readingOrder {concat(concat('{index:', $seq2), ';}')}"-->
 <!--        <Word id="{$actId}"> fast variant -->
         <xsl:call-template name="writeCoords">

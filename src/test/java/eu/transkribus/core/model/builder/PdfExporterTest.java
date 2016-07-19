@@ -21,7 +21,7 @@ public class PdfExporterTest {
 		
 		TrpDoc doc = LocalDocReader.load(path);
 		
-		(new PdfExporter()).export(doc, "/tmp/test.pdf",  null, false, false, null, false, false, false);
+		(new PdfExporter()).export(doc, "/tmp/test.pdf",  null, false, false, false, null, false, false, false);
 
 	}
 }

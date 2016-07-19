@@ -33,19 +33,19 @@ public class PdfExporter extends Observable {
 	
 	public PdfExporter(){}
 	
-	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException{
-		return export(doc, path, pageIndices, false, true, null, true, false, false);
+	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, boolean extraTextPages, Set<String> selectedTags, boolean highlightTags, boolean wordBased, boolean doBlackening, boolean createTitle) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException{
+		return export(doc, path, pageIndices, false, false, true, null, true, false, false);
 	}
 	
 	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, Set<String> selectedTags) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException{
-		return export(doc, path, pageIndices, false, true, selectedTags, true, true, true);
+		return export(doc, path, pageIndices, false, true, false, selectedTags, true, true, true);
 	}
 	
-	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean addTextPages,Set<String> selectedTags, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, boolean createTitle) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException{
-		return export(doc, path, pageIndices, wordBased, addTextPages, selectedTags, highlightTags, doBlackening, createTitle);
+	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean addTextPages, final boolean imagesOnly, Set<String> selectedTags, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, boolean createTitle) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException{
+		return export(doc, path, pageIndices, wordBased, addTextPages, imagesOnly, selectedTags, highlightTags, doBlackening, createTitle);
 	}
 	
-	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean useWordLevel, final boolean addTextPages, Set<String> selectedTags, final boolean highlightTags, final boolean doBlackening, boolean createTitle) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException{
+	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean useWordLevel, final boolean addTextPages, final boolean imagesOnly, Set<String> selectedTags, final boolean highlightTags, final boolean doBlackening, boolean createTitle) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException{
 		if(doc == null){
 			throw new IllegalArgumentException("TrpDoc is null!");
 		}
@@ -104,11 +104,11 @@ public class PdfExporter extends Observable {
 
 			if (!onePagePrinted){
 				//add first page and previously add a title page with doc metadata and editorial declarations (if this option is set)
-				pdf.addPage(imgUrl, doc, pc, addTextPages, selectedTags, md, doBlackening);
+				pdf.addPage(imgUrl, doc, pc, addTextPages, imagesOnly, selectedTags, md, doBlackening);
 				onePagePrinted = true;
 			}
 			else{
-				pdf.addPage(imgUrl, null, pc, addTextPages, selectedTags, md, doBlackening);
+				pdf.addPage(imgUrl, null, pc, addTextPages, imagesOnly, selectedTags, md, doBlackening);
 			}
 			
 			setChanged();
