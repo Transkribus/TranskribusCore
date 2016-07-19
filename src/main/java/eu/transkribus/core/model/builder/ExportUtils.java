@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,14 +46,14 @@ public class ExportUtils {
 	static boolean exportTags = true;
 	static List<JAXBPageTranscript> pageTranscripts = null;
 	
-	static Map<CustomTag, String> tags = new HashMap<CustomTag, String>();
+	static LinkedHashMap<CustomTag, String> tags = new LinkedHashMap<CustomTag, String>();
 	static Set<String> tagnames = new HashSet<String>();
 	
 	static List<String> persons = new ArrayList<String>();
 	static List<String> places = new ArrayList<String>();
 	
 	
-	public static void storePageTranscripts4Export(TrpDoc doc, Set<Integer> pageIndices, IProgressMonitor monitor) throws IOException{
+	public static void storePageTranscripts4Export(TrpDoc doc, Set<Integer> pageIndices, IProgressMonitor monitor) throws Exception{
 		
 		pageTranscripts = new ArrayList<JAXBPageTranscript>();
 		
@@ -66,6 +67,10 @@ public class ExportUtils {
 				//fill up with null to have the proper index of each page later on
 				pageTranscripts.add(null);
 				continue;
+			}
+			
+			if (monitor != null && monitor.isCanceled()){
+				throw new Exception("User canceled the export");
 			}
 			
 			TrpPage page = pages.get(i);
@@ -162,9 +167,9 @@ public class ExportUtils {
 	 * @param currTagname
 	 * @return get all tags with the given tag name
 	 */
-	public static HashMap<CustomTag, String> getTags(String currTagname) {
+	public static LinkedHashMap<CustomTag, String> getTags(String currTagname) {
 		
-		HashMap<CustomTag, String> resultTags = new HashMap<CustomTag, String>();
+		LinkedHashMap<CustomTag, String> resultTags = new LinkedHashMap<CustomTag, String>();
 		for (Map.Entry<CustomTag, String> currEntry : tags.entrySet()){
 			//logger.debug("current tag name "+currEntry.getKey().getTagName());
 			if(currEntry.getKey().getTagName().equals(currTagname)){
@@ -197,9 +202,9 @@ public class ExportUtils {
 
 	}
 	
-	public static Map<CustomTag, String> getAllTagsForShapeElement(ITrpShapeType element) throws IOException{
+	public static LinkedHashMap<CustomTag, String> getAllTagsForShapeElement(ITrpShapeType element) throws IOException{
 
-		Map<CustomTag, String> elementTags = new HashMap<CustomTag, String>();
+		LinkedHashMap<CustomTag, String> elementTags = new LinkedHashMap<CustomTag, String>();
 		String textStr = element.getUnicodeText();
 		CustomTagList cl = element.getCustomTagList();
 //		if (textStr == null || cl == null)
@@ -225,9 +230,9 @@ public class ExportUtils {
 
 	}
 	
-	public static Map<CustomTag, String> getAllTagsOfThisTypeForShapeElement(ITrpShapeType element, String type) throws IOException{
+	public static LinkedHashMap<CustomTag, String> getAllTagsOfThisTypeForShapeElement(ITrpShapeType element, String type) throws IOException{
 
-		Map<CustomTag, String> elementTags = new HashMap<CustomTag, String>();
+		LinkedHashMap<CustomTag, String> elementTags = new LinkedHashMap<CustomTag, String>();
 		String textStr = element.getUnicodeText();
 		CustomTagList cl = element.getCustomTagList();
 //		if (textStr == null || cl == null)
@@ -283,7 +288,7 @@ public class ExportUtils {
 		
 	}
 
-	public static void setTags(Map<CustomTag, String> tags) {
+	public static void setTags(LinkedHashMap<CustomTag, String> tags) {
 		ExportUtils.tags = tags;
 	}
 
@@ -319,7 +324,7 @@ public class ExportUtils {
 		
 	}
 
-	public static Map<CustomTag, String> getCustomTagMapForDoc() {
+	public static LinkedHashMap<CustomTag, String> getCustomTagMapForDoc() {
 		// TODO Auto-generated method stub
 		return tags;
 	}

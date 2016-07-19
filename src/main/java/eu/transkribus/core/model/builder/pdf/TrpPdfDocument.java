@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -43,6 +45,7 @@ import com.itextpdf.text.pdf.PdfContentByte;
 import eu.transkribus.core.model.beans.EdFeature;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
+import eu.transkribus.core.model.beans.customtags.AbbrevTag;
 import eu.transkribus.core.model.beans.customtags.CommentTag;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
 import eu.transkribus.core.model.beans.customtags.CustomTagFactory;
@@ -1526,32 +1529,72 @@ public class TrpPdfDocument extends APdfDocument {
 				String color = CustomTagFactory.getTagColor(currTagname);
 				
 
-				addUniformTagList(lineHeight, twelfthPoints[1][0], posY, currTagname + " Tags:", cb, 0, 0, bfArial, twelfthPoints[1][0], false, color, 0);
+				addUniformTagList(lineHeight, twelfthPoints[1][0], posY, currTagname + " Tags:", "", cb, 0, 0, bfArial, twelfthPoints[1][0], false, color, 0);
 				//addUniformStringTest(lineMeanHeight, twelfthPoints[1][0], posY, currTagname + " Tags:", cb, 0, 0, bfArial, twelfthPoints[1][0], false, color, 0);
 				
 				Collection<String> valueSet = allTagsOfThisTagname.values();
 				Collection<CustomTag> keySet = allTagsOfThisTagname.keySet();
+				
+				HashSet<String> uniqueValues = new HashSet<String>();
+				
+				Iterator<CustomTag> it = keySet.iterator();
 
-				for (CustomTag currEntry : keySet){
+				while (it.hasNext()){
+					
+					CustomTag currEntry = it.next();
 					
 					String currValue = allTagsOfThisTagname.get(currEntry);
+					String expansion = "";
 					
-					if (currTagname.equals("comment")){
+					//handles continued tags over several lines
+					while (currEntry.isContinued() && it.hasNext()){
+						currEntry = it.next();
+						if (currEntry.isContinued()){
+							String continued = allTagsOfThisTagname.get(currEntry);
+							currValue = currValue.concat(continued);
+							
+							//soft hyphen
+							currValue = currValue.replaceAll("\u00AD", "");
+							//minus
+							currValue = currValue.replaceAll("\u002D", "");
+							//not sign
+							currValue = currValue.replaceAll("\u00AC", "");
+							
+							//char c = 0xFFFA; String.valueOf(c).replaceAll("\\p{C}", "?");
+							
+						}
+					}
+					
+					if (currTagname.equals(CommentTag.TAG_NAME)){
 						
 						CommentTag ct = (CommentTag) currEntry;
-						currValue = currValue.concat(": " + ct.getComment());
+						if (ct.getComment() != "")
+							expansion = ": " + ct.getComment();
+						//currValue = currValue.concat(": " + ct.getComment());
 						//logger.debug("comment " + currValue);
 					}
-				
-					posY = (float) (twelfthPoints[1][1]+(lineHeight+lineGap)*l);	
-					if (posY > twelfthPoints[11][1]){
-						document.newPage();
-						posY = twelfthPoints[1][1];
-						l = 1;
+					
+					else if (currTagname.equals(AbbrevTag.TAG_NAME)){
+						
+						AbbrevTag at = (AbbrevTag) currEntry;
+						if (at.getExpansion() != "")
+							expansion = ": " + at.getExpansion();
 					}
-					addUniformTagList(lineHeight, twelfthPoints[1][0], posY, currValue, cb, 0, 0, bfArial, twelfthPoints[1][0], true, null, 0);
-					//logger.debug("tag value is " + currValue);
-					l++;
+					
+					//make sure that similar tags are only exported once
+					if (!uniqueValues.contains(currValue)){
+						uniqueValues.add(currValue);
+						
+						posY = (float) (twelfthPoints[1][1]+(lineHeight+lineGap)*l);	
+						if (posY > twelfthPoints[11][1]){
+							document.newPage();
+							posY = twelfthPoints[1][1];
+							l = 1;
+						}
+						addUniformTagList(lineHeight, twelfthPoints[1][0], posY, currValue, expansion, cb, 0, 0, bfArial, twelfthPoints[1][0], true, null, 0);
+						//logger.debug("tag value is " + currValue);
+						l++;
+					}
 
 				}
 				
