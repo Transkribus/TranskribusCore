@@ -178,6 +178,10 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 		return new int[] { getRow(), getCol() };
 	}
 	
+	public boolean isMergedCell() {
+		return getRowSpan() > 1 || getColSpan() > 1;
+	}
+	
 	public IntRange getRowRange() {
 		return new IntRange(getRow(), getRowSpan());
 	}
@@ -248,13 +252,13 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 	
 //	public boolean isNeihgborCell(TrpTableCellType tc, )
 	
-	public List<Pair<Integer, TrpTableCellType>> getPointsOnNeighborCells(int x, int y) {
+	public List<Pair<Integer, TrpTableCellType>> getCommonPointsOnNeighborCells(int x, int y) {
 		List<Pair<Integer, TrpTableCellType>> res = new ArrayList<>();
 		
 		Point pt = new Point(x, y); 
-		for (int pos=0; pos<4; ++pos) {
-//			int oPos = (pos+2)%4; // opposite side
-			for (TrpTableCellType nc : getNeighborCells(pos)) {
+//		for (int pos=0; pos<4; ++pos) {
+//			for (TrpTableCellType nc : getNeighborCells(pos)) {
+			for (TrpTableCellType nc : getNeighborCells()) {
 				try {
 					int i = PointStrUtils.parsePoints(nc.getCoordinates()).indexOf(pt);
 					if (i != -1) {
@@ -265,7 +269,7 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 					continue;
 				}
 			}
-		}
+//		}
 		
 		return res;
 	}
