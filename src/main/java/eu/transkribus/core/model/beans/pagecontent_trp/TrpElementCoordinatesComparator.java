@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
+import eu.transkribus.core.util.IntRange;
 import eu.transkribus.core.util.PointStrUtils;
 
 public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
@@ -74,7 +75,8 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 				return compareByXY(b1.x, b2.x, b1.y, b2.y);
 			}
 			else {
-				return compareByYX(b1.x, b2.x, b1.y, b2.y);
+//				return compareByYX(b1.x, b2.x, b1.y, b2.y);
+				return compareBy_YOverlap_X(b1, b2);
 			}
 //		}
 //		catch (Exception e) {
@@ -87,6 +89,22 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 	private int compareByYX(int x1, int x2, int y1, int y2) {
 		int yCompare = Integer.compare(y1, y2);
 		return (yCompare != 0) ? yCompare : Integer.compare(x1, x2);
+	}
+	
+	/** First compare by y, then x */
+	private int compareBy_YOverlap_X(Rectangle b1, Rectangle b2) {		
+		int yCompare=compareByYOverlap(b1, b2, 0.4); // if overlap is more than 40% -> yCompare=0
+
+		return (yCompare != 0) ? yCompare : Integer.compare(b1.x, b2.x);
+	}
+	
+	private int compareByYOverlap(Rectangle b1, Rectangle b2, double frac) {
+		int o = IntRange.getOverlapLength((int) b1.getY(), (int) b1.getHeight(), (int) b2.getY(), (int) b2.getHeight());		
+		int yCompare=0;
+		if ( o < (b1.getHeight()+b2.getHeight())*frac/2) { // if overlap is less than fraction of average height -> compare by y coordinate
+			yCompare = Integer.compare(b1.y, b2.y);
+		}
+		return yCompare;
 	}
 	
 	/** First compare by x, then y */

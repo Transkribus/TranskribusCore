@@ -33,7 +33,7 @@ public class TrpElementReadingOrderComparator<T> implements Comparator<T> {
 		else if (ro1 == null && ro2 == null) {
 			if (compareByCoordinatesIfEqualReadingOrder){
 				//logger.debug("ro1 == null && ro2 == null");
-				return new TrpElementCoordinatesComparator().compare(o1, o2);
+				return new TrpElementCoordinatesComparator<T>().compare(o1, o2);
 			}
 			else
 				return 0;
