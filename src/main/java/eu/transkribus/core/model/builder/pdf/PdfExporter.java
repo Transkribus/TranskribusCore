@@ -33,19 +33,19 @@ public class PdfExporter extends Observable {
 	
 	public PdfExporter(){}
 	
-	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, boolean extraTextPages, Set<String> selectedTags, boolean highlightTags, boolean wordBased, boolean doBlackening, boolean createTitle) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException{
+	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, boolean extraTextPages, Set<String> selectedTags, boolean highlightTags, boolean wordBased, boolean doBlackening, boolean createTitle) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
 		return export(doc, path, pageIndices, false, false, true, null, true, false, false);
 	}
 	
-	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, Set<String> selectedTags) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException{
+	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, Set<String> selectedTags) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
 		return export(doc, path, pageIndices, false, true, false, selectedTags, true, true, true);
 	}
 	
-	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean addTextPages, final boolean imagesOnly, Set<String> selectedTags, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, boolean createTitle) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException{
+	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean addTextPages, final boolean imagesOnly, Set<String> selectedTags, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, boolean createTitle) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
 		return export(doc, path, pageIndices, wordBased, addTextPages, imagesOnly, selectedTags, highlightTags, doBlackening, createTitle);
 	}
 	
-	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean useWordLevel, final boolean addTextPages, final boolean imagesOnly, Set<String> selectedTags, final boolean highlightTags, final boolean doBlackening, boolean createTitle) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException{
+	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean useWordLevel, final boolean addTextPages, final boolean imagesOnly, Set<String> selectedTags, final boolean highlightTags, final boolean doBlackening, boolean createTitle) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
 		if(doc == null){
 			throw new IllegalArgumentException("TrpDoc is null!");
 		}
@@ -60,6 +60,7 @@ public class PdfExporter extends Observable {
 //			throw new IllegalArgumentException("Start page must be smaller than end page!");
 //		}
 		
+	
 		File pdfFile = new File(path);
 		TrpPdfDocument pdf = new TrpPdfDocument(pdfFile, useWordLevel, highlightTags, doBlackening, createTitle);
 		
@@ -114,8 +115,13 @@ public class PdfExporter extends Observable {
 			setChanged();
 			notifyObservers(Integer.valueOf(i+1));
 			if (cancel){
-				//throw new Exception("Export canceled by the user");
-				break;
+				pdf.close();
+				File file = new File(path);
+				if (!file.delete()) {
+				   throw new IOException("Could not delete the incomplete PDF file during export cancel");
+				}
+				throw new InterruptedException("Export canceled by the user");
+				//break;
 			}
 		}
 		if (highlightTags){

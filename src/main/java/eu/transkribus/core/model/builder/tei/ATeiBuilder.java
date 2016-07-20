@@ -107,7 +107,7 @@ public abstract class ATeiBuilder {
 		bWriter.close();
 	}
 		
-	public void buildTei() throws Exception {		
+	public void buildTei() throws Exception{		
 		startDocument();
 		
 		setHeader(trpDoc.getMd());
@@ -121,7 +121,7 @@ public abstract class ATeiBuilder {
 	protected abstract void endDocument();
 	
 	protected abstract void setHeader(TrpDocMetadata md);
-	protected abstract void setContent(List<TrpPage> pages) throws JAXBException;
+	protected abstract void setContent(List<TrpPage> pages) throws JAXBException, InterruptedException;
 	
 //	protected abstract void setTextRegion(TextRegionType r, int pageNr);
 	

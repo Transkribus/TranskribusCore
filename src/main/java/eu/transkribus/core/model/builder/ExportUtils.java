@@ -53,7 +53,7 @@ public class ExportUtils {
 	static List<String> places = new ArrayList<String>();
 	
 	
-	public static void storePageTranscripts4Export(TrpDoc doc, Set<Integer> pageIndices, IProgressMonitor monitor) throws Exception{
+	public static void storePageTranscripts4Export(TrpDoc doc, Set<Integer> pageIndices, IProgressMonitor monitor, String versionStatus, int pageIdx, TrpTranscriptMetadata loadedTranscript) throws Exception{
 		
 		pageTranscripts = new ArrayList<JAXBPageTranscript>();
 		
@@ -74,7 +74,22 @@ public class ExportUtils {
 			}
 			
 			TrpPage page = pages.get(i);
+			
 			TrpTranscriptMetadata md = page.getCurrentTranscript();
+			if (versionStatus.contains("Latest")){
+				//current transcript
+			}
+			else if (versionStatus.contains("Loaded")){
+				//if loaded page idx == i than we can export the loaded status and for all other pages the latest
+				if (i==pageIdx){
+					md = loadedTranscript;
+				}
+				
+			}
+			else{
+				md = page.getTranscriptWithStatus(versionStatus);
+			}
+			
 			
 			JAXBPageTranscript tr = new JAXBPageTranscript(md);
 			tr.build();
@@ -96,8 +111,9 @@ public class ExportUtils {
 	 * @return all (custom) tags of the given document
 	 * @throws JAXBException
 	 * @throws IOException
+	 * @throws InterruptedException 
 	 */
-	public static void storeCustomTagMapForDoc(TrpDoc doc, boolean wordBased, Set<Integer> pageIndices, IProgressMonitor monitor) throws JAXBException, IOException {
+	public static void storeCustomTagMapForDoc(TrpDoc doc, boolean wordBased, Set<Integer> pageIndices, IProgressMonitor monitor) throws JAXBException, IOException, InterruptedException {
 		
 		tags.clear();
 		List<TrpPage> pages = doc.getPages();
@@ -108,6 +124,10 @@ public class ExportUtils {
 		for (int i=0; i<totalPages; ++i) {
 			if (pageIndices!=null && !pageIndices.contains(i))
 				continue;
+			
+			if (monitor != null && monitor.isCanceled()){
+				throw new InterruptedException("User canceled the export");
+			}
 			
 			TrpPage page = pages.get(i);
 			TrpTranscriptMetadata md = page.getCurrentTranscript();

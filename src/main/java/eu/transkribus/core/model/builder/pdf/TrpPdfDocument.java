@@ -156,7 +156,9 @@ public class TrpPdfDocument extends APdfDocument {
 	    graph.setColor(Color.BLACK);
 	    
 		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
-		Collections.sort(regions, new TrpElementCoordinatesComparator<RegionType>());
+		
+		//regions should be sorted after their reading order at this point - so no need to resort
+		//Collections.sort(regions, new TrpElementCoordinatesComparator<RegionType>());
 		int nrOfTextRegions = 0;
 
 		for(RegionType r : regions){

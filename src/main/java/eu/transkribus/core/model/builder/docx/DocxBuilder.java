@@ -56,6 +56,7 @@ import org.docx4j.wml.CommentRangeEnd;
 import org.docx4j.wml.CommentRangeStart;
 import org.docx4j.wml.Comments;
 import org.docx4j.wml.Comments.Comment;
+import org.docx4j.wml.Highlight;
 import org.docx4j.wml.Jc;
 import org.docx4j.wml.NumberFormat;
 import org.docx4j.wml.P;
@@ -253,7 +254,7 @@ public class DocxBuilder {
 //		System.out.println("Done.");
 	}
 	
-	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackening, File file, Set<Integer> pageIndices, IProgressMonitor monitor, Set<String> selectedTags, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean replaceAbbrevs, boolean keepLineBreaks) throws JAXBException, IOException, Docx4JException {
+	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackening, File file, Set<Integer> pageIndices, IProgressMonitor monitor, Set<String> selectedTags, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean replaceAbbrevs, boolean keepLineBreaks) throws JAXBException, IOException, Docx4JException, InterruptedException {
 		
 		exportTags = writeTags;
 		tagnames = selectedTags;
@@ -301,9 +302,10 @@ public class DocxBuilder {
 			}
 			
 			if (monitor!=null) {
-				if (monitor.isCanceled()) {
-					logger.debug("docx export cancelled!");
-					return;
+				if (monitor.isCanceled()) {					
+					throw new InterruptedException("Export canceled by the user");
+//					logger.debug("docx export cancelled!");
+//					return;
 				}
 				monitor.subTask("Processing page "+(c+1));
 			}
@@ -839,6 +841,7 @@ public class DocxBuilder {
 
 			//the properties of this text section
 			org.docx4j.wml.RPr rpr = factory.createRPr();
+
 						
 			/*
 			 * format according to custom style tag - check for each char in the text if a special style should be set
@@ -894,6 +897,8 @@ public class DocxBuilder {
 						u.setVal(UnderlineEnumeration.SINGLE);
 						rpr.setU(u);
 					}
+					
+					//rpr.setHighlight(new Highlight());
 						
 				}
 			}

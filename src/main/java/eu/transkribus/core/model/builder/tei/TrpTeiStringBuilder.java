@@ -606,7 +606,7 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		closeTextRegion(sb);
 	}	
 
-	@Override protected void setContent(List<TrpPage> pages) throws JAXBException {		
+	@Override protected void setContent(List<TrpPage> pages) throws JAXBException, InterruptedException {		
 		SebisStringBuilder sbFacsimile = new SebisStringBuilder();
 		
 		SebisStringBuilder sbText = new SebisStringBuilder();
@@ -630,8 +630,10 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 				continue;
 			
 			if (monitor != null) {
-				if (monitor.isCanceled())
-					break;
+				if (monitor.isCanceled()){
+					throw new InterruptedException("Export was canceled by user");
+					//break;
+				}
 				
 				monitor.subTask("Processing page " + (c+1));
 			}

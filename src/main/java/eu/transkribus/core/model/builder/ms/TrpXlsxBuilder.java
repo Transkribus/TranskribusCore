@@ -245,8 +245,9 @@ public class TrpXlsxBuilder {
 			
 			if (monitor!=null) {
 				if (monitor.isCanceled()) {
-					logger.debug("Xlsx export cancelled!");
-					return;
+					throw new InterruptedException("Export was canceled by user");
+//					logger.debug("Xlsx export cancelled!");
+//					return;
 				}
 				monitor.subTask("Processing page "+(c+1));
 			}
