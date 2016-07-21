@@ -38,6 +38,7 @@ public final class RESTConst {
 	public static final String UPLOAD_PATH_MULTIPART = "uploadMultipart";
 	public static final String UPLOAD_PATH_FTP = "uploadFromFtp";
 	public static final String DELETE_PATH = "delete";
+	public static final String ANALYZE_LAYOUT_BATCH_PATH = "batch";
 	public static final String ANALYZE_LAYOUT_PATH = "blocks";
 	public static final String ANALYZE_LINES_PATH = "lines";
 	public static final String ANALYZE_WORDS_PATH = "words";
@@ -120,6 +121,8 @@ public final class RESTConst {
 	
 	//Layout analysis
 	public static final String REG_ID_PARAM = "regId";
+	public static final String DO_BLOCK_SEG_PARAM = "doBlockSeg";
+	public static final String DO_LINE_SEG_PARAM = "doLineSeg";
 	@Deprecated
 	public static final String IMG_KEY_PARAM = "imgKey";
 

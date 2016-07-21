@@ -65,7 +65,11 @@ public class TrpJobStatus implements Serializable {
 	private int docId;
 	
 	@Column
+	@Deprecated
 	private int pageNr = -1; 
+	
+	@Column
+	private String pages;
 	
 	@Column
 	private String type;
@@ -130,17 +134,17 @@ public class TrpJobStatus implements Serializable {
 //		this(jobId, docId, pageNr, userId, userName, type, null, null);
 //	}
 	
-	public TrpJobStatus(String jobId, int docId, int pageNr, int userId, String userName, String type, Integer session_history_id, JobImpl impl) {
-		this(jobId, docId, pageNr, userId, userName, type, null, session_history_id, impl);
+	public TrpJobStatus(String jobId, int docId, String pages, int userId, String userName, String type, Integer session_history_id, JobImpl impl) {
+		this(jobId, docId, pages, userId, userName, type, null, session_history_id, impl);
 	}
 	
-	public TrpJobStatus(String jobId, int docId, int pageNr, int userId, String userName, String type, String jobData, Integer session_history_id, JobImpl impl) {
+	public TrpJobStatus(String jobId, int docId, String pages, int userId, String userName, String type, String jobData, Integer session_history_id, JobImpl impl) {
 		this.jobId = jobId;
 		this.docId = docId;
 		this.userId = userId;
 		this.userName = userName;
 		this.type = type;
-		this.pageNr = pageNr;
+		this.pages = pages;
 //		this.isPersistent = isPersistent;
 		this.createTime = System.currentTimeMillis();
 		this.jobData = jobData;
@@ -151,7 +155,7 @@ public class TrpJobStatus implements Serializable {
 	public void copy(TrpJobStatus other) {
 	    this.jobId = other.jobId;
 	    this.docId = other.docId;
-	    this.pageNr = other.pageNr;
+	    this.pages = other.pages;
 	    this.type = other.type;
 	    this.state = other.state;
 	    this.success = other.success;
@@ -201,6 +205,14 @@ public class TrpJobStatus implements Serializable {
 
 	public void setPageNr(int pageNr) {
 		this.pageNr = pageNr;
+	}
+
+	public String getPages() {
+		return pages;
+	}
+
+	public void setPages(String pages) {
+		this.pages = pages;
 	}
 
 	public String getType() {
@@ -377,10 +389,13 @@ public class TrpJobStatus implements Serializable {
 		return this.getState().equals(TrpJobStatus.FAILED);
 	}
 	
-	@Override public String toString() {
-		return "TrpJobStatus [jobId=" + jobId + ", docId=" + docId + ", pageNr=" + pageNr + ", type=" + type + ", state=" + state + ", success=" + success
-				+ ", description=" + description + ", userName=" + userName + ", userId=" + userId + ", createTime=" + createTime + ", startTime=" + startTime
-				+ ", endTime=" + endTime + ", jobData=" + jobData + ", resumable=" + resumable + ", className=" + className
-				+ ", session_history_id=" + session_history_id + "]";
+	@Override
+	public String toString() {
+		return "TrpJobStatus [jobId=" + jobId + ", docId=" + docId + ", pageNr=" + pageNr + ", pages=" + pages
+				+ ", type=" + type + ", state=" + state + ", success=" + success + ", description=" + description
+				+ ", userName=" + userName + ", userId=" + userId + ", createTime=" + createTime + ", startTime="
+				+ startTime + ", endTime=" + endTime + ", jobData=" + jobData + ", resumable=" + resumable
+				+ ", className=" + className + ", session_history_id=" + session_history_id + ", jobImpl=" + jobImpl
+				+ "]";
 	}
 }
