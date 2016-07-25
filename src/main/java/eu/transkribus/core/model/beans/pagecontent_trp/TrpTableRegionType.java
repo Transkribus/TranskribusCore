@@ -141,6 +141,10 @@ public class TrpTableRegionType extends TableRegionType implements ITrpShapeType
 	}
 	
 	public List<TrpTableCellType> getCells(boolean rowCells, GetCellsType type, int index) {
+		return getCells(rowCells, type, index, 1);
+	}
+	
+	public List<TrpTableCellType> getCells(boolean rowCells, GetCellsType type, int index, int length) {
 		if (rowCells) {
 			switch (type) {
 			case START_INDEX:
@@ -148,7 +152,7 @@ public class TrpTableRegionType extends TableRegionType implements ITrpShapeType
 			case END_INDEX:
 				return getRowEndCells(index);
 			case OVERLAP:
-				return getRowOverlapCells(index);
+				return getRowOverlapCells(index, length);
 			}
 		}
 		else {
@@ -158,27 +162,27 @@ public class TrpTableRegionType extends TableRegionType implements ITrpShapeType
 			case END_INDEX:
 				return getColEndCells(index);
 			case OVERLAP:
-				return getColOverlapCells(index);
+				return getColOverlapCells(index, length);
 			}
 		}
 		
 		return new ArrayList<>();
 	}
 	
-	public List<TrpTableCellType> getRowOverlapCells(int index) {
+	public List<TrpTableCellType> getRowOverlapCells(int index, int length) {
 		List<TrpTableCellType> rowCells = new ArrayList<>();
 		for (TrpTableCellType c : getTrpTableCell()) {
 			
-			if (c.getRowRange().getOverlapType(new IntRange(index, 1))!=OverlapType.NONE)
+			if (c.getRowRange().getOverlapType(new IntRange(index, length))!=OverlapType.NONE)
 				rowCells.add(c);
 		}
 		return rowCells;
 	}
 	
-	public List<TrpTableCellType> getColOverlapCells(int index) {
+	public List<TrpTableCellType> getColOverlapCells(int index, int length) {
 		List<TrpTableCellType> rowCells = new ArrayList<>();
 		for (TrpTableCellType c : getTrpTableCell()) {
-			if (c.getColRange().getOverlapType(new IntRange(index, 1))!=OverlapType.NONE)
+			if (c.getColRange().getOverlapType(new IntRange(index, length))!=OverlapType.NONE)
 				rowCells.add(c);
 		}
 		return rowCells;
