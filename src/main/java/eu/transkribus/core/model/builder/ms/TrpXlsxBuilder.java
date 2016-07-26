@@ -41,7 +41,7 @@ import eu.transkribus.core.model.builder.rtf.TrpRtfBuilder;
 
 
 public class TrpXlsxBuilder {
-	private final static Logger logger = LoggerFactory.getLogger(TrpRtfBuilder.class);
+	private final static Logger logger = LoggerFactory.getLogger(TrpXlsxBuilder.class);
 	static Workbook wb;
 	
 	public TrpXlsxBuilder() {
@@ -78,7 +78,7 @@ public class TrpXlsxBuilder {
 
 			if (!indexedTag.getTagName().equals("textStyle")){
 				
-				logger.debug("indexed tag found " + indexedTag.getTagName());
+				//logger.debug("indexed tag found " + indexedTag.getTagName());
 				
 				Sheet firstSheet;
 				Sheet currSheet;
@@ -103,11 +103,11 @@ public class TrpXlsxBuilder {
 				//either find existent sheet or create new one
 				if (wb.getSheet(tagname) != null){
 					currSheet = wb.getSheet(tagname);
-					logger.debug("existent sheet " + tagname);
+					//logger.debug("existent sheet " + tagname);
 				}
 				else{
 					currSheet = wb.createSheet(WorkbookUtil.createSafeSheetName(tagname));
-					logger.debug("new sheet " + tagname);
+					//logger.debug("new sheet " + tagname);
 				}
 				
 				CreationHelper crHelper = wb.getCreationHelper();
@@ -117,7 +117,7 @@ public class TrpXlsxBuilder {
 				int offset = (int) attributes.get("offset");
 				int length = (int) attributes.get("length");
 				
-				logger.debug("text string " + textStr + " length " +textStr.length() + " offset " + offset + " length of substring " + length);
+				//logger.debug("text string " + textStr + " length " +textStr.length() + " offset " + offset + " length of substring " + length);
 				String tmpTextStr = textStr.substring(offset, offset+length);
 				
 				int lastRowIdxOfFirstSheet = firstSheet.getLastRowNum();
@@ -126,7 +126,7 @@ public class TrpXlsxBuilder {
 				}
 				
 				int lastRowIdx = currSheet.getLastRowNum();
-				logger.debug("lastRowIdx " + lastRowIdx);
+				//logger.debug("lastRowIdx " + lastRowIdx);
 				if (lastRowIdx == 0){
 					fillFirstRow(currSheet, attributes, crHelper);	
 				}
@@ -225,7 +225,7 @@ public class TrpXlsxBuilder {
 		Iterator<String> attributeIterator = attributes.keySet().iterator();
 		for (int i = 0; i < attributes.size(); i++){
 			String attributeName = attributeIterator.next();
-			logger.debug("attributeName " + attributeName);
+			//logger.debug("attributeName " + attributeName);
 			firstRow.createCell(i+idx).setCellValue(crHelper.createRichTextString(attributeName)); 	
 		}
 		
@@ -250,8 +250,9 @@ public class TrpXlsxBuilder {
 			
 			if (monitor!=null) {
 				if (monitor.isCanceled()) {
-					logger.debug("Xlsx export cancelled!");
-					return;
+					throw new InterruptedException("Export was canceled by user");
+//					logger.debug("Xlsx export cancelled!");
+//					return;
 				}
 				monitor.subTask("Processing page "+(c+1));
 			}

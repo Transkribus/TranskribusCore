@@ -32,6 +32,9 @@ public class JobConst {
 	public static final String PROP_METS_PATH = "metsPath";
 	
 	public static final String PROP_DICTNAME = "dictName";
+	
+	public static final String PROP_DO_BLOCK_SEG = "doBlockSeg";
+	public static final String PROP_DO_LINE_SEG = "doLineSeg";
 
 
 }

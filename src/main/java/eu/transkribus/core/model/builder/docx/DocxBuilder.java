@@ -17,6 +17,7 @@ import org.docx4j.convert.out.flatOpcXml.FlatOpcXmlCreator;
 import org.docx4j.jaxb.Context;
 import org.docx4j.XmlUtils;
 import org.docx4j.jaxb.Context;
+import org.docx4j.model.fields.FieldUpdater;
 import org.docx4j.model.table.TblFactory;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.exceptions.InvalidFormatException;
@@ -56,7 +57,10 @@ import org.docx4j.wml.CommentRangeEnd;
 import org.docx4j.wml.CommentRangeStart;
 import org.docx4j.wml.Comments;
 import org.docx4j.wml.Comments.Comment;
+import org.docx4j.wml.FldChar;
+import org.docx4j.wml.Highlight;
 import org.docx4j.wml.Jc;
+import org.docx4j.wml.JcEnumeration;
 import org.docx4j.wml.NumberFormat;
 import org.docx4j.wml.P;
 import org.docx4j.wml.PPr;
@@ -253,7 +257,7 @@ public class DocxBuilder {
 //		System.out.println("Done.");
 	}
 	
-	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackening, File file, Set<Integer> pageIndices, IProgressMonitor monitor, Set<String> selectedTags, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean replaceAbbrevs, boolean keepLineBreaks) throws JAXBException, IOException, Docx4JException {
+	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackening, File file, Set<Integer> pageIndices, IProgressMonitor monitor, Set<String> selectedTags, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean replaceAbbrevs, boolean keepLineBreaks) throws JAXBException, IOException, Docx4JException, InterruptedException {
 		
 		exportTags = writeTags;
 		tagnames = selectedTags;
@@ -301,9 +305,10 @@ public class DocxBuilder {
 			}
 			
 			if (monitor!=null) {
-				if (monitor.isCanceled()) {
-					logger.debug("docx export cancelled!");
-					return;
+				if (monitor.isCanceled()) {					
+					throw new InterruptedException("Export canceled by the user");
+//					logger.debug("docx export cancelled!");
+//					return;
 				}
 				monitor.subTask("Processing page "+(c+1));
 			}
@@ -346,8 +351,17 @@ public class DocxBuilder {
 			}
 		}
 		
+		P p = factory.createP();
+		mdp.getContent().add(p);
+		addComplexField(p, " INDEX \\e \"", "\" \\c \"1\" \\z \"1031\""); 
+		
+		FieldUpdater updater = new FieldUpdater(wordMLPackage);
+		updater.update(true);
+
+		//addComplexField(p, "\" \\c \"1\" \\z \"1031\"", "");
+		
 		//write tags at end of last page
-		if (exportTags){
+		if (false){
 			//RtfText headline = RtfText.text("Person names in this document (amount of found persons: " + persons.size() + ")", "\n");
 			
 			logger.debug("export tags ");
@@ -425,6 +439,8 @@ public class DocxBuilder {
 		
 		//finally save the file
 		wordMLPackage.save( file );
+		
+
 		System.out.println("Saved " + file.getAbsolutePath());
 		
 	}
@@ -433,6 +449,8 @@ public class DocxBuilder {
 		
 		mdp.getPropertyResolver().activateStyle("Light Shading");
 		mdp.getPropertyResolver().activateStyle("Medium List 1");
+		
+		
 
 		addParagraph("", "Title Page", mdp, "Title");
 		
@@ -464,8 +482,25 @@ public class DocxBuilder {
 			addParagraph("Created To: ", docMd.getCreatedToDate().toString(), mdp, "Subtitle");
 		}
 		
-		addParagraph("", "Editorial Declaration: ", mdp, "Title");
+		/*
+		 * 	static boolean exportTags = true;
+	static boolean doBlackening = true;
+	static boolean markUnclearWords = false;
+	static boolean expandAbbrevs = false;
+	static boolean substituteAbbrevs = false;
+	static boolean preserveLineBreaks = false;
+		 */
+		addParagraph("", "Export Settings", mdp, "Title");
+		String tagSettings = (exportTags ? "Custom tags are indexed" : "Custom tags are not exported");
+		String blackeningSetting = (doBlackening ? "Sensible data is blackened" : "All data is visible");
+		String abbrevsSettings = (expandAbbrevs ? "Abbreviations are expanded (abbrev [expansion])" : (substituteAbbrevs ? "Abbreviations are subsituted by there expansion": "Abbreviations as they are (diplomatic text)"));
+		String unclearSettings = (markUnclearWords ? "Unclear words are marked" : "");
+		String lineBreakSettings = (preserveLineBreaks ? "Keep the line breaks as in the original document" : "Line breaks does not conform to the original text");
+		
+		addParagraph("", blackeningSetting + " / " + tagSettings + " / " + abbrevsSettings + " / " + unclearSettings + " / " + lineBreakSettings, mdp, "Subtitle");
 
+		
+		addParagraph("", "Editorial Declaration: ", mdp, "Title");
 		for (EdFeature edfeat : doc.getEdDeclList()){
 			addParagraph("", edfeat.getTitle() + ": " + edfeat.getDescription() +"\n" + edfeat.getSelectedOption().toString(), mdp, "Subtitle");
 		}		
@@ -518,8 +553,12 @@ public class DocxBuilder {
 			//logger.debug("region unicode text " + helper);
 			
 			if (!helper.equals("")){
+				
+
+				
 				org.docx4j.wml.P  p = factory.createP();
 				mdp.addObject(p);
+				
 			
 
 				List<TextLineType> lines = r.getTextLine();
@@ -636,6 +675,21 @@ public class DocxBuilder {
 	private static void getFormattedTextForShapeElement(ITrpShapeType element, P p, MainDocumentPart mdp) throws Exception {
 		
 		String textStr = element.getUnicodeText();
+		
+		//from right to left
+		
+		boolean rtl = false;
+		if(rtl){
+			textStr = new StringBuilder(textStr).reverse().toString();
+			
+			PPr paragraphProperties = factory.createPPr();
+			Jc justification = factory.createJc();
+			justification.setVal(JcEnumeration.RIGHT);
+			paragraphProperties.setJc(justification);
+			
+			p.setPPr(paragraphProperties);
+		}
+		
 		CustomTagList cl = element.getCustomTagList();
 		
 		//Todo: add lists for abbrev tag: abbrev(expansion) and for unclear: [Beispiel]
@@ -650,6 +704,8 @@ public class DocxBuilder {
 		//Integer used for storing the offset: this is where the abbrev ends resp. (expansion) starts, and String contains the 'expansion' itself
 		LinkedHashMap<Integer, String> expandAbbrevList = new LinkedHashMap<Integer, String>();
 		LinkedHashMap<Integer, AbbrevTag> substituteAbbrevList = new LinkedHashMap<Integer, AbbrevTag>();
+		
+		HashMap<Integer, ArrayList<CustomTag>> idxList = new HashMap<Integer, ArrayList<CustomTag>>();
 		
 		
 		
@@ -732,9 +788,14 @@ public class DocxBuilder {
 					substituteAbbrevList.put(indexedTag.getOffset(), at);
 				}
 			}
+			
+			//create index for all choosen tagnames
+			if (exportTags && tagnames.contains(indexedTag.getTagName())){
+				//logger.debug("export tag as idx entry " + indexedTag.getOffset());
+				addValuesToIdxList(idxList, indexedTag.getEnd(), indexedTag);
+			}
 			//}
-			
-			
+	
 		}
 		
 		
@@ -809,6 +870,29 @@ public class DocxBuilder {
 				run.getContent().add(t);
 			}
 			
+			/*
+			 * if so we create an index entry for this text string in the docx
+			 */
+			if (idxList.containsKey(i)){
+				ArrayList<CustomTag> allTagsAtThisPlace = idxList.get(i);
+				for (CustomTag ct : allTagsAtThisPlace){
+					int begin = ct.getOffset();
+					String tagname = ct.getTagName();
+					String idxText = textStr.substring(begin, i);
+					if (ct instanceof AbbrevTag){
+						AbbrevTag at = (AbbrevTag) ct;
+						idxText = idxText.concat(" ["+at.getExpansion()+"]");
+					}
+					logger.debug("index entry is " + idxText);
+					logger.debug("XE\""+tagname + ":" + idxText+"\"");
+					
+					if(!idxText.matches("[*]+")){
+						addComplexField(p, "XE\""+tagname + ":" + idxText+"\"", "");
+					}
+				}
+
+			}
+			
 			String currText = "";
 			if (i+1 <= textStr.length()){
 				currText = textStr.substring(i, i+1);
@@ -839,6 +923,7 @@ public class DocxBuilder {
 
 			//the properties of this text section
 			org.docx4j.wml.RPr rpr = factory.createRPr();
+
 						
 			/*
 			 * format according to custom style tag - check for each char in the text if a special style should be set
@@ -864,6 +949,7 @@ public class DocxBuilder {
 					}
 					if (CoreUtils.val(ts.isMonospace())) {
 						// ????
+						
 					}
 					if (CoreUtils.val(ts.isReverseVideo())) {
 						// ????
@@ -894,6 +980,8 @@ public class DocxBuilder {
 						u.setVal(UnderlineEnumeration.SINGLE);
 						rpr.setU(u);
 					}
+					
+					//rpr.setHighlight(new Highlight());
 						
 				}
 			}
@@ -949,6 +1037,61 @@ public class DocxBuilder {
 			//runs.add(run);
 			
 		}
+
+	}
+	
+	private static void addComplexField(P p, String instrText, String instrText2) {
+
+	    org.docx4j.wml.ObjectFactory wmlObjectFactory = Context.getWmlObjectFactory();
+
+	    // Create object for r
+	    R r = wmlObjectFactory.createR(); 
+	    p.getContent().add( r); 
+        // Create object for fldChar (wrapped in JAXBElement) 
+        FldChar fldchar = wmlObjectFactory.createFldChar(); 
+        JAXBElement<org.docx4j.wml.FldChar> fldcharWrapped = wmlObjectFactory.createRFldChar(fldchar); 
+        r.getContent().add( fldcharWrapped); 
+            fldchar.setFldCharType(org.docx4j.wml.STFldCharType.BEGIN);
+        // Create object for instrText (wrapped in JAXBElement) 
+        Text text = wmlObjectFactory.createText(); 
+        JAXBElement<org.docx4j.wml.Text> textWrapped = wmlObjectFactory.createRInstrText(text); 
+        r.getContent().add( textWrapped); 
+        text.setValue( instrText); 
+        text.setSpace( "preserve");    
+        
+	    R r2 = wmlObjectFactory.createR(); 
+	    p.getContent().add( r2); 
+	    
+        if (!instrText2.equals("")){
+    	    
+        	r2.getContent().add(wmlObjectFactory.createRTab());
+        	
+            text = wmlObjectFactory.createText(); 
+            JAXBElement<org.docx4j.wml.Text> textWrapped2 = wmlObjectFactory.createRInstrText(text); 
+            r2.getContent().add( textWrapped2); 
+            text.setValue( instrText2); 
+            text.setSpace( "preserve");
+        	
+        }
+
+        
+//        R r = factory.createR();
+//        r.setRsidRPr("TOC entry text");
+//        R.Tab tab = new R.Tab();
+//        r.getRunContent().add(tab);             
+//        p.getParagraphContent().add(r);
+        
+//		org.docx4j.wml.Text idx = wmlObjectFactory.createText();
+//		JAXBElement<org.docx4j.wml.Text> textWrapped2 = wmlObjectFactory.createRInstrText(idx); 
+//        r.getContent().add( textWrapped2); 
+//        idx.setValue( idxText); 
+//        idx.setSpace( "preserve"); 
+
+        // Create object for fldChar (wrapped in JAXBElement) 
+        fldchar = wmlObjectFactory.createFldChar(); 
+        fldcharWrapped = wmlObjectFactory.createRFldChar(fldchar); 
+        r2.getContent().add( fldcharWrapped); 
+            fldchar.setFldCharType(org.docx4j.wml.STFldCharType.END);
 
 	}
 
@@ -1214,5 +1357,19 @@ public class DocxBuilder {
 		return run;
     	
     }
+    
+    private static void addValuesToIdxList(HashMap<Integer, ArrayList<CustomTag>> hashMap, Integer key, CustomTag value) {
+    	   ArrayList<CustomTag> tempList = null;
+    	   if (hashMap.containsKey(key)) {
+    	      tempList = (ArrayList<CustomTag>) hashMap.get(key);
+    	      if(tempList == null)
+    	         tempList = new ArrayList<CustomTag>();
+    	      tempList.add(value);  
+    	   } else {
+    	      tempList = new ArrayList<CustomTag>();
+    	      tempList.add(value);               
+    	   }
+    	   hashMap.put(key,tempList);
+    	}
 
 }

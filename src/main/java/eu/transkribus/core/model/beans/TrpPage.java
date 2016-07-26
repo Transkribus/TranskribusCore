@@ -154,6 +154,21 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		return tList.get(0);
 	}
 	
+	public TrpTranscriptMetadata getTranscriptWithStatus(String status) {
+		List<TrpTranscriptMetadata> tList = getTranscripts();
+		
+		Collections.sort(tList, Collections.reverseOrder());
+		for (TrpTranscriptMetadata md : tList){
+			if (md.getStatus().getStr().equals(status)){
+				return md;
+			}
+				
+		}
+		
+		//if no transcript with this status was found return the latest one
+		return tList.get(0);
+	}
+	
 	public PcGtsType unmarshallCurrentTranscript() throws NullValueException, JAXBException {
 		if (getCurrentTranscript()==null)
 			throw new NullValueException("Current transcript is null!");
