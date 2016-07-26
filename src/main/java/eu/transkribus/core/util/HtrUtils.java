@@ -44,6 +44,8 @@ public class HtrUtils {
 
 	public static final String NET_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/net";
 	public static final String DICT_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/dict";
+
+	public static final String CHARACTER_MAP_NAME = "chars.txt";
 	
 	
 	/**
