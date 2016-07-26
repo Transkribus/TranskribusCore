@@ -44,6 +44,7 @@ public class ExportUtils {
 	private final static Logger logger = LoggerFactory.getLogger(ExportUtils.class);
 	
 	static boolean exportTags = true;
+	static boolean doBlackening = false;
 	static List<JAXBPageTranscript> pageTranscripts = null;
 	
 	static LinkedHashMap<CustomTag, String> tags = new LinkedHashMap<CustomTag, String>();
@@ -56,6 +57,8 @@ public class ExportUtils {
 	public static void storePageTranscripts4Export(TrpDoc doc, Set<Integer> pageIndices, IProgressMonitor monitor, String versionStatus, int pageIdx, TrpTranscriptMetadata loadedTranscript) throws Exception{
 		
 		pageTranscripts = new ArrayList<JAXBPageTranscript>();
+		
+		
 		
 		List<TrpPage> pages = doc.getPages();
 		
@@ -108,13 +111,15 @@ public class ExportUtils {
 	 * @param doc
 	 * @param wordBased
 	 * @param pageIndices
+	 * @param blackening 
 	 * @return all (custom) tags of the given document
 	 * @throws JAXBException
 	 * @throws IOException
 	 * @throws InterruptedException 
 	 */
-	public static void storeCustomTagMapForDoc(TrpDoc doc, boolean wordBased, Set<Integer> pageIndices, IProgressMonitor monitor) throws JAXBException, IOException, InterruptedException {
+	public static void storeCustomTagMapForDoc(TrpDoc doc, boolean wordBased, Set<Integer> pageIndices, IProgressMonitor monitor, boolean blackening) throws JAXBException, IOException, InterruptedException {
 		
+		doBlackening = blackening;
 		tags.clear();
 		List<TrpPage> pages = doc.getPages();
 		
@@ -213,9 +218,21 @@ public class ExportUtils {
 			storeCustomTag(nonIndexedTag, textStr);
 
 		}
+		
+		/*
+		 * blacken String if necessary
+		 */
+		if(doBlackening){
+			for (CustomTag indexedTag : cl.getIndexedTags()) {
+				if (indexedTag instanceof BlackeningTag){
+					//logger.debug("blackening found " + textStr);
+					textStr = blackenString(indexedTag, textStr);
+				}
+			}
+		}
+		
 		for (CustomTag indexedTag : cl.getIndexedTags()) {
-			
-			//logger.debug("indexed tag found ");
+
 			storeCustomTag(indexedTag, textStr);
 
 		}
@@ -282,10 +299,15 @@ public class ExportUtils {
 		if (!currTag.getTagName().equals(TextStyleTag.TAG_NAME)){
 			
 			if (currTag.getOffset() != -1 && currTag.getLength() != -1 && (currTag.getOffset()+currTag.getLength() <= textStr.length())){
-				tags.put(currTag, textStr.substring(currTag.getOffset(), currTag.getOffset()+currTag.getLength()));
+				//guarantee that string is not blackened
+				if(!textStr.substring(currTag.getOffset(), currTag.getOffset()+currTag.getLength()).matches("[*]+")){
+					tags.put(currTag, textStr.substring(currTag.getOffset(), currTag.getOffset()+currTag.getLength()));
+				}
 			}
 			else{
-				tags.put(currTag, textStr);
+				if(!textStr.matches("[*]+")){
+					tags.put(currTag, textStr);
+				}
 			}
 //			logger.debug("++tag name is " + currTag.getTagName());
 //			logger.debug("text " + tags.get(currTag));

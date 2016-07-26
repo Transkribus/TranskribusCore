@@ -46,6 +46,7 @@ import eu.transkribus.core.model.beans.EdFeature;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.customtags.AbbrevTag;
+import eu.transkribus.core.model.beans.customtags.BlackeningTag;
 import eu.transkribus.core.model.beans.customtags.CommentTag;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
 import eu.transkribus.core.model.beans.customtags.CustomTagFactory;
@@ -84,6 +85,9 @@ public class TrpPdfDocument extends APdfDocument {
 	private final boolean highlightTags;
 	private final boolean doBlackening;
 	private final boolean createTitle;
+	
+	private boolean imgOnly = false;
+	private boolean extraTextPage = false;
 	
 	InputStream is1 = this.getClass().getClassLoader().getResourceAsStream("fonts/ARIAL.TTF");
 	byte[] rBytes1 = IOUtils.toByteArray(is1);
@@ -142,6 +146,8 @@ public class TrpPdfDocument extends APdfDocument {
 	@SuppressWarnings("unused")
 	public void addPage(URL imgUrl, TrpDoc doc, PcGtsType pc, boolean addAdditionalPlainTextPage, boolean imageOnly, Set<String> selectedTags, FimgStoreImgMd md, boolean doBlackening) throws MalformedURLException, IOException, DocumentException, JAXBException, URISyntaxException {
 		
+		imgOnly = imageOnly;
+		extraTextPage = addAdditionalPlainTextPage;
 		//FIXME use this only on cropped (printspace) images!!
 		java.awt.Rectangle printspace = null;
 //		if(pc.getPage() != null && pc.getPage().getPrintSpace() != null){
@@ -1583,6 +1589,7 @@ public class TrpPdfDocument extends APdfDocument {
 							expansion = ": " + at.getExpansion();
 					}
 					
+					
 					//make sure that similar tags are only exported once
 					if (!uniqueValues.contains(currValue)){
 						uniqueValues.add(currValue);
@@ -1668,9 +1675,23 @@ public class TrpPdfDocument extends APdfDocument {
 				posY += lineHeight*1.5;
 			}
 		}
-		
+		//--- Export settings section
 		lineHeight = twelfthPoints[1][0]/3;
-		//posY += lineHeight*1.5;
+		addTitleString("Export Settings: ", posY, twelfthPoints[1][0], lineHeight, cb, bfArialBoldItalic);
+		
+		String imageSetting = (imgOnly ? "Images without text layer" : "Images with text layer");
+		String extraTextSetting = (extraTextPage ? "Extra pages for transcribed text are added" : "");
+		String blackeningSetting = (doBlackening ? "Sensible data is invisible" : "Sensible data is shown if existent");
+		String tagSetting = (highlightTags ? "Tags are highlighted (colored lines) and added at the end" : "No tags shown in export");
+		
+		lineHeight = twelfthPoints[1][0]/6;
+		posY += lineHeight*1.5;
+		addTitleString(imageSetting + " / " + extraTextSetting + " / " + blackeningSetting + " / " + tagSetting, posY, twelfthPoints[1][0], lineHeight, cb, bfArialBoldItalic);
+		//--- Export settings section end
+		
+		//--- Editorial declaration section		
+		lineHeight = twelfthPoints[1][0]/3;
+		posY += lineHeight*1.5;
 		
 		List<EdFeature> efl = doc.getEdDeclList();
 		
@@ -1687,8 +1708,7 @@ public class TrpPdfDocument extends APdfDocument {
 			//addTitleString(edfeat.getSelectedOption().toString(), posY, twelfthPoints[1][0], lineHeight, cb, bfArial);
 			posY += lineHeight*1.5;
 		}
-				
-		// TODO Auto-generated method stub
+		//--- Editorial declaration section	end	
 		
 	}
 
