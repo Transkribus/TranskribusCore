@@ -24,10 +24,11 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.util.PageXmlUtils;
+import eu.transkribus.core.util.SebisStopWatch;
 import eu.transkribus.core.util.TextStyleTypeUtils;
 
 final public class TrpPageUnmarshalListener extends Unmarshaller.Listener {
-	TrpPageType page;
+	TrpPageType page=null;
 	
 	Logger logger = LoggerFactory.getLogger(TrpPageUnmarshalListener.class);
 	Set<String> allTagNames = new HashSet<String>(); // all tag-names are gathered here
@@ -35,6 +36,12 @@ final public class TrpPageUnmarshalListener extends Unmarshaller.Listener {
 //	List<CustomTag> allTags = new ArrayList<>();
 	
 	public void beforeUnmarshal(Object target, Object parent) {
+		logger.trace("before unmarshalling "+target.getClass().getSimpleName()+" parent: "+parent);
+		
+		if (target instanceof TrpPageType) {
+			page = (TrpPageType) target;
+		}
+		
 		if (target instanceof ITrpShapeType) {
 			((ITrpShapeType) target).getObservable().setActive(false);
 		}		
@@ -48,7 +55,16 @@ final public class TrpPageUnmarshalListener extends Unmarshaller.Listener {
 		
 		if (target instanceof ITrpShapeType) {
 			((ITrpShapeType) target).getObservable().setActive(true);
-		}		
+		}
+		
+		if (page != null) {
+			page.registerObjectId(target);
+		}
+		
+		if (target instanceof PcGtsType) {
+			page.printIdRegistry();
+		}
+		
 	}
 	
 	/** sync text styles for each and every shape */
