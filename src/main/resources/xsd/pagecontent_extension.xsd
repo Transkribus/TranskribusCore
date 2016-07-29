@@ -576,10 +576,7 @@ Range: -179.999,180</documentation>
 		<complexContent>
 			<extension base="pc:TextRegionType">
 				<sequence>
-<!--					<element name="Coords" type="pc:CellCoordsType"/>-->
 					<element name="CornerPts" type="pc:CornerPointsType" default="0 1 2 3"/>
-					
-<!--					<element name="TextLine" type="pc:TextLineType" minOccurs="0" maxOccurs="unbounded"></element>-->
 				</sequence>
 				
 				<attribute name="row" type="int" use="required">
@@ -594,6 +591,22 @@ Range: -179.999,180</documentation>
 				<attribute name="colSpan" type="int" use="optional" default="1">
 					<annotation><documentation>The number of columns this cell spans</documentation></annotation>
 				</attribute>
+				
+				<attribute name="leftBorderVisible" type="boolean" use="optional" default="false">
+					<annotation><documentation>Left border visiblity</documentation></annotation>
+				</attribute>
+				
+				<attribute name="rightBorderVisible" type="boolean" use="optional" default="false">
+					<annotation><documentation>Right border visiblity</documentation></annotation>
+				</attribute>
+
+				<attribute name="topBorderVisible" type="boolean" use="optional" default="false">
+					<annotation><documentation>Top border visiblity</documentation></annotation>
+				</attribute>
+				
+				<attribute name="bottomBorderVisible" type="boolean" use="optional" default="false">
+					<annotation><documentation>Bottom border visiblity</documentation></annotation>
+				</attribute>				
 				
 <!--				<attribute name="id" type="ID" use="required"/>-->
 				

@@ -10,6 +10,16 @@ import eu.transkribus.core.model.beans.pagecontent.TextStyleType;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObservable;
 
 public interface ITrpShapeType {
+	public static final int PRINTSPACE_BASE_LEVEL = -1;
+	public static final int REGION_BASE_LEVEL = 0;
+	public static final int LINE_BASE_LEVEL = 100;
+	public static final int BASELINE_BASE_LEVEL = 200;
+	public static final int WORD_BASE_LEVEL = 300;
+	
+	static int getMaxLevel() {
+		return WORD_BASE_LEVEL;
+	}
+	
 	ITrpShapeType copy();
 	void copyFields(ITrpShapeType src);
 	

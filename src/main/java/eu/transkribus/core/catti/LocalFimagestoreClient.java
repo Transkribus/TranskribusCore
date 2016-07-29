@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.WildcardFilter;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +86,8 @@ public class LocalFimagestoreClient {
 //		}
 		
 		// else: get file of type fileType:
-		List<File> files = (List<File>) FileUtils.listFiles(dir, new WildcardFilter(fileType+"_*.*"), null);
+//		List<File> files = (List<File>) FileUtils.listFiles(dir, new WildcardFilter(fileType+"_*.*"), null);
+		List<File> files = (List<File>) FileUtils.listFiles(dir, new WildcardFileFilter(fileType+"_*.*"), null);
 		
 		if (files.size()==0)
 			throw new FileNotFoundException("File of type "+fileType+" not found in dir: "+dir.getAbsolutePath());

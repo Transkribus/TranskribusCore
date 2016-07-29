@@ -73,7 +73,7 @@ public class TrpPrintSpaceType extends PrintSpaceType implements ITrpShapeType {
 	public String getId() { return ""; }
 	
 	@Override
-	public int getLevel() { return -1; }
+	public int getLevel() { return ITrpShapeType.PRINTSPACE_BASE_LEVEL; }
 
 	public void setPage(TrpPageType page) {
 		this.page = page;

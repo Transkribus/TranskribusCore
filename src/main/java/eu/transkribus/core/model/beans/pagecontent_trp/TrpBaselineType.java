@@ -59,8 +59,9 @@ public class TrpBaselineType extends BaselineType implements ITrpShapeType {
 		
 	@Override
 	public String getName() { return "Baseline"; }
-	@Override
-	public int getLevel() { return 2; }	
+	
+//	@Override public int getLevel() { return 2; }
+	@Override public int getLevel() { return ITrpShapeType.BASELINE_BASE_LEVEL; }
 	
 	@Override
 	public String getId() { return ""; }

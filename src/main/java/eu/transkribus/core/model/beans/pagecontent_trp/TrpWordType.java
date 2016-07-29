@@ -115,8 +115,8 @@ public class TrpWordType extends WordType implements ITrpShapeType {
 	@Override
 	public String getName() { return "Word"; }
 	
-	@Override
-	public int getLevel() { return 3; }
+//	@Override public int getLevel() { return 3; }
+	@Override public int getLevel() { return ITrpShapeType.WORD_BASE_LEVEL; }
 	
 	public void setLine(TrpTextLineType line) {
 		this.line = line;

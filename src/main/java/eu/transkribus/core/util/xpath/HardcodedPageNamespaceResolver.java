@@ -30,7 +30,6 @@ public class HardcodedPageNamespaceResolver implements NamespaceContext {
 	 * @return uri
 	 */
 	public String getNamespaceURI(String prefix) {
-		System.out.println("hello1");
 		if (prefix == null) {
 			throw new IllegalArgumentException("No namespace prefix provided!");
 		} else if (prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {

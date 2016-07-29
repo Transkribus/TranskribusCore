@@ -128,7 +128,7 @@ public class EnumUtils {
     	if (type == null)
     		return -1;
     	
-    	List<E> values = values(type.getClass());
+    	List<E> values = (List<E>) values(type.getClass());
     	for (int j=0; j<values.size(); j++) {
     		if (values.get(j) == type)
     			return j;

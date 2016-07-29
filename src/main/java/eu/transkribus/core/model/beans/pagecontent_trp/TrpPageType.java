@@ -574,7 +574,7 @@ public class TrpPageType extends PageType {
 //			logger.debug("o1 coords " + o1.getCoordinates());
 //			logger.debug("o2 coords " + o2.getCoordinates());
 			
-			int ordering = new TrpElementCoordinatesComparator().compare(o1, o2);
+			int ordering = new TrpElementCoordinatesComparator<ITrpShapeType>().compare(o1, o2);
 			
 			//o1 is smaller the second shape according to their coordinates
 			if (ordering < 0){

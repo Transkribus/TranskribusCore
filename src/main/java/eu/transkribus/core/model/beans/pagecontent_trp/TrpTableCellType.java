@@ -115,7 +115,13 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 	}
 
 	@Override public int getLevel() {
-		return 0; // to be 0 or 1 that is the question
+		if (getTable() != null) {
+			return getTable().getLevel()+1;
+		} else {
+			return ITrpShapeType.REGION_BASE_LEVEL;
+		}
+		
+//		return 0; // to be 0 or 1 that is the question
 	}
 
 	@Override public TrpPageType getPage() {
