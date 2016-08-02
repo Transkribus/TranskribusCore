@@ -32,9 +32,16 @@ public class JobConst {
 	public static final String PROP_METS_PATH = "metsPath";
 	
 	public static final String PROP_DICTNAME = "dictName";
+	public static final String PROP_NUM_EPOCHS = "numEpochs";
+	public static final String PROP_LEARNING_RATE = "learningRate";
+	public static final String PROP_NOISE = "noise";
+	public static final String PROP_NR_OF_THREADS = "nrOfThreads";
+	public static final String PROP_TRAIN_SIZE_PER_EPOCH = "trainSizePerEpoch";
 	
 	public static final String PROP_DO_BLOCK_SEG = "doBlockSeg";
 	public static final String PROP_DO_LINE_SEG = "doLineSeg";
+
+	public static final String PROP_SOLR_URL = "solrUrl";
 
 
 }
