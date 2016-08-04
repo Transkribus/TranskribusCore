@@ -82,7 +82,7 @@ public class TrpRegionType extends RegionType implements ITrpShapeType {
 	    id = TrpPageType.getUniqueId(getName());
 
 		// copy base fields:
-		coords = BeanCopyUtils.copyCellCoordsType(src.coords);
+		coords = BeanCopyUtils.copyCoordsType(src.coords);
 		// copy child regions
 		textRegionOrImageRegionOrLineDrawingRegion = 
 				src.textRegionOrImageRegionOrLineDrawingRegion != null ? 

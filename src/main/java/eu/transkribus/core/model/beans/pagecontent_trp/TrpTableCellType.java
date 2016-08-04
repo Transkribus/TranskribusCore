@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import eu.transkribus.core.model.beans.customtags.CustomTagList;
 import eu.transkribus.core.model.beans.customtags.CustomTagUtil;
 import eu.transkribus.core.model.beans.customtags.TextStyleTag;
-import eu.transkribus.core.model.beans.pagecontent.CellCoordsType;
+import eu.transkribus.core.model.beans.pagecontent.CoordsType;
 import eu.transkribus.core.model.beans.pagecontent.TableCellType;
 import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
@@ -85,7 +85,7 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 		TrpTableCellType srcCell = (TrpTableCellType) src;
 		
 		this.id = TrpPageType.getUniqueId(getName());
-		this.coords = BeanCopyUtils.copyCellCoordsType(srcCell.coords);
+		this.coords = BeanCopyUtils.copyCoordsType(srcCell.coords);
 		
 		if (srcCell.textLine!=null)
 			textLine = new ArrayList<>(srcCell.textLine);
@@ -362,7 +362,7 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 	}
 
 	@Override public void setCoordinates(String value, Object who) {
-		CellCoordsType coords = new CellCoordsType();
+		CoordsType coords = new CoordsType();
 		coords.setPoints(value);
 		setCoords(coords);
 		

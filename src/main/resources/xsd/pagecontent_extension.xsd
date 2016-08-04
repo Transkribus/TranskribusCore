@@ -556,6 +556,7 @@ Range: -179.999,180</documentation>
 		</attribute>	
 	</complexType>-->
 	
+	<!--
 	<complexType name="CellCoordsType">
 		<complexContent>
 			<extension base="pc:CoordsType">
@@ -566,7 +567,8 @@ Range: -179.999,180</documentation>
 				</attribute>
 			</extension>
 		</complexContent>
-	</complexType>	
+	</complexType>
+-->	
 	
 	<complexType name="TableCellType">
 		<annotation>

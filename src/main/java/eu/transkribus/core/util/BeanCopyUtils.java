@@ -1,6 +1,5 @@
 package eu.transkribus.core.util;
 
-import eu.transkribus.core.model.beans.pagecontent.CellCoordsType;
 import eu.transkribus.core.model.beans.pagecontent.CoordsType;
 import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
 import eu.transkribus.core.model.beans.pagecontent.TextStyleType;
@@ -8,7 +7,7 @@ import eu.transkribus.core.model.beans.pagecontent.TextStyleType;
 /** Provides functions to copy beans from the Page JAXB. */
 public class BeanCopyUtils {
 	
-	public static CoordsType copyCellCoordsType(CoordsType coords) {
+	public static CoordsType copyCoordsType(CoordsType coords) {
 		if (coords == null)
 			return null;
 		
@@ -17,16 +16,16 @@ public class BeanCopyUtils {
 		return copy;
 	}
 	
-	public static CellCoordsType copyCellCoordsType(CellCoordsType coords) {
-		if (coords == null)
-			return null;
-		
-		CellCoordsType copy = new CellCoordsType();
-		copy.setPoints(coords.getPoints());
-		copy.setCornerPts(coords.getCornerPts());
-		
-		return copy;
-	}
+//	public static CellCoordsType copyCellCoordsType(CellCoordsType coords) {
+//		if (coords == null)
+//			return null;
+//		
+//		CellCoordsType copy = new CellCoordsType();
+//		copy.setPoints(coords.getPoints());
+//		copy.setCornerPts(coords.getCornerPts());
+//		
+//		return copy;
+//	}
 	
 	public static TextEquivType copyTextEquivType(TextEquivType text) {
 		if (text == null)

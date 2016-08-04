@@ -2,7 +2,7 @@
 // Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
 // Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
 // Änderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2016.07.29 um 03:19:48 PM CEST 
+// Generiert: 2016.08.04 um 05:12:39 PM CEST 
 //
 
 
@@ -11,7 +11,6 @@ package eu.transkribus.core.model.beans.pagecontent;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
 
@@ -34,9 +33,6 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "CoordsType")
-@XmlSeeAlso({
-    CellCoordsType.class
-})
 public class CoordsType {
 
     @XmlAttribute(name = "points", required = true)

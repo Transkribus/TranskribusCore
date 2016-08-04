@@ -82,7 +82,7 @@ public class TrpWordType extends WordType implements ITrpShapeType {
 
 		// copy base fields:
 		if (src.coords != null)
-			coords = BeanCopyUtils.copyCellCoordsType(src.coords);
+			coords = BeanCopyUtils.copyCoordsType(src.coords);
 		if (src.glyph!=null)
 			glyph = new ArrayList<>(src.glyph);
 	    textEquiv = BeanCopyUtils.copyTextEquivType(src.textEquiv);
