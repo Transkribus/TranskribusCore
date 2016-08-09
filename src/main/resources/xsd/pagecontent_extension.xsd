@@ -79,11 +79,22 @@
 				<element name="UnknownRegion" type="pc:UnknownRegionType">
 				</element>
 			</choice>
-
 		</sequence>
+		
 		<attribute name="imageFilename" type="string" use="required"/>
 		<attribute name="imageWidth" type="int" use="required"/>
 		<attribute name="imageHeight" type="int" use="required"/>
+		
+		<!-- New image operation attribues - 
+			specifies the affine transformation that was performed on the *original* to yield the image specified in the imageFilename attribue -->
+		<attribute name="imageRotation" type="int" use="optional" default="0"/>
+		<attribute name="imageTranslationX" type="float" use="optional" default="0"/>
+		<attribute name="imageTranslationY" type="float" use="optional" default="0"/>
+		<attribute name="imageScalingX" type="float" use="optional" default="0"/>
+		<attribute name="imageScalingY" type="float" use="optional" default="0"/>
+
+		
+		
 		<attribute name="custom" type="string">
 			<annotation>
 				<documentation>For generic use</documentation>
