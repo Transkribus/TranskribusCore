@@ -129,6 +129,20 @@ public class DocxBuilder {
 
 	private static WordprocessingMLPackage wordMLPackage;
 	
+	/*
+	 * all lists necessary to export the tags in the right way
+	 */
+	//contains all gap offsets
+	static ArrayList<Integer> gapList = new ArrayList<Integer>();
+	static LinkedHashMap<Integer, String> commentList = new LinkedHashMap<Integer, String>();
+	//unclear list contains unclear begin as key and unclear end as value
+	static HashMap<Integer, Integer> unclearList = new HashMap<Integer, Integer>();
+	//Integer used for storing the offset: this is where the abbrev ends resp. (expansion) starts, and String contains the 'expansion' itself
+	static LinkedHashMap<Integer, String> expandAbbrevList = new LinkedHashMap<Integer, String>();
+	static LinkedHashMap<Integer, AbbrevTag> substituteAbbrevList = new LinkedHashMap<Integer, AbbrevTag>();
+	//index: tags get stored as index in word and pressing F9 in word gives than this index list
+	static HashMap<Integer, ArrayList<CustomTag>> idxList = new HashMap<Integer, ArrayList<CustomTag>>();
+	
 	public static void main(String[] args) throws Exception {
 		
 		WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.createPackage();
@@ -691,23 +705,7 @@ public class DocxBuilder {
 		}
 		
 		CustomTagList cl = element.getCustomTagList();
-		
-		//Todo: add lists for abbrev tag: abbrev(expansion) and for unclear: [Beispiel]
-		
-		//contains all gap offsets
-		ArrayList<Integer> gapList = new ArrayList<Integer>();
-		LinkedHashMap<Integer, String> commentList = new LinkedHashMap<Integer, String>();
-		
-		//unclear list contains unclear begin as key and unclear end as value
-		HashMap<Integer, Integer> unclearList = new HashMap<Integer, Integer>();
-		
-		//Integer used for storing the offset: this is where the abbrev ends resp. (expansion) starts, and String contains the 'expansion' itself
-		LinkedHashMap<Integer, String> expandAbbrevList = new LinkedHashMap<Integer, String>();
-		LinkedHashMap<Integer, AbbrevTag> substituteAbbrevList = new LinkedHashMap<Integer, AbbrevTag>();
-		
-		HashMap<Integer, ArrayList<CustomTag>> idxList = new HashMap<Integer, ArrayList<CustomTag>>();
-		
-		
+				
 		
 		if (textStr == null || cl == null)
 			throw new IOException("Element has no text or custom tag list: "+element+", class: "+element.getClass().getName());
@@ -988,7 +986,6 @@ public class DocxBuilder {
 			
 			//at the run properties (= text styles) to the run
 			run.setRPr(rpr);
-			
 			/*
 			 * abbrev at end of shape (= line) -> means use (index + 1)
 			 */
@@ -1032,7 +1029,7 @@ public class DocxBuilder {
 			}
 			
 			
-
+			clearAllLists();
 
 			//runs.add(run);
 			
@@ -1040,6 +1037,27 @@ public class DocxBuilder {
 
 	}
 	
+	/*
+	 * 	static ArrayList<Integer> gapList = new ArrayList<Integer>();
+	static LinkedHashMap<Integer, String> commentList = new LinkedHashMap<Integer, String>();
+	//unclear list contains unclear begin as key and unclear end as value
+	static HashMap<Integer, Integer> unclearList = new HashMap<Integer, Integer>();
+	//Integer used for storing the offset: this is where the abbrev ends resp. (expansion) starts, and String contains the 'expansion' itself
+	static LinkedHashMap<Integer, String> expandAbbrevList = new LinkedHashMap<Integer, String>();
+	static LinkedHashMap<Integer, AbbrevTag> substituteAbbrevList = new LinkedHashMap<Integer, AbbrevTag>();
+	//index: tags get stored as index in word and pressing F9 in word gives than this index list
+	HashMap<Integer, ArrayList<CustomTag>> idxList = new HashMap<Integer, ArrayList<CustomTag>>();
+	 */
+	private static void clearAllLists() {
+		gapList.clear();
+		commentList.clear();
+		unclearList.clear();
+		expandAbbrevList.clear();
+		substituteAbbrevList.clear();
+		idxList.clear();
+		
+	}
+
 	private static void addComplexField(P p, String instrText, String instrText2) {
 
 	    org.docx4j.wml.ObjectFactory wmlObjectFactory = Context.getWmlObjectFactory();

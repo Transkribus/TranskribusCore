@@ -181,7 +181,8 @@ public final class RESTConst {
 
 	public static final String URL_PARAM = "url";
 
-	public static final String HTR_TRAIN_PATH = "htrTraining";
+	public static final String HTR_UPVLC_TRAIN_PATH = "htrTrainingUpvlc";
+	public static final String HTR_URO_TRAIN_PATH = "htrTrainingUro";
 	public static final String HTR_PATH = "htr";
 	public static final String HTR_LIST_MODEL_PATH = "htrModels";
 	public static final String HTR_MODEL_NAME_PARAM = "modelName";
@@ -241,4 +242,5 @@ public final class RESTConst {
 	public static final String CODE_PARAM = "code";
 	public static final String STATE_PARAM = "state";
 	public static final String PROVIDER_PARAM = "prov";
+	public static final String REDIRECT_URI_PARAM = "redirect_uri";
 }
