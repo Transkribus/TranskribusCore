@@ -43,5 +43,7 @@ public class JobConst {
 
 	public static final String PROP_SOLR_URL = "solrUrl";
 
+	public static final String PROP_ADDITIONAL_COL_IDS = "additionalColIds";
+
 
 }
