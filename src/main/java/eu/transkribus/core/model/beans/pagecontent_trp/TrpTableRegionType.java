@@ -60,20 +60,15 @@ public class TrpTableRegionType extends TableRegionType implements ITrpShapeType
 	    this.bgColour = src.bgColour;
 	}
 	
-	@Override
-	public String getName() { return "TableRegion"; }
-	
-	public static void sortTableCells(List<TableCellType> cells) {
-		Collections.sort(cells, TrpTableCellType.TABLE_CELL_COMPARATOR);
-	}
-	
-	public void sortTableCells() {
+	@Override public String getName() { return RegionTypeUtil.TABLE; }
+		
+	public void sortCells() {
 		// sort table cells first by row then col index
 		Collections.sort(tableCell, TrpTableCellType.TABLE_CELL_COMPARATOR);
 	}
 	
 	@Override public void sortChildren(boolean recursive) {
-		sortTableCells();
+		sortCells();
 		if (recursive) {
 			// TODO: sort lines and regions in table cells...
 			
@@ -194,6 +189,7 @@ public class TrpTableRegionType extends TableRegionType implements ITrpShapeType
 			if (c.getRowEnd() == rowEnd)
 				rowCells.add(c);
 		}
+//		Collections.sort(rowCells, TrpTableCellType.TABLE_CELL_ROW_COMPARATOR);
 		return rowCells;
 	}
 	
@@ -203,6 +199,7 @@ public class TrpTableRegionType extends TableRegionType implements ITrpShapeType
 			if (c.getColEnd() == colEnd)
 				rowCells.add(c);
 		}
+//		Collections.sort(rowCells, TrpTableCellType.TABLE_CELL_COL_COMPARATOR);
 		return rowCells;
 	}
 	

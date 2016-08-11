@@ -56,6 +56,18 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 			return Integer.compare(o1.getCol(), o2.getCol());
 		}
 	};
+	
+ 	public static final Comparator<TableCellType> TABLE_CELL_ROW_COMPARATOR = new Comparator<TableCellType>() {
+		@Override public int compare(TableCellType o1, TableCellType o2) {
+			return Integer.compare(o1.getRow(), o2.getRow());
+		}
+	};
+	
+ 	public static final Comparator<TableCellType> TABLE_CELL_COLUMN_COMPARATOR = new Comparator<TableCellType>() {
+		@Override public int compare(TableCellType o1, TableCellType o2) {
+			return Integer.compare(o1.getCol(), o2.getCol());
+		}
+	};	
  		
 	public TrpTableCellType() {
 		logger.debug("created TrpTableCellType!");	
@@ -412,7 +424,7 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 	public void reInsertIntoParent(int index) {
 		if (!getTable().getTableCell().contains(this)) {
 			CoreUtils.addOrAppend(getTable().getTableCell(), this, index);
-			getTable().sortTableCells();
+			getTable().sortCells();
 			observable.setChangedAndNotifyObservers(new TrpReinsertIntoParentEvent(this));
 		}
 	}	
