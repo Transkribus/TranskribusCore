@@ -16,6 +16,7 @@ public final class RESTConst {
 	public static final String STRUCTURE_PATH = "structure";
 	public static final String FILES_PATH = "files";
 	public static final String ADMIN_PATH = "admin";
+	public static final String SEARCH_PATH = "search";
 	
 	/* SECOND TIER: Methods */
 	public static final String DB_PATH = "db";
@@ -244,4 +245,6 @@ public final class RESTConst {
 	public static final String STATE_PARAM = "state";
 	public static final String PROVIDER_PARAM = "prov";
 	public static final String REDIRECT_URI_PARAM = "redirect_uri";
+
+	public static final String SEND_MAIL_PARAM = "sendMail";
 }
