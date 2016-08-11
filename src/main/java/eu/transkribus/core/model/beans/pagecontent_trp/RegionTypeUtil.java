@@ -28,13 +28,13 @@ import eu.transkribus.core.util.PointStrUtils;
 public class RegionTypeUtil {
 
 	
-	public static final String TEXT_REGION_TYPE = "TextRegion";
-	public static final String LINE_TYPE = "Line";
-	public static final String BASELINE_TYPE = "Baseline";
-	public static final String WORD_TYPE = "Word";
-	public static final String TABLE_REGION = "Table";
+	public static final String TEXT_REGION = "TextRegion";
+	public static final String LINE = "Line";
+	public static final String BASELINE = "Baseline";
+	public static final String WORD = "Word";
+	public static final String TABLE = "Table";
 	public static final String TABLE_CELL = "TableCell";
-	public static final String PRINTSPACE_TYPE = "Printspace";
+	public static final String PRINTSPACE = "Printspace";
 	
 	public static final String ADVERT_REGION = "Advert";
 	public static final String CHART_REGION = "Chart";
@@ -65,12 +65,12 @@ public class RegionTypeUtil {
 	}};	
 	
 	public final static List<String> ALL_REGIONS = new ArrayList<String>() {{
-			add(TEXT_REGION_TYPE);
-			add(LINE_TYPE);
-			add(BASELINE_TYPE);
-			add(WORD_TYPE);
-			add(PRINTSPACE_TYPE);
-			add(TABLE_REGION);
+			add(TEXT_REGION);
+			add(LINE);
+			add(BASELINE);
+			add(WORD);
+			add(PRINTSPACE);
+			add(TABLE);
 			add(TABLE_CELL);
 
 			addAll(SPECIAL_REGIONS);
@@ -99,12 +99,12 @@ public class RegionTypeUtil {
 	
 	static Map<String, Class<? extends ITrpShapeType>> REGIONS = new HashMap<>();
 	static {
-		REGIONS.put(TEXT_REGION_TYPE, TrpTextRegionType.class);
-		REGIONS.put(LINE_TYPE, TrpTextLineType.class);
-		REGIONS.put(BASELINE_TYPE, TrpBaselineType.class);
-		REGIONS.put(WORD_TYPE, TrpWordType.class);
-		REGIONS.put(PRINTSPACE_TYPE, TrpPrintSpaceType.class);
-		REGIONS.put(TABLE_REGION, TrpTableRegionType.class);
+		REGIONS.put(TEXT_REGION, TrpTextRegionType.class);
+		REGIONS.put(LINE, TrpTextLineType.class);
+		REGIONS.put(BASELINE, TrpBaselineType.class);
+		REGIONS.put(WORD, TrpWordType.class);
+		REGIONS.put(PRINTSPACE, TrpPrintSpaceType.class);
+		REGIONS.put(TABLE, TrpTableRegionType.class);
 		REGIONS.put(TABLE_CELL, TrpTableCellType.class);
 		
 		REGIONS.put(ADVERT_REGION, AdvertRegionType.class);
