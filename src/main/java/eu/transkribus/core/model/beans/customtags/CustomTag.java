@@ -145,7 +145,19 @@ public class CustomTag implements Comparable<CustomTag> {
 		int o = CoreUtils.bound(offset, 0, txt.length());
 		int e = CoreUtils.bound(offset+length, 0, txt.length());
 		
-		return customTagList.getShape().getUnicodeText().substring(o, e);
+		/**
+		 * FIXME Prod Server doc 331 on page 22 has illegal tags (outside of string bounds with no length)
+		 * Then o = 21 and e = 20 which leads to a StringIndexOutOfBoundsException. Code below fixes that for now.
+		 * philip
+		 */
+		
+		final String containedText;
+		if(o > e) {
+			containedText = "";
+		} else {
+			containedText = txt.substring(o, e);
+		}
+		return containedText;
 	}
 	
 	public boolean isDeleteable() {
