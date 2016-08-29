@@ -15,8 +15,7 @@ public class PageHit {
 	private long pageNr;
 	private String pageUrl;	
 	private ArrayList<String> highlights = new ArrayList<>();
-	private ArrayList<String> wordCoords = new ArrayList<>();
-	
+	private ArrayList<String> wordCoords = new ArrayList<>();	
 	
 	public PageHit(){}
 	

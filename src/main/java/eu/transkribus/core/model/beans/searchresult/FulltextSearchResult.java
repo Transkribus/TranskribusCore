@@ -45,5 +45,4 @@ public class FulltextSearchResult {
 		this.params = params;
 	}
 
-
 }
