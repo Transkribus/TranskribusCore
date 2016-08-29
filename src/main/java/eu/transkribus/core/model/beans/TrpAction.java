@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TrpAction {
-	@Column(name="ACTIONID")
+	@Column
 	private int actionId;
 	@Column
 	private int type;
