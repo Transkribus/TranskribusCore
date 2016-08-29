@@ -17,6 +17,7 @@ public final class RESTConst {
 	public static final String FILES_PATH = "files";
 	public static final String ADMIN_PATH = "admin";
 	public static final String SEARCH_PATH = "search";
+	public static final String ACTIONS_PATH = "actions";
 	
 	/* SECOND TIER: Methods */
 	public static final String DB_PATH = "db";
@@ -78,6 +79,7 @@ public final class RESTConst {
 	public static final String DOWNLOAD_CLIENT_FILE = "downloadClientFile";
 	public static final String DOWNLOAD_CLIENT_FILE_NEW = "downloadClientFileNew";
 	public static final String INGEST_PATH = "ingest";
+	public static final String INFO_PATH = "info";
 	
 	/* Parameters */
 	public static final String DOC_ID_PARAM = "id";
