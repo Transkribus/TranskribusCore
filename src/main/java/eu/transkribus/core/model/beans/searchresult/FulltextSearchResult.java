@@ -18,7 +18,18 @@ public class FulltextSearchResult {
 	@XmlElementWrapper(name="pageHits")
 	@XmlElement(name="PageHit")
 	protected List<PageHit> pageHits = new ArrayList<>();
+	@XmlElementWrapper(name="facets")
+	@XmlElement(name="facet")
+	protected List<Facet> facets = new ArrayList<>();
 	
+	public List<Facet> getFacets() {
+		return facets;
+	}
+
+	public void setFacets(List<Facet> facets) {
+		this.facets = facets;
+	}
+
 	public FulltextSearchResult(){}
 	
 	public List<PageHit> getPageHits() {
