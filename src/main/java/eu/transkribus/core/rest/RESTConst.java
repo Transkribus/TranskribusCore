@@ -1,6 +1,11 @@
 package eu.transkribus.core.rest;
 
 public final class RESTConst {
+	
+	//Header keys
+	public static final String GUI_VERSION_HEADER_KEY = "trpGuiVersion";
+	public static final String CLIENT_ID_HEADER_KEY = "clientId";
+	
 	//base path is set as ApplicationPath either in TrpServer's web.xml or TrpServerApp.java
 	public static final String BASE_PATH = "rest";
 	
@@ -216,8 +221,6 @@ public final class RESTConst {
 
 	public static final String LIST_ACTIVE_SESSIONS_PATH = "listActiveSessions";
 	public static final String LIST_DB_SESSIONS_PATH = "listDbSessions";
-	
-	public static final String GUI_VERSION_HEADER_KEY = "trpGuiVersion";
 
 	public static final String TYPE_PARAM = "type";
 	public static final String OPTS_PARAM = "opts";
@@ -249,4 +252,15 @@ public final class RESTConst {
 	public static final String REDIRECT_URI_PARAM = "redirect_uri";
 
 	public static final String SEND_MAIL_PARAM = "sendMail";
+	
+	//Solr search
+	public static final String QUERY_PARAM = "query";
+	public static final String START_PARAM = "start";
+	public static final String ROWS_PARAM = "rows";
+	
+	//Actions
+	public static final String TYPE_ID_PARAM = "typeId";
+	public static final String PAGE_ID_PARAM = "pageId";
+	public static final String END_PARAM = "end";
+	
 }
