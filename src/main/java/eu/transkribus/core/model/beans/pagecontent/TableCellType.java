@@ -2,7 +2,7 @@
 // Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
 // Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
 // Änderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2016.08.04 um 05:12:39 PM CEST 
+// Generiert: 2016.08.31 um 10:07:11 AM CEST 
 //
 
 
@@ -38,6 +38,7 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
  *       &lt;attribute name="rightBorderVisible" type="{http://www.w3.org/2001/XMLSchema}boolean" default="false" />
  *       &lt;attribute name="topBorderVisible" type="{http://www.w3.org/2001/XMLSchema}boolean" default="false" />
  *       &lt;attribute name="bottomBorderVisible" type="{http://www.w3.org/2001/XMLSchema}boolean" default="false" />
+ *       &lt;attribute name="label" type="{http://www.w3.org/2001/XMLSchema}boolean" default="false" />
  *     &lt;/extension>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -71,6 +72,8 @@ public class TableCellType
     protected Boolean topBorderVisible;
     @XmlAttribute(name = "bottomBorderVisible")
     protected Boolean bottomBorderVisible;
+    @XmlAttribute(name = "label")
+    protected Boolean label;
 
     /**
      * Ruft den Wert der cornerPts-Eigenschaft ab.
@@ -294,6 +297,34 @@ public class TableCellType
      */
     public void setBottomBorderVisible(Boolean value) {
         this.bottomBorderVisible = value;
+    }
+
+    /**
+     * Ruft den Wert der label-Eigenschaft ab.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Boolean }
+     *     
+     */
+    public boolean isLabel() {
+        if (label == null) {
+            return false;
+        } else {
+            return label;
+        }
+    }
+
+    /**
+     * Legt den Wert der label-Eigenschaft fest.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Boolean }
+     *     
+     */
+    public void setLabel(Boolean value) {
+        this.label = value;
     }
 
 }

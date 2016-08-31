@@ -1,5 +1,6 @@
 package eu.transkribus.core.util;
 
+import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -107,6 +108,15 @@ public class CoreUtils {
 		}
 		
 		return common;
+	}
+	
+	public static int [] getPointArray(List<Point> pts) {
+		int [] pointArray = new int[pts.size()*2];
+		for (int i=0; i<pts.size(); ++i) {
+			pointArray[i*2] = pts.get(i).x;
+			pointArray[i*2+1] = pts.get(i).y;
+		}
+		return pointArray;
 	}
 	
 	/**

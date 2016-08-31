@@ -2,7 +2,7 @@
 // Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
 // Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
 // Änderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2016.08.04 um 05:12:39 PM CEST 
+// Generiert: 2016.08.31 um 10:07:11 AM CEST 
 //
 
 
@@ -58,6 +58,11 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
  *       &lt;attribute name="imageFilename" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="imageWidth" use="required" type="{http://www.w3.org/2001/XMLSchema}int" />
  *       &lt;attribute name="imageHeight" use="required" type="{http://www.w3.org/2001/XMLSchema}int" />
+ *       &lt;attribute name="imageRotation" type="{http://www.w3.org/2001/XMLSchema}int" default="0" />
+ *       &lt;attribute name="imageTranslationX" type="{http://www.w3.org/2001/XMLSchema}float" default="0" />
+ *       &lt;attribute name="imageTranslationY" type="{http://www.w3.org/2001/XMLSchema}float" default="0" />
+ *       &lt;attribute name="imageScalingX" type="{http://www.w3.org/2001/XMLSchema}float" default="0" />
+ *       &lt;attribute name="imageScalingY" type="{http://www.w3.org/2001/XMLSchema}float" default="0" />
  *       &lt;attribute name="custom" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="type" type="{http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15}PageTypeSimpleType" />
  *     &lt;/restriction>
@@ -122,6 +127,16 @@ public class PageType {
     protected int imageWidth;
     @XmlAttribute(name = "imageHeight", required = true)
     protected int imageHeight;
+    @XmlAttribute(name = "imageRotation")
+    protected Integer imageRotation;
+    @XmlAttribute(name = "imageTranslationX")
+    protected Float imageTranslationX;
+    @XmlAttribute(name = "imageTranslationY")
+    protected Float imageTranslationY;
+    @XmlAttribute(name = "imageScalingX")
+    protected Float imageScalingX;
+    @XmlAttribute(name = "imageScalingY")
+    protected Float imageScalingY;
     @XmlAttribute(name = "custom")
     protected String custom;
     @XmlAttribute(name = "type")
@@ -458,6 +473,146 @@ public class PageType {
      */
     public void setImageHeight(int value) {
         this.imageHeight = value;
+    }
+
+    /**
+     * Ruft den Wert der imageRotation-Eigenschaft ab.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Integer }
+     *     
+     */
+    public int getImageRotation() {
+        if (imageRotation == null) {
+            return  0;
+        } else {
+            return imageRotation;
+        }
+    }
+
+    /**
+     * Legt den Wert der imageRotation-Eigenschaft fest.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Integer }
+     *     
+     */
+    public void setImageRotation(Integer value) {
+        this.imageRotation = value;
+    }
+
+    /**
+     * Ruft den Wert der imageTranslationX-Eigenschaft ab.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Float }
+     *     
+     */
+    public float getImageTranslationX() {
+        if (imageTranslationX == null) {
+            return  0.0F;
+        } else {
+            return imageTranslationX;
+        }
+    }
+
+    /**
+     * Legt den Wert der imageTranslationX-Eigenschaft fest.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Float }
+     *     
+     */
+    public void setImageTranslationX(Float value) {
+        this.imageTranslationX = value;
+    }
+
+    /**
+     * Ruft den Wert der imageTranslationY-Eigenschaft ab.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Float }
+     *     
+     */
+    public float getImageTranslationY() {
+        if (imageTranslationY == null) {
+            return  0.0F;
+        } else {
+            return imageTranslationY;
+        }
+    }
+
+    /**
+     * Legt den Wert der imageTranslationY-Eigenschaft fest.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Float }
+     *     
+     */
+    public void setImageTranslationY(Float value) {
+        this.imageTranslationY = value;
+    }
+
+    /**
+     * Ruft den Wert der imageScalingX-Eigenschaft ab.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Float }
+     *     
+     */
+    public float getImageScalingX() {
+        if (imageScalingX == null) {
+            return  0.0F;
+        } else {
+            return imageScalingX;
+        }
+    }
+
+    /**
+     * Legt den Wert der imageScalingX-Eigenschaft fest.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Float }
+     *     
+     */
+    public void setImageScalingX(Float value) {
+        this.imageScalingX = value;
+    }
+
+    /**
+     * Ruft den Wert der imageScalingY-Eigenschaft ab.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Float }
+     *     
+     */
+    public float getImageScalingY() {
+        if (imageScalingY == null) {
+            return  0.0F;
+        } else {
+            return imageScalingY;
+        }
+    }
+
+    /**
+     * Legt den Wert der imageScalingY-Eigenschaft fest.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Float }
+     *     
+     */
+    public void setImageScalingY(Float value) {
+        this.imageScalingY = value;
     }
 
     /**

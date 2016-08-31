@@ -619,7 +619,11 @@ Range: -179.999,180</documentation>
 				
 				<attribute name="bottomBorderVisible" type="boolean" use="optional" default="false">
 					<annotation><documentation>Bottom border visiblity</documentation></annotation>
-				</attribute>				
+				</attribute>
+
+				<attribute name="label" type="boolean" use="optional" default="false">
+					<annotation><documentation>Determines whether this cell is a label cell</documentation></annotation>
+				</attribute>
 				
 <!--				<attribute name="id" type="ID" use="required"/>-->
 				

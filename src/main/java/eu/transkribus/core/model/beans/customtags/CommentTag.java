@@ -25,8 +25,6 @@ public class CommentTag extends CustomTag {
 		this.comment = other.comment;
 	}
 
-	
-
 	public String getComment() {
 		return comment;
 	}
