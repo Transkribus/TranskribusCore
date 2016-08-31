@@ -59,4 +59,10 @@ public class PageHit {
 		this.wordCoords = wordCoords;
 	}
 
+	@Override
+	public String toString() {
+		return "PageHit [docId=" + docId + ", pageNr=" + pageNr + ", pageUrl=" + pageUrl + ", highlights=" + highlights
+				+ ", wordCoords=" + wordCoords + "]";
+	}
+
 }
