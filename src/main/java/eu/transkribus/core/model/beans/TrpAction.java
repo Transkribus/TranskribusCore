@@ -43,7 +43,7 @@ public class TrpAction {
 	private Integer clientId;
 	@Transient
 	private String clientName;
-	@Column(name="CLIENT_VERSION")
+	@Transient
 	private String clientVersion;
 	@Column(name="SESSION_HISTORY_ID")
 	private Integer sessionHistoryId;

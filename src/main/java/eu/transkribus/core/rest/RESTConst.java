@@ -264,6 +264,7 @@ public final class RESTConst {
 	public static final String TYPE_ID_PARAM = "typeId";
 	public static final String PAGE_ID_PARAM = "pageId";
 	public static final String END_PARAM = "end";
+	public static final String CLIENT_ID_PARAM = "clientId";
 	
 
 	
