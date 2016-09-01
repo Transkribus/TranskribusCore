@@ -517,10 +517,16 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 	}
 
 	@Override public String toString() {
-		return "TrpTableCellType [coords=" + coords
-				+ ", row=" + row + ", col=" + col + ", rowSpan=" + rowSpan + ", colSpan=" + colSpan + ", id=" + id + ", custom="
-				+ custom+"]";
+		return "TrpTableCellType [cornerPts=" + cornerPts + ", row=" + row + ", col=" + col + ", rowSpan=" + rowSpan + ", colSpan=" + colSpan
+				+ ", leftBorderVisible=" + leftBorderVisible + ", rightBorderVisible=" + rightBorderVisible + ", topBorderVisible=" + topBorderVisible
+				+ ", bottomBorderVisible=" + bottomBorderVisible + ", label=" + label + "]";
 	}
+
+//	@Override public String toString() {
+//		return "TrpTableCellType [coords=" + coords
+//				+ ", row=" + row + ", col=" + col + ", rowSpan=" + rowSpan + ", colSpan=" + colSpan + ", id=" + id + ", custom="
+//				+ custom+"]";
+//	}
 	
 	
 	
