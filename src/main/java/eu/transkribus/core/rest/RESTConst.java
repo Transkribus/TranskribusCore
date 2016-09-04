@@ -1,6 +1,11 @@
 package eu.transkribus.core.rest;
 
 public final class RESTConst {
+	
+	//Header keys
+	public static final String GUI_VERSION_HEADER_KEY = "trpGuiVersion";
+	public static final String CLIENT_ID_HEADER_KEY = "clientId";
+	
 	//base path is set as ApplicationPath either in TrpServer's web.xml or TrpServerApp.java
 	public static final String BASE_PATH = "rest";
 	
@@ -16,6 +21,8 @@ public final class RESTConst {
 	public static final String STRUCTURE_PATH = "structure";
 	public static final String FILES_PATH = "files";
 	public static final String ADMIN_PATH = "admin";
+	public static final String SEARCH_PATH = "search";
+	public static final String ACTIONS_PATH = "actions";
 	
 	/* SECOND TIER: Methods */
 	public static final String DB_PATH = "db";
@@ -77,6 +84,7 @@ public final class RESTConst {
 	public static final String DOWNLOAD_CLIENT_FILE = "downloadClientFile";
 	public static final String DOWNLOAD_CLIENT_FILE_NEW = "downloadClientFileNew";
 	public static final String INGEST_PATH = "ingest";
+	public static final String INFO_PATH = "info";
 	
 	/* Parameters */
 	public static final String DOC_ID_PARAM = "id";
@@ -213,8 +221,6 @@ public final class RESTConst {
 
 	public static final String LIST_ACTIVE_SESSIONS_PATH = "listActiveSessions";
 	public static final String LIST_DB_SESSIONS_PATH = "listDbSessions";
-	
-	public static final String GUI_VERSION_HEADER_KEY = "trpGuiVersion";
 
 	public static final String TYPE_PARAM = "type";
 	public static final String OPTS_PARAM = "opts";
@@ -244,4 +250,22 @@ public final class RESTConst {
 	public static final String STATE_PARAM = "state";
 	public static final String PROVIDER_PARAM = "prov";
 	public static final String REDIRECT_URI_PARAM = "redirect_uri";
+
+	public static final String SEND_MAIL_PARAM = "sendMail";
+	
+	//Solr search
+	public static final String FULLTEXT_PATH = "fulltext";
+	public static final String QUERY_PARAM = "query";
+	public static final String START_PARAM = "start";
+	public static final String ROWS_PARAM = "rows";
+	public static final String FILTER_PARAM = "filter";
+	
+	//Actions
+	public static final String TYPE_ID_PARAM = "typeId";
+	public static final String PAGE_ID_PARAM = "pageId";
+	public static final String END_PARAM = "end";
+	public static final String CLIENT_ID_PARAM = "clientId";
+	
+
+	
 }

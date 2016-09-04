@@ -106,10 +106,8 @@ public class ImgUtils {
 		
 		ImageInputStream iis = new FileImageInputStream(imgFile);
 		
-		BufferedImage img = null;
-		
 		final Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
-		do {
+		while (readers.hasNext()) {
 			ImageReader reader = readers.next();
 			try {
 				logger.debug("reader format = "+reader.getFormatName());
@@ -120,7 +118,7 @@ public class ImgUtils {
 			} finally {
 	            reader.dispose();
 	        }
-		} while (readers.hasNext() && img==null);
+		}
 		
 		throw new IOException("Could not read image dimensions for file: "+imgFile.getAbsolutePath());
 	}

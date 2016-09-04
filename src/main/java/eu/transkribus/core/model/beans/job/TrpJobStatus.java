@@ -116,6 +116,8 @@ public class TrpJobStatus implements Serializable {
 	
 	@Column(name="JOB_IMPL")
 	private JobImpl jobImpl;
+	
+	
 
 //	private Future<?> future = null;
 

@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -42,6 +43,18 @@ public class TrpHistoryCall {
 	
 	@Column
 	private Integer pageNr;
+	
+	@Column(name="ACTION_ID")
+	private Integer actionId;
+	
+	@Transient
+	private Integer pageId;
+	
+	@Transient
+	private Integer userId;
+	
+	@Transient
+	private String gui_version;
 	
 	public TrpHistoryCall() {}
 
@@ -136,6 +149,46 @@ public class TrpHistoryCall {
 
 	public void setPageNr(Integer pageNr) {
 		this.pageNr = pageNr;
+	}
+
+	public Integer getActionId(){
+		return actionId;
+	}
+	
+	public void setActionId(Integer actionId){
+		this.actionId = actionId;
+	}
+	
+	public Integer getPageId() {
+		return pageId;
+	}
+
+	public void setPageId(Integer pageId) {
+		this.pageId = pageId;
+	}
+
+	public Integer getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Integer userId) {
+		this.userId = userId;
+	}
+
+	public String getGui_version() {
+		return gui_version;
+	}
+
+	public void setGui_version(String gui_version) {
+		this.gui_version = gui_version;
+	}
+
+	@Override
+	public String toString() {
+		return "TrpHistoryCall [id=" + id + ", session_history_id=" + session_history_id + ", time=" + time + ", call="
+				+ call + ", parameter=" + parameter + ", custom=" + custom + ", collId=" + collId + ", docId=" + docId
+				+ ", pageNr=" + pageNr + ", actionId=" + actionId + ", pageId=" + pageId + ", userId=" + userId
+				+ ", gui_version=" + gui_version + "]";
 	}
 
 }
