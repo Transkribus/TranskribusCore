@@ -8,11 +8,12 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,7 +28,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.docx4j.model.datastorage.XPathEnhancerParser.main_return;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +61,11 @@ public class CoreUtils {
 //		}		
 //		
 //	}
+	
+	public static String readStringFromTxtFile(String fn) throws IOException {
+		String content = new String(Files.readAllBytes(Paths.get(fn)));
+		return content;
+	}
 	
 	public static void setLibraryPath(String path) throws Exception {
 		System.setProperty("java.library.path", path);

@@ -343,6 +343,9 @@ Range: -179.999,180</documentation>
 					</documentation>
 				</annotation>
 			</element>
+			<sequence>
+				<element name="Tag" type="pc:TagType" minOccurs="0" maxOccurs="unbounded"/>
+			</sequence>
 		</sequence>
 		<attribute name="conf">
             <annotation>
@@ -1622,13 +1625,13 @@ It does not contain pagenumber (if not part of running title), marginals, signat
 			<element name="Property" type="pc:PropertyType"></element>
 		</sequence>
 		
-		<attribute name="id" type="ID" use="required">
+<!--		<attribute name="id" type="ID" use="required">
 			<annotation>
 				<documentation>
 					ID of this tag
 				</documentation>
 			</annotation>
-		</attribute>
+		</attribute>-->
 		
 		<attribute name="name"  type="pc:PropertyNameType" use="required">
 			<annotation>
