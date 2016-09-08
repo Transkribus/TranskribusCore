@@ -80,7 +80,7 @@ import eu.transkribus.core.util.PointStrUtils;
  *
  */
 public class TrpPdfDocument extends APdfDocument {
-	private static final Logger logger = LoggerFactory.getLogger(TrpPdfDocument.class);
+	private static final Logger logger = LoggerFactory.getLogger(APdfDocument.class);
 	private final boolean useWordLevel;
 	private final boolean highlightTags;
 	private final boolean doBlackening;
@@ -705,6 +705,8 @@ public class TrpPdfDocument extends APdfDocument {
 				 */
 				List<TextStyleTag> styleTags = new ArrayList<TextStyleTag>();
 				
+				String shapeText = "";
+				
 				if(l.getUnicodeText().isEmpty() || useWordLevel){
 					//logger.debug("in word based path " + useWordLevel);
 					List<WordType> words = l.getWord();
@@ -712,7 +714,7 @@ public class TrpPdfDocument extends APdfDocument {
 					int chunkIndex = 0;
 					for(WordType wt : words){
 						TrpWordType w = (TrpWordType)wt;
-						String lineText = "";
+						String wordText = "";
 						//add empty space after each word
 						if (chunkIndex > 0){
 							chunkList.add(chunkIndex, new Chunk(" "));
@@ -721,13 +723,15 @@ public class TrpPdfDocument extends APdfDocument {
 						if(!w.getUnicodeText().isEmpty()){
 							//remember all style tags for text formatting later on
 							styleTags.addAll(w.getTextStyleTags());
-							if (!lineText.equals("")){
-								lineText = lineText.concat(" ");
+							if (!shapeText.equals("")){
+								shapeText = shapeText.concat(" ");
 							}
-							lineText = lineText.concat(w.getUnicodeText());	
-							for (int j=0; j<lineText.length(); ++j) {
+							wordText = wordText.concat(w.getUnicodeText());	
+							shapeText = shapeText.concat(w.getUnicodeText());
+
+							for (int j=0; j<wordText.length(); ++j) {
 								
-								String currentCharacter = lineText.substring(j, j+1);
+								String currentCharacter = wordText.substring(j, j+1);
 
 								chunkList.add(chunkIndex, formatText(currentCharacter, styleTags, j, w));
 								chunkIndex++;
@@ -739,6 +743,7 @@ public class TrpPdfDocument extends APdfDocument {
 				}
 				else if (!l.getUnicodeText().isEmpty()){
 					String lineText = l.getUnicodeText();
+					shapeText = lineText;
 					//logger.debug("line Text is " + lineText);
 					styleTags.addAll(l.getTextStyleTags());
 					for (int j=0; j<lineText.length(); ++j) {
@@ -749,9 +754,46 @@ public class TrpPdfDocument extends APdfDocument {
 
 					}
 				}
+				//empty shape
+				else{
+					continue;
+				}
 				
 				Phrase phrase = new Phrase();
-				phrase.addAll(chunkList);
+				
+				boolean rtl = false;
+				//from right to left
+				logger.debug("&&&&&&&& shapeText : " + shapeText);
+				if (!shapeText.isEmpty()){
+					if (Character.getDirectionality(shapeText.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT
+						    || Character.getDirectionality(shapeText.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC
+						    || Character.getDirectionality(shapeText.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING
+						    || Character.getDirectionality(shapeText.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_OVERRIDE
+						    ) {
+						logger.debug("&&&&&&&& STRING IS RTL : ");
+						rtl = true;
+					}
+					else{
+						logger.debug("&&&&&&&& STRING IS NOT RTL : ");
+					}
+				}
+				
+				/*
+				 * add all runs after the actual shape chars are analized and finished
+				 * for text right to left (rtl) we need to reverse the content
+				 */
+				
+				for (int j = chunkList.size()-1; j>=0; j--){
+					if (rtl){
+						phrase.add(chunkList.get(j));
+					}
+					else{
+						phrase.addAll(chunkList);
+						break;
+					}
+				}
+				
+				//phrase.addAll(chunkList);
 				
 				//logger.debug("curr phrase is: " + phrase.getContent());
 				
@@ -765,7 +807,13 @@ public class TrpPdfDocument extends APdfDocument {
 					 * so vertical text must be treated different than horizontal text 
 					 */
 					if (baseLineRect != null){
-						tmpLineStartX = baseLineRect.x;
+						if (rtl){
+							tmpLineStartX = (float) baseLineRect.getMaxX();
+						}
+						else{
+							tmpLineStartX = baseLineRect.x;
+						}
+						
 						lineStartY = (float) baseLineRect.getMaxY();
 					}
 					else if(lineRect != null){
@@ -794,9 +842,17 @@ public class TrpPdfDocument extends APdfDocument {
 //					}
 //				}
 
+				//for rtl export
+				float lineEndX = 0;
+				if (baseLineRect != null){
+					lineEndX = (float) baseLineRect.getMaxX();
+				}
+				else if(lineRect != null){
+					lineEndX = lineRect.x + lineRect.width;
+				}
 				//first add uniform String (=line), ,after that eventaully highlight the tags in this line using the current line information like x/y position, 
 				//addUniformString(lineMeanHeight, tmpLineStartX, lineStartY, lineText, cb, cutoffLeft, cutoffTop, bf, twelfthPoints[1][0], false, null, rotation);
-				addUniformString(lineMeanHeight, tmpLineStartX, lineStartY, phrase, cb, cutoffLeft, cutoffTop, bf, twelfthPoints[1][0], false, null, rotation);
+				addUniformString(lineMeanHeight, tmpLineStartX, lineStartY, lineEndX, phrase, cb, cutoffLeft, cutoffTop, bf, twelfthPoints[1][0], false, null, rotation, rtl);
 				
 				/*
 				 * old:
@@ -1162,6 +1218,8 @@ public class TrpPdfDocument extends APdfDocument {
 						baseLineMeanGap = baseLineMeanY - baseLineMeanYPrev;
 					}
 				}
+				
+				boolean rtl = false;
 					
 				if( (l.getUnicodeText().isEmpty() || useWordLevel) && !l.getWord().isEmpty()){
 
@@ -1170,7 +1228,9 @@ public class TrpPdfDocument extends APdfDocument {
 						TrpWordType w = (TrpWordType)wt;
 						if(!w.getUnicodeText().isEmpty()){
 							java.awt.Rectangle boundRect = PageXmlUtils.buildPolygon(w.getCoords()).getBounds();
-							addString(boundRect, baseLineMeanY, w.getUnicodeText(), cb, cutoffLeft, cutoffTop, bf, rotation);
+							String text = w.getUnicodeText();
+							rtl = textIsRTL(text);
+							addString(boundRect, baseLineMeanY, text, cb, cutoffLeft, cutoffTop, bf, rotation, rtl);
 						} else {
 							logger.info("No text content in word: " + w.getId());
 						}
@@ -1202,7 +1262,8 @@ public class TrpPdfDocument extends APdfDocument {
 						}
 					}
 
-					addString(boundRect, baseLineMeanY, lineTextTmp, cb, cutoffLeft, cutoffTop, bf, rotation);
+					rtl = textIsRTL(lineTextTmp);
+					addString(boundRect, baseLineMeanY, lineTextTmp, cb, cutoffLeft, cutoffTop, bf, rotation, rtl);
 					/*
 					 * highlight all tags of this text line if property is set
 					 */
@@ -1224,11 +1285,11 @@ public class TrpPdfDocument extends APdfDocument {
 						List<WordType> words = l.getWord();
 						for(WordType wt : words){
 							TrpWordType w = (TrpWordType)wt;
-							highlightTagsForShape(w);
+							highlightTagsForShape(w, rtl);
 						}
 					}
 					else{
-						highlightTagsForShape(l);
+						highlightTagsForShape(l, rtl);
 					}
 					
 				}
@@ -1238,11 +1299,18 @@ public class TrpPdfDocument extends APdfDocument {
 			
 		}	
 	}
+
 	
+	private boolean textIsRTL(String text) {
+		return (Character.getDirectionality(text.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT
+			    || Character.getDirectionality(text.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC
+			    || Character.getDirectionality(text.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING
+			    || Character.getDirectionality(text.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_OVERRIDE
+			    );
+	}
+		
 
-
-
-	private void highlightTagsForShape(ITrpShapeType shape) throws IOException {
+	private void highlightTagsForShape(ITrpShapeType shape, boolean rtl) throws IOException {
 		int tagId = 0;
 		int k = 1;
 		Set<Entry<CustomTag, String>> entrySet = ExportUtils.getAllTagsForShapeElement(shape).entrySet();
@@ -1319,7 +1387,7 @@ public class TrpPdfDocument extends APdfDocument {
 				if(baseline != null){
 					//use lowest point in baseline and move up one half of the distance to the topmost point
 					java.awt.Rectangle baseLineRect = PageXmlUtils.buildPolygon(baseline.getPoints()).getBounds();
-					calculateTagLines(baseLineRect, shape, currEntry.getKey().getContainedText(), currOffset, currLength, color, yShift, falling);
+					calculateTagLines(baseLineRect, shape, currEntry.getKey().getContainedText(), currOffset, currLength, color, yShift, falling, rtl);
 				}
 			}
 			
@@ -1347,7 +1415,7 @@ public class TrpPdfDocument extends APdfDocument {
 		
 	}
 
-	private void calculateTagLines(java.awt.Rectangle baseLineRect, ITrpShapeType shape, String tagText, int offset, int length, String color, float yShift, boolean falling) {
+	private void calculateTagLines(java.awt.Rectangle baseLineRect, ITrpShapeType shape, String tagText, int offset, int length, String color, float yShift, boolean falling, boolean rtl) {
 		
 		String lineText = shape.getUnicodeText();
 		
@@ -1360,6 +1428,7 @@ public class TrpPdfDocument extends APdfDocument {
 		}
 		
 		float shapeMinX = (float) shapeRect.getMinX();
+		float shapeMaxX = (float) shapeRect.getMaxX();
 		
 		float minX = (float) baseLineRect.getMinX();
 		float maxX = (float) baseLineRect.getMaxX();
@@ -1386,12 +1455,23 @@ public class TrpPdfDocument extends APdfDocument {
 			ratioOfTagStart = (float) offset / (float) lineText.length();
 		}
 		float ratioOfTagEnd = (float) (offset+length) / (float) lineText.length();
-				
-		float tagStartX = shapeMinX + (ratioOfTagStart * baseLineRect.width);
-		float tagEndX = shapeMinX + (ratioOfTagEnd * shapeRect.width);
+		
+		float tagStartX;
+		float tagEndX;
+		if (!rtl){
+			tagStartX = shapeMinX + (ratioOfTagStart * baseLineRect.width);
+			tagEndX = shapeMinX + (ratioOfTagEnd * shapeRect.width);
+		}
+		else{
+			tagStartX = shapeMaxX - (ratioOfTagStart * baseLineRect.width);
+			tagEndX = shapeMaxX - (ratioOfTagEnd * shapeRect.width);
+		}
 		
 		float tagStartHeight = 0;
-		if (tagStartX != shapeMinX){
+		if (tagStartX != shapeMinX && !rtl){
+			tagStartHeight = (float) (Math.tan(angleAlpha) * (tagStartX-shapeMinX)); 
+		}
+		else if (tagStartX != shapeMaxX && rtl){
 			tagStartHeight = (float) (Math.tan(angleAlpha) * (tagStartX-shapeMinX)); 
 		}
 
@@ -1537,7 +1617,7 @@ public class TrpPdfDocument extends APdfDocument {
 				String color = CustomTagFactory.getTagColor(currTagname);
 				
 
-				addUniformTagList(lineHeight, twelfthPoints[1][0], posY, currTagname + " Tags:", "", cb, 0, 0, bfArial, twelfthPoints[1][0], false, color, 0);
+				addUniformTagList(lineHeight, twelfthPoints[1][0], posY, currTagname + " Tags:", "", cb, 0, 0, bfArial, twelfthPoints[1][0], false, color, 0, false);
 				//addUniformStringTest(lineMeanHeight, twelfthPoints[1][0], posY, currTagname + " Tags:", cb, 0, 0, bfArial, twelfthPoints[1][0], false, color, 0);
 				
 				Collection<String> valueSet = allTagsOfThisTagname.values();
@@ -1553,6 +1633,9 @@ public class TrpPdfDocument extends APdfDocument {
 					
 					String currValue = allTagsOfThisTagname.get(currEntry);
 					String expansion = "";
+					
+//					logger.debug("curr tag entry " + currEntry);
+//					logger.debug("curr tag value " + currValue);
 					
 					//handles continued tags over several lines
 					while (currEntry.isContinued() && it.hasNext()){
@@ -1573,11 +1656,23 @@ public class TrpPdfDocument extends APdfDocument {
 						}
 					}
 					
+					boolean rtl = false;
+					if (!currValue.isEmpty() && textIsRTL(currValue)){
+						rtl = true;
+						//logger.debug("rtl tag found " + currValue);
+						currValue = reverseString(currValue);
+					}
+					
 					if (currTagname.equals(CommentTag.TAG_NAME)){
 						
 						CommentTag ct = (CommentTag) currEntry;
-						if (ct.getComment() != "")
-							expansion = ": " + ct.getComment();
+						if (ct.getComment() != ""){
+							if (!rtl)
+								expansion = ": " + ct.getComment();
+							else
+								expansion = ct.getComment() + " :";
+						}
+							
 						//currValue = currValue.concat(": " + ct.getComment());
 						//logger.debug("comment " + currValue);
 					}
@@ -1586,7 +1681,11 @@ public class TrpPdfDocument extends APdfDocument {
 						
 						AbbrevTag at = (AbbrevTag) currEntry;
 						if (at.getExpansion() != "")
-							expansion = ": " + at.getExpansion();
+							if (!rtl)
+								expansion = ": " + at.getExpansion();
+							else
+								expansion = at.getExpansion() + " :";
+							
 					}
 					
 					
@@ -1600,8 +1699,9 @@ public class TrpPdfDocument extends APdfDocument {
 							posY = twelfthPoints[1][1];
 							l = 1;
 						}
-						addUniformTagList(lineHeight, twelfthPoints[1][0], posY, currValue, expansion, cb, 0, 0, bfArial, twelfthPoints[1][0], true, null, 0);
-						//logger.debug("tag value is " + currValue);
+
+						addUniformTagList(lineHeight, twelfthPoints[1][0], posY, currValue, expansion, cb, 0, 0, bfArial, twelfthPoints[1][0], true, null, 0, rtl);
+						logger.debug("tag value is " + currValue);
 						l++;
 					}
 
@@ -1614,6 +1714,12 @@ public class TrpPdfDocument extends APdfDocument {
 			
 		}
 		
+	}
+	
+	private static String reverseString(String text) {
+		StringBuilder sb = new StringBuilder(text);
+		sb.reverse();
+		return (sb.toString());
 	}
 
 	public void addTitlePage(TrpDoc doc) {
