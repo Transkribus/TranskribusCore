@@ -254,13 +254,18 @@ public final class RESTConst {
 	public static final String SEND_MAIL_PARAM = "sendMail";
 	
 	//Solr search
+	public static final String FULLTEXT_PATH = "fulltext";
 	public static final String QUERY_PARAM = "query";
 	public static final String START_PARAM = "start";
 	public static final String ROWS_PARAM = "rows";
+	public static final String FILTER_PARAM = "filter";
 	
 	//Actions
 	public static final String TYPE_ID_PARAM = "typeId";
 	public static final String PAGE_ID_PARAM = "pageId";
 	public static final String END_PARAM = "end";
+	public static final String CLIENT_ID_PARAM = "clientId";
+	
+
 	
 }

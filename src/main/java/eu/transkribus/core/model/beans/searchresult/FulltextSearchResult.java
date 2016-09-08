@@ -56,4 +56,10 @@ public class FulltextSearchResult {
 		this.params = params;
 	}
 
+	@Override
+	public String toString() {
+		return "FulltextSearchResult [params=" + params + ", numResults=" + numResults + ", pageHits=" + pageHits
+				+ ", facets=" + facets + "]";
+	}
+
 }
