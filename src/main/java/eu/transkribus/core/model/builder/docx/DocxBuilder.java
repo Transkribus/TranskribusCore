@@ -13,7 +13,9 @@ import javax.xml.bind.JAXBException;
 import java.util.Calendar;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.log4j.Level;
 import org.docx4j.convert.out.flatOpcXml.FlatOpcXmlCreator;
+import org.docx4j.dml.diagram.CTDirection;
 import org.docx4j.jaxb.Context;
 import org.docx4j.XmlUtils;
 import org.docx4j.jaxb.Context;
@@ -49,6 +51,7 @@ import java.util.Set;
 
 import javax.xml.bind.JAXBElement;
 
+import org.docx4j.wml.BooleanDefaultTrue;
 import org.docx4j.wml.Br;
 import org.docx4j.wml.CTBookmark;
 import org.docx4j.wml.CTLanguage;
@@ -71,10 +74,12 @@ import org.docx4j.wml.STBrType;
 import org.docx4j.wml.STVerticalAlignRun;
 import org.docx4j.wml.Style;
 import org.docx4j.wml.Text;
+import org.docx4j.wml.TextDirection;
 import org.docx4j.wml.U;
 import org.docx4j.wml.Tbl;
 import org.docx4j.wml.UnderlineEnumeration;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTextAlignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,10 +111,12 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.builder.ExportUtils;
 import eu.transkribus.core.model.builder.rtf.TrpRtfBuilder;
 import eu.transkribus.core.util.CoreUtils;
+import net.sf.saxon.om.AllElementsSpaceStrippingRule;
 
 public class DocxBuilder {
 	
 	private final static Logger logger = LoggerFactory.getLogger(DocxBuilder.class);
+
 	
 	TrpDoc doc;
 	static boolean exportTags = true;
@@ -144,6 +151,7 @@ public class DocxBuilder {
 	static HashMap<Integer, ArrayList<CustomTag>> idxList = new HashMap<Integer, ArrayList<CustomTag>>();
 	
 	public static void main(String[] args) throws Exception {
+		
 		
 		WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.createPackage();
 		MainDocumentPart mdp = wordMLPackage.getMainDocumentPart();
@@ -273,6 +281,9 @@ public class DocxBuilder {
 	
 	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackening, File file, Set<Integer> pageIndices, IProgressMonitor monitor, Set<String> selectedTags, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean replaceAbbrevs, boolean keepLineBreaks) throws JAXBException, IOException, Docx4JException, InterruptedException {
 		
+	    //ch.qos.logback.classic.Logger root = logger.getClass().get(ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+	    ((ch.qos.logback.classic.Logger) logger).setLevel(ch.qos.logback.classic.Level.DEBUG);
+	    
 		exportTags = writeTags;
 		tagnames = selectedTags;
 		markUnclearWords = markUnclear;
@@ -288,6 +299,8 @@ public class DocxBuilder {
 		//main document part
 		WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.createPackage();
 		MainDocumentPart mdp = wordMLPackage.getMainDocumentPart();
+		
+
 		
 		org.docx4j.wml.ObjectFactory factory = Context.getWmlObjectFactory();
 		
@@ -572,7 +585,7 @@ public class DocxBuilder {
 				
 				org.docx4j.wml.P  p = factory.createP();
 				mdp.addObject(p);
-				
+			
 			
 
 				List<TextLineType> lines = r.getTextLine();
@@ -585,6 +598,7 @@ public class DocxBuilder {
 						}
 						else {
 							getFormattedTextForShapeElement(trpL, p, mdp);
+							
 						}
 	
 	
@@ -688,27 +702,52 @@ public class DocxBuilder {
 
 	private static void getFormattedTextForShapeElement(ITrpShapeType element, P p, MainDocumentPart mdp) throws Exception {
 		
+		ArrayList<R> listOfallRuns = new ArrayList<R>();
+		
 		String textStr = element.getUnicodeText();
 		
-		//from right to left
-		
-		boolean rtl = false;
-		if(rtl){
-			textStr = new StringBuilder(textStr).reverse().toString();
-			
-			PPr paragraphProperties = factory.createPPr();
-			Jc justification = factory.createJc();
-			justification.setVal(JcEnumeration.RIGHT);
-			paragraphProperties.setJc(justification);
-			
-			p.setPPr(paragraphProperties);
-		}
-		
 		CustomTagList cl = element.getCustomTagList();
-				
 		
 		if (textStr == null || cl == null)
 			throw new IOException("Element has no text or custom tag list: "+element+", class: "+element.getClass().getName());
+		
+		if (textStr.isEmpty()){
+			return;
+		}
+		
+		boolean rtl = false;
+		//from right to left
+		if (Character.getDirectionality(textStr.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT
+			    || Character.getDirectionality(textStr.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC
+			    || Character.getDirectionality(textStr.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING
+			    || Character.getDirectionality(textStr.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_OVERRIDE
+			    ) {
+			//logger.debug("&&&&&&&& STRING IS RTL : ");
+			rtl = true;
+		}
+
+			    // it is a RTL string
+		
+		
+//		if(rtl){
+//			//textStr = new StringBuilder(textStr).reverse().toString();
+//			
+////			TextDirection textdirection = wmlObjectFactory.createTextDirection();
+////			textdirection.setVal( "tbRl"); 
+//			
+//			PPr paragraphProperties = factory.createPPr();
+////			Jc justification = factory.createJc();
+////			justification.setVal(JcEnumeration.RIGHT);
+////			paragraphProperties.setJc(justification);
+//			
+//	        org.docx4j.wml.BooleanDefaultTrue b = new org.docx4j.wml.BooleanDefaultTrue();
+//	        b.setVal(true); 
+//			paragraphProperties.setBidi(b);
+//			
+//			p.setPPr(paragraphProperties);
+//			
+//			
+//		}
 		
 		
 		// format according to tags:CustomTagList
@@ -756,14 +795,16 @@ public class DocxBuilder {
 			}
 			
 			if (indexedTag.getTagName().equals("comment")){
-				logger.debug("indexed comment tag found at pos " + (indexedTag.getEnd()-1));
+				//logger.debug("indexed comment tag found at pos " + (indexedTag.getEnd()-1));
 				CommentTag ct = (CommentTag) indexedTag;
 				commentList.put(indexedTag.getEnd()-1, ct.getComment());
 			}
 			
 			//if(exportTags){
 			if(markUnclearWords && indexedTag.getTagName().equals("unclear")){
-				logger.debug("unclear tag found ");
+//				logger.debug("unclear tag found ");
+//				logger.debug("unclear start is: " + indexedTag.getOffset());
+//				logger.debug("unclear end is: " + (indexedTag.getEnd()-1));
 				unclearList.put(indexedTag.getOffset(), indexedTag.getEnd()-1);
 			}
 			
@@ -778,7 +819,7 @@ public class DocxBuilder {
 			}
 			
 			if(substituteAbbrevs && indexedTag.getTagName().equals("abbrev")){
-				logger.debug("abbrev tag found ");
+				//logger.debug("abbrev tag found ");
 				AbbrevTag at = (AbbrevTag) indexedTag;
 				String expansion = at.getExpansion();
 				//key is the start of the abbrev
@@ -818,12 +859,18 @@ public class DocxBuilder {
 			if(substituteAbbrevList.containsKey(i)){
 				String exp = substituteAbbrevList.get(i).getExpansion();
 				
+				if(rtl){
+					exp = reverseString(exp);
+				}
+				
 				org.docx4j.wml.Text  abbrevText = factory.createText();
 				abbrevText.setValue(exp);
 				
 				org.docx4j.wml.R  abbrevRun = factory.createR();
-				p.getContent().add(abbrevRun);
+				//p.getContent().add(abbrevRun);
 				abbrevRun.getContent().add(abbrevText);
+				
+				listOfallRuns.add(abbrevRun);
 				//go to end of the abbreviation and proceed with remaining text
 				i += substituteAbbrevList.get(i).getLength();
 				shapeEnded = (i == textStr.length() ? true : false);
@@ -835,13 +882,18 @@ public class DocxBuilder {
 			 */
 			if(expandAbbrevList.containsKey(i)){
 				String exp = expandAbbrevList.get(i);
+				if(rtl){
+					exp = reverseString(exp);
+				}
 				
 				org.docx4j.wml.Text  abbrevText = factory.createText();
 				abbrevText.setValue("["+exp+"]");
 				
 				org.docx4j.wml.R  abbrevRun = factory.createR();
-				p.getContent().add(abbrevRun);
+				//p.getContent().add(abbrevRun);
 				abbrevRun.getContent().add(abbrevText);
+				
+				listOfallRuns.add(abbrevRun);
 			}
 
 			/*
@@ -850,50 +902,47 @@ public class DocxBuilder {
 			 */
 			if (gapList.contains(i)){
 				org.docx4j.wml.Text  t = factory.createText();
-				t.setValue("[...] ");
+				if (!rtl)
+					t.setValue("[...] ");
+				else
+					t.setValue(" [...]");
+				
 				t.setSpace("preserve");
 				
 				org.docx4j.wml.R  run = factory.createR();
-				p.getContent().add(run);
+				//p.getContent().add(run);
 				run.getContent().add(t);
+				
+				listOfallRuns.add(run);
 			}
 			
 			//begin of unclear word should be marked with [ and end with ]
 			if(unclearList.containsKey(i)){
 				org.docx4j.wml.Text  t = factory.createText();
-				t.setValue("[");
+				if (!rtl)
+					t.setValue("[");
+				else
+					t.setValue("]");
 				
 				org.docx4j.wml.R  run = factory.createR();
-				p.getContent().add(run);
+				//p.getContent().add(run);
 				run.getContent().add(t);
+				
+				listOfallRuns.add(run);
 			}
 			
 			/*
 			 * if so we create an index entry for this text string in the docx
 			 */
 			if (idxList.containsKey(i)){
-				ArrayList<CustomTag> allTagsAtThisPlace = idxList.get(i);
-				for (CustomTag ct : allTagsAtThisPlace){
-					int begin = ct.getOffset();
-					String tagname = ct.getTagName();
-					String idxText = textStr.substring(begin, i);
-					if (ct instanceof AbbrevTag){
-						AbbrevTag at = (AbbrevTag) ct;
-						idxText = idxText.concat(" ["+at.getExpansion()+"]");
-					}
-					logger.debug("index entry is " + idxText);
-					logger.debug("XE\""+tagname + ":" + idxText+"\"");
-					
-					if(!idxText.matches("[*]+")){
-						addComplexField(p, "XE\""+tagname + ":" + idxText+"\"", "");
-					}
-				}
-
+				
+				addIndexEntry(i, p, textStr, rtl);
 			}
 			
 			String currText = "";
 			if (i+1 <= textStr.length()){
 				currText = textStr.substring(i, i+1);
+				//logger.debug("&&&&&&&& current single char : " + currText);
 			}
 			
 			//soft break
@@ -906,17 +955,26 @@ public class DocxBuilder {
 			t.setSpace("preserve");
 			
 			org.docx4j.wml.R  run = factory.createR();
-			p.getContent().add(run);
+			//p.getContent().add(run);
 			run.getContent().add(t);
+			
+			listOfallRuns.add(run);
 			
 			//end of unclear tag
 			if(unclearList.containsValue(i)){
+				
 				org.docx4j.wml.Text unclearEnd = factory.createText();
-				unclearEnd.setValue("]");
+				
+				if (!rtl)
+					unclearEnd.setValue("]");
+				else
+					unclearEnd.setValue("[");
 				
 				org.docx4j.wml.R  unclearRun = factory.createR();
-				p.getContent().add(unclearRun);
-				run.getContent().add(unclearEnd);
+				//p.getContent().add(unclearRun);
+				unclearRun.getContent().add(unclearEnd);
+				
+				listOfallRuns.add(unclearRun);
 			}
 
 			//the properties of this text section
@@ -979,6 +1037,10 @@ public class DocxBuilder {
 						rpr.setU(u);
 					}
 					
+//					BooleanDefaultTrue bdt = Context.getWmlObjectFactory().createBooleanDefaultTrue();
+//					bdt.setVal(Boolean.TRUE);
+//					rpr.setRtl(bdt);
+					
 					//rpr.setHighlight(new Highlight());
 						
 				}
@@ -998,11 +1060,18 @@ public class DocxBuilder {
 					abbrevText.setValue("["+exp+"]");
 					
 					org.docx4j.wml.R  abbrevRun = factory.createR();
-					p.getContent().add(abbrevRun);
+					//p.getContent().add(abbrevRun);
 					abbrevRun.getContent().add(abbrevText);
+					
+					listOfallRuns.add(abbrevRun);
+				}
+				
+				if (idxList.containsKey(i+1)){
+
+					addIndexEntry(i+1, p, textStr, rtl);
+					
 				}
 			}
-			
 			
 			//find position of footnote/comment
 			if (commentList.containsKey(i)){
@@ -1011,8 +1080,10 @@ public class DocxBuilder {
 				
 				//creates the footnote at the end of the wished text - this position was found at the beginning of this method
 				org.docx4j.wml.R  fnRun = factory.createR();
-				p.getContent().add(fnRun);
+				//p.getContent().add(fnRun);
 				createFootnote(commentList.get(i), fnRun, mdp);
+				
+				listOfallRuns.add(fnRun);
 			}
 			
 			/*
@@ -1024,19 +1095,84 @@ public class DocxBuilder {
 				space.setSpace("preserve");
 				
 				org.docx4j.wml.R  runSpace = factory.createR();
-				p.getContent().add(runSpace);
+				//p.getContent().add(runSpace);
 				runSpace.getContent().add(space);
+				
+				listOfallRuns.add(runSpace);
 			}
-			
-			
-			clearAllLists();
 
 			//runs.add(run);
 			
 		}
+		
+		if(rtl){
+			PPr paragraphProperties = factory.createPPr();
+			Jc justification = factory.createJc();
+			justification.setVal(JcEnumeration.RIGHT);
+			paragraphProperties.setJc(justification);
+		
+			p.setPPr(paragraphProperties);
+		}
+		
+		/*
+		 * add all runs after the actual shape chars are analized and finished
+		 * for text right to left (rtl) we need to reverse the content
+		 */
+		
+		for (int i = listOfallRuns.size()-1; i>=0; i--){
+			if (rtl){
+				p.getContent().add(listOfallRuns.get(i));
+			}
+			else{
+				p.getContent().addAll(listOfallRuns);
+				break;
+			}
+		}
+		
+		clearAllLists();
 
 	}
 	
+	private static void addIndexEntry(int idx, P p, String textStr, boolean rtl) {
+		
+		ArrayList<CustomTag> allTagsAtThisPlace = idxList.get(idx);
+		for (CustomTag ct : allTagsAtThisPlace){
+			int begin = ct.getOffset();
+			String tagname = ct.getTagName();
+			String idxText = textStr.substring(begin, idx);
+			
+			if (rtl){
+				idxText = reverseString(idxText);
+				//logger.debug("reversed index text is " + idxText);
+			}					
+			
+			if (ct instanceof AbbrevTag){
+				AbbrevTag at = (AbbrevTag) ct;
+				
+				if (!rtl)
+					idxText = idxText.concat(" ["+at.getExpansion()+"]");
+				else{
+					String tmp = reverseString(at.getExpansion());
+					idxText = "["+tmp+"] ".concat(idxText);
+				}
+			}
+//			logger.debug("index entry is " + idxText);
+//			logger.debug("XE\""+tagname + ":" + idxText+"\"");
+			
+			if(!idxText.matches("[*]+")){
+				addComplexField(p, "XE\""+tagname + ":" + idxText+"\"", "");
+			}
+		}
+		
+	}
+
+
+	private static String reverseString(String text) {
+		StringBuilder sb = new StringBuilder(text);
+		sb.reverse();
+		return (sb.toString());
+	}
+
 	/*
 	 * 	static ArrayList<Integer> gapList = new ArrayList<Integer>();
 	static LinkedHashMap<Integer, String> commentList = new LinkedHashMap<Integer, String>();
