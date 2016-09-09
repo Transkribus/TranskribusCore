@@ -8,7 +8,7 @@ Here is a short guide with steps that need to be performed
 to build your project.
 
 ### Requirements
-- Java >= version 7
+- Java >= version 8
 - Maven
 - All further dependencies are gathered via Maven
 
