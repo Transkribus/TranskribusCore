@@ -521,5 +521,10 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 		return c;
 		
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<TrpWordType> getTrpWord() {
+		return (List<TrpWordType>)(Object) getWord();
+	}
 
 }
