@@ -1056,14 +1056,17 @@ public class DocxBuilder {
 					logger.debug("abbrev is at end of shape!");
 					String exp = expandAbbrevList.get(i+1);
 					
-					org.docx4j.wml.Text  abbrevText = factory.createText();
-					abbrevText.setValue("["+exp+"]");
+					if (!exp.equals("")){
 					
-					org.docx4j.wml.R  abbrevRun = factory.createR();
-					//p.getContent().add(abbrevRun);
-					abbrevRun.getContent().add(abbrevText);
-					
-					listOfallRuns.add(abbrevRun);
+						org.docx4j.wml.Text  abbrevText = factory.createText();
+						abbrevText.setValue("["+exp+"]");
+						
+						org.docx4j.wml.R  abbrevRun = factory.createR();
+						//p.getContent().add(abbrevRun);
+						abbrevRun.getContent().add(abbrevText);
+						
+						listOfallRuns.add(abbrevRun);
+					}
 				}
 				
 				if (idxList.containsKey(i+1)){
@@ -1149,11 +1152,14 @@ public class DocxBuilder {
 			if (ct instanceof AbbrevTag){
 				AbbrevTag at = (AbbrevTag) ct;
 				
-				if (!rtl)
-					idxText = idxText.concat(" ["+at.getExpansion()+"]");
-				else{
-					String tmp = reverseString(at.getExpansion());
-					idxText = "["+tmp+"] ".concat(idxText);
+				if(!at.getExpansion().equals("")){
+				
+					if (!rtl)
+						idxText = idxText.concat(" ["+at.getExpansion()+"]");
+					else{
+						String tmp = reverseString(at.getExpansion());
+						idxText = "["+tmp+"] ".concat(idxText);
+					}
 				}
 			}
 //			logger.debug("index entry is " + idxText);
