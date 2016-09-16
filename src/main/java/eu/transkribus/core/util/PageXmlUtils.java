@@ -41,10 +41,13 @@ import org.xml.sax.SAXException;
 
 import eu.transkribus.core.io.formats.XmlFormat;
 import eu.transkribus.core.model.beans.TrpTag;
+import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
+import eu.transkribus.core.model.beans.TrpTranscriptMetadata.TrpTranscriptStatistics;
 import eu.transkribus.core.model.beans.customtags.CustomTagUtil;
 import eu.transkribus.core.model.beans.pagecontent.CoordsType;
 import eu.transkribus.core.model.beans.pagecontent.MetadataType;
 import eu.transkribus.core.model.beans.pagecontent.ObjectFactory;
+import eu.transkribus.core.model.beans.pagecontent.PageType;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.PrintSpaceType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
@@ -767,5 +770,55 @@ public class PageXmlUtils {
 				}
 			}
 		}
+	}
+	
+	public static TrpTranscriptStatistics extractStats(PcGtsType page) {
+		TrpTranscriptStatistics s = (new TrpTranscriptMetadata()).new TrpTranscriptStatistics();
+		
+		int nrOfRegions, nrOfTranscribedRegions, nrOfWordsInRegions, 
+		nrOfLines, nrOfTranscribedLines, nrOfWordsInLines, nrOfWords, nrOfTranscribedWords;
+		nrOfRegions = nrOfTranscribedRegions = nrOfWordsInRegions =  
+		nrOfLines = nrOfTranscribedLines = nrOfWordsInLines = nrOfWords = nrOfTranscribedWords = 0;
+		
+		List<TextRegionType> regs = PageXmlUtils.getTextRegions(page);
+		nrOfRegions = regs.size();
+		
+		for(TextRegionType r : regs) {
+			if(r.getTextEquiv() != null && r.getTextEquiv().getUnicode() != null 
+					&& !r.getTextEquiv().getUnicode().trim().isEmpty()) {
+				nrOfTranscribedRegions += 1;
+				//TODO use tokenizer here
+				nrOfWordsInRegions += r.getTextEquiv().getUnicode().split(" ").length;
+			}
+			List<TextLineType> lines = r.getTextLine();
+			nrOfLines += lines.size();
+			for(TextLineType l : lines) {
+				if(l.getTextEquiv() != null && l.getTextEquiv().getUnicode() != null 
+						&& !l.getTextEquiv().getUnicode().trim().isEmpty()) {
+					nrOfTranscribedLines += 1;
+					//TODO use tokenizer here
+					nrOfWordsInLines += l.getTextEquiv().getUnicode().split(" ").length;
+				}
+				List<WordType> words = l.getWord();
+				nrOfWords += words.size();
+				for(WordType w : words) {
+					if(w.getTextEquiv() != null && w.getTextEquiv().getUnicode() != null 
+							&& !w.getTextEquiv().getUnicode().trim().isEmpty()) {
+						nrOfTranscribedWords += 1;
+					}
+				}
+			}
+		}
+		
+		s.setNrOfLines(nrOfLines);
+		s.setNrOfRegions(nrOfRegions);
+		s.setNrOfTranscribedLines(nrOfTranscribedLines);
+		s.setNrOfTranscribedWords(nrOfTranscribedWords);
+		s.setNrOfTranscribedRegions(nrOfTranscribedRegions);
+		s.setNrOfWords(nrOfWords);
+		s.setNrOfWordsInLines(nrOfWordsInLines);
+		s.setNrOfWordsInRegions(nrOfWordsInRegions);
+		
+		return s;
 	}
 }

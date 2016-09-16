@@ -84,6 +84,30 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 	
 	private String md5Sum = "";
 
+	@Column(name="NR_OF_REGIONS")
+	private int nrOfRegions;
+
+	@Column(name="NR_OF_TRANSCRIBED_REGIONS")
+	private int nrOfTranscribedRegions;
+
+	@Column(name="NR_OF_WORDS_IN_REGIONS")
+	private int nrOfWordsInRegions;
+	
+	@Column(name="NR_OF_LINES")
+	private int nrOfLines;
+
+	@Column(name="NR_OF_TRANSCRIBED_LINES")
+	private int nrOfTranscribedLines;
+
+	@Column(name="NR_OF_WORDS_IN_LINES")
+	private int nrOfWordsInLines;
+
+	@Column(name="NR_OF_WORDS")
+	private int nrOfWords;
+
+	@Column(name="NR_OF_TRANSCRIBED_WORDS")
+	private int nrOfTranscribedWords;
+	
 	//TODO tags
 	//TODO annotations
 
@@ -252,7 +276,79 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 	public void setPageReferenceForLocalDocs(TrpPage pageReferenceForLocalDocs) {
 		this.pageReferenceForLocalDocs = pageReferenceForLocalDocs;
 	}
+	
+	public TrpTranscriptStatistics getStats() {
+		TrpTranscriptStatistics s = new TrpTranscriptStatistics();
+		s.setNrOfLines(this.nrOfLines);
+		s.setNrOfRegions(this.nrOfRegions);
+		s.setNrOfTranscribedLines(this.nrOfTranscribedLines);
+		s.setNrOfTranscribedRegions(this.nrOfTranscribedRegions);
+		s.setNrOfTranscribedWords(this.nrOfTranscribedWords);
+		s.setNrOfWords(this.nrOfWords);
+		s.setNrOfWordsInLines(this.nrOfWordsInLines);
+		s.setNrOfWordsInRegions(this.nrOfWordsInRegions);
+		return s;
+	}
+	
+	public void setStats(TrpTranscriptStatistics s) {
+		this.nrOfLines = s.getNrOfLines();
+		this.nrOfRegions = s.getNrOfRegions();
+		this.nrOfTranscribedLines = s.getNrOfTranscribedLines();
+		this.nrOfTranscribedRegions = s.getNrOfTranscribedRegions();
+		this.nrOfTranscribedWords = s.getNrOfTranscribedWords();
+		this.nrOfWords = s.getNrOfWords();
+		this.nrOfWordsInLines = s.getNrOfWordsInLines();
+		this.nrOfWordsInRegions = s.getNrOfWordsInRegions();
+	}
 
+	public int getNrOfRegions() {
+		return nrOfRegions;
+	}
+	public void setNrOfRegions(int nrOfRegions) {
+		this.nrOfRegions = nrOfRegions;
+	}
+	public int getNrOfTranscribedRegions() {
+		return nrOfTranscribedRegions;
+	}
+	public void setNrOfTranscribedRegions(int nrOfTranscribedRegions) {
+		this.nrOfTranscribedRegions = nrOfTranscribedRegions;
+	}
+	public int getNrOfWordsInRegions() {
+		return nrOfWordsInRegions;
+	}
+	public void setNrOfWordsInRegions(int nrOfWordsInRegions) {
+		this.nrOfWordsInRegions = nrOfWordsInRegions;
+	}
+	public int getNrOfLines() {
+		return nrOfLines;
+	}
+	public void setNrOfLines(int nrOfLines) {
+		this.nrOfLines = nrOfLines;
+	}
+	public int getNrOfTranscribedLines() {
+		return nrOfTranscribedLines;
+	}
+	public void setNrOfTranscribedLines(int nrOfTranscribedLines) {
+		this.nrOfTranscribedLines = nrOfTranscribedLines;
+	}
+	public int getNrOfWordsInLines() {
+		return nrOfWordsInLines;
+	}
+	public void setNrOfWordsInLines(int nrOfWordsInLines) {
+		this.nrOfWordsInLines = nrOfWordsInLines;
+	}
+	public int getNrOfWords() {
+		return nrOfWords;
+	}
+	public void setNrOfWords(int nrOfWords) {
+		this.nrOfWords = nrOfWords;
+	}
+	public int getNrOfTranscribedWords() {
+		return nrOfTranscribedWords;
+	}
+	public void setNrOfTranscribedWords(int nrOfTranscribedWords) {
+		this.nrOfTranscribedWords = nrOfTranscribedWords;
+	}	
 	
 	@Override public boolean equals(Object o) {
 		// FIXME ?? (not tested)
@@ -326,10 +422,75 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 //		return sb.toString();
 //	}
 
-	@Override public String toString() {
-		return "TrpTranscriptMetadata [tsId=" + tsId + ", parentTsId=" + parentTsId + ", key="
-				+ key + ", pageId=" + pageId + ", docId=" + docId + ", pageNr=" + pageNr + ", localFolder=" + localFolder + ", url=" + url + ", status="
-				+ status + ", userName=" + userName + ", userId=" + userId + ", timestamp=" + timestamp + ", toolName=" + toolName + ", note=" + note
-				+ ", md5Sum=" + md5Sum + ", pageReferenceForLocalDocs=" + pageReferenceForLocalDocs + "]";
+	@Override
+	public String toString() {
+		return "TrpTranscriptMetadata [pageReferenceForLocalDocs=" + pageReferenceForLocalDocs + ", tsId=" + tsId
+				+ ", parentTsId=" + parentTsId + ", key=" + key + ", pageId=" + pageId + ", docId=" + docId
+				+ ", pageNr=" + pageNr + ", localFolder=" + localFolder + ", url=" + url + ", status=" + status
+				+ ", userName=" + userName + ", userId=" + userId + ", timestamp=" + timestamp + ", toolName="
+				+ toolName + ", note=" + note + ", md5Sum=" + md5Sum + ", nrOfRegions=" + nrOfRegions
+				+ ", nrOfTranscribedRegions=" + nrOfTranscribedRegions + ", nrOfWordsInRegions=" + nrOfWordsInRegions
+				+ ", nrOfLines=" + nrOfLines + ", nrOfTranscribedLines=" + nrOfTranscribedLines + ", nrOfWordsInLines="
+				+ nrOfWordsInLines + ", nrOfWords=" + nrOfWords + ", nrOfTranscribedWords=" + nrOfTranscribedWords
+				+ "]";
+	}
+	
+	public class TrpTranscriptStatistics {
+		private int nrOfRegions;
+		private int nrOfTranscribedRegions;
+		private int nrOfWordsInRegions;
+		private int nrOfLines;
+		private int nrOfTranscribedLines;
+		private int nrOfWordsInLines;
+		private int nrOfWords;
+		private int nrOfTranscribedWords;
+		public int getNrOfRegions() {
+			return nrOfRegions;
+		}
+		public void setNrOfRegions(int nrOfRegions) {
+			this.nrOfRegions = nrOfRegions;
+		}
+		public int getNrOfTranscribedRegions() {
+			return nrOfTranscribedRegions;
+		}
+		public void setNrOfTranscribedRegions(int nrOfTranscribedRegions) {
+			this.nrOfTranscribedRegions = nrOfTranscribedRegions;
+		}
+		public int getNrOfWordsInRegions() {
+			return nrOfWordsInRegions;
+		}
+		public void setNrOfWordsInRegions(int nrOfWordsInRegions) {
+			this.nrOfWordsInRegions = nrOfWordsInRegions;
+		}
+		public int getNrOfLines() {
+			return nrOfLines;
+		}
+		public void setNrOfLines(int nrOfLines) {
+			this.nrOfLines = nrOfLines;
+		}
+		public int getNrOfTranscribedLines() {
+			return nrOfTranscribedLines;
+		}
+		public void setNrOfTranscribedLines(int nrOfTranscribedLines) {
+			this.nrOfTranscribedLines = nrOfTranscribedLines;
+		}
+		public int getNrOfWordsInLines() {
+			return nrOfWordsInLines;
+		}
+		public void setNrOfWordsInLines(int nrOfWordsInLines) {
+			this.nrOfWordsInLines = nrOfWordsInLines;
+		}
+		public int getNrOfWords() {
+			return nrOfWords;
+		}
+		public void setNrOfWords(int nrOfWords) {
+			this.nrOfWords = nrOfWords;
+		}
+		public int getNrOfTranscribedWords() {
+			return nrOfTranscribedWords;
+		}
+		public void setNrOfTranscribedWords(int nrOfTranscribedWords) {
+			this.nrOfTranscribedWords = nrOfTranscribedWords;
+		}
 	}
 }
