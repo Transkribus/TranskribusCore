@@ -47,7 +47,8 @@ public class TrpAction {
 	private String clientVersion;
 	@Column(name="SESSION_HISTORY_ID")
 	private Integer sessionHistoryId;
-	
+	@Column(name="USER_ROLE")
+	private String userRole;
 
 	public Integer getActionId() {
 		return actionId;
@@ -209,13 +210,24 @@ public class TrpAction {
 	}
 
 
+	public String getUserRole() {
+		return userRole;
+	}
+
+
+	public void setUserRole(String userRole) {
+		this.userRole = userRole;
+	}
+
+
 	@Override
 	public String toString() {
 		return "TrpAction [actionId=" + actionId + ", typeId=" + typeId + ", type=" + type + ", userId=" + userId
 				+ ", userName=" + userName + ", time=" + time + ", colId=" + colId + ", colName=" + colName + ", docId="
 				+ docId + ", docName=" + docName + ", pageId=" + pageId + ", pageNr=" + pageNr + ", clientId="
 				+ clientId + ", clientName=" + clientName + ", clientVersion=" + clientVersion + ", sessionHistoryId="
-				+ sessionHistoryId + "]";
+				+ sessionHistoryId + ", userRole=" + userRole + "]";
 	}
-
+	
+	
 }
