@@ -3,8 +3,6 @@ package eu.transkribus.core.model.beans;
 import java.net.URL;
 
 public interface ITrpFile {
-	public int getPageId();
-	public void setPageId(int pageId);
 	public URL getUrl();
 	public void setUrl(URL url);
 	public String getKey();

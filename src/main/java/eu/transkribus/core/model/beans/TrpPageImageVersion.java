@@ -88,11 +88,11 @@ public class TrpPageImageVersion implements Serializable, ITrpFile {
 		this.page_image_versions_id = page_image_versions_id;
 	}
 
-	@Override public int getPageId() {
+	public int getPageId() {
 		return pageId;
 	}
 
-	@Override public void setPageId(int pageId) {
+	public void setPageId(int pageId) {
 		this.pageId = pageId;
 	}
 	

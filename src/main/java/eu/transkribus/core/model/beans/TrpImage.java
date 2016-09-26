@@ -1,11 +1,13 @@
 package eu.transkribus.core.model.beans;
 
 import java.io.Serializable;
+import java.net.URL;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -29,6 +31,8 @@ public class TrpImage implements Serializable {
 	private int width;
 	@Column
 	private int height;
+	@Transient
+	private URL url;
 	@Column
 	private java.sql.Timestamp created;
 	public int getImageId() {
@@ -61,11 +65,22 @@ public class TrpImage implements Serializable {
 	public void setHeight(int height) {
 		this.height = height;
 	}
+	public URL getUrl() {
+		return this.url;
+	}
+	public void setUrl(URL url) {
+		this.url = url;
+	}
 	public java.sql.Timestamp getCreated() {
 		return created;
 	}
 	public void setCreated(java.sql.Timestamp created) {
 		this.created = created;
+	}
+	@Override
+	public String toString() {
+		return "TrpImage [imageId=" + imageId + ", key=" + key + ", imgFileName=" + imgFileName + ", width=" + width
+				+ ", height=" + height + ", url=" + url + ", created=" + created + "]";
 	}
 
 }

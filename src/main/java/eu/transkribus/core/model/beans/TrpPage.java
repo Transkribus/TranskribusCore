@@ -38,6 +38,8 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	@Column(name = "imagekey")
 	private String key = null; //The fimagestore key for getting the image file
 	//imageUrl represents a link to the local filesystem or the link to the fimagestore
+	@Column(name="IMAGE_ID")
+	private int imageId;
 	@Column
 	@Transient
 	private URL url;
@@ -53,6 +55,13 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	@XmlElementWrapper(name="tsList")
 	@XmlElement
 	private List<TrpTranscriptMetadata> transcripts;
+	
+	@Transient
+	private int width;
+	@Transient
+	private int height;
+	@Transient
+	private java.sql.Timestamp created;
 	
 	@XmlElementWrapper(name="imageVersions")
 	@XmlElement
@@ -84,6 +93,14 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 
 	public void setPageNr(int pageNr) {
 		this.pageNr = pageNr;
+	}
+
+	public int getImageId() {
+		return imageId;
+	}
+
+	public void setImageId(int imageId) {
+		this.imageId = imageId;
 	}
 
 	public String getKey() {
@@ -145,6 +162,30 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 
 	public void setImgFileName(String imgFileName) {
 		this.imgFileName = imgFileName;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
+	}
+
+	public java.sql.Timestamp getCreated() {
+		return created;
+	}
+
+	public void setCreated(java.sql.Timestamp created) {
+		this.created = created;
 	}
 
 	public TrpTranscriptMetadata getCurrentTranscript() {
@@ -214,6 +255,26 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		}
 		
 		return str;
+	}
+
+	public TrpImage getImage() {
+		TrpImage i = new TrpImage();
+		i.setImgFileName(imgFileName);
+		i.setKey(key);
+		i.setCreated(created);
+		i.setWidth(width);
+		i.setHeight(height);
+		i.setUrl(url);
+		return i;
+	}
+	
+	public void setImage(TrpImage i) {
+		this.imgFileName = i.getImgFileName();
+		this.key = i.getKey();
+		this.created = i.getCreated();
+		this.width = i.getWidth();
+		this.height = i.getHeight();
+		this.url = i.getUrl();
 	}
 
 //	@Override
