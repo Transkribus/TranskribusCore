@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Table(name = "Images")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpImage implements Serializable {
+public class TrpImage implements Serializable, ITrpFile {
 	private static final long serialVersionUID = -359788414403771313L;
 	//objid for parentDoc is ID in DB
 	@Id
@@ -36,6 +36,9 @@ public class TrpImage implements Serializable {
 	private URL url;
 	@Column
 	private java.sql.Timestamp created;
+
+	private String md5sum;
+	
 	public int getImageId() {
 		return imageId;
 	}
@@ -77,6 +80,14 @@ public class TrpImage implements Serializable {
 	}
 	public void setCreated(java.sql.Timestamp created) {
 		this.created = created;
+	}
+	@Override
+	public String getMd5Sum() {
+		return md5sum;
+	}
+	@Override
+	public void setMd5Sum(String md5Sum) {
+		this.md5sum = md5Sum;
 	}
 	@Override
 	public String toString() {
