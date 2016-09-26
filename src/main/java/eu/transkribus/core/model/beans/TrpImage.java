@@ -20,7 +20,7 @@ public class TrpImage implements Serializable {
 	private static final long serialVersionUID = -359788414403771313L;
 	//objid for parentDoc is ID in DB
 	@Id
-	@Column
+	@Column(name="IMAGE_ID")
 	private int imageId = -1;
 	@Column(name = "IMAGEKEY")
 	private String key = null; //The fimagestore key for getting the image file
@@ -31,6 +31,7 @@ public class TrpImage implements Serializable {
 	private int width;
 	@Column
 	private int height;
+	@Column
 	@Transient
 	private URL url;
 	@Column

@@ -56,10 +56,13 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	@XmlElement
 	private List<TrpTranscriptMetadata> transcripts;
 	
+	@Column
 	@Transient
 	private int width;
+	@Column
 	@Transient
 	private int height;
+	@Column
 	@Transient
 	private java.sql.Timestamp created;
 	
