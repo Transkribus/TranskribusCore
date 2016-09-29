@@ -20,6 +20,8 @@ public class ProgressInputStream extends FilterInputStream {
     private final PropertyChangeSupport propertyChangeSupport;
     List<ProgressInputStreamListener> listener = new LinkedList<ProgressInputStreamListener>();
     
+    private boolean closed = false;
+    
     public static abstract class ProgressInputStreamListener {
     	ProgressInputStream pi=null;
     	
@@ -90,9 +92,17 @@ public class ProgressInputStream extends FilterInputStream {
 //    	logger.debug("read2");
 //        return (int)updateProgress(super.read(b));
 //    }
+    
+    @Override public void close() throws IOException {
+    	this.closed = true;
+        super.close();
+    }
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
+//    	if (closed)
+//    		return 0;
+    	
     	logger.trace("reading into buffer, off="+off+" / len="+len);
         return (int)updateProgress(super.read(b, off, len));
     }
