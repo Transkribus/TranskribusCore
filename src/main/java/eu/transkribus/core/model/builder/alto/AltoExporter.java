@@ -33,7 +33,7 @@ import eu.transkribus.core.util.XslTransformer;
 public class AltoExporter extends Observable {
 	private static final Logger logger = LoggerFactory.getLogger(AltoExporter.class);
 	
-	private static final String PAGE_TO_ALTO_XSLT = "xslt/PageToAlto.xsl";
+	private static final String PAGE_TO_ALTO_XSLT = "xslt/PageToAltoWordLevel.xsl";
 	
 	public AltoExporter(){}
 	

@@ -119,38 +119,79 @@
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
+        <xsl:variable name="foundMinY">
+	        <xsl:choose>
+	                <xsl:when test="$minYFromPrintspace=9999999">
+	                    <xsl:value-of select="0"/>
+	                </xsl:when>
+	                <xsl:otherwise>
+	                    <xsl:value-of select="$minYFromPrintspace"/>
+	                </xsl:otherwise>
+	        </xsl:choose>
+         </xsl:variable>
+         <xsl:variable name="foundMinX">
+	        <xsl:choose>
+	                <xsl:when test="$minXFromPrintspace=9999999">
+	                    <xsl:value-of select="0"/>
+	                </xsl:when>
+	                <xsl:otherwise>
+	                    <xsl:value-of select="$minXFromPrintspace"/>
+	                </xsl:otherwise>
+	        </xsl:choose>
+         </xsl:variable>
+         <xsl:variable name="foundMaxY">
+	        <xsl:choose>
+	                <xsl:when test="$maxYFromPrintspace=0">
+	                    <xsl:value-of select="$h"/>
+	                </xsl:when>
+	                <xsl:otherwise>
+	                    <xsl:value-of select="$maxYFromPrintspace"/>
+	                </xsl:otherwise>
+	        </xsl:choose>
+         </xsl:variable>
+         <xsl:variable name="foundMaxX">
+	        <xsl:choose>
+	                <xsl:when test="$maxXFromPrintspace=0">
+	                    <xsl:value-of select="$w"/>
+	                </xsl:when>
+	                <xsl:otherwise>
+	                    <xsl:value-of select="$maxXFromPrintspace"/>
+	                </xsl:otherwise>
+	        </xsl:choose>
+         </xsl:variable>
+        
         <xsl:call-template name="description"/>
-        <xsl:call-template name="styleTable"/>
+        <!-- <xsl:call-template name="styleTable"/> -->
         <Layout>
             <Page ID="Page{$actIdInt}" PHYSICAL_IMG_NR="{$actIdInt}" HEIGHT="{$h}" WIDTH="{$w}">
                 <!--   TODO: at the moment the margins are all 0,0,0,0 and printspace is the whole page; maybe better to calculate is but first check how this is handled in TRP  -->
                 <TopMargin>
-                    <xsl:attribute name="HEIGHT" select="$minYFromPrintspace"></xsl:attribute> 
+                    <xsl:attribute name="HEIGHT" select="$foundMinY"></xsl:attribute> 
                     <xsl:attribute name="WIDTH" select="$w"></xsl:attribute> 
                     <xsl:attribute name="VPOS" select="0"></xsl:attribute> 
                     <xsl:attribute name="HPOS" select="0"></xsl:attribute> 
                 </TopMargin>
                 <LeftMargin>
-                    <xsl:attribute name="HEIGHT" select="$maxYFromPrintspace - $minYFromPrintspace"></xsl:attribute> 
-                    <xsl:attribute name="WIDTH" select="$minXFromPrintspace"></xsl:attribute> 
-                    <xsl:attribute name="VPOS" select="$minYFromPrintspace"></xsl:attribute> 
+                    <xsl:attribute name="HEIGHT" select="$foundMaxY - $foundMinY"></xsl:attribute> 
+                    <xsl:attribute name="WIDTH" select="$foundMinX"></xsl:attribute> 
+                    <xsl:attribute name="VPOS" select="$foundMinY"></xsl:attribute> 
                     <xsl:attribute name="HPOS" select="0"></xsl:attribute> 
                 </LeftMargin>
                 <RightMargin>
-                    <xsl:attribute name="HEIGHT" select="$maxYFromPrintspace - $minYFromPrintspace"></xsl:attribute> 
-                    <xsl:attribute name="WIDTH" select="$w - $maxXFromPrintspace"></xsl:attribute> 
-                    <xsl:attribute name="VPOS" select="$minYFromPrintspace"></xsl:attribute> 
-                    <xsl:attribute name="HPOS" select="$maxXFromPrintspace"></xsl:attribute> </RightMargin>
+                    <xsl:attribute name="HEIGHT" select="$foundMaxY - $foundMinY"></xsl:attribute> 
+                    <xsl:attribute name="WIDTH" select="$w - $foundMaxX"></xsl:attribute> 
+                    <xsl:attribute name="VPOS" select="$foundMinY"></xsl:attribute> 
+                    <xsl:attribute name="HPOS" select="$foundMaxX"></xsl:attribute> </RightMargin>
                 <BottomMargin>
-                    <xsl:attribute name="HEIGHT" select="$h - $maxYFromPrintspace"></xsl:attribute> 
+                    <xsl:attribute name="HEIGHT" select="$h - $foundMaxY"></xsl:attribute> 
                     <xsl:attribute name="WIDTH" select="$w"></xsl:attribute> 
-                    <xsl:attribute name="VPOS" select="$maxYFromPrintspace"></xsl:attribute> 
+                    <xsl:attribute name="VPOS" select="$foundMaxY"></xsl:attribute> 
                     <xsl:attribute name="HPOS" select="0"></xsl:attribute> </BottomMargin>
                 <PrintSpace>
-                    <xsl:attribute name="HEIGHT" select="$maxYFromPrintspace - $minYFromPrintspace"></xsl:attribute>
-                    <xsl:attribute name="WIDTH" select="$maxXFromPrintspace - $minXFromPrintspace"></xsl:attribute>
-                    <xsl:attribute name="VPOS" select="$minYFromPrintspace"></xsl:attribute>
-                    <xsl:attribute name="HPOS" select="$minXFromPrintspace"></xsl:attribute>
+                    <xsl:attribute name="HEIGHT" select="$foundMaxY - $foundMinY"></xsl:attribute>
+                    <xsl:attribute name="WIDTH" select="$foundMaxX - $foundMinX"></xsl:attribute>
+                    <xsl:attribute name="VPOS" select="$foundMinY"></xsl:attribute>
+                    <xsl:attribute name="HPOS" select="$foundMinX"></xsl:attribute>
                     <xsl:apply-templates select="//page:TextRegion"/>
                     <xsl:apply-templates select="//page:SeparatorRegion"/>
                     <xsl:apply-templates select="//page:GraphicRegion"/>
@@ -176,7 +217,7 @@
 
         <TextBlock ID="{@id}">
             <xsl:call-template name="applyCoordinates"/>
-            <xsl:attribute name="language" select="$language"></xsl:attribute>
+            <!-- <xsl:attribute name="language" select="$language"></xsl:attribute> -->
             <Shape>  
                 <Polygon>
                     <xsl:attribute name="POINTS" select="./page:Coords/@points"></xsl:attribute>
@@ -251,7 +292,7 @@
 
         <TextLine ID="{@id}" BASELINE="{$maxY}">
             <xsl:call-template name="applyCoordinates"/>
-            <xsl:call-template name="applyStyleId"/>
+            <!-- <xsl:call-template name="applyStyleId"/> -->
             <!--  if textline without words then we create a new String with the total textline as CONTENT  -->
             <xsl:choose>
                 <xsl:when test="count(./page:Word)>0">
@@ -262,11 +303,40 @@
                     </xsl:apply-templates>
                 </xsl:when>
                 <xsl:otherwise>
-                    <String ID="string_{@id}">
-                        <xsl:call-template name="applyCoordinates"/>
-                        <xsl:call-template name="applyStyleId"/>
-                        <xsl:attribute name="CONTENT" select="./TextEquiv/Unicode/text()"/>
-                    </String>
+                	<xsl:variable name="text" select="./TextEquiv/Unicode/text()"/>
+                	<xsl:variable name="coords" select="./page:Coords/@points"/>
+                	<xsl:variable name="height">
+			            <xsl:call-template name="getHeightFromPointList">
+			            	<xsl:with-param name="coords" select="$coords"/>
+			            </xsl:call-template>
+        			</xsl:variable>
+        			<xsl:variable name="width">
+			            <xsl:call-template name="getWidthFromPointList">
+			            	<xsl:with-param name="coords" select="$coords"/>
+			            </xsl:call-template>
+        			</xsl:variable>
+        			<xsl:variable name="maxX">
+			            <xsl:call-template name="getMaxFromPointList">
+			                <xsl:with-param name="coords" select="$coords"/>
+			            </xsl:call-template>
+			        </xsl:variable>
+			        <xsl:variable name="maxY">
+			            <xsl:call-template name="getMaxFromPointList">
+			                <xsl:with-param name="coords" select="$coords"/>
+			                <xsl:with-param name="ordinate" select="'Y'"/>
+			            </xsl:call-template>
+			        </xsl:variable>
+                	<xsl:call-template name="getWords">
+                		<xsl:with-param name="remainingContent" select="$text"/>
+                		<xsl:with-param name="lineLength" select="string-length($text)"/>
+                		<xsl:with-param name="maxX" select="$maxX"/>
+                		<xsl:with-param name="maxY" select="$maxY"/>
+                		<xsl:with-param name="height" select="$height"/>
+                		<xsl:with-param name="width" select="$width"/>
+                	</xsl:call-template>
+<!-- 	                <xsl:call-template name="applyCoordinates"/>
+	                <xsl:call-template name="applyStyleId"/> -->
+	                
                 </xsl:otherwise>
             </xsl:choose>
         </TextLine>
@@ -277,13 +347,110 @@
         <xsl:param name="stringsBefore"/>
         <String ID="{@id}">
             <xsl:call-template name="applyCoordinates"/>
-            <xsl:call-template name="applyStyleId"/>
+            <!-- <xsl:call-template name="applyStyleId"/> -->
             <xsl:attribute name="CONTENT" select="./TextEquiv/Unicode/text()"/>
         </String>
     </xsl:template>
-   
-   
-    <xsl:template name="applyCoordinates">
+    
+    <xsl:template name="getWords">
+  		<xsl:param name="remainingContent"/>
+  		<xsl:param name="lineLength"/>
+  		<xsl:param name="maxX"/>
+  		<xsl:param name="maxY"/>
+  		<xsl:param name="height"/>
+  		<xsl:param name="width"/>
+  		<xsl:variable name="stringId" select="@id"/>
+<!--   		<xsl:variable name="text" select="./TextEquiv/Unicode/text()"/>
+  		<xsl:variable name="coords" select="./page:Coords/@points"/> -->
+  		    <xsl:choose>
+      <xsl:when test="contains($remainingContent,' ')">
+        <xsl:variable name="actString" select="substring-before($remainingContent,' ')"/>
+        <xsl:variable name="restString" select="substring-after($remainingContent,' ')"/>
+        <xsl:variable name="actStringLength" select="string-length($actString)"/>
+        <xsl:variable name="restStringLength" select="string-length($restString)"/>
+		<String>
+        	<!-- <xsl:attribute name="ID" select="$stringId"/> -->
+            <xsl:call-template name="getCoordinates">
+            	<xsl:with-param name="lineLength" select="$lineLength"/>
+           		<xsl:with-param name="maxX" select="$maxX"/>
+           		<xsl:with-param name="maxY" select="$maxY"/>
+           		<xsl:with-param name="height" select="$height"/>
+           		<xsl:with-param name="width" select="$width"/>
+            	<xsl:with-param name="actStringLength" select="string-length($actString)+4"/>
+            	<xsl:with-param name="restStringLength" select="string-length($restString)-2"/>
+            </xsl:call-template>
+<!-- 	            <xsl:call-template name="applyStyleId"/> -->
+            <xsl:attribute name="CONTENT" select="$actString"/>
+        </String>
+        <xsl:call-template name="getWords">
+          <xsl:with-param name="remainingContent" select="$restString"/>
+          <xsl:with-param name="lineLength" select="$lineLength"/>
+          <xsl:with-param name="maxX" select="$maxX"/>
+          <xsl:with-param name="maxY" select="$maxY"/>
+          <xsl:with-param name="height" select="$height"/>
+          <xsl:with-param name="width" select="$width"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+      		<String>
+        	<!-- <xsl:attribute name="ID" select="$stringId"/> -->
+            <xsl:call-template name="getCoordinates">
+            	<xsl:with-param name="lineLength" select="$lineLength"/>
+           		<xsl:with-param name="maxX" select="$maxX"/>
+           		<xsl:with-param name="maxY" select="$maxY"/>
+           		<xsl:with-param name="height" select="$height"/>
+           		<xsl:with-param name="width" select="$width"/>
+            	<xsl:with-param name="actStringLength" select="string-length($remainingContent)+2"/>
+            	<xsl:with-param name="restStringLength" select="0"/>
+            </xsl:call-template>
+<!-- 	            <xsl:call-template name="applyStyleId"/> -->
+            <xsl:attribute name="CONTENT" select="$remainingContent"/>
+        </String>
+      </xsl:otherwise>
+    </xsl:choose>
+    </xsl:template>
+       
+    <xsl:template name="getCoordinates">
+    	<xsl:param name="maxX"/>
+    	<xsl:param name="maxY"/>
+    	<xsl:param name="height"/>
+    	<xsl:param name="width"/>
+    	<xsl:param name="lineLength"/>
+    	<xsl:param name="actStringLength"/>
+    	<xsl:param name="restStringLength"/>
+    	
+    	<xsl:variable name="ratioRest">
+	    	<xsl:choose>
+		    	<xsl:when test="$lineLength>0">
+			    	<xsl:value-of select="$restStringLength div $lineLength"/>
+		    	</xsl:when>
+		    	<xsl:otherwise>
+		    		<xsl:value-of select="0"/>
+	    	    </xsl:otherwise>
+	   		 </xsl:choose>
+   		 </xsl:variable>
+   		 
+    	<xsl:variable name="ratioAct">
+	    	<xsl:choose>
+		    	<xsl:when test="$lineLength>0">
+			    	<xsl:value-of select="$actStringLength div $lineLength"/>
+		    	</xsl:when>
+		    	<xsl:otherwise>
+			    	<xsl:value-of select="0"/>
+	    	    </xsl:otherwise>
+	   		 </xsl:choose>
+   		 </xsl:variable>
+    	
+    	<xsl:variable name="end" select="$maxX - ($width * $ratioRest)"/>
+    	<xsl:variable name="begin" select="$end - ($width * $ratioAct)"/>
+
+        <xsl:attribute name="HEIGHT" select="$height"/>
+        <xsl:attribute name="WIDTH" select="round($end - $begin)"/>
+        <xsl:attribute name="VPOS" select="$maxY - $height"/>
+        <xsl:attribute name="HPOS" select="round($begin)"/>
+    </xsl:template>
+       
+   	<xsl:template name="applyCoordinates">
         <xsl:variable name="maxX">
             <xsl:call-template name="getMaxFromPointList">
                 <xsl:with-param name="coords" select="./page:Coords/@points"/>
@@ -312,6 +479,38 @@
         <xsl:attribute name="HPOS" select="$minX"/>
     </xsl:template>
     
+    <xsl:template name="getHeightFromPointList">
+    	<xsl:param name="coords" select="'0,0 '"/>
+        <xsl:variable name="maxY">
+            <xsl:call-template name="getMaxFromPointList">
+                <xsl:with-param name="coords" select="$coords"/>
+                <xsl:with-param name="ordinate" select="'Y'"/>
+            </xsl:call-template>
+        </xsl:variable>
+        <xsl:variable name="minY">
+        	<xsl:call-template name="getMinFromPointList">
+                <xsl:with-param name="coords" select="$coords"/>
+                <xsl:with-param name="ordinate" select="'Y'"/>
+            </xsl:call-template>
+        </xsl:variable>
+        <xsl:value-of select="$maxY - $minY"/>
+    </xsl:template>
+    
+   	<xsl:template name="getWidthFromPointList">
+   		<xsl:param name="coords" select="'0,0 '"/>
+        <xsl:variable name="maxX">
+            <xsl:call-template name="getMaxFromPointList">
+                <xsl:with-param name="coords" select="$coords"/>
+            </xsl:call-template>
+        </xsl:variable>
+        <xsl:variable name="minX">
+            <xsl:call-template name="getMinFromPointList">
+                <xsl:with-param name="coords" select="$coords"/>
+            </xsl:call-template>
+        </xsl:variable>
+        <xsl:value-of select="$maxX - $minX"/>
+    </xsl:template>
+    
     
     <xsl:template name="getMaxFromPointList">
         <xsl:param name="actMax" select="0"/>
@@ -321,7 +520,7 @@
         <xsl:variable name="actPoint" select="substring-before($coords, ' ')"/>
         <xsl:variable name="actRest" select="substring-after($coords, ' ')"/>
         
-        <xsl:variable name="currPoint">
+       <xsl:variable name="currPoint">
             <xsl:choose>
                 <xsl:when test="string-length($coords)>0 and contains($coords,',') and string-length($actRest)=0">
                     <xsl:value-of select="$coords"/>
@@ -342,7 +541,6 @@
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
-        
         <xsl:variable name="newMax">
             <xsl:choose>
                 <xsl:when test="number($actOrdinate) > number($actMax)">
@@ -375,8 +573,8 @@
         
         <xsl:variable name="actPoint" select="substring-before($coords, ' ')"/>
         <xsl:variable name="actRest" select="substring-after($coords, ' ')"/>
-        
-       	<xsl:variable name="currPoint">
+
+        <xsl:variable name="currPoint">
             <xsl:choose>
                 <xsl:when test="string-length($coords)>0 and contains($coords,',') and string-length($actRest)=0">
                     <xsl:value-of select="$coords"/>
@@ -386,7 +584,6 @@
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
-        
         <xsl:variable name="actOrdinate">
             <xsl:choose>
                 <xsl:when test="$ordinate='X'">
