@@ -232,11 +232,10 @@ public class TrpAction {
 	@Override
 	public String toString() {
 		return "TrpAction [actionId=" + actionId + ", typeId=" + typeId + ", type=" + type + ", userId=" + userId
-				+ ", userName=" + userName + ", time=" + time + ", colId=" + colId + ", colName=" + colName + ", docId="
-				+ docId + ", docName=" + docName + ", pageId=" + pageId + ", pageNr=" + pageNr + ", clientId="
-				+ clientId + ", clientName=" + clientName + ", clientVersion=" + clientVersion + ", sessionHistoryId="
-				+ sessionHistoryId + ", userRole=" + userRole + "]";
+				+ ", userName=" + userName + ", time=" + time + ", colId=" + colId + ", colName=" + colName
+				+ ", colDesc=" + colDesc + ", docId=" + docId + ", docName=" + docName + ", pageId=" + pageId
+				+ ", pageNr=" + pageNr + ", clientId=" + clientId + ", clientName=" + clientName + ", clientVersion="
+				+ clientVersion + ", sessionHistoryId=" + sessionHistoryId + ", userRole=" + userRole + "]";
 	}
-	
 	
 }
