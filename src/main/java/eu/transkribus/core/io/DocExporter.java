@@ -42,18 +42,19 @@ public class DocExporter extends Observable {
 		public boolean exportPageXml=true;
 		public String pageDirName = LocalDocConst.PAGE_FILE_SUB_FOLDER;
 		public boolean exportAltoXml=true;
+		public boolean splitIntoWordsInAltoXml=false;
 		public boolean exportFatXml=false;
 		public String fileNamePattern = "${filename}";
 		public boolean useHttps=true;
 	}
 
-	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, boolean exportImg, boolean exportPage, boolean exportAlto) throws IOException,
+	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, boolean exportImg, boolean exportPage, boolean exportAlto, boolean splitIntoWordsInAlto) throws IOException,
 	IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
-		return writeRawDoc(doc, dir, doOverwrite, pageIndices, exportImg, exportPage, exportAlto, null);
+		return writeRawDoc(doc, dir, doOverwrite, pageIndices, exportImg, exportPage, exportAlto, splitIntoWordsInAlto, null);
 	}
 	
 	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, 
-			boolean exportImg, boolean exportPage, boolean exportAlto, String fileNamePattern) throws IOException,
+			boolean exportImg, boolean exportPage, boolean exportAlto, boolean splitIntoWordsInAlto, String fileNamePattern) throws IOException,
 			IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
 		ExportOptions opts = new ExportOptions();
 		opts.dir = dir;
@@ -63,6 +64,7 @@ public class DocExporter extends Observable {
 		opts.doWriteImages = exportImg;
 		opts.exportPageXml = exportPage;
 		opts.exportAltoXml = exportAlto;
+		opts.splitIntoWordsInAltoXml = splitIntoWordsInAlto;
 		opts.pageIndices = pageIndices;
 		if(fileNamePattern != null){
 			opts.fileNamePattern = fileNamePattern;
@@ -186,7 +188,7 @@ public class DocExporter extends Observable {
 			}
 			// export alto:
 			if (opts.exportAltoXml) {
-				altoFile = altoEx.exportAltoFile(p, baseFileName + xmlExt, altoOutputDir);
+				altoFile = altoEx.exportAltoFile(p, baseFileName + xmlExt, altoOutputDir, opts.splitIntoWordsInAltoXml);
 			}
 			
 			if (imgFile != null)
