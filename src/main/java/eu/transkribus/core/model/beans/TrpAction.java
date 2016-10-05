@@ -31,6 +31,8 @@ public class TrpAction {
 	private Integer colId;
 	@Transient
 	private String colName;
+	@Transient
+	private String colDesc;
 	@Column(name="DOC_ID")
 	private Integer docId;
 	@Transient
@@ -129,6 +131,13 @@ public class TrpAction {
 		this.colName = colName;
 	}
 
+	public String getColDesc() {
+		return colDesc;
+	}
+	
+	public void setColDesc(String colDesc) {
+		this.colDesc = colDesc;
+	}
 
 	public Integer getDocId() {
 		return docId;
