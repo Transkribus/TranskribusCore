@@ -1,11 +1,13 @@
 package eu.transkribus.core.model.beans;
 
 import java.io.Serializable;
+import java.net.URL;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -14,11 +16,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Table(name = "Images")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpImage implements Serializable {
+public class TrpImage implements Serializable, ITrpFile {
 	private static final long serialVersionUID = -359788414403771313L;
 	//objid for parentDoc is ID in DB
 	@Id
-	@Column
+	@Column(name="IMAGE_ID")
 	private int imageId = -1;
 	@Column(name = "IMAGEKEY")
 	private String key = null; //The fimagestore key for getting the image file
@@ -30,7 +32,13 @@ public class TrpImage implements Serializable {
 	@Column
 	private int height;
 	@Column
+	@Transient
+	private URL url;
+	@Column
 	private java.sql.Timestamp created;
+
+	private String md5sum;
+	
 	public int getImageId() {
 		return imageId;
 	}
@@ -61,11 +69,30 @@ public class TrpImage implements Serializable {
 	public void setHeight(int height) {
 		this.height = height;
 	}
+	public URL getUrl() {
+		return this.url;
+	}
+	public void setUrl(URL url) {
+		this.url = url;
+	}
 	public java.sql.Timestamp getCreated() {
 		return created;
 	}
 	public void setCreated(java.sql.Timestamp created) {
 		this.created = created;
+	}
+	@Override
+	public String getMd5Sum() {
+		return md5sum;
+	}
+	@Override
+	public void setMd5Sum(String md5Sum) {
+		this.md5sum = md5Sum;
+	}
+	@Override
+	public String toString() {
+		return "TrpImage [imageId=" + imageId + ", key=" + key + ", imgFileName=" + imgFileName + ", width=" + width
+				+ ", height=" + height + ", url=" + url + ", created=" + created + "]";
 	}
 
 }
