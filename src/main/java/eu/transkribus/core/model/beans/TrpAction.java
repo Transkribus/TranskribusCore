@@ -2,6 +2,7 @@ package eu.transkribus.core.model.beans;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -15,6 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class TrpAction {
 	
 	public TrpAction() {}
+	@Id
 	@Column(name="ACTION_ID")
 	private Integer actionId;
 	@Column(name="TYPE_ID")
