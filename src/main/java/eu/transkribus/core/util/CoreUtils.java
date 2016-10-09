@@ -300,6 +300,16 @@ public class CoreUtils {
 		return backup;
 	}
 	
+	public static <T> List<T> copyList(List<T> list) {
+		List<T> newList = new ArrayList<>();
+		if (list != null) {
+			for (T i : list) {
+				newList.add(i);
+			}
+		}
+		return newList;
+	}
+	
 	public static boolean equalsEps(float v1, float v2, float eps) {
 		return Math.abs(v1-v2) <= eps;
 	}
