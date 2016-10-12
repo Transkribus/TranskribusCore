@@ -66,6 +66,9 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	@Transient
 	private java.sql.Timestamp created;
 	
+	@Column(name="IS_INDEXED")
+	private boolean isIndexed = false;
+	
 	@XmlElementWrapper(name="imageVersions")
 	@XmlElement
 	private List<TrpPageImageVersion> imageVersions;
@@ -220,27 +223,6 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		return getCurrentTranscript().unmarshallTranscript();	
 	}
 
-	/**
-	 * Uses the page number for comparison
-	 * 
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
-	@Override
-	public int compareTo(TrpPage p) {
-		if (this.getPageNr() > p.getPageNr()) {
-			return 1;
-		}
-		if (this.getPageNr() < p.getPageNr()) {
-			return -1;
-		}
-		return 0;
-	}
-	
-	@Override public String toString() {
-		return "TrpPage [pageId=" + pageId + ", docId=" + docId + ", pageNr=" + pageNr + ", key=" + key + ", url=" + url + ", thumbUrl=" + thumbUrl
-				+ ", md5Sum=" + md5Sum + ", imgFileName=" + imgFileName+", nTranscripts="+getNTranscripts()+"]";
-	}
-	
 	public String toString(boolean withTranscripts) {
 		String str = toString();
 		
@@ -280,19 +262,36 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		this.url = i.getUrl();
 	}
 
-//	@Override
-//	public String toString() {
-//		StringBuffer sb = new StringBuffer(this.getClass().getSimpleName() + " {" 
-//				+ this.getPageId() + " - "+ this.getDocId() + " - ");
-//		sb.append(this.getImgFileName() + " - ");
-//		sb.append(this.getKey() + " - ");
-//		sb.append(this.getPageNr() + " - ");
-//		sb.append(this.getTranscripts().size() + " - ");
-//		sb.append(this.getUrl() + " - ");
-//		sb.append(this.getThumbUrl() + "}");
-//		for (TrpTranscriptMetadata md : this.getTranscripts()) {
-//			sb.append("\n\t\t" + md.toString());
-//		}
-//		return sb.toString();
-//	}
+	public boolean isIndexed() {
+		return isIndexed;
+	}
+
+	public void setIndexed(boolean isIndexed) {
+		this.isIndexed = isIndexed;
+	}
+
+	/**
+	 * Uses the page number for comparison
+	 * 
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(TrpPage p) {
+		if (this.getPageNr() > p.getPageNr()) {
+			return 1;
+		}
+		if (this.getPageNr() < p.getPageNr()) {
+			return -1;
+		}
+		return 0;
+	}
+
+	@Override
+	public String toString() {
+		return "TrpPage [pageId=" + pageId + ", docId=" + docId + ", pageNr=" + pageNr + ", key=" + key + ", imageId="
+				+ imageId + ", url=" + url + ", thumbUrl=" + thumbUrl + ", md5Sum=" + md5Sum + ", imgFileName="
+				+ imgFileName + ", transcripts=" + transcripts + ", width=" + width + ", height=" + height
+				+ ", created=" + created + ", isIndexed=" + isIndexed + ", imageVersions=" + imageVersions + "]";
+	}
+	
 }

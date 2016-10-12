@@ -14,7 +14,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TrpAction {
-	
+	public static final int SAVE = 1;
+	public static final int LOGIN = 2;
+	public static final int STATUS_CHANGE = 3;
+	public static final int ACCESS_DOCUMENT = 4;
+
 	public TrpAction() {}
 	@Id
 	@Column(name="ACTION_ID")
