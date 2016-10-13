@@ -285,12 +285,12 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		}
 		return 0;
 	}
-
+	
 	@Override
 	public String toString() {
 		return "TrpPage [pageId=" + pageId + ", docId=" + docId + ", pageNr=" + pageNr + ", key=" + key + ", imageId="
 				+ imageId + ", url=" + url + ", thumbUrl=" + thumbUrl + ", md5Sum=" + md5Sum + ", imgFileName="
-				+ imgFileName + ", transcripts=" + transcripts + ", width=" + width + ", height=" + height
+				+ imgFileName + ", n-transcripts=" + getNTranscripts() + ", width=" + width + ", height=" + height
 				+ ", created=" + created + ", isIndexed=" + isIndexed + ", imageVersions=" + imageVersions + "]";
 	}
 	
