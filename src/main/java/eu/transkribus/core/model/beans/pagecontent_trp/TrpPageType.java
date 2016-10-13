@@ -83,7 +83,7 @@ public class TrpPageType extends PageType {
 	}
 	
 	public void printIdRegistry() {
-		logger.debug("nr of elements with id: "+idRegistry.size());
+		logger.trace("nr of elements with id: "+idRegistry.size());
 		for (String id : idRegistry.keySet()) {
 			logger.trace("id: "+id+" element: "+idRegistry.get(id));
 		}

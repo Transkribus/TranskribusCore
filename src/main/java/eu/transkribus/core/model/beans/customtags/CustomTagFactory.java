@@ -279,7 +279,7 @@ public class CustomTagFactory {
 			// register the class for this custom tag: 
 			registry.put( ct.getTagName(), ctCopy.getClass() );
 			// register the object for this custom tag:		
-			logger.debug("adding prototype tag object to registry: "+ctCopy);
+			logger.trace("adding prototype tag object to registry: "+ctCopy);
 			objectRegistry.put(ct.getTagName(), ctCopy);
 			
 			if (color == null) // color not given -> get default color
