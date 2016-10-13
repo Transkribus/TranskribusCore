@@ -13,9 +13,7 @@ import eu.transkribus.core.model.beans.pagecontent.RegionRefIndexedType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextTypeSimpleType;
-import eu.transkribus.core.model.beans.pagecontent.WordType;
 import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
-import eu.transkribus.core.model.beans.pagecontent_trp.TrpBaselineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
@@ -150,13 +148,13 @@ public class CustomTagUtil {
 			return;
 		
 		for (Object o : ro.getOrderedGroup().getRegionRefIndexedOrOrderedGroupIndexedOrUnorderedGroupIndexed()) {
-			logger.debug("ref: "+o);
+			logger.trace("ref: "+o);
 			if (o instanceof RegionRefIndexedType) {
 				RegionRefIndexedType rr = (RegionRefIndexedType) o;
-				logger.debug("region ref: "+rr+" ref = "+rr.getRegionRef());
+				logger.trace("region ref: "+rr+" ref = "+rr.getRegionRef());
 				if (rr.getRegionRef() instanceof TrpTextRegionType) {
 					TrpTextRegionType region = (TrpTextRegionType) rr.getRegionRef();
-					logger.debug("region: "+region.getId()+" index: "+rr.getIndex());
+					logger.trace("region: "+region.getId()+" index: "+rr.getIndex());
 					region.setReadingOrder(rr.getIndex(), region);
 				}
 			}
@@ -164,7 +162,7 @@ public class CustomTagUtil {
 	}
 	
 	public static void writeReadingOrderCustomTagsToPageFormat(TrpPageType page) {
-		logger.debug("converting reading order from custom tags to page format...");
+		logger.trace("converting reading order from custom tags to page format...");
 		
 		ReadingOrderType ro = new ReadingOrderType();
 		OrderedGroupType group = new OrderedGroupType();
@@ -201,7 +199,7 @@ public class CustomTagUtil {
 		if (shape == null)
 			return;
 		
-		logger.debug("setting structure: "+structureType+" id: "+shape.getId()+" type: "+shape.getClass().getSimpleName()+" recursive: "+recursive);
+		logger.trace("setting structure: "+structureType+" id: "+shape.getId()+" type: "+shape.getClass().getSimpleName()+" recursive: "+recursive);
 		
 		if (!isTextregionOrLineOrWord(shape))
 			return;

@@ -85,7 +85,7 @@ public class TrpPageType extends PageType {
 	public void printIdRegistry() {
 		logger.debug("nr of elements with id: "+idRegistry.size());
 		for (String id : idRegistry.keySet()) {
-			logger.debug("id: "+id+" element: "+idRegistry.get(id));
+			logger.trace("id: "+id+" element: "+idRegistry.get(id));
 		}
 		
 		SebisStopWatch.SW.start();
