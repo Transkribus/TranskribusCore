@@ -424,7 +424,7 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 
 	@Override
 	public String toString() {
-		return "TrpTranscriptMetadata [pageReferenceForLocalDocs=" + pageReferenceForLocalDocs + ", tsId=" + tsId
+		return "TrpTranscriptMetadata [tsId=" + tsId
 				+ ", parentTsId=" + parentTsId + ", key=" + key + ", pageId=" + pageId + ", docId=" + docId
 				+ ", pageNr=" + pageNr + ", localFolder=" + localFolder + ", url=" + url + ", status=" + status
 				+ ", userName=" + userName + ", userId=" + userId + ", timestamp=" + timestamp + ", toolName="
