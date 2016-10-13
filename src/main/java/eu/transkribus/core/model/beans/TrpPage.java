@@ -67,7 +67,7 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	private java.sql.Timestamp created;
 	
 	@Column(name="IS_INDEXED")
-	private boolean isIndexed = false;
+	private boolean indexed = false;
 	
 	@XmlElementWrapper(name="imageVersions")
 	@XmlElement
@@ -263,11 +263,11 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	}
 
 	public boolean isIndexed() {
-		return isIndexed;
+		return indexed;
 	}
 
 	public void setIndexed(boolean isIndexed) {
-		this.isIndexed = isIndexed;
+		this.indexed = isIndexed;
 	}
 
 	/**
@@ -291,7 +291,7 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		return "TrpPage [pageId=" + pageId + ", docId=" + docId + ", pageNr=" + pageNr + ", key=" + key + ", imageId="
 				+ imageId + ", url=" + url + ", thumbUrl=" + thumbUrl + ", md5Sum=" + md5Sum + ", imgFileName="
 				+ imgFileName + ", transcripts=" + transcripts + ", width=" + width + ", height=" + height
-				+ ", created=" + created + ", isIndexed=" + isIndexed + ", imageVersions=" + imageVersions + "]";
+				+ ", created=" + created + ", indexed=" + indexed + ", imageVersions=" + imageVersions + "]";
 	}
 	
 }

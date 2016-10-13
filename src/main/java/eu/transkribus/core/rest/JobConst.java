@@ -37,6 +37,7 @@ public class JobConst {
 	public static final String PROP_NOISE = "noise";
 	public static final String PROP_NR_OF_THREADS = "nrOfThreads";
 	public static final String PROP_TRAIN_SIZE_PER_EPOCH = "trainSizePerEpoch";
+	public static final String PROP_BASE_MODEL = "baseModel";
 	public static final String PROP_CONFIG = "config";
 	
 	public static final String PROP_DO_BLOCK_SEG = "doBlockSeg";
@@ -45,6 +46,4 @@ public class JobConst {
 	public static final String PROP_SOLR_URL = "solrUrl";
 
 	public static final String PROP_ADDITIONAL_COL_IDS = "additionalColIds";
-
-
 }
