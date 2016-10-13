@@ -10,4 +10,9 @@ public class Event extends EventObject {
 		super(source);
 		this.description = description;
 	}
+	
+	public Event(Object source) {
+		super(source);
+		this.description = "";
+	}
 }
