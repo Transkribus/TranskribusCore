@@ -11,13 +11,13 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @Entity
-@Table(name = "RNN")
+@Table(name = "HTR")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpRnn {
+public class TrpHtr {
 	@Id
-	@Column(name="RNN_ID")
-	private int rnnId;
+	@Column(name="HTR_ID")
+	private int htrId;
 	
 	@Column
 	private String name;
@@ -37,12 +37,12 @@ public class TrpRnn {
 	@Column(name="GT_DOCID")
 	private int gtDocId;
 
-	public int getRnnId() {
-		return rnnId;
+	public int getHtrId() {
+		return htrId;
 	}
 
-	public void setRnnId(int rnnId) {
-		this.rnnId = rnnId;
+	public void setHtrId(int htrId) {
+		this.htrId = htrId;
 	}
 
 	public String getName() {
@@ -95,7 +95,7 @@ public class TrpRnn {
 
 	@Override
 	public String toString() {
-		return "TrpRnn [rnnId=" + rnnId + ", name=" + name + ", description=" + description + ", provider=" + provider
+		return "TrpHtr [rnnId=" + htrId + ", name=" + name + ", description=" + description + ", provider=" + provider
 				+ ", path=" + path + ", created=" + created + ", gtDocId=" + gtDocId + "]";
 	}
 	

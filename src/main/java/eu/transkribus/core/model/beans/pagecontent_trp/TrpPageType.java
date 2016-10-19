@@ -88,11 +88,11 @@ public class TrpPageType extends PageType {
 			logger.trace("id: "+id+" element: "+idRegistry.get(id));
 		}
 		
-		SebisStopWatch.SW.start();
+//		SebisStopWatch.SW.start();
 		for (int i=0; i<10000; ++i) {
 			idRegistry.containsKey("tc_"+i);
 		}
-		SebisStopWatch.SW.stop(true);
+//		SebisStopWatch.SW.stop(true);
 	}
 	
 //	public void replaceLinkId(String idOld, String idNew) {

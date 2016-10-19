@@ -14,11 +14,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class HtrTrainConfig {
 	
 	protected String modelName;
+	protected String description;
 	
 	@XmlElementWrapper(name="TrainList")
 	@XmlElement
 	protected List<DocumentDuplicationDescriptor> trainList = new LinkedList<>();
 
+	@XmlElementWrapper(name="TestList")
+	@XmlElement
+	protected List<DocumentDuplicationDescriptor> testList = new LinkedList<>();
+	
 	public String getModelName() {
 		return modelName;
 	}
@@ -27,11 +32,27 @@ public class HtrTrainConfig {
 		this.modelName = modelName;
 	}
 	
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	public List<DocumentDuplicationDescriptor> getTrainList() {
 		return trainList;
 	}
 
-	public void setTrainList(List<DocumentDuplicationDescriptor> dddList) {
-		this.trainList = dddList;
+	public void setTrainList(List<DocumentDuplicationDescriptor> trainList) {
+		this.trainList = trainList;
+	}
+	
+	public List<DocumentDuplicationDescriptor> getTestList() {
+		return testList;
+	}
+
+	public void setTestList(List<DocumentDuplicationDescriptor> testList) {
+		this.testList = testList;
 	}
 }

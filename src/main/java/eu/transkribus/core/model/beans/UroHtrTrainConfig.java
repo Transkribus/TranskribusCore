@@ -11,6 +11,8 @@ public class UroHtrTrainConfig extends HtrTrainConfig {
 	protected String learningRate;
 	protected String noise;
 	protected Integer trainSizePerEpoch;
+	protected Integer baseModelId;
+	
 	public String getNumEpochs() {
 		return numEpochs;
 	}
@@ -34,5 +36,11 @@ public class UroHtrTrainConfig extends HtrTrainConfig {
 	}
 	public void setTrainSizePerEpoch(Integer trainSizePerEpoch) {
 		this.trainSizePerEpoch = trainSizePerEpoch;
+	}
+	public Integer getBaseModelId() {
+		return baseModelId;
+	}
+	public void setBaseModelId(Integer baseModelId) {
+		this.baseModelId = baseModelId;
 	}
 }
