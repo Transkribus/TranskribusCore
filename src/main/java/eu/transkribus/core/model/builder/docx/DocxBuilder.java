@@ -669,6 +669,7 @@ public class DocxBuilder {
 			    || Character.getDirectionality(textStr.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_OVERRIDE
 			    ) {
 			logger.debug("&&&&&&&& STRING IS RTL : ");
+			deleteCharAtIndex(0, textStr);
 			rtl = true;
 		}
 
@@ -894,16 +895,17 @@ public class DocxBuilder {
 			//soft break
 			if (currText.equals("¬") && !preserveLineBreaks){
 				break;
-			}		
+			}	
+			
 			
 			org.docx4j.wml.Text  t = factory.createText();
 			t.setValue(currText);
 			t.setSpace("preserve");
-			
+
 			org.docx4j.wml.R  run = factory.createR();
 			//p.getContent().add(run);
 			run.getContent().add(t);
-			
+
 			listOfallRuns.add(run);
 			
 			//end of unclear tag
@@ -1122,6 +1124,12 @@ public class DocxBuilder {
 	private static String reverseString(String text) {
 		StringBuilder sb = new StringBuilder(text);
 		sb.reverse();
+		return (sb.toString());
+	}
+	
+	private static String deleteCharAtIndex(int index, String text) {
+		StringBuilder sb = new StringBuilder(text);
+		sb.deleteCharAt(index);
 		return (sb.toString());
 	}
 
