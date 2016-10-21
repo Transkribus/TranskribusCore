@@ -233,15 +233,15 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	@Override
 	public void swap(int direction){
 		int i = this.getIndex();
-		
+		//UP
 		if (direction == 0){
 			if (i>0){
 					
 				Collections.swap(getRegion().getTextLine(), i, i-1);
 				
-				setReadingOrder(getReadingOrder()-1, TrpTextLineType.class);
-				//getRegion().getChildren(false).get(i-1).setReadingOrder(getReadingOrder()+1, TrpTextLineType.class);
-				//getRegion().sortLines();
+				//setReadingOrder(getReadingOrder()-1, TrpTextLineType.class);
+				getRegion().getChildren(false).get(i-1).setReadingOrder(getReadingOrder()-1, TrpTextLineType.class);
+				getRegion().sortLines();
 				observable.setChangedAndNotifyObservers(new TrpReadingOrderChangedEvent(this));
 				
 			}
@@ -252,9 +252,9 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 			if (i<(getRegion().getTextLine().size()-1)){
 				
 				Collections.swap(getRegion().getTextLine(), i, i+1);
-				//getRegion().getChildren(false).get(i+1).setReadingOrder(getReadingOrder()+1, TrpTextLineType.class);
-				setReadingOrder(getReadingOrder()+1, TrpTextLineType.class);
-//				getRegion().sortLines();
+				getRegion().getChildren(false).get(i).setReadingOrder(getReadingOrder()-1, TrpTextLineType.class);
+				//setReadingOrder(getReadingOrder()+1, TrpTextLineType.class);
+				getRegion().sortLines();
 				observable.setChangedAndNotifyObservers(new TrpReadingOrderChangedEvent(this));
 				
 			}

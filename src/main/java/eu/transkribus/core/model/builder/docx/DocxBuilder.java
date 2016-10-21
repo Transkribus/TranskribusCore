@@ -581,12 +581,8 @@ public class DocxBuilder {
 			
 			if (!helper.equals("")){
 				
-
-				
 				org.docx4j.wml.P  p = factory.createP();
 				mdp.addObject(p);
-			
-			
 
 				List<TextLineType> lines = r.getTextLine();
 				for (int i=0; i<lines.size(); ++i) {
@@ -600,20 +596,7 @@ public class DocxBuilder {
 							getFormattedTextForShapeElement(trpL, p, mdp);
 							
 						}
-	
-	
-					
-	//				org.docx4j.wml.Text  t = factory.createText();
-	//				//create for each textline a run and add the text to it and than to the paragraph
-	//				t.setValue(trpL.getUnicodeText());
-					//org.docx4j.wml.R  run = factory.createR();
-					//run.getContent().add(t);		
-					
-	//					for (R run : runs){
-	//						p.getContent().add(run);
-	//					}
-						
-						
+
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -633,43 +616,6 @@ public class DocxBuilder {
 //								
 //				linesTexts[i] = ((trpL.getUnicodeText().equals("") || wordBased) && trpL.getWord().size()>0) ? getRtfTextForLineFromWords(trpL) : getRtfTextForShapeElement(trpL);
 //				linesTexts[i] = RtfText.text(linesTexts[i], "\n");
-			}
-			
-			
-			
-
-			
-
-			/*
-			 * 
-			 * add comment test
-			 * 
-			 */
-//		      // Create a package
-//		      WordprocessingMLPackage wmlPack = new WordprocessingMLPackage();
-//		      // Create main document part content
-//		      org.docx4j.wml.Body  body = factory.createBody();      
-//		      org.docx4j.wml.Document wmlDocumentEl = factory.createDocument();
-//		      
-//		      wmlDocumentEl.setBody(body);
-//		      mdp.setJaxbElement(wmlDocumentEl);
-//		      wmlPack.addTargetPart(mdp);
-//		      
-//		      CommentsPart cp = new CommentsPart();
-//		      // Part must have minimal contents
-//		      Comments comments = factory.createComments();
-//		      cp.setJaxbElement(comments);
-//		      
-//		      mdp.addTargetPart(cp);
-						
-			//read from right to left -> alignment is right
-			if (rtl){
-				//paras[j] = RtfPara.p(linesTexts).footnote("Test").alignRight();
-			}
-			else{
-				String test = "test";
-				//paras[j] = RtfPara.p(linesTexts);
-				//paras[j] = RtfPara.p(linesTexts, RtfText.footnote("Test")).alignLeft();
 			}
 			
 		}
@@ -722,7 +668,7 @@ public class DocxBuilder {
 			    || Character.getDirectionality(textStr.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING
 			    || Character.getDirectionality(textStr.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_OVERRIDE
 			    ) {
-			//logger.debug("&&&&&&&& STRING IS RTL : ");
+			logger.debug("&&&&&&&& STRING IS RTL : ");
 			rtl = true;
 		}
 

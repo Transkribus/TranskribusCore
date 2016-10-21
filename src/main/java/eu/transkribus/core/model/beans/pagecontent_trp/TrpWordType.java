@@ -334,10 +334,9 @@ public class TrpWordType extends WordType implements ITrpShapeType {
 			
 			if (i>0){
 				Collections.swap(getLine().getWord(), i, i-1);
-				setReadingOrder(getReadingOrder()-1, TrpWordType.class);
-				line.sortWords();
-				observable.setChangedAndNotifyObservers(new TrpReadingOrderChangedEvent(this));
-				
+				getLine().getChildrenWithoutBaseline().get(i-1).setReadingOrder(getReadingOrder()-1, TrpWordType.class);
+				getLine().sortWords();
+				observable.setChangedAndNotifyObservers(new TrpReadingOrderChangedEvent(this));				
 			}
 		}
 		
@@ -345,8 +344,8 @@ public class TrpWordType extends WordType implements ITrpShapeType {
 			
 			if (i<(getLine().getWord().size()-1)){
 				Collections.swap(getLine().getWord(), i, i+1);
-				setReadingOrder(getReadingOrder()+1, TrpWordType.class);
-				line.sortWords();
+				getLine().getChildrenWithoutBaseline().get(i).setReadingOrder(getReadingOrder()-1, TrpWordType.class);
+				getLine().sortWords();
 				observable.setChangedAndNotifyObservers(new TrpReadingOrderChangedEvent(this));
 				
 			}
