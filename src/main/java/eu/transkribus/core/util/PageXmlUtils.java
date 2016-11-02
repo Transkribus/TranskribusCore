@@ -215,7 +215,7 @@ public class PageXmlUtils {
 				backup.delete();
 		}
 		String msg=buildMsg(vec, page);
-		if (!msg.equals(NO_EVENTS_MSG))
+		if (!msg.startsWith(NO_EVENTS_MSG))
 			logger.info(msg);
 		
 		return fileOut;
@@ -241,7 +241,7 @@ public class PageXmlUtils {
 		}
 		
 		String msg=buildMsg(vec, page);
-		if (!msg.equals(NO_EVENTS_MSG))
+		if (!msg.startsWith(NO_EVENTS_MSG))
 			logger.info(msg);
 		
 		return data;
