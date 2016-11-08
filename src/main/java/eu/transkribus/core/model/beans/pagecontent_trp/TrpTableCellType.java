@@ -69,8 +69,7 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 		}
 	};	
  		
-	public TrpTableCellType() {
-		logger.debug("created TrpTableCellType!");	
+	public TrpTableCellType() {	
 		customTagList = new CustomTagList(this);
 	}
 	

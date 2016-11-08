@@ -80,6 +80,9 @@ public class PageXmlUtils {
 	
 	public static final boolean USE_TEXT_STYLE_CUSTOM_TAGS=true;
 
+	private static final String NO_EVENTS_MSG = "No events occured during marshalling xml file!";
+	
+
 	//	private final static SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 	//	private static Schema schema=null;
 	//	static {
@@ -211,8 +214,10 @@ public class PageXmlUtils {
 			if (backup!=null)
 				backup.delete();
 		}
+		String msg=buildMsg(vec, page);
+		if (!msg.startsWith(NO_EVENTS_MSG))
+			logger.info(msg);
 		
-		logger.info(buildMsg(vec, page));
 		return fileOut;
 	}
 
@@ -234,7 +239,11 @@ public class PageXmlUtils {
 		} catch (Exception e) {
 			throw new MarshalException(e);
 		}
-		logger.info(buildMsg(vec, page));
+		
+		String msg=buildMsg(vec, page);
+		if (!msg.startsWith(NO_EVENTS_MSG))
+			logger.info(msg);
+		
 		return data;
 	}
 
@@ -248,7 +257,7 @@ public class PageXmlUtils {
 		if (vec.hasEvents()) {
 			msg="Events occured while marshalling xml file: " + vec.getEvents().length;
 		} else {
-			msg="No events occured during marshalling xml file!";
+			msg=NO_EVENTS_MSG;
 		}
 		if (!imgFn.isEmpty()) msg += " (img: "+imgFn+")";
 		return msg;

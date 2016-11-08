@@ -15,6 +15,7 @@ public class HtrTrainConfig {
 	
 	protected String modelName;
 	protected String description;
+	protected int colId;
 	
 	@XmlElementWrapper(name="TrainList")
 	@XmlElement
@@ -38,6 +39,14 @@ public class HtrTrainConfig {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	public int getColId() {
+		return colId;
+	}
+	
+	public void setColId(int colId) {
+		this.colId = colId;
 	}
 
 	public List<DocumentDuplicationDescriptor> getTrainList() {
