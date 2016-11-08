@@ -1757,7 +1757,7 @@ public class TrpPdfDocument extends APdfDocument {
 		}
 		
 		if (docMd.getScriptType() != null){
-			if (writeDocMd("Sripttype: ", docMd.getScriptType().toString(), posY, 0, lineHeight, cb, bfArialItalic)){
+			if (writeDocMd("Scripttype: ", docMd.getScriptType().toString(), posY, 0, lineHeight, cb, bfArialItalic)){
 				posY += lineHeight*1.2;
 			}
 		}
