@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class DocumentDuplicationDescriptor {
+public class DocumentSelectionDescriptor {
 	private int docId;
 	@XmlElementWrapper(name="pageList")
 	@XmlElement
