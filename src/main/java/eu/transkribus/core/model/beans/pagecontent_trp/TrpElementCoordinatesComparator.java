@@ -1,7 +1,9 @@
 package eu.transkribus.core.model.beans.pagecontent_trp;
 
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Comparator;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +12,7 @@ import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
 import eu.transkribus.core.util.IntRange;
+import eu.transkribus.core.util.PageXmlUtils;
 import eu.transkribus.core.util.PointStrUtils;
 
 public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
@@ -27,6 +30,8 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 //		try {
 			String coords1="", coords2="";
 			
+			logger.debug("++++++++++TrpElementCoordinatesComparator");
+			
 //			if (o1 instanceof PrintSpaceType) {
 //				coords1 = ((TrpPrintSpaceType) o1).getCoords().getPoints();
 //				coords2 = ((TrpPrintSpaceType) o2).getCoords().getPoints();
@@ -36,8 +41,36 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 				coords2 = ((RegionType) o2).getCoords().getPoints();
 			}
 			else if (TextLineType.class.isAssignableFrom(o1.getClass())) {
+				/*
+				 * take baseline to compare in this case
+				 */
+				if (((TextLineType) o1).getBaseline() != null && ((TextLineType) o2).getBaseline() != null){
+					coords1 = ((TextLineType) o1).getBaseline().getPoints();
+					coords2 = ((TextLineType) o2).getBaseline().getPoints();
+					
+					double y1, x1;
+					double y2, x2;
+					
+					List<Point> pts1 = PointStrUtils.parsePoints(coords1);
+					List<Point> pts2 = PointStrUtils.parsePoints(coords2);
+					
+					if (pts1.size() > 0 && pts2.size() > 0){
+						
+						logger.debug("...use basline to make reading order!!!");
+						x1 = pts1.get(0).getX();
+						y1 = pts1.get(0).getY();
+						
+						x2 = pts2.get(0).getX();
+						y2 = pts2.get(0).getY();
+						
+						return compareByYX((int)x1, (int)x2, (int)y1, (int)y2);
+					}
+				}
+
+				//fall back if there are no baselines
 				coords1 = ((TextLineType) o1).getCoords().getPoints();
 				coords2 = ((TextLineType) o2).getCoords().getPoints();
+				
 			}
 //			if (o1 instanceof BaselineType) {
 //				coords1 = ((TrpBaselineType) o1).getPoints();
