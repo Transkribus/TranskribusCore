@@ -15,15 +15,16 @@ public abstract class HtrTrainConfig {
 	
 	protected String modelName;
 	protected String description;
+	protected String language;
 	protected int colId;
 	
 	@XmlElementWrapper(name="TrainList")
 	@XmlElement
-	protected List<DocumentSelectionDescriptor> trainList = new LinkedList<>();
+	protected List<DocumentSelectionDescriptor> train = new LinkedList<>();
 
 	@XmlElementWrapper(name="TestList")
 	@XmlElement
-	protected List<DocumentSelectionDescriptor> testList = new LinkedList<>();
+	protected List<DocumentSelectionDescriptor> test = new LinkedList<>();
 	
 	public String getModelName() {
 		return modelName;
@@ -41,6 +42,14 @@ public abstract class HtrTrainConfig {
 		this.description = description;
 	}
 	
+	public String getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(String language) {
+		this.language = language;
+	}
+
 	public int getColId() {
 		return colId;
 	}
@@ -49,19 +58,19 @@ public abstract class HtrTrainConfig {
 		this.colId = colId;
 	}
 
-	public List<DocumentSelectionDescriptor> getTrainList() {
-		return trainList;
+	public List<DocumentSelectionDescriptor> getTrain() {
+		return train;
 	}
 
-	public void setTrainList(List<DocumentSelectionDescriptor> trainList) {
-		this.trainList = trainList;
+	public void setTrain(List<DocumentSelectionDescriptor> train) {
+		this.train = train;
 	}
 	
-	public List<DocumentSelectionDescriptor> getTestList() {
-		return testList;
+	public List<DocumentSelectionDescriptor> getTest() {
+		return test;
 	}
 
-	public void setTestList(List<DocumentSelectionDescriptor> testList) {
-		this.testList = testList;
+	public void setTest(List<DocumentSelectionDescriptor> test) {
+		this.test = test;
 	}
 }
