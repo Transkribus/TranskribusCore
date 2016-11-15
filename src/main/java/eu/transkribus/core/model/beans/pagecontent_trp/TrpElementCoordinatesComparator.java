@@ -29,9 +29,7 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 		
 //		try {
 			String coords1="", coords2="";
-			
-			logger.debug("++++++++++TrpElementCoordinatesComparator");
-			
+						
 //			if (o1 instanceof PrintSpaceType) {
 //				coords1 = ((TrpPrintSpaceType) o1).getCoords().getPoints();
 //				coords2 = ((TrpPrintSpaceType) o2).getCoords().getPoints();
@@ -42,7 +40,7 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 			}
 			else if (TextLineType.class.isAssignableFrom(o1.getClass())) {
 				/*
-				 * take baseline to compare in this case
+				 * take baseline to compare and set the ro in this case
 				 */
 				if (((TextLineType) o1).getBaseline() != null && ((TextLineType) o2).getBaseline() != null){
 					coords1 = ((TextLineType) o1).getBaseline().getPoints();
@@ -56,7 +54,6 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 					
 					if (pts1.size() > 0 && pts2.size() > 0){
 						
-						logger.debug("...use basline to make reading order!!!");
 						x1 = pts1.get(0).getX();
 						y1 = pts1.get(0).getY();
 						
