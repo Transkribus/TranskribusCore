@@ -4,19 +4,21 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescriptor;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class UroHtrTrainConfig extends HtrTrainConfig {
-	protected String numEpochs;
+	protected Integer numEpochs;
 	protected String learningRate;
 	protected String noise;
 	protected Integer trainSizePerEpoch;
 	protected Integer baseModelId;
 	
-	public String getNumEpochs() {
+	public Integer getNumEpochs() {
 		return numEpochs;
 	}
-	public void setNumEpochs(String numEpochs) {
+	public void setNumEpochs(Integer numEpochs) {
 		this.numEpochs = numEpochs;
 	}
 	public String getLearningRate() {
@@ -42,5 +44,24 @@ public class UroHtrTrainConfig extends HtrTrainConfig {
 	}
 	public void setBaseModelId(Integer baseModelId) {
 		this.baseModelId = baseModelId;
+	}
+	
+	public boolean isTestAndTrainOverlapping() {
+		for(DocumentSelectionDescriptor trainDsd : train) {
+			for(DocumentSelectionDescriptor testDsd : test) {
+				if(trainDsd.getDocId() == testDsd.getDocId()) {
+					//found overlap in doc selection; compare each of the pages
+					for(PageDescriptor trainP : trainDsd.getPages()) {
+						for(PageDescriptor testP : testDsd.getPages()) {
+							if(trainP.getPageId() == testP.getPageId()) {
+								//same page was selected for test and train
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
 	}
 }

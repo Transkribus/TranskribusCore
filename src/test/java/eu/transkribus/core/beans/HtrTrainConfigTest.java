@@ -21,7 +21,7 @@ public class HtrTrainConfigTest {
 				p.setTsId(j);
 				d.getPages().add(p);
 			}
-			htc.getTrainList().add(d);
+			htc.getTrain().add(d);
 		}
 		
 		System.out.println(JaxbUtils.marshalToString(htc, DocumentSelectionDescriptor.class, PageDescriptor.class));
