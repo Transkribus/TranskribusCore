@@ -36,6 +36,7 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	@Column
 	private int pageNr;
 	@Column(name = "imagekey")
+	@Transient
 	private String key = null; //The fimagestore key for getting the image file
 	//imageUrl represents a link to the local filesystem or the link to the fimagestore
 	@Column(name="IMAGE_ID")

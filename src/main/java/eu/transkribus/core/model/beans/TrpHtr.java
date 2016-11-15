@@ -36,6 +36,12 @@ public class TrpHtr {
 	
 	@Column(name="GT_DOCID")
 	private int gtDocId;
+	
+	@Column(name="BASE_HTR_ID")
+	private Integer baseHtrId;
+	
+	@Column(name="TRAIN_JOB_ID")
+	private String trainJobId;
 
 	public int getHtrId() {
 		return htrId;
@@ -91,6 +97,22 @@ public class TrpHtr {
 
 	public void setGtDocId(int gtDocId) {
 		this.gtDocId = gtDocId;
+	}
+	
+	public Integer getBaseHtrId() {
+		return baseHtrId;
+	}
+
+	public void setBaseHtrId(Integer baseHtrId) {
+		this.baseHtrId = baseHtrId;
+	}
+	
+	public String getTrainJobId() {
+		return trainJobId;
+	}
+
+	public void setTrainJobId(String trainJobId) {
+		this.trainJobId = trainJobId;
 	}
 
 	@Override

@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class HtrTrainConfig {
+public abstract class HtrTrainConfig {
 	
 	protected String modelName;
 	protected String description;
@@ -19,11 +19,11 @@ public class HtrTrainConfig {
 	
 	@XmlElementWrapper(name="TrainList")
 	@XmlElement
-	protected List<DocumentDuplicationDescriptor> trainList = new LinkedList<>();
+	protected List<DocumentSelectionDescriptor> trainList = new LinkedList<>();
 
 	@XmlElementWrapper(name="TestList")
 	@XmlElement
-	protected List<DocumentDuplicationDescriptor> testList = new LinkedList<>();
+	protected List<DocumentSelectionDescriptor> testList = new LinkedList<>();
 	
 	public String getModelName() {
 		return modelName;
@@ -49,19 +49,19 @@ public class HtrTrainConfig {
 		this.colId = colId;
 	}
 
-	public List<DocumentDuplicationDescriptor> getTrainList() {
+	public List<DocumentSelectionDescriptor> getTrainList() {
 		return trainList;
 	}
 
-	public void setTrainList(List<DocumentDuplicationDescriptor> trainList) {
+	public void setTrainList(List<DocumentSelectionDescriptor> trainList) {
 		this.trainList = trainList;
 	}
 	
-	public List<DocumentDuplicationDescriptor> getTestList() {
+	public List<DocumentSelectionDescriptor> getTestList() {
 		return testList;
 	}
 
-	public void setTestList(List<DocumentDuplicationDescriptor> testList) {
+	public void setTestList(List<DocumentSelectionDescriptor> testList) {
 		this.testList = testList;
 	}
 }
