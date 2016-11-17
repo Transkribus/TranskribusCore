@@ -275,7 +275,6 @@ public class TrpXlsxBuilder {
 			
 			TrpPageType trpPage = tr.getPage();
 				
-			
 			logger.debug("writing xlsx for page "+(i+1)+"/"+doc.getNPages());
 			
 			List<TrpTextRegionType> textRegions = trpPage.getTextRegions(true);
