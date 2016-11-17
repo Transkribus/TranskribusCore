@@ -244,7 +244,8 @@ public final class RESTConst {
 	public static final String HTR_RNN_PATH = "rnn";
 
 	public static final String HTR_DICT_NAME_PARAM = "dict";
-
+	
+	
 	//OAuth stuff
 	public static final String LOGIN_OAUTH_PATH = "oauth";
 	public static final String CODE_PARAM = "code";
@@ -266,7 +267,5 @@ public final class RESTConst {
 	public static final String PAGE_ID_PARAM = "pageId";
 	public static final String END_PARAM = "end";
 	public static final String CLIENT_ID_PARAM = "clientId";
-	
-
-	
+		
 }
