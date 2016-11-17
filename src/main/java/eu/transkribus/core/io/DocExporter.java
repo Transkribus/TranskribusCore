@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
+import java.net.URL;
 import java.util.List;
 import java.util.Observable;
 import java.util.Set;
@@ -173,15 +173,22 @@ public class DocExporter extends Observable {
 			
 			if (doc.isRemoteDoc()) {
 				final URI imgUri = uriBuilder.getFileUri(p.getKey());
-				if (opts.doWriteImages)
+				if (opts.doWriteImages) {
 					imgFile = getter.saveFile(imgUri, imgOutputDir.getAbsolutePath(), baseFileName + imgExt);
+					p.setUrl(imgFile.toURI().toURL());
+					p.setKey(null);
+				}
 				if(opts.exportPageXml) {
 					TrpTranscriptMetadata t = p.getCurrentTranscript();
 					xmlFile = getter.saveFile(t.getUrl().toURI(), pageOutputDir.getAbsolutePath(), baseFileName + xmlExt);
+					p.getTranscripts().clear();
+					t.setUrl(xmlFile.toURI().toURL());
+					p.getTranscripts().add(t);
 				}
 			} else {
-				if (opts.doWriteImages)
+				if (opts.doWriteImages) {
 					imgFile = LocalDocWriter.copyImgFile(p, p.getUrl(), imgOutputDir.getAbsolutePath(), baseFileName + imgExt);
+				}
 				if(opts.exportPageXml) {
 					xmlFile = LocalDocWriter.copyTranscriptFile(p, pageOutputDir.getAbsolutePath(), baseFileName + xmlExt);
 				}
@@ -209,9 +216,13 @@ public class DocExporter extends Observable {
 		
 		if (opts.writeMets) {
 			//load the exported doc from its new location
-			final TrpDoc localDoc = LocalDocReader.load(outputDir.getAbsolutePath(), false);
+			//FIXME this does not work for export of PAGE XMLs only!
+//			final TrpDoc localDoc = LocalDocReader.load(outputDir.getAbsolutePath(), false);
+			
+			//set local folder or else TrpMetsBuilder will treat this as remote doc!
+			doc.getMd().setLocalFolder(outputDir);
 			//write mets with file pointers to local files
-			Mets mets = TrpMetsBuilder.buildMets(localDoc, opts.exportPageXml, opts.exportAltoXml, opts.doWriteImages);
+			Mets mets = TrpMetsBuilder.buildMets(doc, opts.exportPageXml, opts.exportAltoXml, opts.doWriteImages);
 			File metsFile = new File(outputDir.getAbsolutePath() + File.separator
 					+ TrpMetsBuilder.METS_FILE_NAME);
 	
