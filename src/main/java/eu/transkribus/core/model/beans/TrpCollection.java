@@ -36,6 +36,10 @@ public class TrpCollection implements Serializable {
 	
 	@Column
 	@Transient
+	private String label;
+	
+	@Column
+	@Transient
 	@XmlJavaTypeAdapter(TrpRoleAdapter.class)
 	private TrpRole role = null;
 	
@@ -81,6 +85,12 @@ public class TrpCollection implements Serializable {
 		return getColName() +" ("+getColId()+", "+ (getRole() == null ? "Admin" : getRole())+")";
 	}
 	
+	public String getLabel() {
+		return label;
+	}
+	public void setLabel(String label) {
+		this.label = label;
+	}
 	public String toShortString() {
 		return 	this.getColId() 
 				+ " - " 
@@ -90,18 +100,11 @@ public class TrpCollection implements Serializable {
 				+ " - " 
 				+ this.getRole();
 	}
-	
 	@Override
-	public String toString(){
-		return this.getClass().getSimpleName() 
-				+ " {" 
-				+ this.getColId() 
-				+ " - " 
-				+ this.getColName() 
-				+ " - " 
-				+ this.getDescription() 
-				+ " - " 
-				+ this.getRole() 
-				+ "}";		
+	public String toString() {
+		return "TrpCollection [colId=" + colId + ", colName=" + colName + ", description=" + description
+				+ ", defaultForApp=" + defaultForApp + ", label=" + label + ", role=" + role + "]";
 	}
+	
+	
 }
