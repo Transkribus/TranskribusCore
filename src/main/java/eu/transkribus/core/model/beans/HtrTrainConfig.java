@@ -1,5 +1,6 @@
 package eu.transkribus.core.model.beans;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,8 +12,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class HtrTrainConfig {
-	
+public abstract class HtrTrainConfig implements Serializable {
+
+	private static final long serialVersionUID = 1434111712220564100L;
 	protected String modelName;
 	protected String description;
 	protected String language;

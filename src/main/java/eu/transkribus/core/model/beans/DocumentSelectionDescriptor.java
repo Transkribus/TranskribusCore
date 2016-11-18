@@ -1,5 +1,6 @@
 package eu.transkribus.core.model.beans;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,7 +12,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class DocumentSelectionDescriptor {
+public class DocumentSelectionDescriptor implements Serializable {
+
+	private static final long serialVersionUID = -4923573285902913207L;
 	private int docId;
 	@XmlElementWrapper(name="pageList")
 	@XmlElement
@@ -35,7 +38,8 @@ public class DocumentSelectionDescriptor {
 	
 	@XmlRootElement
 	@XmlAccessorType(XmlAccessType.FIELD)
-	public static class PageDescriptor {
+	public static class PageDescriptor implements Serializable  {
+		private static final long serialVersionUID = -6203294525504243123L;
 		private int pageId;
 		private int tsId;
 		public int getPageId() {

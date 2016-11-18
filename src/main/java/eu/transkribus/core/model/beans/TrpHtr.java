@@ -34,8 +34,14 @@ public class TrpHtr {
 	@Column
 	private Timestamp created;
 	
-	@Column(name="GT_DOCID")
+	@Column(name="TRAIN_GT_DOCID")
 	private int gtDocId;
+	
+	@Column(name="TEST_GT_DOCID")
+	private int testGtDocId;
+	
+	@Column(name="LANGUAGE")
+	private String language;
 	
 	@Column(name="BASE_HTR_ID")
 	private Integer baseHtrId;
@@ -99,6 +105,22 @@ public class TrpHtr {
 		this.gtDocId = gtDocId;
 	}
 	
+	public int getTestGtDocId() {
+		return testGtDocId;
+	}
+
+	public void setTestGtDocId(int testGtDocId) {
+		this.testGtDocId = testGtDocId;
+	}
+
+	public String getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(String language) {
+		this.language = language;
+	}
+
 	public Integer getBaseHtrId() {
 		return baseHtrId;
 	}
@@ -117,8 +139,9 @@ public class TrpHtr {
 
 	@Override
 	public String toString() {
-		return "TrpHtr [rnnId=" + htrId + ", name=" + name + ", description=" + description + ", provider=" + provider
-				+ ", path=" + path + ", created=" + created + ", gtDocId=" + gtDocId + "]";
+		return "TrpHtr [htrId=" + htrId + ", name=" + name + ", description=" + description + ", provider=" + provider
+				+ ", path=" + path + ", created=" + created + ", gtDocId=" + gtDocId + ", testGtDocId=" + testGtDocId
+				+ ", language=" + language + ", baseHtrId=" + baseHtrId + ", trainJobId=" + trainJobId + "]";
 	}
-	
+
 }
