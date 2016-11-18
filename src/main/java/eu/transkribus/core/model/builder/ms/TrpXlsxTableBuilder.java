@@ -44,7 +44,7 @@ public class TrpXlsxTableBuilder {
 		
 	}
 	
-	public static void writeXlsxForTables(TrpDoc doc, boolean wordBased, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor) throws Exception {
+	public static void writeXlsxForTables(TrpDoc doc, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor) throws Exception {
 		
 		//TrpTableRegionType is contained in the regions too
 

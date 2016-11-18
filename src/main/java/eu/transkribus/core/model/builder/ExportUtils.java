@@ -213,9 +213,11 @@ public class ExportUtils {
 			throw new IOException("Element has no text or custom tag list: "+element+", class: "+element.getClass().getName());
 			
 		for (CustomTag nonIndexedTag : cl.getNonIndexedTags()) {
-			
+			//logger.debug("tagname" + nonIndexedTag.getTagName());
 			//logger.debug("nonindexed tag found ");
-			storeCustomTag(nonIndexedTag, textStr);
+			if(!nonIndexedTag.getTagName().equals("readingOrder")){
+				storeCustomTag(nonIndexedTag, textStr);
+			}
 
 		}
 		
@@ -232,7 +234,7 @@ public class ExportUtils {
 		}
 		
 		for (CustomTag indexedTag : cl.getIndexedTags()) {
-
+			logger.debug("tagname" + indexedTag.getTagName());
 			storeCustomTag(indexedTag, textStr);
 
 		}

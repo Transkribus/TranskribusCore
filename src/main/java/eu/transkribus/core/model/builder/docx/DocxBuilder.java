@@ -823,7 +823,7 @@ public class DocxBuilder {
 	            R run = factory.createR();
 	            if (entry.get(key) != null){
 	            	tx.setValue(entry.get(key).getUnicodeTextFromLines());
-	            	logger.debug(" text " + tx.getValue() + " colSpan " + entry.get(key).getColSpan() + " rowSpan " + entry.get(key).getRowSpan());
+	            	//logger.debug(" text " + tx.getValue() + " colSpan " + entry.get(key).getColSpan() + " rowSpan " + entry.get(key).getRowSpan());
 	            }
 	            run.getContent().add(tx);
 	            columnPara.getContent().add(run);

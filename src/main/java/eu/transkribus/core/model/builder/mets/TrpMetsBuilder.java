@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Observable;
+import java.util.Set;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -71,10 +72,12 @@ public class TrpMetsBuilder extends Observable {
 	 * 
 	 * @param doc
 	 * @param exportImages 
+	 * @param pageIndices 
 	 * @return
 	 * @throws IOException if image/xml files can't be accessed for reading the mimetype etc.
 	 */
-	public static Mets buildMets(TrpDoc doc, boolean exportPage, boolean exportAlto, boolean exportImages) throws IOException {
+	public static Mets buildMets(TrpDoc doc, boolean exportPage, boolean exportAlto, boolean exportImages, Set<Integer> pageIndices) throws IOException {
+		
 		Mets mets = new Mets();
 		TrpDocMetadata md = doc.getMd();
 		File localFolder = md.getLocalFolder();
@@ -131,7 +134,13 @@ public class TrpMetsBuilder extends Observable {
 		FileGrpType altoGrp = new FileGrpType();
 		altoGrp.setID(ALTO_GROUP_ID);
 		
+		int i = 0;
 		for(TrpPage p : pages){
+			
+			if (pageIndices!=null && !pageIndices.contains(i)){
+				continue;
+			}
+			i++;
 			
 			//build a page div for the structmap
 			DivType pageDiv = new DivType();

@@ -32,7 +32,7 @@ public class TrpMetsBuilderTest {
 		TrpDoc doc = LocalDocReader.load(folder.getAbsolutePath());
 //		System.out.println(doc.toString());
 		//2nd arg: export page files (add to mets filesec), 3rd arg: export alto files, 4th arg: export images
-		Mets mets = TrpMetsBuilder.buildMets(doc, true, false, true);
+		Mets mets = TrpMetsBuilder.buildMets(doc, true, false, true, null);
 		String outFile = folder.getAbsolutePath()+"/mets.xml";
 		JaxbUtils.marshalToFile(mets, new File(outFile), TrpDocMetadata.class);
 		if (printResultOnSysOut)
