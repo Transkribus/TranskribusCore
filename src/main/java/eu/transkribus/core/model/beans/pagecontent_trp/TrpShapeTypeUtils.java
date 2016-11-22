@@ -47,6 +47,7 @@ public class TrpShapeTypeUtils {
 		
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void applyReadingOrderFromCoordinates(List content, boolean fireEvents, boolean deleteReadingOrder) {
+		//sort with coordinates
 		Collections.sort(content, new TrpElementCoordinatesComparator());
 		
 		int i=0;
