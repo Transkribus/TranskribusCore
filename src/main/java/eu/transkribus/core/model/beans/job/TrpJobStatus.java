@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.model.beans.job.enums.JobImpl;
-import eu.transkribus.core.model.beans.job.enums.JobType;
 import eu.transkribus.core.util.CoreUtils;
 
 //public class TrpJob extends ATrpJob {
@@ -106,6 +105,9 @@ public class TrpJobStatus implements Serializable {
 	@Column 
 	private String className;
 	
+	@Column
+	private String result;
+	
 	//isPersistent specifies whether the job is to be stored in the DB. 
 	//This is always true if not stated otherwise in constructor call.
 //	private boolean isPersistent;
@@ -172,6 +174,7 @@ public class TrpJobStatus implements Serializable {
 	    this.className = other.className;
 	    this.session_history_id = other.session_history_id;
 	    this.jobImpl = other.jobImpl;
+	    this.result = other.result;
 //	    this.future = trpJobStatus.future;
 	}
 	
@@ -337,6 +340,14 @@ public class TrpJobStatus implements Serializable {
 		this.className = className;
 	}
 
+	public String getResult() {
+		return result;
+	}
+
+	public void setResult(String result) {
+		this.result = result;
+	}
+
 	public boolean isFinished() {
 		return state.equals(FINISHED) || state.equals(FAILED) || state.equals(CANCELED);
 	}
@@ -398,6 +409,6 @@ public class TrpJobStatus implements Serializable {
 				+ ", userName=" + userName + ", userId=" + userId + ", createTime=" + createTime + ", startTime="
 				+ startTime + ", endTime=" + endTime + ", jobData=" + jobData + ", resumable=" + resumable
 				+ ", className=" + className + ", session_history_id=" + session_history_id + ", jobImpl=" + jobImpl
-				+ "]";
+				+ ", result=" + result + "]";
 	}
 }
