@@ -1,5 +1,7 @@
 package eu.transkribus.core.model.beans;
 
+import java.io.Serializable;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -8,7 +10,9 @@ import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescripto
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class UroHtrTrainConfig extends HtrTrainConfig {
+public class UroHtrTrainConfig extends HtrTrainConfig implements Serializable {
+
+	private static final long serialVersionUID = 6826017343706433307L;
 	protected Integer numEpochs;
 	protected String learningRate;
 	protected String noise;

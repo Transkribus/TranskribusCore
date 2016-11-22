@@ -6,6 +6,7 @@ public enum JobTask {
 	DuplicateDocument(JobType.utility, "Duplicate Document"),
 	RebuildSolrIndex(JobType.utility, "Rebuild Solr Index"),	
 	IndexDocument(JobType.utility, "Build search index"),
+	Export(JobType.utility, "Export Document"),
 	
 	DetectBaselines(JobType.layoutAnalysis, "Detect Baselines"),
 	DetectBlocks(JobType.layoutAnalysis, "Block Segmentation"),

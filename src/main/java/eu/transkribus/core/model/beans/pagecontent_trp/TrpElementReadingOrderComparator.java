@@ -18,7 +18,7 @@ public class TrpElementReadingOrderComparator<T> implements Comparator<T> {
 //			return 0;
 //		}
 
-		logger.debug(" in compare fasdfdf");
+//		logger.debug(" in compare fasdfdf");
 		
 		Integer ro1 = o1 instanceof ITrpShapeType ? ((ITrpShapeType) o1).getReadingOrder() : null;
 		Integer ro2 = o2 instanceof ITrpShapeType ? ((ITrpShapeType) o2).getReadingOrder() : null;
