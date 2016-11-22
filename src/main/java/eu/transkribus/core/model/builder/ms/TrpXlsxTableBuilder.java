@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.util.HSSFCellUtil;
 import org.apache.poi.ss.usermodel.Cell;
@@ -19,6 +20,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.WorkbookUtil;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
@@ -147,8 +149,8 @@ public class TrpXlsxTableBuilder {
 			}
 		}
 		
-		CellStyle rowStyle = wb.createCellStyle();
-		rowStyle.setWrapText(true);
+
+		
 		
 		/*
 		 * auto size the columns
@@ -162,13 +164,14 @@ public class TrpXlsxTableBuilder {
             if (rowIterator.hasNext())
             {
                 Row headerRow = (Row) rowIterator.next();
+                
                 //get the number of cells in the header row
                 numberOfCells = headerRow.getPhysicalNumberOfCells();
                 for (int j = 0; j<numberOfCells; j++){
                 	wb.getSheetAt(i).autoSizeColumn(j, true);
                 }
                 
-                //headerRow.setRowStyle(rowStyle);
+               
             }
             
 		}
@@ -201,6 +204,9 @@ public class TrpXlsxTableBuilder {
 		style.setBorderRight(HSSFCellStyle.BORDER_THIN);
 		style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
 		
+		CellStyle rowStyle = (CellStyle) wb.createCellStyle();
+		rowStyle.setWrapText(true);	
+		
 
         		
 	    int i = 0;
@@ -213,6 +219,7 @@ public class TrpXlsxTableBuilder {
 	        }
 
 	    	Row nextRow = currSheet.createRow(i);
+	    	nextRow.setRowStyle(rowStyle);
 	    	
 	    	i++;
 	        
