@@ -1,5 +1,10 @@
 package eu.transkribus.core.rest;
 
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+
 public final class RESTConst {
 	
 	//Header keys
@@ -267,5 +272,15 @@ public final class RESTConst {
 	public static final String PAGE_ID_PARAM = "pageId";
 	public static final String END_PARAM = "end";
 	public static final String CLIENT_ID_PARAM = "clientId";
+	
+	//Export
+	public static final String EXPORT_PATH = "export";
+	public static final String WRITE_METS_PARAM = "doWriteMets";
+	public static final String USE_OCR_MASTER_DIR_PARAM = "useOcrMasterDir";
+	public static final String DO_WRITE_IMAGES_PARAM = "doWriteImages";
+	public static final String DO_EXPORT_PAGE_PARAM = "doExportPage";
+	public static final String DO_EXPORT_ALTO_PARAM = "doExportAlto";
+	public static final String SPLIT_WORDS_IN_ALTO_PARAM = "splitWordsInAlto";
+	public static final String DO_EXPORT_FAT_PARAM = "doExportFat";
 		
 }

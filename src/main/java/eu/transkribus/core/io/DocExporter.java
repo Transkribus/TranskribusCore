@@ -46,6 +46,15 @@ public class DocExporter extends Observable {
 		public boolean exportFatXml=false;
 		public String fileNamePattern = "${filename}";
 		public boolean useHttps=true;
+		@Override
+		public String toString() {
+			return "ExportOptions [dir=" + dir + ", pageIndices=" + pageIndices + ", doOverwrite=" + doOverwrite
+					+ ", writeMets=" + writeMets + ", useOcrMasterDir=" + useOcrMasterDir + ", doWriteImages="
+					+ doWriteImages + ", exportPageXml=" + exportPageXml + ", pageDirName=" + pageDirName
+					+ ", exportAltoXml=" + exportAltoXml + ", splitIntoWordsInAltoXml=" + splitIntoWordsInAltoXml
+					+ ", exportFatXml=" + exportFatXml + ", fileNamePattern=" + fileNamePattern + ", useHttps="
+					+ useHttps + "]";
+		}
 	}
 
 	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, boolean exportImg, boolean exportPage, boolean exportAlto, boolean splitIntoWordsInAlto) throws IOException,
