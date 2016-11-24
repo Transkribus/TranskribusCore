@@ -1,25 +1,24 @@
 package eu.transkribus.core.model.builder;
 
-import static com.tutego.jrtf.RtfHeader.color;
-
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.xml.bind.JAXBException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.tutego.jrtf.Rtf;
 
 import eu.transkribus.core.model.beans.JAXBPageTranscript;
 import eu.transkribus.core.model.beans.TrpDoc;
@@ -38,7 +37,6 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
-import eu.transkribus.core.model.builder.rtf.TrpRtfBuilder;
 
 public class ExportUtils {
 	private final static Logger logger = LoggerFactory.getLogger(ExportUtils.class);
@@ -48,18 +46,26 @@ public class ExportUtils {
 	static List<JAXBPageTranscript> pageTranscripts = null;
 	
 	static LinkedHashMap<CustomTag, String> tags = new LinkedHashMap<CustomTag, String>();
-	static Set<String> tagnames = new HashSet<String>();
+	static Set<String> selectedTags = new HashSet<String>();
 	
+	public static Set<String> getSelectedTags() {
+		return selectedTags;
+	}
+
+	public static void setSelectedTags(Set<String> selectedTags) {
+		ExportUtils.selectedTags = selectedTags;
+	}
+
 	static List<String> persons = new ArrayList<String>();
 	static List<String> places = new ArrayList<String>();
+	
+	
 	
 	
 	public static void storePageTranscripts4Export(TrpDoc doc, Set<Integer> pageIndices, IProgressMonitor monitor, String versionStatus, int pageIdx, TrpTranscriptMetadata loadedTranscript) throws Exception{
 		
 		pageTranscripts = new ArrayList<JAXBPageTranscript>();
-		
-		
-		
+
 		List<TrpPage> pages = doc.getPages();
 		
 		int totalPages = pages.size();	
@@ -84,7 +90,7 @@ public class ExportUtils {
 			}
 			else if (versionStatus.contains("Loaded")){
 				//if loaded page idx == i than we can export the loaded status and for all other pages the latest
-				if (i==pageIdx){
+				if (i==pageIdx && loadedTranscript != null){
 					md = loadedTranscript;
 				}
 				
@@ -100,8 +106,10 @@ public class ExportUtils {
 			
 			logger.debug("Loaded Transcript from page " + (i+1));
 			
-			monitor.setTaskName("Loaded Transcript from page " + (i+1));
-			monitor.worked(++c);
+			if (monitor != null){
+				monitor.setTaskName("Loaded Transcript from page " + (i+1));
+				monitor.worked(++c);
+			}
 
 		}
 	}
@@ -348,6 +356,18 @@ public class ExportUtils {
 		
 	}
 	
+	/*
+	 * return the selected tagnames or, if nothing selected, all registered tagnames (except text style, reading order etc.)
+	 */
+	public static Set<String> getOnlySelectedTagnames(Set<String> registeredTagNames) {
+		// TODO Auto-generated method stub
+		Set<String> usefulTagsnames = getOnlyWantedTagnames(registeredTagNames);
+		if (selectedTags != null && selectedTags.size() > 0){
+			return selectedTags;
+		}
+		return usefulTagsnames;
+	}
+	
 	public static String blackenString(CustomTag blackeningTag, String lineText) {
 		int beginIndex = blackeningTag.getOffset();
 		int endIndex = beginIndex + blackeningTag.getLength();
@@ -384,4 +404,12 @@ public class ExportUtils {
 		else	
 			return null;
 	}
+	
+	public static String getAdjustedDocTitle(String title) {
+		return (title.replaceAll("([/\\?%*:| \"<>. ])", "_"));
+	}
+	
+
+
+
 }

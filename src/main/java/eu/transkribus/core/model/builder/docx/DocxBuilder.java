@@ -114,6 +114,7 @@ import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.customtags.AbbrevTag;
 import eu.transkribus.core.model.beans.customtags.CommentTag;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
+import eu.transkribus.core.model.beans.customtags.CustomTagFactory;
 import eu.transkribus.core.model.beans.customtags.CustomTagList;
 import eu.transkribus.core.model.beans.customtags.TextStyleTag;
 import eu.transkribus.core.model.beans.customtags.UnclearTag;
@@ -300,13 +301,13 @@ public class DocxBuilder {
 //		System.out.println("Done.");
 	}
 	
-	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackening, File file, Set<Integer> pageIndices, IProgressMonitor monitor, Set<String> selectedTags, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean replaceAbbrevs, boolean keepLineBreaks) throws JAXBException, IOException, Docx4JException, InterruptedException {
+	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackening, File file, Set<Integer> pageIndices, IProgressMonitor monitor, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean replaceAbbrevs, boolean keepLineBreaks) throws JAXBException, IOException, Docx4JException, InterruptedException {
 		
 	    //ch.qos.logback.classic.Logger root = logger.getClass().get(ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
 	    ((ch.qos.logback.classic.Logger) logger).setLevel(ch.qos.logback.classic.Level.DEBUG);
 	    
 		exportTags = writeTags;
-		tagnames = selectedTags;
+		tagnames = ExportUtils.getOnlySelectedTagnames(ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames()));
 		markUnclearWords = markUnclear;
 		expandAbbrevs = expandAbbreviations;
 		preserveLineBreaks = keepLineBreaks;

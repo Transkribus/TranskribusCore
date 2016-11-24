@@ -2,6 +2,7 @@ package eu.transkribus.core.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -16,17 +17,28 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.fop.afp.util.StringUtils;
 import org.dea.fimgstoreclient.FimgStoreGetClient;
 import org.dea.fimgstoreclient.utils.FimgStoreUriBuilder;
+import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.itextpdf.text.DocumentException;
 
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.mets.Mets;
+import eu.transkribus.core.model.builder.ExportUtils;
 import eu.transkribus.core.model.builder.FatBuilder;
 import eu.transkribus.core.model.builder.alto.AltoExporter;
+import eu.transkribus.core.model.builder.docx.DocxBuilder;
 import eu.transkribus.core.model.builder.mets.TrpMetsBuilder;
+import eu.transkribus.core.model.builder.ms.TrpXlsxBuilder;
+import eu.transkribus.core.model.builder.ms.TrpXlsxTableBuilder;
+import eu.transkribus.core.model.builder.pdf.PdfExporter;
+import eu.transkribus.core.model.builder.tei.ATeiBuilder;
+import eu.transkribus.core.model.builder.tei.TeiExportPars;
+import eu.transkribus.core.model.builder.tei.TrpTeiStringBuilder;
 import eu.transkribus.core.util.JaxbUtils;
 
 public class DocExporter extends Observable {
@@ -104,6 +116,29 @@ public class DocExporter extends Observable {
 		
 		final File outputDir = exportDoc(doc, opts);
 		return outputDir;
+	}
+	
+	public void writePDF(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean addTextPages, final boolean imagesOnly, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, boolean createTitle) throws MalformedURLException, DocumentException, IOException, JAXBException, URISyntaxException, InterruptedException{
+		PdfExporter pdfWriter = new PdfExporter();
+		pdfWriter.export(doc, path, pageIndices, addTextPages, imagesOnly, highlightTags, wordBased, doBlackening, createTitle);
+	}
+	
+	public void writeTEI(final TrpDoc doc, final String path, final TeiExportPars pars) throws Exception{
+		ATeiBuilder builder = new TrpTeiStringBuilder(doc, pars, null);
+		builder.buildTei();
+		builder.writeTeiXml(new File(path));
+	}
+	
+	public void writeDocx(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, final boolean createTitle, boolean doDocxMarkUnclear, boolean doDocxExpandAbbrevs, boolean doDocxSubstituteAbbrevs, boolean doDocxPreserveLineBreaks) throws MalformedURLException, DocumentException, IOException, JAXBException, URISyntaxException, InterruptedException, Docx4JException{
+		DocxBuilder.writeDocxForDoc(doc, wordBased, highlightTags, doBlackening, new File(path), pageIndices, null, createTitle, doDocxMarkUnclear, doDocxExpandAbbrevs, doDocxSubstituteAbbrevs, doDocxPreserveLineBreaks);
+	}
+	
+	public void writeTagExcel(final TrpDoc doc, final String path, Set<Integer> pageIndices, boolean wordBased) throws Exception{
+		TrpXlsxBuilder.writeXlsxForDoc(doc, wordBased, new File(path), pageIndices, null);
+	}
+	
+	public void writeTableExcel(final TrpDoc doc, final String path, Set<Integer> pageIndices) throws Exception{
+		TrpXlsxTableBuilder.writeXlsxForTables(doc, new File(path), pageIndices, null);
 	}
 
 	public File exportDoc(TrpDoc doc, final ExportOptions opts) throws IOException, IllegalArgumentException,
@@ -188,7 +223,12 @@ public class DocExporter extends Observable {
 					p.setKey(null);
 				}
 				if(opts.exportPageXml) {
-					TrpTranscriptMetadata t = p.getCurrentTranscript();
+					//old
+					//TrpTranscriptMetadata t = p.getCurrentTranscript();
+					/*
+					 * new: to get the previously stored choosen version
+					 */
+					TrpTranscriptMetadata t = ExportUtils.getPageTranscriptAtIndex(i).getMd();
 					xmlFile = getter.saveFile(t.getUrl().toURI(), pageOutputDir.getAbsolutePath(), baseFileName + xmlExt);
 					p.getTranscripts().clear();
 					t.setUrl(xmlFile.toURI().toURL());
@@ -248,6 +288,8 @@ public class DocExporter extends Observable {
 		}
 		return outputDir;
 	}
+	
+	
 
 	private String buildFileName(String fileNamePattern, TrpPage p) {
 		if(fileNamePattern == null || fileNamePattern.equals("${filename}")) {

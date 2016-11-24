@@ -144,7 +144,7 @@ public class TrpPdfDocument extends APdfDocument {
 	
 
 	@SuppressWarnings("unused")
-	public void addPage(URL imgUrl, TrpDoc doc, PcGtsType pc, boolean addAdditionalPlainTextPage, boolean imageOnly, Set<String> selectedTags, FimgStoreImgMd md, boolean doBlackening) throws MalformedURLException, IOException, DocumentException, JAXBException, URISyntaxException {
+	public void addPage(URL imgUrl, TrpDoc doc, PcGtsType pc, boolean addAdditionalPlainTextPage, boolean imageOnly, FimgStoreImgMd md, boolean doBlackening) throws MalformedURLException, IOException, DocumentException, JAXBException, URISyntaxException {
 		
 		imgOnly = imageOnly;
 		extraTextPage = addAdditionalPlainTextPage;
@@ -1043,7 +1043,8 @@ public class TrpPdfDocument extends APdfDocument {
 			
 			for (Map.Entry<CustomTag, String> currEntry : entrySet){
 				
-				Set<String> wantedTags = ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames());
+				//Set<String> wantedTags = ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames());
+				Set<String> wantedTags = ExportUtils.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
 				
 				if (wantedTags.contains(currEntry.getKey().getTagName())){
 
@@ -1315,7 +1316,8 @@ public class TrpPdfDocument extends APdfDocument {
 		int k = 1;
 		Set<Entry<CustomTag, String>> entrySet = ExportUtils.getAllTagsForShapeElement(shape).entrySet();
 		
-		Set<String> wantedTags = ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames());
+		//Set<String> wantedTags = ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames());
+		Set<String> wantedTags = ExportUtils.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
 
 		int [] prevLength = new int[entrySet.size()];
 		int [] prevOffset = new int[entrySet.size()];
@@ -1588,7 +1590,7 @@ public class TrpPdfDocument extends APdfDocument {
 
 	}
 
-	public void addTags(TrpDoc doc, Set<Integer> pageIndices, boolean useWordLevel2, Set<String> selectedTags) throws DocumentException, IOException {
+	public void addTags(TrpDoc doc, Set<Integer> pageIndices, boolean useWordLevel2) throws DocumentException, IOException {
 		PdfContentByte cb = writer.getDirectContentUnder();
 		document.newPage();
 				
@@ -1596,8 +1598,10 @@ public class TrpPdfDocument extends APdfDocument {
 		float posY;
 		//BaseFont bf = BaseFont.createFont(BaseFont.TIMES_ROMAN, "UTF-8", BaseFont.NOT_EMBEDDED, true, null, null);
 		
+		Set<String> wantedTags = ExportUtils.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
+		
 		//logger.debug("selectedTags Size " + selectedTags.size());
-		for (String currTagname : selectedTags){
+		for (String currTagname : wantedTags){
 			double lineHeight = 12/scaleFactorY;
 			double lineGap = 4/scaleFactorY;
 			//logger.debug("currTagname " + currTagname);

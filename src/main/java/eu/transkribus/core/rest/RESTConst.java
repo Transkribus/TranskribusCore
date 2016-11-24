@@ -277,10 +277,37 @@ public final class RESTConst {
 	public static final String EXPORT_PATH = "export";
 	public static final String WRITE_METS_PARAM = "doWriteMets";
 	public static final String USE_OCR_MASTER_DIR_PARAM = "useOcrMasterDir";
+	public static final String USE_STANDARDIZED_FILENAMES_PARAM = "useStandardizedFilenames";
 	public static final String DO_WRITE_IMAGES_PARAM = "doWriteImages";
 	public static final String DO_EXPORT_PAGE_PARAM = "doExportPage";
 	public static final String DO_EXPORT_ALTO_PARAM = "doExportAlto";
-	public static final String SPLIT_WORDS_IN_ALTO_PARAM = "splitWordsInAlto";
+	public static final String DO_SPLIT_WORDS_IN_ALTO_PARAM = "splitWordsInAlto";
 	public static final String DO_EXPORT_FAT_PARAM = "doExportFat";
+	public static final String WRITE_PDF_PARAM = "doWritePdf";
+	public static final String WRITE_TEI_PARAM = "doWriteTei";
+	public static final String WRITE_DOCX_PARAM = "doWriteDocx";
+	public static final String WRITE_TAGS_EXCEL_PARAM = "doWriteTagsXlsx";
+	public static final String WRITE_TABLES_EXCEL_PARAM = "doWriteTablesXlsx";
+	public static final String DO_PDF_IMAGES_ONLY_PARAM = "doPdfImagesOnly";
+	public static final String DO_PDF_IMAGES_PLUS_TEXT_PARAM = "doPdfImagesPlusText";
+	public static final String DO_PDF_EXTRA_TEXT_PARAM = "doPdfWithTextPages";
+	public static final String DO_PDF_HIGHLIGHT_TAGS_PARAM = "doPdfWithTags";
+	public static final String DO_TEI_NO_ZONES_PARAM = "doTeiWithNoZones";
+	public static final String DO_TEI_REGION_ZONE_PARAM = "doTeiWithZonePerRegion";
+	public static final String DO_TEI_LINE_ZONE_PARAM = "doTeiWithZonePerLine";
+	public static final String DO_TEI_WORD_ZONE_PARAM = "doTeiWithZonePerWord";
+	public static final String DO_TEI_LINE_TAGS_PARAM = "doTeiWithLineTags";
+	public static final String DO_TEI_LINE_BREAKS_PARAM = "doTeiWithLineBreaks";
+	public static final String DO_DOCX_EXPORT_TAGS = "doDocxWithTags";
+	public static final String DO_DOCX_PRESERVE_BREAKS_PARAM = "doDocxPreserveLineBreaks";
+	public static final String DO_DOCX_MARK_UNCLEAR_PARAM = "doDocxMarkUnclear";
+	public static final String DO_DOCX_KEEP_ABBREVS_PARAM = "doDocxKeepAbbrevs";
+	public static final String DO_DOCX_EXPAND_ABBREVS_PARAM = "doDocxExpandAbbrevs";
+	public static final String DO_DOCX_SUBSTITUTE_ABBREVS_PARAM = "doDocxSubstituteAbbrevs";
+	public static final String DO_WORD_BASED_EXPORT_PARAM = "doWordBased";
+	public static final String DO_BLACKENING_PARAM = "doBlackening";
+	public static final String DO_CREATE_TITLE_PARAM = "doCreateTitle";
+	public static final String USE_VERSION_STATUS_PARAM = "useVersionStatus";
+	
 		
 }

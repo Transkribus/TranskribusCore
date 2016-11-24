@@ -3,6 +3,7 @@ package eu.transkribus.core.util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -119,6 +120,65 @@ public class ZipUtils {
 			}
 		}
 		return fileList;
+	}
+	
+	/*
+	 * create ZIP file for folders and files
+	 */
+	
+	public static File createZipFromFolder(String srcFolder, String destZipFile) throws IOException {
+		ZipOutputStream zip = null;
+		FileOutputStream fileWriter = null;
+
+		try {
+			fileWriter = new FileOutputStream(destZipFile);
+
+			zip = new ZipOutputStream(fileWriter);
+
+			addFolderToZip("", srcFolder, zip);
+			zip.flush();
+			zip.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			throw e;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			throw e;
+		} finally {
+			if (zip != null) {
+				zip.close();
+			}
+		}
+		return new File(destZipFile);
+	}
+
+	static private void addFileToZip(String path, String srcFile, ZipOutputStream zip) throws IOException {
+
+		File folder = new File(srcFile);
+		if (folder.isDirectory()) {
+			addFolderToZip(path, srcFile, zip);
+		} else {
+			byte[] buf = new byte[1024];
+			int len;
+			FileInputStream in = new FileInputStream(srcFile);
+			zip.putNextEntry(new ZipEntry(path + "/" + folder.getName()));
+			while ((len = in.read(buf)) > 0) {
+				zip.write(buf, 0, len);
+			}
+			in.close();
+		}
+	}
+
+	static private void addFolderToZip(String path, String srcFolder, ZipOutputStream zip) throws IOException {
+		File folder = new File(srcFolder);
+
+		for (String fileName : folder.list()) {
+			if (path.equals("")) {
+				addFileToZip(folder.getName(), srcFolder + "/" + fileName, zip);
+			} else {
+				addFileToZip(path + "/" + folder.getName(), srcFolder + "/" + fileName, zip);
+			}
+		}
 	}
 
 	/**
