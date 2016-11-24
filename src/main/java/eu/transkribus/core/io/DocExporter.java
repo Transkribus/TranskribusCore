@@ -2,6 +2,7 @@ package eu.transkribus.core.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -44,7 +45,8 @@ import eu.transkribus.core.util.JaxbUtils;
 public class DocExporter extends Observable {
 	private static final Logger logger = LoggerFactory.getLogger(DocExporter.class);
 	
-	public static class ExportOptions {
+	public static class ExportOptions implements Serializable {
+		private static final long serialVersionUID = -3767885415954377017L;
 		public String dir=null;
 		public Set<Integer> pageIndices=null; // can be set to null to include all pages!
 		public boolean doOverwrite=true;
