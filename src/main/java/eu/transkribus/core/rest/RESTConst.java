@@ -276,13 +276,11 @@ public final class RESTConst {
 	//Export
 	public static final String EXPORT_PATH = "export";
 	public static final String WRITE_METS_PARAM = "doWriteMets";
-	public static final String USE_OCR_MASTER_DIR_PARAM = "useOcrMasterDir";
 	public static final String USE_STANDARDIZED_FILENAMES_PARAM = "useStandardizedFilenames";
 	public static final String DO_WRITE_IMAGES_PARAM = "doWriteImages";
 	public static final String DO_EXPORT_PAGE_PARAM = "doExportPage";
 	public static final String DO_EXPORT_ALTO_PARAM = "doExportAlto";
 	public static final String DO_SPLIT_WORDS_IN_ALTO_PARAM = "splitWordsInAlto";
-	public static final String DO_EXPORT_FAT_PARAM = "doExportFat";
 	public static final String WRITE_PDF_PARAM = "doWritePdf";
 	public static final String WRITE_TEI_PARAM = "doWriteTei";
 	public static final String WRITE_DOCX_PARAM = "doWriteDocx";
