@@ -48,6 +48,10 @@ public class TrpHtr {
 	
 	@Column(name="TRAIN_JOB_ID")
 	private String trainJobId;
+	
+	private String cerString;
+	
+	private String charList;
 
 	public int getHtrId() {
 		return htrId;
@@ -136,7 +140,23 @@ public class TrpHtr {
 	public void setTrainJobId(String trainJobId) {
 		this.trainJobId = trainJobId;
 	}
+	
+	public String getCerString() {
+		return cerString;
+	}
 
+	public void setCerString(String cerString) {
+		this.cerString = cerString;
+	}
+	
+	public String getCharList() {
+		return charList;
+	}
+	
+	public void setCharList(String charList) {
+		this.charList = charList;
+	}
+	
 	@Override
 	public String toString() {
 		return "TrpHtr [htrId=" + htrId + ", name=" + name + ", description=" + description + ", provider=" + provider
