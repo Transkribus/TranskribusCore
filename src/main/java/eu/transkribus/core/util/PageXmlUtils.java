@@ -185,7 +185,10 @@ public class PageXmlUtils {
 		
 		return pageData;
 	}
-
+	
+//	public static File marshalToFile(PcGtsType page, File fileOut) throws JAXBException, IOException {
+//		return marshalToFile(page, fileOut, true);
+//	}
 	public static File marshalToFile(PcGtsType page, File fileOut) throws JAXBException, IOException {
 		ValidationEventCollector vec = new ValidationEventCollector();
 		Marshaller marshaller = createMarshaller(vec);
