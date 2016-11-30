@@ -151,7 +151,7 @@ public class ExportUtils {
 			}
 			else{
 				tr = pageTranscripts.get(i);
-				//tr.getPageData();
+				tr.getPageData();
 			}
 			 
 			tr.build();

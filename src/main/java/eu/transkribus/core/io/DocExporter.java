@@ -261,12 +261,12 @@ public class DocExporter extends Observable {
 			if (xmlFile != null) {
 				logger.debug("Written transcript xml file " + xmlFile.getAbsolutePath());
 			} else {
-				logger.warn("No transcript was exported for page " + p.getPageNr());
+				logger.warn("No transcript was exported for page ");
 			}
 			if (altoFile != null) {
 				logger.debug("Written ALTO xml file " + altoFile.getAbsolutePath());
 			} else {
-				logger.warn("No alto was exported for page " + p.getPageNr());
+				logger.warn("No alto was exported for page ");
 			}
 			
 			notifyObservers(Integer.valueOf(p.getPageNr()));
