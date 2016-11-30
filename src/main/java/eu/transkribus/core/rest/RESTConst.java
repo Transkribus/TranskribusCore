@@ -281,9 +281,9 @@ public final class RESTConst {
 	public static final String WRITE_METS_PARAM = "doWriteMets";
 	public static final String USE_STANDARDIZED_FILENAMES_PARAM = "useStandardizedFilenames";
 	public static final String DO_WRITE_IMAGES_PARAM = "doWriteImages";
-	public static final String DO_EXPORT_PAGE_PARAM = "doExportPage";
-	public static final String DO_EXPORT_ALTO_PARAM = "doExportAlto";
-	public static final String DO_SPLIT_WORDS_IN_ALTO_PARAM = "splitWordsInAlto";
+	public static final String DO_EXPORT_PAGE_PARAM = "doExportPageXml";
+	public static final String DO_EXPORT_ALTO_PARAM = "doExportAltoXml";
+	public static final String DO_SPLIT_WORDS_IN_ALTO_PARAM = "splitIntoWordsInAltoXml";
 	public static final String WRITE_PDF_PARAM = "doWritePdf";
 	public static final String WRITE_TEI_PARAM = "doWriteTei";
 	public static final String WRITE_DOCX_PARAM = "doWriteDocx";
