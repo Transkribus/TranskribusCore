@@ -167,7 +167,13 @@ public class DocExporter extends Observable {
 		if(opts.exportPageXml){
 			pageOutputDir = new File(outputDir.getAbsolutePath() + File.separatorChar
 					+ opts.pageDirName);
-			pageOutputDir.mkdir();
+			if (pageOutputDir.mkdir()){
+				logger.debug("pageOutputDir created successfully ");
+			}
+			else{
+				logger.debug("pageOutputDir could not be created!");
+			}
+			
 		}
 		
 		AltoExporter altoEx = new AltoExporter();
@@ -226,11 +232,11 @@ public class DocExporter extends Observable {
 				}
 				if(opts.exportPageXml) {
 					//old
-					//TrpTranscriptMetadata t = p.getCurrentTranscript();
+					TrpTranscriptMetadata t = p.getCurrentTranscript();
 					/*
 					 * new: to get the previously stored choosen version
 					 */
-					TrpTranscriptMetadata t = ExportUtils.getPageTranscriptAtIndex(i).getMd();
+					//TrpTranscriptMetadata t = ExportUtils.getPageTranscriptAtIndex(i).getMd();
 					xmlFile = getter.saveFile(t.getUrl().toURI(), pageOutputDir.getAbsolutePath(), baseFileName + xmlExt);
 					p.getTranscripts().clear();
 					t.setUrl(xmlFile.toURI().toURL());
@@ -255,10 +261,12 @@ public class DocExporter extends Observable {
 			if (xmlFile != null) {
 				logger.debug("Written transcript xml file " + xmlFile.getAbsolutePath());
 			} else {
-//				logger.warn("No transcript was exported for page " + p.getPageNr());
+				logger.warn("No transcript was exported for page " + p.getPageNr());
 			}
 			if (altoFile != null) {
 				logger.debug("Written ALTO xml file " + altoFile.getAbsolutePath());
+			} else {
+				logger.warn("No alto was exported for page " + p.getPageNr());
 			}
 			
 			notifyObservers(Integer.valueOf(p.getPageNr()));

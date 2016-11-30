@@ -51,8 +51,14 @@ public class AltoExporter extends Observable {
 		
 		File altoOutputDir = new File(outputDir.getAbsolutePath() + File.separatorChar
 					+ LocalDocConst.ALTO_FILE_SUB_FOLDER);
-		altoOutputDir.mkdir();
 		
+		if (altoOutputDir.mkdir()){
+			logger.debug("altoOutputDir created successfully ");
+		}
+		else{
+			logger.debug("altoOutputDir could not be created!");
+		}
+
 		return altoOutputDir;
 		
 	}

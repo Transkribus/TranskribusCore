@@ -142,16 +142,16 @@ public class ExportUtils {
 				throw new InterruptedException("User canceled the export");
 			}
 			
-			TrpPage page = pages.get(i);
-			TrpTranscriptMetadata md = page.getCurrentTranscript();
-			
+			//pageTranscripts get fetched before the custom tag map is stored - so normally pageTranscripts.get(i) != null
 			JAXBPageTranscript tr;
 			if (pageTranscripts == null || pageTranscripts.get(i) == null){
+				TrpPage page = pages.get(i);
+				TrpTranscriptMetadata md = page.getCurrentTranscript();
 				tr = new JAXBPageTranscript(md);
 			}
 			else{
 				tr = pageTranscripts.get(i);
-				tr.getPageData();
+				//tr.getPageData();
 			}
 			 
 			tr.build();
