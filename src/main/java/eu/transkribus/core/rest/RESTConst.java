@@ -202,6 +202,9 @@ public final class RESTConst {
 	public static final String HTR_LIST_MODEL_PATH = "htrModels";
 	public static final String HTR_MODEL_NAME_PARAM = "modelName";
 	public static final String WER_PATH = "computeWER";
+
+	public static final String TEST_DOC_PATH = "testSet";
+	public static final String TRAIN_DOC_PATH = "trainSet";
 	
 	public static final String KWS_SEARCH_PATH = "kwsSearch";
 	
