@@ -38,6 +38,16 @@ public class EdFeature implements Serializable {
 		@XmlElement
 		private List<EdOption> options = new LinkedList<>();
 		
+		public EdFeature(EdFeature f) {
+			featureId = f.getFeatureId();
+			title = f.getTitle();
+			description = f.getDescription();
+			colId = f.getColId();
+			for(EdOption o : f.getOptions()) {
+				options.add(new EdOption(o));
+			}
+		}
+
 		public int getFeatureId() {
 			return featureId;
 		}

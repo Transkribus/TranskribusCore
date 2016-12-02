@@ -49,6 +49,16 @@ public class TrpCollection implements Serializable {
 		this.colName = name;
 		this.description = description;
 	}
+	public TrpCollection(TrpCollection c) {
+		this();
+		colId = c.getColId();
+		colName = c.getColName();
+		description = c.getDescription();
+		defaultForApp = c.getDefaultForApp();
+		label = c.getLabel();
+		role = c.getRole();
+	}
+	
 	public int getColId() {
 		return colId;
 	}

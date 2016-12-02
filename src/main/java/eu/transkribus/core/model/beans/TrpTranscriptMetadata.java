@@ -127,6 +127,34 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 		this.note = note;
 	}
 
+	public TrpTranscriptMetadata(TrpTranscriptMetadata m, TrpPage pageReferenceForLocalDocs) {
+		this();
+		this.pageReferenceForLocalDocs = pageReferenceForLocalDocs;
+		tsId = m.getTsId();
+		parentTsId = m.getParentTsId();
+		key = m.getKey();
+		pageId = m.getPageId();
+		docId = m.getDocId();
+		pageNr = m.getPageNr();
+		localFolder = m.getLocalFolder();
+		url = m.getUrl();
+		status = m.getStatus();
+		userName = m.getUserName();
+		userId = m.getUserId();
+		timestamp = m.getTimestamp();
+		toolName = m.getToolName();
+		note = m.getNote();
+		md5Sum = m.getMd5Sum();
+		nrOfRegions = m.getNrOfRegions();
+		nrOfTranscribedRegions = m.getNrOfTranscribedRegions();
+		nrOfWordsInRegions = m.getNrOfWordsInRegions();
+		nrOfLines = m.getNrOfLines();
+		nrOfTranscribedLines = m.getNrOfTranscribedLines();
+		nrOfWordsInLines = m.getNrOfWordsInLines();
+		nrOfWords = m.getNrOfWords();
+		nrOfTranscribedWords = m.getNrOfTranscribedWords();
+	}
+
 	public int getTsId() {
 		return tsId;
 	}

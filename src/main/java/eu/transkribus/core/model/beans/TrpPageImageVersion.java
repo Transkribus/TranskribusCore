@@ -81,6 +81,24 @@ public class TrpPageImageVersion implements Serializable, ITrpFile {
 	}
 	
 	
+	public TrpPageImageVersion(TrpPageImageVersion v) {
+		this();
+		page_image_versions_id = v.getPage_image_versions_id();
+		pageId = v.getPageId();
+		tsid = v.getTsid();
+		type = v.getType();
+		description = v.getDescription();
+		translation_x = v.getTranslation_x();
+		translation_y = v.getTranslation_y();
+		scaling_x = v.getScaling_x();
+		scaling_y = v.getScaling_y();
+		rotation = v.getRotation();
+		key = v.getKey();
+		url = v.getUrl();
+		md5Sum = v.getMd5Sum();
+		created = v.getCreated();
+	}
+
 	public int getPage_image_versions_id() {
 		return page_image_versions_id;
 	}
