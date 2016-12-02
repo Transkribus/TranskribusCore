@@ -155,6 +155,8 @@ public class DocExporter extends Observable {
 			uriBuilder = new FimgStoreUriBuilder(scheme, getter.getHost(), port,
 					getter.getServerContext());
 		}
+		
+	
 
 		//create copy of object, as we alter it here while exporting
 		doc = new TrpDoc(doc);
