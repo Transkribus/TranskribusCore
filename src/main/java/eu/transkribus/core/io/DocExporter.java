@@ -158,6 +158,8 @@ public class DocExporter extends Observable {
 		
 	
 
+		doc = new TrpDoc(doc);
+		
 		File outputDir = new File(opts.dir);
 		if (!opts.doOverwrite && outputDir.exists()) {
 			throw new IOException("File path already exists.");

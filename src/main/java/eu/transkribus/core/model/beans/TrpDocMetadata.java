@@ -102,6 +102,33 @@ public class TrpDocMetadata implements Serializable, Comparable<TrpDocMetadata> 
 	
 	public TrpDocMetadata() {}
 	
+	public TrpDocMetadata(TrpDocMetadata md) {
+		this();
+		docId = md.getDocId();
+		title = md.getTitle();
+		author = md.getAuthor();
+		uploadTimestamp = md.getUploadTimestamp();
+		genre = md.getGenre();
+		writer = md.getWriter();
+		scriptType = md.getScriptType();
+		uploader = md.getUploader();
+		uploaderId = md.getUploaderId();
+		nrOfPages = md.getNrOfPages();
+		externalId = md.getExternalId();
+		desc = md.getDesc();
+		type = md.getType();
+		language = md.getLanguage();
+		status = md.getStatus();
+		fimgStoreColl = md.getFimgStoreColl();
+		localFolder = md.getLocalFolder();
+		createdFromTimestamp = md.getCreatedFromTimestamp();
+		createdToTimestamp = md.getCreatedToTimestamp();
+		origDocId = md.getOrigDocId();
+		for(TrpCollection c : md.getColList()) {
+			colList.add(new TrpCollection(c));
+		}
+	}
+
 	public int getDocId() {
 		return docId;
 	}
