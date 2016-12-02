@@ -42,6 +42,7 @@ public class TrpDoc implements Serializable, Comparable<TrpDoc> {
 	 * @param doc
 	 */
 	public TrpDoc(TrpDoc doc) {
+		this();
 		md = new TrpDocMetadata(md);
 		
 		collection =  new TrpCollection(doc.getCollection());
