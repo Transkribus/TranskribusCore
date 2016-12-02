@@ -155,6 +155,8 @@ public class DocExporter extends Observable {
 			uriBuilder = new FimgStoreUriBuilder(scheme, getter.getHost(), port,
 					getter.getServerContext());
 		}
+		
+	
 
 		File outputDir = new File(opts.dir);
 		if (!opts.doOverwrite && outputDir.exists()) {

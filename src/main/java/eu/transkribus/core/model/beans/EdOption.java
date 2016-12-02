@@ -28,6 +28,8 @@ public class EdOption implements Serializable {
 		private String text;
 		
 		private boolean selected = false;
+		
+		
 
 		public Integer getOptionId() {
 			return optionId;
