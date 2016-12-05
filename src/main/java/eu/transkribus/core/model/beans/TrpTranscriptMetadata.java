@@ -114,6 +114,8 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 	public TrpTranscriptMetadata() {
 	}
 	
+	
+	
 	public TrpTranscriptMetadata(final int tsId, final String key, final int pageId, 
 			final long timestamp, final int userId, final String userName, final EditStatus status, final int parentId, final String note) {
 		this.tsId = tsId;

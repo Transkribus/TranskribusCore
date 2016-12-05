@@ -158,6 +158,7 @@ public class DocExporter extends Observable {
 		
 	
 
+		//create copy of object, as we alter it here while exporting
 		doc = new TrpDoc(doc);
 		
 		File outputDir = new File(opts.dir);

@@ -42,9 +42,10 @@ public class TrpDoc implements Serializable, Comparable<TrpDoc> {
 	 * @param doc
 	 */
 	public TrpDoc(TrpDoc doc) {
-		md = new TrpDocMetadata(md);
+		this();
+		md = new TrpDocMetadata(doc.getMd());
 		
-		collection =  new TrpCollection(doc.getCollection());
+		collection =  doc.getCollection() == null ? null : new TrpCollection(doc.getCollection());
 		
 		for(TrpPage p : doc.getPages()) {
 			pages.add(new TrpPage(p));

@@ -7,6 +7,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.model.beans.pagecontent.OrderedGroupIndexedType;
 import eu.transkribus.core.model.beans.pagecontent.OrderedGroupType;
 import eu.transkribus.core.model.beans.pagecontent.ReadingOrderType;
 import eu.transkribus.core.model.beans.pagecontent.RegionRefIndexedType;
@@ -15,12 +16,14 @@ import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextTypeSimpleType;
 import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpReadingOrderChangedEvent;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpStructureChangedEvent;
 import eu.transkribus.core.util.CoreUtils;
+import eu.transkribus.core.util.PAGETypeFactory;
 
 public class CustomTagUtil {
 	private final static Logger logger = LoggerFactory.getLogger(CustomTagUtil.class);
@@ -161,10 +164,106 @@ public class CustomTagUtil {
 		}
 	}
 	
+	public static OrderedGroupType createReadingOrderOrderedGroup(List<? extends ITrpShapeType> shapes, String caption) {
+		OrderedGroupType group = new OrderedGroupType();
+		if (caption != null)
+			group.setCaption(caption);
+		
+		group.setId("ro_"+CoreUtils.uniqueCurrentTimeMS());
+		
+		for (ITrpShapeType s : shapes) {
+			if (s.getReadingOrder() != null) {
+				RegionRefIndexedType rr = new RegionRefIndexedType();
+				rr.setRegionRef(s);
+				rr.setIndex(s.getReadingOrder());
+				group.getRegionRefIndexedOrOrderedGroupIndexedOrUnorderedGroupIndexed().add(rr);
+			}
+		}
+		
+		return group;
+	}
+	
+//	public static void createReadingOrderOrderedGroupIndexed(TrpRegionType r, OrderedGroupIndexedType g) {
+//		
+//		
+//		
+//		
+//		if (s instanceof TrpRegionType) {
+//			s.getChildren(recursive)
+//			
+//			
+//			TrpRegionType r = (TrpRegionType) s;
+//			for (int i=0; i<r.getTextRegionOrImageRegionOrLineDrawingRegion().size(); ++i) {
+//				TrpRegionType cr = r.getTextRegionOrImageRegionOrLineDrawingRegion().get(i);
+//				
+//				if (cr.hasChildren()) {
+//					OrderedGroupIndexedType cg = PAGETypeFactory.createOrderedGroupIndexed(i, "r_"+CoreUtils.uniqueCurrentTimeMS(), null);
+//					
+//					
+//					
+//					RegionRefIndexedType rr = PAGETypeFactory.createRegionRefIndexed(index, refObject)
+//					
+//				}
+//				
+//				
+//			}
+//			
+//		}
+//		
+//		
+//		
+//	}
+//	
+//	public static void writeReadingOrderCustomTagsToPageFormat(TrpPageType page) {
+//		logger.trace("converting reading order from custom tags to page format... NEW");
+//		
+//		ReadingOrderType ro = new ReadingOrderType();
+//		
+//		// 1st: create parent group for all reading order elements
+//		OrderedGroupType group = PAGETypeFactory.createOrderedGroup("ro_"+CoreUtils.uniqueCurrentTimeMS(), "Reading order");
+//		
+//		// 2nd: create either a region ref
+//		for (TrpRegionType r : page.getTextRegionOrImageRegionOrLineDrawingRegion()) {
+//			xxx
+//			
+//			
+//			
+//			
+//		}
+//		
+//		OrderedGroupType group = createReadingOrderOrderedGroup(page.getTextRegionOrImageRegionOrLineDrawingRegion(), "Regions reading order");
+//		
+//		
+//		
+//		
+//		
+//		
+//		OrderedGroupType group = new OrderedGroupType();
+//		group.setCaption("Regions reading order");
+//		group.setId("ro_"+CoreUtils.uniqueCurrentTimeMS());		
+//		ro.setOrderedGroup(group);
+//		boolean readingOrderSet=false;
+//		
+//		for (TrpTextRegionType r : page.getTextRegions(false)) {
+//			if (r.getReadingOrder() != null) {
+//				readingOrderSet=true;
+//				RegionRefIndexedType rr = new RegionRefIndexedType();
+//				rr.setRegionRef(r);
+//				rr.setIndex(r.getReadingOrder());	
+//				group.getRegionRefIndexedOrOrderedGroupIndexedOrUnorderedGroupIndexed().add(rr);
+//				readingOrderSet = true;
+//			}
+//		}
+//		
+//		if (readingOrderSet)
+//			page.setReadingOrder(ro);
+//	}
+	
 	public static void writeReadingOrderCustomTagsToPageFormat(TrpPageType page) {
 		logger.trace("converting reading order from custom tags to page format...");
 		
 		ReadingOrderType ro = new ReadingOrderType();
+		
 		OrderedGroupType group = new OrderedGroupType();
 		group.setCaption("Regions reading order");
 		group.setId("ro_"+CoreUtils.uniqueCurrentTimeMS());		
