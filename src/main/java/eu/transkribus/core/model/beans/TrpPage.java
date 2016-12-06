@@ -1,6 +1,7 @@
 package eu.transkribus.core.model.beans;
 
 import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.LinkedList;

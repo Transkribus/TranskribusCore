@@ -159,7 +159,8 @@ public class DocExporter extends Observable {
 	
 
 		//create copy of object, as we alter it here while exporting
-		doc = new TrpDoc(doc);
+		TrpDoc doc2;
+		doc2 = new TrpDoc(doc);
 		
 		File outputDir = new File(opts.dir);
 		if (!opts.doOverwrite && outputDir.exists()) {
@@ -183,7 +184,7 @@ public class DocExporter extends Observable {
 		
 		AltoExporter altoEx = new AltoExporter();
 		if (opts.exportAltoXml){
-			altoOutputDir = altoEx.createAltoOuputDir(doc, outputDir.getAbsolutePath());
+			altoOutputDir = altoEx.createAltoOuputDir(doc2, outputDir.getAbsolutePath());
 			
 //			try {
 //
@@ -194,11 +195,11 @@ public class DocExporter extends Observable {
 //			}
 		}
 
-		if (doc.getMd() != null) {
+		if (doc2.getMd() != null) {
 			File fileOut = new File(outputDir.getAbsolutePath() + File.separatorChar
 					+ "metadata.xml");
 			try {
-				JaxbUtils.marshalToFile(doc.getMd(), fileOut);
+				JaxbUtils.marshalToFile(doc2.getMd(), fileOut);
 			} catch (JAXBException e) {
 				throw new IOException("Could not marshal metadata to file.", e);
 			}
@@ -214,7 +215,7 @@ public class DocExporter extends Observable {
 			imgOutputDir = outputDir;
 		}
 
-		List<TrpPage> pages = doc.getPages();
+		List<TrpPage> pages = doc2.getPages();
 		
 		for (int i=0; i<pages.size(); ++i) {
 //			for (TrpPage p : pages) {
@@ -228,7 +229,7 @@ public class DocExporter extends Observable {
 			final String imgExt = "." + FilenameUtils.getExtension(p.getImgFileName());
 			final String xmlExt = ".xml";
 			
-			if (doc.isRemoteDoc()) {
+			if (doc2.isRemoteDoc()) {
 				final URI imgUri = uriBuilder.getFileUri(p.getKey());
 				if (opts.doWriteImages) {
 					imgFile = getter.saveFile(imgUri, imgOutputDir.getAbsolutePath(), baseFileName + imgExt);
@@ -244,8 +245,11 @@ public class DocExporter extends Observable {
 					TrpTranscriptMetadata t = ExportUtils.getPageTranscriptAtIndex(i).getMd();
 					xmlFile = getter.saveFile(t.getUrl().toURI(), pageOutputDir.getAbsolutePath(), baseFileName + xmlExt);
 					p.getTranscripts().clear();
-					t.setUrl(xmlFile.toURI().toURL());
-					p.getTranscripts().add(t);
+					TrpTranscriptMetadata tCopy = new TrpTranscriptMetadata(t, p);
+					tCopy.setUrl(xmlFile.toURI().toURL());
+					//so the current (and only) transcript is set to the one selected in the export dialog
+					p.getTranscripts().add(tCopy);
+					
 				}
 			} else {
 				if (opts.doWriteImages) {
@@ -284,9 +288,9 @@ public class DocExporter extends Observable {
 //			final TrpDoc localDoc = LocalDocReader.load(outputDir.getAbsolutePath(), false);
 			
 			//set local folder or else TrpMetsBuilder will treat this as remote doc!
-			doc.getMd().setLocalFolder(outputDir);
+			doc2.getMd().setLocalFolder(outputDir);
 			//write mets with file pointers to local files
-			Mets mets = TrpMetsBuilder.buildMets(doc, opts.exportPageXml, opts.exportAltoXml, opts.doWriteImages, opts.pageIndices);
+			Mets mets = TrpMetsBuilder.buildMets(doc2, opts.exportPageXml, opts.exportAltoXml, opts.doWriteImages, opts.pageIndices);
 			File metsFile = new File(outputDir.getAbsolutePath() + File.separator
 					+ TrpMetsBuilder.METS_FILE_NAME);
 	

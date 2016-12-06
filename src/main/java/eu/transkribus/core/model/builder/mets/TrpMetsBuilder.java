@@ -172,14 +172,8 @@ public class TrpMetsBuilder extends Observable {
 				// xmlfiletype: just add the most recent transcript
 				TrpTranscriptMetadata tMd; 
 				
-				//get the transcript choosen for export (recent one or according to a status) 
-				//when used for upload there is no previously stored transcript
-				if (ExportUtils.getPageTranscriptAtIndex(i) != null){
-					tMd = ExportUtils.getPageTranscriptAtIndex(i).getMd();
-				}
-				else{
-					tMd = p.getCurrentTranscript();
-				}
+				//get the transcript chosen for export 
+				tMd = p.getCurrentTranscript();
 				
 				FileType xml = buildFileType(md.getLocalFolder(), xmlId, tMd, p.getPageNr(), client);
 				pageGrp.getFile().add(xml);
