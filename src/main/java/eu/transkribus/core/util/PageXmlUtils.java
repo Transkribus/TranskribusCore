@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import eu.transkribus.core.io.formats.XmlFormat;
-import eu.transkribus.core.model.beans.TrpTag;
+import eu.transkribus.core.model.beans.TrpDbTag;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata.TrpTranscriptStatistics;
 import eu.transkribus.core.model.beans.customtags.CustomTagUtil;
@@ -134,6 +134,20 @@ public class PageXmlUtils {
 			CustomTagUtil.writeReadingOrderFromPageFormatToCustomTags((TrpPageType) pageData.getPage());
 			((TrpPageType) pageData.getPage()).sortContent();
 		}
+	}
+	
+	public static PcGtsType unmarshal(TrpTranscriptMetadata md, boolean returnEmptyPageIfUrlIsNull) throws IOException, JAXBException {
+		if (md == null)
+			throw new IOException("Metadata is null!");
+		
+		URL url = md.getUrl();
+		if (url != null) {
+			return PageXmlUtils.unmarshal(url);
+		}
+		else if (returnEmptyPageIfUrlIsNull)
+			return createEmptyPcGtsType(md.getPagePageReferenceForLocalDocs().getUrl());
+		
+		return null;
 	}
 
 	public static PcGtsType unmarshal(File file) throws JAXBException {	
@@ -264,25 +278,6 @@ public class PageXmlUtils {
 		}
 		if (!imgFn.isEmpty()) msg += " (img: "+imgFn+")";
 		return msg;
-	}
-
-	public static List<TrpTag> extractTags(TrpPageType trpPage, final String xmlKey) {
-		List<TrpTag> tagList = new LinkedList<>();
-//		logger.debug("Extracting tags...");
-		List<TrpTextLineType> lineList = trpPage.getLines();
-//		logger.debug(lineList.size() + " lines");
-		for (TrpTextLineType l : lineList) {
-			List<TaggedWord> wordList = l.getTaggedWords();
-//			logger.debug(l.getId() + ": " + wordList.size() + " tagged words");
-			for (TaggedWord w : wordList) {
-				final String daWord = w.getWordItself();
-				final String parentRegId = w.getParentRegionId();
-				final TrpTag tag = new TrpTag(xmlKey, parentRegId, daWord);
-//				logger.debug("Found tag: " + tag.toString());
-				tagList.add(tag);
-			}
-		}
-		return tagList;
 	}
 	
 	public static Polygon buildPolygon(final CoordsType coords) {
