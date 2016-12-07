@@ -178,9 +178,9 @@ public class TrpXlsxTableBuilder {
 
 		FileOutputStream fOut;
 		try {
-			//means no tags at all
+			//means no tables at all
 			if (wb.getNumberOfSheets() == 0){
-				throw new IOException("Sorry - No tags available for export");
+				throw new IOException("Sorry - No tables available for export");
 			}
 			fOut = new FileOutputStream(exportPath);
 			wb.write(fOut);

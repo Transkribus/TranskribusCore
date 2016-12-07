@@ -1,6 +1,7 @@
 package eu.transkribus.core.model.beans;
 
 import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -55,7 +56,7 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	//TODO SortedList from DB. comparator?
 	@XmlElementWrapper(name="tsList")
 	@XmlElement
-	private List<TrpTranscriptMetadata> transcripts;
+	private List<TrpTranscriptMetadata> transcripts = new LinkedList<>();
 	
 	@Column
 	@Transient
@@ -72,12 +73,33 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	
 	@XmlElementWrapper(name="imageVersions")
 	@XmlElement
-	private List<TrpPageImageVersion> imageVersions;
+	private List<TrpPageImageVersion> imageVersions = new LinkedList<>();
 
-	public TrpPage() {
-		transcripts = new LinkedList<>();
-	}
+	public TrpPage() {}
 	
+	public TrpPage(TrpPage p) {
+		this();
+		pageId = p.getPageId();
+		docId = p.getDocId();
+		pageNr = p.getPageNr();
+		key = p.getKey();
+		imageId = p.getImageId();
+		url = p.getUrl();
+		thumbUrl = p.getThumbUrl();
+		md5Sum = p.getMd5Sum();
+		imgFileName = p.getImgFileName();
+		width = p.getWidth();
+		height = p.getHeight();
+		created = p.getCreated();
+		indexed = p.isIndexed();
+		for(TrpPageImageVersion v : p.getImageVersions()) {
+			imageVersions.add(new TrpPageImageVersion(v));
+		}
+		for(TrpTranscriptMetadata m : p.getTranscripts()) {
+			transcripts.add(new TrpTranscriptMetadata(m, this));
+		}
+	}
+
 	public int getPageId() {
 		return this.pageId;
 	}

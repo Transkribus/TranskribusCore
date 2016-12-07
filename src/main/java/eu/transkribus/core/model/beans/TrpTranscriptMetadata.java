@@ -114,6 +114,8 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 	public TrpTranscriptMetadata() {
 	}
 	
+	
+	
 	public TrpTranscriptMetadata(final int tsId, final String key, final int pageId, 
 			final long timestamp, final int userId, final String userName, final EditStatus status, final int parentId, final String note) {
 		this.tsId = tsId;
@@ -125,6 +127,34 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 		this.status = status;
 		this.parentTsId = parentId;
 		this.note = note;
+	}
+
+	public TrpTranscriptMetadata(TrpTranscriptMetadata m, TrpPage pageReferenceForLocalDocs) {
+		this();
+		this.pageReferenceForLocalDocs = pageReferenceForLocalDocs;
+		tsId = m.getTsId();
+		parentTsId = m.getParentTsId();
+		key = m.getKey();
+		pageId = m.getPageId();
+		docId = m.getDocId();
+		pageNr = m.getPageNr();
+		localFolder = m.getLocalFolder();
+		url = m.getUrl();
+		status = m.getStatus();
+		userName = m.getUserName();
+		userId = m.getUserId();
+		timestamp = m.getTimestamp();
+		toolName = m.getToolName();
+		note = m.getNote();
+		md5Sum = m.getMd5Sum();
+		nrOfRegions = m.getNrOfRegions();
+		nrOfTranscribedRegions = m.getNrOfTranscribedRegions();
+		nrOfWordsInRegions = m.getNrOfWordsInRegions();
+		nrOfLines = m.getNrOfLines();
+		nrOfTranscribedLines = m.getNrOfTranscribedLines();
+		nrOfWordsInLines = m.getNrOfWordsInLines();
+		nrOfWords = m.getNrOfWords();
+		nrOfTranscribedWords = m.getNrOfTranscribedWords();
 	}
 
 	public int getTsId() {

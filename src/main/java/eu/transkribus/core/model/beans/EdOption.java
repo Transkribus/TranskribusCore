@@ -28,6 +28,18 @@ public class EdOption implements Serializable {
 		private String text;
 		
 		private boolean selected = false;
+		
+		
+
+		public EdOption() {}
+		
+		public EdOption(EdOption o) {
+			this();
+			optionId = o.getOptionId();
+			featureId = o.getFeatureId();
+			text = o.getText();
+			selected = o.isSelected();
+		}
 
 		public Integer getOptionId() {
 			return optionId;

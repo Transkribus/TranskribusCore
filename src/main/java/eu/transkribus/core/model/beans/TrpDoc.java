@@ -37,6 +37,25 @@ public class TrpDoc implements Serializable, Comparable<TrpDoc> {
 		md = new TrpDocMetadata();
 	}
 	
+	/**
+	 * Copy constructor
+	 * @param doc
+	 */
+	public TrpDoc(TrpDoc doc) {
+		this();
+		md = new TrpDocMetadata(doc.getMd());
+
+		collection =  doc.getCollection() == null ? null : new TrpCollection(doc.getCollection());
+		
+		for(TrpPage p : doc.getPages()) {
+			pages.add(new TrpPage(p));
+		}
+		
+		for(EdFeature f : doc.getEdDeclList()) {
+			edDeclList.add(new EdFeature(f));
+		}
+	}
+	
 	public int getId() { return md.getDocId(); }
 	
 	public void addPage(TrpPage p) {
@@ -160,4 +179,5 @@ public class TrpDoc implements Serializable, Comparable<TrpDoc> {
 	public int compareTo(TrpDoc doc) {
 		return this.getMd().compareTo(doc.getMd());
 	}
+
 }

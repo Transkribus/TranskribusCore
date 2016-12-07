@@ -170,10 +170,10 @@ public class TrpMetsBuilder extends Observable {
 			//TODO error handling.. if no transcript??
 			if (exportPage){
 				// xmlfiletype: just add the most recent transcript
-				//TrpTranscriptMetadata tMd = p.getCurrentTranscript();
+				TrpTranscriptMetadata tMd; 
 				
-				//get the transcript choosen for export (recent one or according to a status) 
-				TrpTranscriptMetadata tMd = ExportUtils.getPageTranscriptAtIndex(i).getMd();
+				//get the transcript chosen for export 
+				tMd = p.getCurrentTranscript();
 				
 				FileType xml = buildFileType(md.getLocalFolder(), xmlId, tMd, p.getPageNr(), client);
 				pageGrp.getFile().add(xml);
