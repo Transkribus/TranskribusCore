@@ -10,7 +10,7 @@ public class DocExporterTest {
 		
 		try {
 			TrpDoc doc = LocalDocReader.load("/mnt/dea_scratch/TRP/Bentham_box_002", true);
-			ex.writeFatDoc(doc, "/tmp/fatTest", true);
+//			ex.writeFatDoc(doc, "/tmp/fatTest", true);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

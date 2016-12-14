@@ -256,6 +256,8 @@ public final class RESTConst {
 
 	public static final String HTR_DICT_NAME_PARAM = "dict";
 	
+	public static final String TYPE_FACE_PARAM = "typeFace";
+	public static final String LANGUAGE_PARAM = "language";
 	
 	//OAuth stuff
 	public static final String LOGIN_OAUTH_PATH = "oauth";
@@ -311,5 +313,5 @@ public final class RESTConst {
 	public static final String DO_WORD_BASED_EXPORT_PARAM = "doWordBased";
 	public static final String DO_BLACKENING_PARAM = "doBlackening";
 	public static final String DO_CREATE_TITLE_PARAM = "doCreateTitle";
-	public static final String USE_VERSION_STATUS_PARAM = "useVersionStatus";		
+	public static final String USE_VERSION_STATUS_PARAM = "useVersionStatus";	
 }
