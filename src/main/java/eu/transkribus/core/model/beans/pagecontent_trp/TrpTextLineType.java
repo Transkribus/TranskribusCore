@@ -90,7 +90,7 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	    textStyle = BeanCopyUtils.copyTextStyleType(src.textStyle);
 	    primaryLanguage = src.primaryLanguage;
 	    production = src.production;
-	    
+	    	    
 	    src.getCustomTagList().writeToCustomTag();
 	    if (src.custom != null)
 	    	custom = new String(src.custom);

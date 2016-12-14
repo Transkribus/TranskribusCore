@@ -1197,11 +1197,15 @@ public class DocxBuilder {
 				//logger.debug("&&&&&&&& current single char : " + currText);
 			}
 			
-			//soft break
-			if (currText.equals("¬") && !preserveLineBreaks){
+			/*
+			 * 2nd is (should be) soft hyphen with Unicode U+00AD
+			 * First arg is not sign and was initially used for soft hyphen by Diggitexx
+			 * need to be at the line end - otherwise 
+			 * 
+			 */
+			if ( (currText.equals("¬") || currText.equals("­") || currText.equals("-") ) && !preserveLineBreaks && shapeEnded){
 				break;
-			}	
-			
+			}				
 			
 			org.docx4j.wml.Text  t = factory.createText();
 			t.setValue(currText);
