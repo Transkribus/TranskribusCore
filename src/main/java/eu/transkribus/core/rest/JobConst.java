@@ -25,6 +25,7 @@ public class JobConst {
 	
 	public static final String PROP_STATE = "state";
 	public static final String PROP_MODELNAME = "modelName";
+	public static final String PROP_MODEL_ID = "modelId";
 	public static final String PROP_PAGES = "pages";
 	public static final String PROP_DOC_IDS = "docIds";
 	public static final String PROP_PATH = "path";
@@ -48,4 +49,5 @@ public class JobConst {
 	public static final String PROP_ADDITIONAL_COL_IDS = "additionalColIds";
 
 	public static final String PROP_EXPORT_OPTIONS = "options";
+
 }
