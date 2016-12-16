@@ -232,7 +232,12 @@ public class DocExporter extends Observable {
 					/*
 					 * new: to get the previously stored choosen version
 					 */
-					TrpTranscriptMetadata t = ExportUtils.getPageTranscriptAtIndex(i).getMd();
+					TrpTranscriptMetadata t;
+					if(ExportUtils.getPageTranscriptAtIndex(i) == null) {
+						t = p.getCurrentTranscript();
+					} else {
+						t = ExportUtils.getPageTranscriptAtIndex(i).getMd();
+					}
 					xmlFile = getter.saveFile(t.getUrl().toURI(), pageOutputDir.getAbsolutePath(), baseFileName + xmlExt);
 					p.getTranscripts().clear();
 					TrpTranscriptMetadata tCopy = new TrpTranscriptMetadata(t, p);
