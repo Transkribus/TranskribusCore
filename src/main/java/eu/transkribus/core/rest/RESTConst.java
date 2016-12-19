@@ -198,9 +198,12 @@ public final class RESTConst {
 	public static final String HTR_UPVLC_TRAIN_PATH = "htrTrainingUpvlc";
 	public static final String HTR_URO_TRAIN_PATH = "htrTrainingUro";
 	public static final String HTR_CITLAB_TRAIN_PATH = "htrTrainingCITlab";
+	public static final String HTR_CITLAB_TEST_PATH = "htrCITlab";
 	public static final String HTR_PATH = "htr";
 	public static final String HTR_LIST_MODEL_PATH = "htrModels";
 	public static final String HTR_MODEL_NAME_PARAM = "modelName";
+	public static final String HTR_MODEL_ID_PARAM = "modelId";
+	
 	public static final String WER_PATH = "computeWER";
 
 	public static final String TEST_DOC_PATH = "testSet";
@@ -253,6 +256,8 @@ public final class RESTConst {
 
 	public static final String HTR_DICT_NAME_PARAM = "dict";
 	
+	public static final String TYPE_FACE_PARAM = "typeFace";
+	public static final String LANGUAGE_PARAM = "language";
 	
 	//OAuth stuff
 	public static final String LOGIN_OAUTH_PATH = "oauth";
@@ -308,7 +313,5 @@ public final class RESTConst {
 	public static final String DO_WORD_BASED_EXPORT_PARAM = "doWordBased";
 	public static final String DO_BLACKENING_PARAM = "doBlackening";
 	public static final String DO_CREATE_TITLE_PARAM = "doCreateTitle";
-	public static final String USE_VERSION_STATUS_PARAM = "useVersionStatus";
-	
-		
+	public static final String USE_VERSION_STATUS_PARAM = "useVersionStatus";	
 }

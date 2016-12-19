@@ -6,7 +6,6 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.List;
 import java.util.Observable;
 import java.util.Set;
@@ -30,7 +29,6 @@ import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.mets.Mets;
 import eu.transkribus.core.model.builder.ExportUtils;
-import eu.transkribus.core.model.builder.FatBuilder;
 import eu.transkribus.core.model.builder.alto.AltoExporter;
 import eu.transkribus.core.model.builder.docx.DocxBuilder;
 import eu.transkribus.core.model.builder.mets.TrpMetsBuilder;
@@ -57,18 +55,19 @@ public class DocExporter extends Observable {
 		public String pageDirName = LocalDocConst.PAGE_FILE_SUB_FOLDER;
 		public boolean exportAltoXml=true;
 		public boolean splitIntoWordsInAltoXml=false;
-		public boolean exportFatXml=false;
 		public String fileNamePattern = "${filename}";
 		public boolean useHttps=true;
+		
 		@Override
 		public String toString() {
 			return "ExportOptions [dir=" + dir + ", pageIndices=" + pageIndices + ", doOverwrite=" + doOverwrite
 					+ ", writeMets=" + writeMets + ", useOcrMasterDir=" + useOcrMasterDir + ", doWriteImages="
 					+ doWriteImages + ", exportPageXml=" + exportPageXml + ", pageDirName=" + pageDirName
 					+ ", exportAltoXml=" + exportAltoXml + ", splitIntoWordsInAltoXml=" + splitIntoWordsInAltoXml
-					+ ", exportFatXml=" + exportFatXml + ", fileNamePattern=" + fileNamePattern + ", useHttps="
+					+ ", fileNamePattern=" + fileNamePattern + ", useHttps="
 					+ useHttps + "]";
 		}
+		
 	}
 
 	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, boolean exportImg, boolean exportPage, boolean exportAlto, boolean splitIntoWordsInAlto) throws IOException,
@@ -96,29 +95,20 @@ public class DocExporter extends Observable {
 		return exportDoc(doc, opts);
 	}
 
-	public File writeFatDoc(TrpDoc doc, final String dir, boolean doOverwrite) throws IOException,
-			IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
-		return writeFatDoc(doc, null, dir, doOverwrite, "${pageNr}_${filekey}");
-	}
-	
-	public File writeFatDoc(TrpDoc doc, final Set<Integer> pages, final String dir, boolean doOverwrite, final String fileNamePattern) throws IOException,
-	IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
-
-		ExportOptions opts = new ExportOptions();
-		opts.dir = dir;
-		opts.doOverwrite = doOverwrite;
-		opts.writeMets = false;
-		opts.useOcrMasterDir = true;
-		opts.doWriteImages = true;
-		opts.exportPageXml = false;
-		opts.exportAltoXml = false;
-		opts.pageIndices = pages;
-		opts.exportFatXml = true;
-		opts.fileNamePattern = fileNamePattern;
-		
-		final File outputDir = exportDoc(doc, opts);
-		return outputDir;
-	}
+//	public File writeFatDoc(TrpDoc doc, final String dir, boolean doOverwrite) throws IOException,
+//			IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
+//		return writeFatDoc(doc, null, dir, doOverwrite, "${pageNr}_${filekey}", null, null);
+//	}
+//	
+//	public File writeFatDoc(TrpDoc doc, final Set<Integer> pages, final String dir, boolean doOverwrite, 
+//			final String fileNamePattern, final String language, final String typeFace) throws IOException,
+//	IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
+//
+//		
+//		
+//		final File outputDir = exportDoc(doc, opts);
+//		return outputDir;
+//	}
 	
 	public void writePDF(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean addTextPages, final boolean imagesOnly, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, boolean createTitle) throws MalformedURLException, DocumentException, IOException, JAXBException, URISyntaxException, InterruptedException{
 		PdfExporter pdfWriter = new PdfExporter();
@@ -242,7 +232,12 @@ public class DocExporter extends Observable {
 					/*
 					 * new: to get the previously stored choosen version
 					 */
-					TrpTranscriptMetadata t = ExportUtils.getPageTranscriptAtIndex(i).getMd();
+					TrpTranscriptMetadata t;
+					if(ExportUtils.getPageTranscriptAtIndex(i) == null) {
+						t = p.getCurrentTranscript();
+					} else {
+						t = ExportUtils.getPageTranscriptAtIndex(i).getMd();
+					}
 					xmlFile = getter.saveFile(t.getUrl().toURI(), pageOutputDir.getAbsolutePath(), baseFileName + xmlExt);
 					p.getTranscripts().clear();
 					TrpTranscriptMetadata tCopy = new TrpTranscriptMetadata(t, p);
@@ -301,10 +296,6 @@ public class DocExporter extends Observable {
 			}
 		}
 		
-		if(opts.exportFatXml) {
-			//doc root of fat xml is named RootFolder and so is the Bean
-			FatBuilder.writeFatXml(outputDir);
-		}
 		return outputDir;
 	}
 	
