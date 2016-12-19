@@ -203,6 +203,8 @@ public final class RESTConst {
 	public static final String HTR_LIST_MODEL_PATH = "htrModels";
 	public static final String HTR_MODEL_NAME_PARAM = "modelName";
 	public static final String HTR_MODEL_ID_PARAM = "modelId";
+	public static final String ADD_PATH = "add";
+	public static final String REMOVE_PATH = "remove";
 	
 	public static final String WER_PATH = "computeWER";
 
@@ -313,5 +315,6 @@ public final class RESTConst {
 	public static final String DO_WORD_BASED_EXPORT_PARAM = "doWordBased";
 	public static final String DO_BLACKENING_PARAM = "doBlackening";
 	public static final String DO_CREATE_TITLE_PARAM = "doCreateTitle";
-	public static final String USE_VERSION_STATUS_PARAM = "useVersionStatus";	
+	public static final String USE_VERSION_STATUS_PARAM = "useVersionStatus";
+	
 }
