@@ -94,11 +94,11 @@ public class PageXmlUtils {
 	//	}
 	//	public static Schema getSchema() { return schema; }
 
-	private static JAXBContext createPageJAXBContext() throws JAXBException {
+	public static JAXBContext createPageJAXBContext() throws JAXBException {
 		return JAXBContext.newInstance("eu.transkribus.core.model.beans.pagecontent");
 	}
 	
-	private static Unmarshaller createUnmarshaller() throws JAXBException {
+	public static Unmarshaller createUnmarshaller() throws JAXBException {
 		JAXBContext jc = createPageJAXBContext();
 
 		Unmarshaller u = jc.createUnmarshaller();

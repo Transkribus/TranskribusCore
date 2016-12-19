@@ -9,11 +9,15 @@ import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.model.beans.pagecontent.OrderedGroupIndexedType;
 import eu.transkribus.core.model.beans.pagecontent.OrderedGroupType;
+import eu.transkribus.core.model.beans.pagecontent.PageType;
+import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.ReadingOrderType;
 import eu.transkribus.core.model.beans.pagecontent.RegionRefIndexedType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
+import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextTypeSimpleType;
+import eu.transkribus.core.model.beans.pagecontent.WordType;
 import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
@@ -373,6 +377,41 @@ public class CustomTagUtil {
 		for (ITrpShapeType st : page.getAllShapes(true)) {
 			writeCustomTagListToCustomTag(st);
 		}
+	}
+	
+	public static List<CustomTag> extractCustomTags(PageType p) {
+		if (p instanceof TrpPageType)
+			return extractCustomTagsTrp((TrpPageType) p);
+		
+		List<CustomTag> tags = new ArrayList<>();
+				
+		for (RegionType r : p.getTextRegionOrImageRegionOrLineDrawingRegion()) {
+			tags.addAll(CustomTagUtil.getCustomTags(r.getCustom()));
+			if (r instanceof TextRegionType) {
+				for (TextLineType l : ((TextRegionType) r).getTextLine()) {
+					tags.addAll(CustomTagUtil.getCustomTags(l.getCustom()));
+					for (WordType w : l.getWord()) {
+						tags.addAll(CustomTagUtil.getCustomTags(w.getCustom()));
+					}	
+				}
+			}			
+		}
+		
+		return tags;
+	}
+	
+	public static List<CustomTag> extractCustomTagsTrp(TrpPageType p) {
+		List<CustomTag> tags = new ArrayList<>();
+		
+		for (ITrpShapeType s : p.getAllShapes(true)) {
+			CustomTagList cl = s.getCustomTagList();
+			if (cl==null)
+				continue;
+			
+			tags.addAll(cl.getTags());
+			}
+			
+		return tags;
 	}
 	
 	public static void main(String[] args) {

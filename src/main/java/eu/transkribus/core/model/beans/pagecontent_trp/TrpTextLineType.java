@@ -39,13 +39,11 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	TrpObservable observable = new TrpObservable(this);
 	TrpTextRegionType region;
 	Object data;
-	List<TaggedWord> taggedWords = new ArrayList<>();
 	CustomTagList customTagList;
 	
 	public TrpTextLineType() {
 		super();
 		customTagList = new CustomTagList(this);
-		updateTaggedWords();
 	}
 	
 	public TrpTextLineType(TrpTextRegionType region) {
@@ -100,7 +98,6 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	    // copy new fields:
 		region = src.region;
 		data = src.data;
-		taggedWords = new ArrayList<>(src.taggedWords);
 		
 		customTagList = new CustomTagList(this);
 	}	
@@ -128,21 +125,12 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	
 	public int getIndex() { return region.getLineIndex(this); }
 		
-	@Deprecated
-	public List<TaggedWord> getTaggedWords() {
-		return taggedWords;
-	}
-	
 	public void clearTextForAllWords(Object who) {
 		for (WordType w : getWord()) {
 			TrpWordType tw = (TrpWordType) w;
 			tw.setUnicodeText("", who);
 		}
 //		applyTextFromWords();
-	}
-		
-	public void updateTaggedWords() {
-		taggedWords = LineTags.getTaggedWords(this);
 	}
 		
 	public TrpPageType getPage() {
