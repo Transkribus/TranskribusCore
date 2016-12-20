@@ -20,11 +20,11 @@ public abstract class HtrTrainConfig implements Serializable {
 	protected String language;
 	protected int colId;
 	
-	@XmlElementWrapper(name="TrainList")
+	@XmlElementWrapper(name="trainList")
 	@XmlElement
 	protected List<DocumentSelectionDescriptor> train = new LinkedList<>();
 
-	@XmlElementWrapper(name="TestList")
+	@XmlElementWrapper(name="testList")
 	@XmlElement
 	protected List<DocumentSelectionDescriptor> test = new LinkedList<>();
 	

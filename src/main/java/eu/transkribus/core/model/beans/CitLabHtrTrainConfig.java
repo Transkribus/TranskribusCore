@@ -10,7 +10,7 @@ import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescripto
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class UroHtrTrainConfig extends HtrTrainConfig implements Serializable {
+public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable {
 
 	private static final long serialVersionUID = 6826017343706433307L;
 	protected Integer numEpochs;
