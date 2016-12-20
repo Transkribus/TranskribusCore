@@ -29,6 +29,8 @@ import eu.transkribus.core.util.RegexPattern;
  */
 public class CustomTag implements Comparable<CustomTag> {
 	final static Logger logger = LoggerFactory.getLogger(CustomTag.class);
+	
+//	public String shapeId; // only used for DB storage
 
 	protected String tagName = null;
 

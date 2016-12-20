@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -164,6 +165,16 @@ public class PageXmlUtils {
 		
 		@SuppressWarnings("unchecked")
 		PcGtsType pageData = ((JAXBElement<PcGtsType>) u.unmarshal(fis)).getValue();
+		onPostConstruct(pageData);
+		
+		return pageData;
+	}
+	
+	public static PcGtsType unmarshal(InputStream is) throws JAXBException {
+		Unmarshaller u = createUnmarshaller();
+
+		@SuppressWarnings("unchecked")
+		PcGtsType pageData = ((JAXBElement<PcGtsType>) u.unmarshal(is)).getValue();
 		onPostConstruct(pageData);
 		
 		return pageData;
