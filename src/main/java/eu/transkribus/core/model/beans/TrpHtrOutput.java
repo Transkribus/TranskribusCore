@@ -2,6 +2,7 @@ package eu.transkribus.core.model.beans;
 
 import java.net.URL;
 
+import javax.annotation.Generated;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -19,7 +20,7 @@ public class TrpHtrOutput {
 	
 	@Id
 	@Column(name="HTR_OUTPUT_ID")
-	private int htrOutputId;
+	private Integer htrOutputId;
 	@Column
 	private int pageId;
 	@Column
@@ -44,11 +45,11 @@ public class TrpHtrOutput {
 		this.htrId = htrId;
 	}
 
-	public int getHtrOutputId() {
+	public Integer getHtrOutputId() {
 		return htrOutputId;
 	}
 
-	public void setHtrOutputId(int htrOutputId) {
+	public void setHtrOutputId(Integer htrOutputId) {
 		this.htrOutputId = htrOutputId;
 	}
 
