@@ -16,11 +16,14 @@ import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.util.PageXmlUtils;
+import eu.transkribus.core.util.SebisStopWatch;
 
 @Provider
 public class PcGtsTypeMessageBodyReader implements MessageBodyReader<PcGtsType> {
 	private final static Logger logger = LoggerFactory.getLogger(PcGtsTypeMessageBodyReader.class);
 
+	static SebisStopWatch sw = new SebisStopWatch();
+	
 	@Override
 	public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
 		return true;
@@ -31,9 +34,13 @@ public class PcGtsTypeMessageBodyReader implements MessageBodyReader<PcGtsType> 
 			MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
 			throws IOException, WebApplicationException {	
         try {
-    		logger.debug("unmarshalling PcGtsType string!");
+    		logger.debug("unmarshalling PcGtsType from input stream, type = "+type+" genericType = "+genericType+" mediaType = "+mediaType);
+
+    		sw.start();
+    		PcGtsType pc =  PageXmlUtils.unmarshal(entityStream);
+    		sw.stop(true, "time to unmarshal: ", logger);
     		
-    		return PageXmlUtils.unmarshal(entityStream);        	
+    		return pc;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw new WebApplicationException(e);
