@@ -74,6 +74,9 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	@XmlElementWrapper(name="imageVersions")
 	@XmlElement
 	private List<TrpPageImageVersion> imageVersions = new LinkedList<>();
+	
+	@Column(name="TAGS_STORED")
+	private java.sql.Timestamp tagsStored;
 
 	public TrpPage() {}
 	
@@ -92,6 +95,8 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		height = p.getHeight();
 		created = p.getCreated();
 		indexed = p.isIndexed();
+		tagsStored = p.tagsStored;
+		
 		for(TrpPageImageVersion v : p.getImageVersions()) {
 			imageVersions.add(new TrpPageImageVersion(v));
 		}
@@ -217,6 +222,14 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		this.created = created;
 	}
 
+	public java.sql.Timestamp getTagsStored() {
+		return tagsStored;
+	}
+
+	public void setTagsStored(java.sql.Timestamp tagsStored) {
+		this.tagsStored = tagsStored;
+	}
+
 	public TrpTranscriptMetadata getCurrentTranscript() {
 		List<TrpTranscriptMetadata> tList = getTranscripts();
 		
@@ -314,7 +327,7 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		return "TrpPage [pageId=" + pageId + ", docId=" + docId + ", pageNr=" + pageNr + ", key=" + key + ", imageId="
 				+ imageId + ", url=" + url + ", thumbUrl=" + thumbUrl + ", md5Sum=" + md5Sum + ", imgFileName="
 				+ imgFileName + ", transcripts=" + transcripts + ", width=" + width + ", height=" + height
-				+ ", created=" + created + ", indexed=" + indexed + ", imageVersions=" + imageVersions + "]";
+				+ ", created=" + created + ", indexed=" + indexed + ", imageVersions=" + imageVersions + ", tagsStored="+tagsStored+"]";
 
 	}
 	

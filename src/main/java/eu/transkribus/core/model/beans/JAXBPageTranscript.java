@@ -84,21 +84,11 @@ public class JAXBPageTranscript extends AbstractPageTranscript<PcGtsType> {
 //	}
 	
 	public void build() throws IOException {
-		if (md == null)
-			throw new IOException("Metadata is null!");
-		
-		PcGtsType pageData;
-		URL url = md.getUrl();
-		if (url != null) {
-			try {
-				pageData = PageXmlUtils.unmarshal(url);
-			} catch (JAXBException e) {
-				throw new IOException(e);
-			}
+		try {
+			PcGtsType pageData = PageXmlUtils.unmarshal(md, true);
+			setPageData(pageData);
+		} catch (JAXBException e) {
+			throw new IOException(e);
 		}
-		else
-			pageData = PageXmlUtils.createEmptyPcGtsType(md.getPagePageReferenceForLocalDocs().getUrl());
-		
-		setPageData(pageData);
 	}
 }

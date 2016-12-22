@@ -33,7 +33,7 @@ public class TrpPageType extends PageType {
 	
 	boolean edited=false;
 	
-	Set<String> tagNames=new HashSet<>();	
+//	Set<String> tagNames=new HashSet<>();	
 	TrpTranscriptMetadata md;
 	
 	Map<String, Object> idRegistry = new HashMap<>(); // TEST
@@ -125,13 +125,13 @@ public class TrpPageType extends PageType {
 		this.md = md;
 	}
 
-	public Set<String> getTagNames() {
-		return tagNames;
-	}
-
-	public void setTagNames(Set<String> tagNames) {
-		this.tagNames = tagNames;
-	}
+//	public Set<String> getTagNames() {
+//		return tagNames;
+//	}
+//
+//	public void setTagNames(Set<String> tagNames) {
+//		this.tagNames = tagNames;
+//	}
 	
 	public int removeDeadLinks() {
 		if (relations==null) {

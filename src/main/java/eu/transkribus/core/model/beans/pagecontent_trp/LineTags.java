@@ -33,15 +33,7 @@ public class LineTags {
 		}
 		return tagWords;
 	}
-	
-	public static String getTaggedWordsString(TrpTextLineType line) {
-		String tw = "";
-		for (TaggedWord w : line.getTaggedWords()) {
-			tw += w.getWord()+" ";
-		}
-		return tw;
-	}
-	
+		
 	public static void main(String [] args){		
 		String [] strings = new String[] {
 				"@[asdfasdf]hellllllllo",

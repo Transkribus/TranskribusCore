@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -61,6 +62,19 @@ public class CoreUtils {
 //		}		
 //		
 //	}
+	
+	public static int toInt(Integer i) {
+		return i==null ? 0 : i.intValue();
+	}
+		
+	public static boolean containsIgnoreCase(Collection<String> l, String s) {
+		Iterator<String> it = l.iterator();
+		while (it.hasNext()) {
+			if (it.next().equalsIgnoreCase(s))
+				return true;
+		}
+		return false;
+	}
 	
 	public static String readStringFromTxtFile(String fn) throws IOException {
 		String content = new String(Files.readAllBytes(Paths.get(fn)));
