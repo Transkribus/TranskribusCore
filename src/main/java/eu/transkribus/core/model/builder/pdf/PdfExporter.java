@@ -86,7 +86,7 @@ public class PdfExporter extends Observable {
 		
 			URL xmlUrl = p.getCurrentTranscript().getUrl();
 			
-			//logger.debug("xmlUrl " + xmlUrl);
+			logger.debug("output with tags " + highlightTags);
 			//PcGtsType pc = PageXmlUtils.unmarshal(xmlUrl);
 			
 			//should be the same as above

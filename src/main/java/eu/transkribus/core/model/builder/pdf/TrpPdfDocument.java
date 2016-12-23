@@ -307,6 +307,7 @@ public class TrpPdfDocument extends APdfDocument {
 		if(addAdditionalPlainTextPage){
 
 			if (nrOfTextRegions > 0){
+				logger.debug("add uniform text");
 				document.newPage();			
 				addUniformText(pc ,cutoffLeft,cutoffTop);
 			}
@@ -763,7 +764,7 @@ public class TrpPdfDocument extends APdfDocument {
 				
 				boolean rtl = false;
 				//from right to left
-				logger.debug("&&&&&&&& shapeText : " + shapeText);
+				//logger.debug("&&&&&&&& shapeText : " + shapeText);
 				if (!shapeText.isEmpty()){
 					if (Character.getDirectionality(shapeText.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT
 						    || Character.getDirectionality(shapeText.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC
@@ -1278,7 +1279,6 @@ public class TrpPdfDocument extends APdfDocument {
 				}
 				
 				
-				
 				if (highlightTags){
 					
 					if ((l.getUnicodeText().isEmpty() || useWordLevel) && !l.getWord().isEmpty()){
@@ -1318,6 +1318,8 @@ public class TrpPdfDocument extends APdfDocument {
 		
 		//Set<String> wantedTags = ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames());
 		Set<String> wantedTags = ExportUtils.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
+		
+		//logger.debug("wanted tags in TRPPDFDOC " + wantedTags.size());
 
 		int [] prevLength = new int[entrySet.size()];
 		int [] prevOffset = new int[entrySet.size()];

@@ -112,7 +112,7 @@ public class DocExporter extends Observable {
 	
 	public void writePDF(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean addTextPages, final boolean imagesOnly, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, boolean createTitle) throws MalformedURLException, DocumentException, IOException, JAXBException, URISyntaxException, InterruptedException{
 		PdfExporter pdfWriter = new PdfExporter();
-		pdfWriter.export(doc, path, pageIndices, addTextPages, imagesOnly, highlightTags, wordBased, doBlackening, createTitle);
+		pdfWriter.export(doc, path, pageIndices, wordBased, addTextPages, imagesOnly, highlightTags, doBlackening, createTitle);
 	}
 	
 	public void writeTEI(final TrpDoc doc, final String path, final TeiExportPars pars) throws Exception{
