@@ -379,28 +379,28 @@ public class CustomTagUtil {
 		}
 	}
 	
-	public static List<CustomTag> extractCustomTags(PageType p) {
-		if (p instanceof TrpPageType)
-			return extractCustomTagsTrp((TrpPageType) p);
-		
-		List<CustomTag> tags = new ArrayList<>();
-				
-		for (RegionType r : p.getTextRegionOrImageRegionOrLineDrawingRegion()) {
-			tags.addAll(CustomTagUtil.getCustomTags(r.getCustom()));
-			if (r instanceof TextRegionType) {
-				for (TextLineType l : ((TextRegionType) r).getTextLine()) {
-					tags.addAll(CustomTagUtil.getCustomTags(l.getCustom()));
-					for (WordType w : l.getWord()) {
-						tags.addAll(CustomTagUtil.getCustomTags(w.getCustom()));
-					}	
-				}
-			}			
-		}
-		
-		return tags;
-	}
+//	public static List<CustomTag> extractCustomTags(PageType p) {
+//		if (p instanceof TrpPageType)
+//			return extractCustomTagsTrp((TrpPageType) p);
+//		
+//		List<CustomTag> tags = new ArrayList<>();
+//				
+//		for (RegionType r : p.getTextRegionOrImageRegionOrLineDrawingRegion()) {
+//			tags.addAll(CustomTagUtil.getCustomTags(r.getCustom()));
+//			if (r instanceof TextRegionType) {
+//				for (TextLineType l : ((TextRegionType) r).getTextLine()) {
+//					tags.addAll(CustomTagUtil.getCustomTags(l.getCustom()));
+//					for (WordType w : l.getWord()) {
+//						tags.addAll(CustomTagUtil.getCustomTags(w.getCustom()));
+//					}	
+//				}
+//			}			
+//		}
+//		
+//		return tags;
+//	}
 	
-	public static List<CustomTag> extractCustomTagsTrp(TrpPageType p) {
+	public static List<CustomTag> extractCustomTags(TrpPageType p) {
 		List<CustomTag> tags = new ArrayList<>();
 		
 		for (ITrpShapeType s : p.getAllShapes(true)) {
@@ -409,7 +409,7 @@ public class CustomTagUtil {
 				continue;
 			
 			tags.addAll(cl.getTags());
-			}
+		}
 			
 		return tags;
 	}
