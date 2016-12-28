@@ -1,6 +1,7 @@
 package eu.transkribus.core.model.beans.customtags;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +28,9 @@ import eu.transkribus.core.util.RegexPattern;
  * as e.g. {@link TextStyleTag} or {@link StructureTag} have to inherit from
  * this class.
  */
-public class CustomTag implements Comparable<CustomTag> {
+public class CustomTag implements Comparable<CustomTag>, Serializable {
+	private static final long serialVersionUID = -3038639425632100689L;
+
 	final static Logger logger = LoggerFactory.getLogger(CustomTag.class);
 	
 //	public String shapeId; // only used for DB storage

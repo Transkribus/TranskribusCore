@@ -1,5 +1,6 @@
 package eu.transkribus.core.model.beans.customtags;
 
+import java.sql.ResultSet;
 import java.util.Set;
 
 import javax.persistence.Entity;
@@ -16,6 +17,8 @@ import org.slf4j.LoggerFactory;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AbbrevTag extends CustomTag {
+	private static final long serialVersionUID = 5919223424140049789L;
+
 	private final static Logger logger = LoggerFactory.getLogger(AbbrevTag.class);
 	
 	public static final String TAG_NAME = "abbrev";

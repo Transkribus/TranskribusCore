@@ -8,6 +8,7 @@ public class TrpDbTag {
 	int pageid;
 	int tsid;
 	String regionid;
+	
 	int offset;
 	int length;
 	String value;

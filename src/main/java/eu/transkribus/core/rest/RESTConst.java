@@ -1,5 +1,7 @@
 package eu.transkribus.core.rest;
 
+import java.util.List;
+
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -276,6 +278,13 @@ public final class RESTConst {
 	public static final String START_PARAM = "start";
 	public static final String ROWS_PARAM = "rows";
 	public static final String FILTER_PARAM = "filter";
+	
+	// tags
+	public static final String TAGS_PATH = "tags";
+	public static final String TAG_NAME_PARAM = "tagName";
+	public static final String TAG_VALUE_PARAM = "tagValue";
+	public static final String REGION_TYPE_PARAM = "regionType";
+	public static final String ATTRIBUTES_PARAM = "attributes";
 	
 	//Actions
 	public static final String TYPE_ID_PARAM = "typeId";

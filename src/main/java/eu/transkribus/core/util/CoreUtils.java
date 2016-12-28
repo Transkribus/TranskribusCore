@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +63,19 @@ public class CoreUtils {
 //		}		
 //		
 //	}
+	
+	public static <T> Set<T> createSet(T... elements) {
+		Set<T> s = new HashSet<>();
+		for (T e : elements) {
+			s.add(e);
+		}
+		
+		return s;
+	}
+	
+	public static boolean isEmpty(Collection<?> c) {
+		return c==null || c.isEmpty();
+	}
 	
 	public static int toInt(Integer i) {
 		return i==null ? 0 : i.intValue();
@@ -586,6 +600,24 @@ public class CoreUtils {
 //			return v1 || v2;
 //		}
 //	}	
+	
+	public static String createSqlStringQuery(String colName, String searchString, boolean exactMatch, boolean caseSensitive) {
+		String sql = caseSensitive ? "lower("+colName+")" : colName;
+		sql += " like ";
+		
+		if (!exactMatch) {
+			searchString = searchString.replaceAll("*", "%");
+			searchString = searchString.replaceAll("?", "_");
+		}
+		
+		if (!caseSensitive) {
+			searchString = searchString.toLowerCase();
+		}
+		
+		sql += searchString;
+		
+		return sql;
+	}
 	
 	public static void main(String[] args) {
 		List<Integer> base = Arrays.asList(1, 3, 4, 5, 7, 10);
