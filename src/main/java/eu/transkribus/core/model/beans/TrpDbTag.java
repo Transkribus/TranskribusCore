@@ -1,8 +1,18 @@
 package eu.transkribus.core.model.beans;
 
+import java.io.Serializable;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import eu.transkribus.core.model.beans.customtags.CustomTag;
 
-public class TrpDbTag {
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+public class TrpDbTag implements Serializable {
+	private static final long serialVersionUID = 8062423786357430801L;
+	
 	int id;
 	int docid;
 	int pageid;
