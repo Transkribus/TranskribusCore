@@ -64,6 +64,24 @@ public class CoreUtils {
 //		
 //	}
 	
+	public static String appendIfNotEmpty(String s, String suffix) {
+		if (!StringUtils.isEmpty(s))
+			return s+suffix;
+		else
+			return s;
+	}
+	
+	public static <T> HashSet<T> createHashSet(Collection<T> c) {
+		if (c==null)
+			return null;
+		
+		HashSet<T> s = new HashSet<>();
+		for (T e : c) {
+			s.add(e);
+		}
+		return s;
+	}
+	
 	public static <T> Set<T> createSet(T... elements) {
 		Set<T> s = new HashSet<>();
 		for (T e : elements) {
