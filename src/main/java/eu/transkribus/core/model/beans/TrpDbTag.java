@@ -5,12 +5,13 @@ import java.io.Serializable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import eu.transkribus.core.model.beans.customtags.CustomTag;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpDbTag implements Serializable {
+public class TrpDbTag implements Serializable, Comparable<TrpDbTag> {
 	private static final long serialVersionUID = 8062423786357430801L;
 	
 	int id;
@@ -23,7 +24,7 @@ public class TrpDbTag implements Serializable {
 	int length;
 	String value;
 	
-	CustomTag customTag;
+	String customTagCss;
 	
 	public TrpDbTag() {}
 
@@ -91,19 +92,24 @@ public class TrpDbTag implements Serializable {
 		this.value = value;
 	}
 
-	public CustomTag getCustomTag() {
-		return customTag;
+	public String getCustomTagCss() {
+		return customTagCss;
 	}
 
-	public void setCustomTag(CustomTag customTag) {
-		this.customTag = customTag;
+	public void setCustomTagCss(String customTagCss) {
+		this.customTagCss = customTagCss;
 	}
 
 	@Override
 	public String toString() {
 		return "TrpDbTag [id=" + id + ", docid=" + docid + ", pageid=" + pageid + ", tsid=" + tsid + ", regionid="
-				+ regionid + ", offset=" + offset + ", length=" + length + ", value=" + value + ", customTag="
-				+ customTag + "]";
+				+ regionid + ", offset=" + offset + ", length=" + length + ", value=" + value + ", customTagCss="
+				+ customTagCss + "]";
+	}
+
+	@Override
+	public int compareTo(TrpDbTag arg0) {
+		return Integer.compare(id, arg0.id);
 	}
 
 }
