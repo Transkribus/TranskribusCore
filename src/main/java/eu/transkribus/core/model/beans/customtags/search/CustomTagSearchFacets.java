@@ -30,6 +30,8 @@ public class CustomTagSearchFacets extends SearchFacets {
 		return withRegex ? CoreUtils.createRegexFromSearchString(tagValueRegex, true, false, isCaseSensitive()) :tagValueRegex;
 	}
 	
+	public Map<String, Object> getProps() { return props; }
+	
 	public Set<String> getProperties(boolean withRegex) {
 		if (props == null)
 			new HashSet<String>();
