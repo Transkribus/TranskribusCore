@@ -40,7 +40,7 @@ public class TrpHtr {
 	private int gtDocId;
 	
 	@Column(name="TEST_GT_DOCID")
-	private int testGtDocId;
+	private Integer testGtDocId;
 	
 	@Column(name="LANGUAGE")
 	private String language;
@@ -111,11 +111,11 @@ public class TrpHtr {
 		this.gtDocId = gtDocId;
 	}
 	
-	public int getTestGtDocId() {
+	public Integer getTestGtDocId() {
 		return testGtDocId;
 	}
 
-	public void setTestGtDocId(int testGtDocId) {
+	public void setTestGtDocId(Integer testGtDocId) {
 		this.testGtDocId = testGtDocId;
 	}
 
