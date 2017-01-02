@@ -366,6 +366,28 @@ public class CustomTagFactory {
 	public static Collection<CustomTag> getRegisteredTagObjects() { return objectRegistry.values(); }
 //	public static Map<String, CustomTag> getRegisteredObjects() { return objectRegistry; } 
 	
+	public static Set<CustomTagAttribute> getTagAttributes(String tagName) {
+		CustomTag t = getTagObjectFromRegistry(tagName);
+		if (t == null)
+			return null;
+		
+		return t.getAttributes();
+	}
+	
+	public static CustomTagAttribute getAttribute(String tagName, String attributeName) {
+		Set<CustomTagAttribute> atts = getTagAttributes(tagName);
+		if (atts == null)
+			return null;
+		
+		for (CustomTagAttribute a : atts) {
+			if (a.getName().equals(attributeName)) {
+				return a;
+			}
+		}
+	
+		return null;
+	}
+	
 	public static CustomTag create(String tagName) throws Exception {
 		return create(tagName, new HashMap<String, Object>());
 	}

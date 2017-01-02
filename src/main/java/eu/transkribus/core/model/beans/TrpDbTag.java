@@ -14,6 +14,9 @@ import eu.transkribus.core.model.beans.customtags.CustomTag;
 public class TrpDbTag implements Serializable, Comparable<TrpDbTag> {
 	private static final long serialVersionUID = 8062423786357430801L;
 	
+	@XmlTransient
+	int collId = -1; // should be set by client!
+	
 	int id;
 	int docid;
 	int pageid;
@@ -100,9 +103,17 @@ public class TrpDbTag implements Serializable, Comparable<TrpDbTag> {
 		this.customTagCss = customTagCss;
 	}
 
+	public int getCollId() {
+		return collId;
+	}
+
+	public void setCollId(int collId) {
+		this.collId = collId;
+	}
+
 	@Override
 	public String toString() {
-		return "TrpDbTag [id=" + id + ", docid=" + docid + ", pageid=" + pageid + ", tsid=" + tsid + ", regionid="
+		return "TrpDbTag [id=" + id + ((collId==-1)? "" : ", collId = " + collId) + ", docid=" + docid + ", pageid=" + pageid + ", tsid=" + tsid + ", regionid="
 				+ regionid + ", offset=" + offset + ", length=" + length + ", value=" + value + ", customTagCss="
 				+ customTagCss + "]";
 	}
