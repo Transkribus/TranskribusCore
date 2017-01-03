@@ -114,8 +114,11 @@ import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.customtags.AbbrevTag;
 import eu.transkribus.core.model.beans.customtags.CommentTag;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
+import eu.transkribus.core.model.beans.customtags.CustomTagAttribute;
 import eu.transkribus.core.model.beans.customtags.CustomTagFactory;
 import eu.transkribus.core.model.beans.customtags.CustomTagList;
+import eu.transkribus.core.model.beans.customtags.GapTag;
+import eu.transkribus.core.model.beans.customtags.SuppliedTag;
 import eu.transkribus.core.model.beans.customtags.TextStyleTag;
 import eu.transkribus.core.model.beans.customtags.UnclearTag;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
@@ -141,12 +144,14 @@ public class DocxBuilder {
 
 	
 	TrpDoc doc;
-	static boolean exportTags = true;
-	static boolean doBlackening = true;
+	static boolean exportTags = false;
+	static boolean doBlackening = false;
 	static boolean markUnclearWords = false;
 	static boolean expandAbbrevs = false;
 	static boolean substituteAbbrevs = false;
 	static boolean preserveLineBreaks = false;
+	static boolean showSuppliedWithBrackets = false;
+	static boolean ignoreSupplied = false;
 	
 	//static Map<CustomTag, String> tags = new HashMap<CustomTag, String>();
 	static Set<String> tagnames = new HashSet<String>();
@@ -161,8 +166,8 @@ public class DocxBuilder {
 	/*
 	 * all lists necessary to export the tags in the right way
 	 */
-	//contains all gap offsets
-	static ArrayList<Integer> gapList = new ArrayList<Integer>();
+	//contains all gap offsets and the gap tag
+	static LinkedHashMap<Integer, GapTag> gapList = new LinkedHashMap<Integer, GapTag>();
 	static LinkedHashMap<Integer, String> commentList = new LinkedHashMap<Integer, String>();
 	//unclear list contains unclear begin as key and unclear end as value
 	static HashMap<Integer, Integer> unclearList = new HashMap<Integer, Integer>();
@@ -172,9 +177,12 @@ public class DocxBuilder {
 	//index: tags get stored as index in word and pressing F9 in word gives than this index list
 	static HashMap<Integer, ArrayList<CustomTag>> idxList = new HashMap<Integer, ArrayList<CustomTag>>();
 	
+	static LinkedHashMap<Integer, String> showSuppliedList = new LinkedHashMap<Integer, String>();
+	static LinkedHashMap<Integer, String> ignoreSuppliedList = new LinkedHashMap<Integer, String>();
+	
+
 	public static void main(String[] args) throws Exception {
-		
-		
+
 		WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.createPackage();
 		MainDocumentPart mdp = wordMLPackage.getMainDocumentPart();
 		
@@ -301,17 +309,20 @@ public class DocxBuilder {
 //		System.out.println("Done.");
 	}
 	
-	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackening, File file, Set<Integer> pageIndices, IProgressMonitor monitor, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean replaceAbbrevs, boolean keepLineBreaks) throws JAXBException, IOException, Docx4JException, InterruptedException {
+	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackeningSensibleData, File file, Set<Integer> pageIndices, IProgressMonitor monitor, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean replaceAbbrevs, boolean keepLineBreaks, boolean showSuppliedInBrackets, boolean ignoreSuppliedTags) throws JAXBException, IOException, Docx4JException, InterruptedException {
 		
 	    //ch.qos.logback.classic.Logger root = logger.getClass().get(ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
 	    ((ch.qos.logback.classic.Logger) logger).setLevel(ch.qos.logback.classic.Level.DEBUG);
 	    
 		exportTags = writeTags;
+		doBlackening = doBlackeningSensibleData;
 		tagnames = ExportUtils.getOnlySelectedTagnames(ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames()));
 		markUnclearWords = markUnclear;
 		expandAbbrevs = expandAbbreviations;
 		preserveLineBreaks = keepLineBreaks;
 		substituteAbbrevs = replaceAbbrevs;
+		showSuppliedWithBrackets = showSuppliedInBrackets;
+		ignoreSupplied = ignoreSuppliedTags;
 		
 		/*
 		 * get all names of tags
@@ -533,11 +544,11 @@ public class DocxBuilder {
 		
 		/*
 		 * 	static boolean exportTags = true;
-	static boolean doBlackening = true;
-	static boolean markUnclearWords = false;
-	static boolean expandAbbrevs = false;
-	static boolean substituteAbbrevs = false;
-	static boolean preserveLineBreaks = false;
+			static boolean doBlackening = true;
+			static boolean markUnclearWords = false;
+			static boolean expandAbbrevs = false;
+			static boolean substituteAbbrevs = false;
+			static boolean preserveLineBreaks = false;
 		 */
 		addParagraph("", "Export Settings", mdp, "Title");
 		String tagSettings = (exportTags ? "Custom tags are indexed" : "Custom tags are not exported");
@@ -545,10 +556,10 @@ public class DocxBuilder {
 		String abbrevsSettings = (expandAbbrevs ? "Abbreviations are expanded (abbrev [expansion])" : (substituteAbbrevs ? "Abbreviations are subsituted by there expansion": "Abbreviations as they are (diplomatic text)"));
 		String unclearSettings = (markUnclearWords ? "Unclear words are marked" : "");
 		String lineBreakSettings = (preserveLineBreaks ? "Keep the line breaks as in the original document" : "Line breaks does not conform to the original text");
+		String suppliedSettings = (showSuppliedWithBrackets ? "Supplied tags are shown in brackets" : (ignoreSupplied ? "Supplied tags get ignored" : "Supplied tags are not marked specifically"));
 		
-		addParagraph("", blackeningSetting + " / " + tagSettings + " / " + abbrevsSettings + " / " + unclearSettings + " / " + lineBreakSettings, mdp, "Subtitle");
+		addParagraph("", blackeningSetting + " / " + tagSettings + " / " + abbrevsSettings + " / " + unclearSettings + " / " + lineBreakSettings + " / " + suppliedSettings, mdp, "Subtitle");
 
-		
 		addParagraph("", "Editorial Declaration: ", mdp, "Title");
 		for (EdFeature edfeat : doc.getEdDeclList()){
 			addParagraph("", edfeat.getTitle() + ": " + edfeat.getDescription() +"\n" + edfeat.getSelectedOption().toString(), mdp, "Subtitle");
@@ -1016,7 +1027,8 @@ public class DocxBuilder {
 			 * 
 			 */
 			if (nonIndexedTag.getTagName().equals("gap")){
-				gapList.add(nonIndexedTag.getOffset());
+				GapTag gap = (GapTag) nonIndexedTag;
+				gapList.put(nonIndexedTag.getOffset(), gap);
 			}
 			
 			//unclear and comments can not be non-indexed
@@ -1043,7 +1055,8 @@ public class DocxBuilder {
 			 * find all gaps and store the offset
 			 */
 			if (indexedTag.getTagName().equals("gap")){
-				gapList.add(indexedTag.getOffset());
+				GapTag gap = (GapTag) indexedTag;
+				gapList.put(indexedTag.getOffset(), gap);
 			}
 			
 			if (indexedTag.getTagName().equals("comment")){
@@ -1080,8 +1093,28 @@ public class DocxBuilder {
 				}
 			}
 			
+			if (showSuppliedWithBrackets && indexedTag.getTagName().equals("supplied")){
+				//logger.debug("supplied tag found ");
+				SuppliedTag at = (SuppliedTag) indexedTag;
+				String text = at.getContainedText();
+				//only add if an expansion was typed
+				if (!text.equals("")){
+					showSuppliedList.put(indexedTag.getOffset(), text);
+				}
+			}
+			
+			if (ignoreSupplied && indexedTag.getTagName().equals("supplied")){
+				//logger.debug("supplied tag found ");
+				SuppliedTag at = (SuppliedTag) indexedTag;
+				String text = at.getContainedText();
+				//only add if an expansion was typed
+				if (!text.equals("")){
+					ignoreSuppliedList.put(indexedTag.getOffset(), text);
+				}
+			}
+			
 			//create index for all choosen tagnames
-			if (exportTags && tagnames.contains(indexedTag.getTagName())){
+			if (exportTags && tagnames.contains(indexedTag.getTagName()) && !indexedTag.getTagName().equals("gap")){
 				//logger.debug("export tag as idx entry " + indexedTag.getOffset());
 				addValuesToIdxList(idxList, indexedTag.getEnd(), indexedTag);
 			}
@@ -1095,14 +1128,13 @@ public class DocxBuilder {
 		//ArrayList<R> runs = new ArrayList<R>();
 		
 		boolean shapeEnded = false;
-		int abbrevIdx = 0;
 		
-		for (int i=0; i<textStr.length(); ++i) {
+		for (int i=0; i<=textStr.length(); ++i) {
 			
 			//use of abbrevIdx: this is necessary for the appearance at the end of a textline
 			//otherwise the abbrev expansion would not appear at the end of a line because then the index i would be too small
-			abbrevIdx = i;
-			shapeEnded = (i+1 == textStr.length() ? true : false);
+
+			shapeEnded = (i+1 >= textStr.length() ? true : false);
 			
 			/*
 			 * is this case the abbrev gets totally replaced by its expansion
@@ -1147,25 +1179,83 @@ public class DocxBuilder {
 				
 				listOfallRuns.add(abbrevRun);
 			}
-
+			
+			/*
+			 * in this case the supplied tag is expanded either with or without brackets
+			 * 
+			 */
+			if(showSuppliedList.containsKey(i)){
+				String exp = showSuppliedList.get(i);
+				if(rtl){
+					exp = reverseString(exp);
+				}
+				
+				org.docx4j.wml.Text suppliedText = factory.createText();
+				suppliedText.setValue("["+exp+"]");
+				
+				org.docx4j.wml.R  suppliedRun = factory.createR();
+				suppliedRun.getContent().add(suppliedText);
+				
+				listOfallRuns.add(suppliedRun);
+				
+				//supplied is handled now - so set i to the end of supplied
+				i += showSuppliedList.get(i).length();
+				shapeEnded = (i == textStr.length() ? true : false);
+			}
+			
+			/*
+			 * in this case the supplied tag gets ignored
+			 * this means that index i must be incremented by the length of this supplied tag text
+			 */
+			if(ignoreSuppliedList.containsKey(i)){
+				
+				i += ignoreSuppliedList.get(i).length();
+				shapeEnded = (i == textStr.length() ? true : false);
+				
+			}
+			
 			/*
 			 * gap is at this position
 			 * hence create extra run with [...] as value and then go on
+			 * of if suppied attribute is set handle supplied as set in the export settings
 			 */
-			if (gapList.contains(i)){
+			if (gapList.containsKey(i)){
 				org.docx4j.wml.Text  t = factory.createText();
-				if (!rtl)
-					t.setValue("[...] ");
-				else
-					t.setValue(" [...]");
+//				if (!rtl)
+//					t.setValue("[...] ");
+//				else
+//					t.setValue(" [...]");
 				
-				t.setSpace("preserve");
+				GapTag gt = gapList.get(i);
+				String cta = (String) gt.getAttributeValue("supplied");
+
+				//attribute supplied is set in the gap tag -> handle supplied as wanted
+				if (cta != null && !cta.equals("")){
+					//logger.debug("attribute: " + cta);
+					
+					//may the gap with supplied attribute gets ignored 
+					if(!ignoreSupplied){
+						if (showSuppliedWithBrackets){
+							t.setValue("["+cta+"]");
+						}
+						//do not show supplied attribute by default!?
+//						else{
+//							t.setValue(cta);
+//						}
+					}
+				}
+				//nothing supplied, so show [...] for the gap tag 
+				else{
+					t.setValue("[...]");
+					t.setSpace("preserve");
+				}
 				
 				org.docx4j.wml.R  run = factory.createR();
 				//p.getContent().add(run);
 				run.getContent().add(t);
-				
+
 				listOfallRuns.add(run);
+					
 			}
 			
 			//begin of unclear word should be marked with [ and end with ]
@@ -1308,30 +1398,30 @@ public class DocxBuilder {
 			/*
 			 * abbrev at end of shape (= line) -> means use (index + 1)
 			 */
-			if (shapeEnded){
-				if(expandAbbrevList.containsKey(i+1)){
-					logger.debug("abbrev is at end of shape!");
-					String exp = expandAbbrevList.get(i+1);
-					
-					if (!exp.equals("")){
-					
-						org.docx4j.wml.Text  abbrevText = factory.createText();
-						abbrevText.setValue("["+exp+"]");
-						
-						org.docx4j.wml.R  abbrevRun = factory.createR();
-						//p.getContent().add(abbrevRun);
-						abbrevRun.getContent().add(abbrevText);
-						
-						listOfallRuns.add(abbrevRun);
-					}
-				}
-				
-				if (idxList.containsKey(i+1)){
-
-					addIndexEntry(i+1, p, textStr, rtl);
-					
-				}
-			}
+//			if (shapeEnded){
+//				if(expandAbbrevList.containsKey(i+1)){
+//					logger.debug("abbrev is at end of shape!");
+//					String exp = expandAbbrevList.get(i+1);
+//					
+//					if (!exp.equals("")){
+//					
+//						org.docx4j.wml.Text  abbrevText = factory.createText();
+//						abbrevText.setValue("["+exp+"]");
+//						
+//						org.docx4j.wml.R  abbrevRun = factory.createR();
+//						//p.getContent().add(abbrevRun);
+//						abbrevRun.getContent().add(abbrevText);
+//						
+//						listOfallRuns.add(abbrevRun);
+//					}
+//				}
+//				
+//				if (idxList.containsKey(i+1)){
+//
+//					addIndexEntry(i+1, p, textStr, rtl);
+//					
+//				}
+//			}
 			
 			//find position of footnote/comment
 			if (commentList.containsKey(i)){
@@ -1460,6 +1550,8 @@ public class DocxBuilder {
 		expandAbbrevList.clear();
 		substituteAbbrevList.clear();
 		idxList.clear();
+		showSuppliedList.clear();
+		ignoreSuppliedList.clear();
 		
 	}
 
