@@ -7,8 +7,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -17,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.model.beans.customtags.search.CustomTagSearchFacets;
-import eu.transkribus.core.model.beans.customtags.search.TextSearchFacets;
 import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpTagsChangedEvent;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpTagsChangedEvent.Type;
@@ -943,47 +940,47 @@ public class CustomTagList {
 		logger.info("----------------");
 	}
 	
-	public List<CustomTag> findText(TextSearchFacets facets, boolean stopOnFirst, int startOffset, boolean previous) {
-		List<CustomTag> ft = new ArrayList<>();
-		
-//		 sortTags(); // should be sorted, just to be sure...
-//		 printTags();
-		
-		String textRegex = facets.getText(true);
-//		if (facets.isWholeWord()) {
-//			textRegex = "\\b"+textRegex+"\\b";
+//	public List<CustomTag> findText(TextSearchFacets facets, boolean stopOnFirst, int startOffset, boolean previous) {
+//		List<CustomTag> ft = new ArrayList<>();
+//		
+////		 sortTags(); // should be sorted, just to be sure...
+////		 printTags();
+//		
+//		String textRegex = facets.getText(true);
+////		if (facets.isWholeWord()) {
+////			textRegex = "\\b"+textRegex+"\\b";
+////		}
+//		
+//		String txt = getShape().getUnicodeText();
+//		logger.debug("searching for text: "+textRegex+" in line: "+txt);
+//		
+////		Pattern p = Pattern.compile(textRegex, facets.isCaseSensitive() ? 0 : Pattern.CASE_INSENSITIVE);
+//		Pattern p = Pattern.compile(textRegex);
+//		
+//		Matcher m = p.matcher(txt);
+//		while (m.find()) {
+//			if (!previous && startOffset!=-1 && m.start() < startOffset)
+//				continue;
+//			else if (previous && startOffset!=-1 && m.end() >= startOffset)
+//				continue;
+//						
+//		    String s = m.group();
+//		    logger.debug("found matching text: "+s);
+//		    
+//		    CustomTag t = new CustomTag("textSearch");
+//		    t.setOffset(m.start());
+//		    t.setLength(s.length());
+//		    t.customTagList = this;
+//		    
+//		    ft.add(t);
+//			if (stopOnFirst)
+//				return ft;
+//		    
+//		    logger.debug("textSearch tag: "+t);
 //		}
-		
-		String txt = getShape().getUnicodeText();
-		logger.debug("searching for text: "+textRegex+" in line: "+txt);
-		
-//		Pattern p = Pattern.compile(textRegex, facets.isCaseSensitive() ? 0 : Pattern.CASE_INSENSITIVE);
-		Pattern p = Pattern.compile(textRegex);
-		
-		Matcher m = p.matcher(txt);
-		while (m.find()) {
-			if (!previous && startOffset!=-1 && m.start() < startOffset)
-				continue;
-			else if (previous && startOffset!=-1 && m.end() >= startOffset)
-				continue;
-						
-		    String s = m.group();
-		    logger.debug("found matching text: "+s);
-		    
-		    CustomTag t = new CustomTag("textSearch");
-		    t.setOffset(m.start());
-		    t.setLength(s.length());
-		    t.customTagList = this;
-		    
-		    ft.add(t);
-			if (stopOnFirst)
-				return ft;
-		    
-		    logger.debug("textSearch tag: "+t);
-		}
-
-		return ft;
-	}	
+//
+//		return ft;
+//	}	
 
 	/**
 	 * Finds custom tags in this list for given the facets - every facet can

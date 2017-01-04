@@ -84,6 +84,30 @@ public class CustomTagAttribute {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	
+	public boolean isBoolean() {
+		return type!=null && (type.equals(Boolean.class) || type.equals(boolean.class));
+	}
+	
+	public boolean isInteger() {
+		return type!=null && (type.equals(Integer.class) || type.equals(int.class));
+	}
+	
+	public boolean isString() {
+		return type!=null && type.equals(String.class);
+	}
+	
+	public boolean isDouble() {
+		return type!=null && (type.equals(Double.class) || type.equals(double.class));
+	}
+	
+	public boolean isFloat() {
+		return type!=null && (type.equals(Float.class) || type.equals(float.class));
+	}
+	
+	public boolean isFloatOrDouble() {
+		return isFloat() || isDouble();
+	}
 
 	public Class<?> getType() {
 		return type;

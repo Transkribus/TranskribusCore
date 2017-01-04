@@ -21,21 +21,21 @@ public class TextStyleTag extends CustomTag {
 	
 	public final CustomTagAttribute[] ATTRIBUTES = { 
 		new CustomTagAttribute("fontFamily", true, "Font family", "Font family"),
-		new CustomTagAttribute("serif", true, "Serif", "Is this a serif font?"),
-		new CustomTagAttribute("monospace",true, "Monospace", "Is this a monospace (i.e. equals width characters) font?"),
+		new CustomTagAttribute("serif", true, "Serif", "Is this a serif font?", Boolean.class),
+		new CustomTagAttribute("monospace",true, "Monospace", "Is this a monospace (i.e. equals width characters) font?", Boolean.class),
 		new CustomTagAttribute("fontSize", true, "Font size", "The size of the font in points"),
 		new CustomTagAttribute("kerning", true, "Kerning", "The kerning of the font, see: http://en.wikipedia.org/wiki/Kerning"),
 		new CustomTagAttribute("textColour", true, "Text colour", "The foreground colour of the text"),
 		new CustomTagAttribute("bgColour", true, "Background colour", "The background colour of the text"),
-		new CustomTagAttribute("reverseVideo", true, "Reverse video", "http://en.wikipedia.org/wiki/Reverse_video"),
-		new CustomTagAttribute("bold", true, "Bold", "Bold font"),
-		new CustomTagAttribute("italic", true, "Italic", "Italic font"),
-		new CustomTagAttribute("underlined", true, "Underlined", "Underlined"),
-		new CustomTagAttribute("subscript", true, "Subscript", "Subscript"),
-		new CustomTagAttribute("superscript", true, "Superscript", "Superscript"),
-		new CustomTagAttribute("strikethrough", true, "Strikethrough", "Strikethrough"),
-		new CustomTagAttribute("smallCaps", true, "Small caps", "Small capital letters at the height as lowercase letters, see: http://en.wikipedia.org/wiki/Small_caps"),
-		new CustomTagAttribute("letterSpaced", true, "Letter spaced", "Equals distance between characters, see: http://en.wikipedia.org/wiki/Letter-spacing"),
+		new CustomTagAttribute("reverseVideo", true, "Reverse video", "http://en.wikipedia.org/wiki/Reverse_video", Boolean.class),
+		new CustomTagAttribute("bold", true, "Bold", "Bold font", Boolean.class),
+		new CustomTagAttribute("italic", true, "Italic", "Italic font", Boolean.class),
+		new CustomTagAttribute("underlined", true, "Underlined", "Underlined", Boolean.class),
+		new CustomTagAttribute("subscript", true, "Subscript", "Subscript", Boolean.class),
+		new CustomTagAttribute("superscript", true, "Superscript", "Superscript", Boolean.class),
+		new CustomTagAttribute("strikethrough", true, "Strikethrough", "Strikethrough", Boolean.class),
+		new CustomTagAttribute("smallCaps", true, "Small caps", "Small capital letters at the height as lowercase letters, see: http://en.wikipedia.org/wiki/Small_caps", Boolean.class),
+		new CustomTagAttribute("letterSpaced", true, "Letter spaced", "Equals distance between characters, see: http://en.wikipedia.org/wiki/Letter-spacing", Boolean.class),
 	};
 	
 //	public static String DEFAULT_COLOR = "#000000";

@@ -61,14 +61,14 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 	protected static HashSet<CustomTagAttribute> ATTRIBUTES = new HashSet<CustomTagAttribute>();
 	
 	public static String OFFSET_PROPERTY_NAME = "offset";
-	public static CustomTagAttribute OFFSET_PROPERTY = new CustomTagAttribute(OFFSET_PROPERTY_NAME, false, null, "The character offset of the tag, relative to the line or word it is set");
+	public static CustomTagAttribute OFFSET_PROPERTY = new CustomTagAttribute(OFFSET_PROPERTY_NAME, false, null, "The character offset of the tag, relative to the line or word it is set", int.class);
 	
 	public static String LENGTH_PROPERTY_NAME = "length";
-	public static CustomTagAttribute LENGTH_PROPETY = new CustomTagAttribute(LENGTH_PROPERTY_NAME, false, null, "The length in characters of the tag");
+	public static CustomTagAttribute LENGTH_PROPETY = new CustomTagAttribute(LENGTH_PROPERTY_NAME, false, null, "The length in characters of the tag", int.class);
 	
 	public static String CONTINUED_PROPERTY_NAME = "continued";
 	public static CustomTagAttribute CONTINUED_PROPERTY = new CustomTagAttribute(CONTINUED_PROPERTY_NAME, false, null,
-			"Determines if this tag is a continuation from a tag of the previous line or word");
+			"Determines if this tag is a continuation from a tag of the previous line or word", boolean.class);
 		
 //	public static 
 	// TODO: insert color tag
