@@ -96,7 +96,7 @@ public class TrpJobStatus implements Serializable {
 	@Column
 	private long endTime;
 	
-	@Column
+	@Column(name="JOBDATA_CLOB")
 	private String jobData;
 	
 	@Column
