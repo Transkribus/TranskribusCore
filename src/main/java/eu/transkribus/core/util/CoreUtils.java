@@ -64,6 +64,31 @@ public class CoreUtils {
 //		
 //	}
 	
+	/**
+	 * Joins the objects of an iterable to a string using a delimiter and a prefix and/or suffix to append to each object
+	 */
+	public static String join(Iterable<?> iterable, String delimiter, String prefix, String suffix) {
+		if (iterable==null)
+			return "";
+		if (delimiter==null)
+			delimiter="";
+		if (prefix==null)
+			prefix="";
+		if (suffix==null)
+			suffix="";
+		
+		String joined="";
+		for (Object o : iterable) {
+			String str = o==null ? "" : o.toString();
+			str = prefix + str + suffix;
+			
+			joined += str+delimiter;
+		}
+		joined = StringUtils.stripEnd(joined, delimiter);
+		
+		return joined;
+	}
+	
 	public static String neighborString(String str, int startIndex, int maxChars, boolean direction, boolean stopAtWs) {
 		if (str == null || startIndex < 0 || startIndex >= str.length())
 			return "";
