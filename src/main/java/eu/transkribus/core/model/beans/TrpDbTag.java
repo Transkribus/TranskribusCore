@@ -25,7 +25,9 @@ public class TrpDbTag implements Serializable, Comparable<TrpDbTag> {
 	int offset;
 	int length;
 	String value;
-	String context;
+	
+	String contextBefore;
+	String contextAfter;
 	
 	String customTagCss;
 	
@@ -119,12 +121,20 @@ public class TrpDbTag implements Serializable, Comparable<TrpDbTag> {
 		this.collId = collId;
 	}
 
-	public String getContext() {
-		return context;
+	public String getContextBefore() {
+		return contextBefore;
 	}
 
-	public void setContext(String context) {
-		this.context = context;
+	public void setContextBefore(String contextBefore) {
+		this.contextBefore = contextBefore;
+	}
+
+	public String getContextAfter() {
+		return contextAfter;
+	}
+
+	public void setContextAfter(String contextAfter) {
+		this.contextAfter = contextAfter;
 	}
 
 	@Override
@@ -136,7 +146,8 @@ public class TrpDbTag implements Serializable, Comparable<TrpDbTag> {
 	public String toString() {
 		return "TrpDbTag [collId=" + collId + ", id=" + id + ", docid=" + docid + ", pageid=" + pageid + ", pagenr="
 				+ pagenr + ", tsid=" + tsid + ", regionid=" + regionid + ", offset=" + offset + ", length=" + length
-				+ ", value=" + value + ", context=" + context + ", customTagCss=" + customTagCss + "]";
+				+ ", value=" + value + ", contextBefore=" + contextBefore + ", contextAfter=" + contextAfter
+				+ ", customTagCss=" + customTagCss + "]";
 	}
 
 }

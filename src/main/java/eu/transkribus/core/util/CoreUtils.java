@@ -64,6 +64,33 @@ public class CoreUtils {
 //		
 //	}
 	
+	public static String neighborString(String str, int startIndex, int maxChars, boolean direction, boolean stopAtWs) {
+		if (str == null || startIndex < 0 || startIndex >= str.length())
+			return "";
+
+		String txt = "";
+		int i = startIndex;
+		boolean stop=false;
+		do {
+			char c = str.charAt(i);
+			
+			if (direction) {
+				txt = c+txt;
+				--i;
+			} else {
+				txt += c;
+				++i;
+			}
+			
+			stop = txt.length() >= maxChars;
+			if (stop && stopAtWs && !Character.isWhitespace(c)) {
+				stop = false;
+			}
+		} while (!stop && i>=0 && i<str.length());
+		
+		return txt;
+	}
+	
 	public static String appendIfNotEmpty(String s, String suffix) {
 		if (!StringUtils.isEmpty(s))
 			return s+suffix;

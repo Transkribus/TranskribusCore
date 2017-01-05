@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.bcel.generic.INSTANCEOF;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
@@ -17,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.exceptions.InitializationFailedException;
 import eu.transkribus.core.model.beans.pagecontent.ColourSimpleType;
+import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.IntRange;
 import eu.transkribus.core.util.OverlapType;
@@ -140,7 +143,39 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 		
 		return customTagList.getShape().getUnicodeText();
 	}
-	
+
+	public String getNeighborText(boolean before, int N) {
+		if (customTagList == null)
+			return "";
+		
+		ITrpShapeType n = customTagList.getShape().getSiblingShape(before);
+		
+		String txt = "";
+//		String del =  customTagList.getShape() instanceof TrpWordType ? " " : "";
+		String del =  " ";
+		
+		while (n!=null && txt.length() < N) {
+			if (before) {
+				txt = n.getUnicodeText()+del+txt;
+			} else {
+				txt += del+n.getUnicodeText();
+			}
+			
+			n = n.getSiblingShape(before);
+		}
+		
+		try {		
+			if (txt.length() > N) { // cut text if too long
+				int startIndex = before ? txt.length()-1 : 0;
+				txt = CoreUtils.neighborString(txt, startIndex, N, before, true);
+//				txt = before ? txt.substring(txt.length()-N) : txt.substring(0, N);
+			}
+			return txt;
+		} catch (IndexOutOfBoundsException ex) { // should not happen...
+			return "i am error";
+		}
+	}
+
 	public String getContainedText() {
 		if (customTagList == null)
 			return "";
@@ -150,19 +185,11 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 		int o = CoreUtils.bound(offset, 0, txt.length());
 		int e = CoreUtils.bound(offset+length, 0, txt.length());
 		
-		/**
-		 * FIXME Prod Server doc 331 on page 22 has illegal tags (outside of string bounds with no length)
-		 * Then o = 21 and e = 20 which leads to a StringIndexOutOfBoundsException. Code below fixes that for now.
-		 * philip
-		 */
-		
-		final String containedText;
-		if(o > e) {
-			containedText = "";
-		} else {
-			containedText = txt.substring(o, e);
+		try {
+			return txt.substring(o, e);
+		} catch(StringIndexOutOfBoundsException ex) { // illegal tag bounds
+			return "";
 		}
-		return containedText;
 	}
 	
 	public boolean isDeleteable() {
