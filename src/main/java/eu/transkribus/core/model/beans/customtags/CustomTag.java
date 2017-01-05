@@ -148,12 +148,23 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 		if (customTagList == null)
 			return "";
 		
-		ITrpShapeType n = customTagList.getShape().getSiblingShape(before);
+		String txtOfShape = customTagList.getShape().getUnicodeText();
 		
+		// first get neighboring text of same shape
 		String txt = "";
-//		String del =  customTagList.getShape() instanceof TrpWordType ? " " : "";
+		try {
+			if (before) {
+				txt = txtOfShape.substring(0, getOffset());
+			} else {
+				txt = txtOfShape.substring(getEnd());
+			}
+		} catch (IndexOutOfBoundsException e) {
+			txt = "";
+		}
+				
+		// if this is not enough (i.e. length < N), try to get some text from neighboring shapes
+		ITrpShapeType n = customTagList.getShape().getSiblingShape(before);
 		String del =  " ";
-		
 		while (n!=null && txt.length() < N) {
 			if (before) {
 				txt = n.getUnicodeText()+del+txt;
@@ -164,8 +175,9 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 			n = n.getSiblingShape(before);
 		}
 		
-		try {		
-			if (txt.length() > N) { // cut text if too long
+		// cut text if too long, respecting word boundaries
+		try {
+			if (txt.length() > N) {
 				int startIndex = before ? txt.length()-1 : 0;
 				txt = CoreUtils.neighborString(txt, startIndex, N, before, true);
 //				txt = before ? txt.substring(txt.length()-N) : txt.substring(0, N);
