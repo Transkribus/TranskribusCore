@@ -295,7 +295,7 @@ public class TrpPdfDocument extends APdfDocument {
 		if(doc != null && createTitle){
 			addTitlePage(doc);
 			//logger.debug("page number " + getPageNumber());
-			if (getPageNumber()%2 != 0){
+			if (getPageNumber()%1 != 0){
 				logger.debug("odd page number -> add one new page");
 				document.newPage();
 				//necessary that an empty page can be created
