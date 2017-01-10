@@ -2,11 +2,14 @@ package eu.transkribus.core.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -178,7 +181,7 @@ public class GoobiMetsImporter
 				imgGrp = type.getFile();
 				break;
 				/*
-				 * could also be that USE='Content' and ID="AltoFiles" or ID="AbbyyXmlFiles"  is necessara to get the transcriptions
+				 * could also be that USE='Content' and ID="AltoFiles" or ID="AbbyyXmlFiles"  is necessary to get the transcriptions
 				 */
 			case "DEFAULT":
 				defaultImgGrp = type.getFile();
@@ -219,10 +222,18 @@ public class GoobiMetsImporter
 		
 		List<TrpPage> pages = new ArrayList<TrpPage>(pageDivs.size());
 		
+		// Implement a reverse-order Comparator by lambda function
+		Comparator<DivType> comp = (DivType a, DivType b) -> {
+		    return a.getORDER().compareTo(b.getORDER());
+		};
+
+		pageDivs.sort(comp);
+
 		for(DivType div : pageDivs){
 			//fetch all files and store them locally
 			
-			fetchFilesFromUrl(div, imgGrp, xmlGrp, dir);
+			logger.debug("order " + div.getORDER());
+			//fetchFilesFromUrl(div, imgGrp, xmlGrp, dir);
 			//pages.add(page);
 		}
 		return true;
