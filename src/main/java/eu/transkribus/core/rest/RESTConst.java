@@ -1,17 +1,11 @@
 package eu.transkribus.core.rest;
 
-import java.util.List;
-
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
-
 public final class RESTConst {
 	
 	//Header keys
 	public static final String GUI_VERSION_HEADER_KEY = "trpGuiVersion";
 	public static final String CLIENT_ID_HEADER_KEY = "clientId";
+	public static final String HISTORY_CALL_ATTRIBUTE_KEY = "historyCall";
 	
 	//base path is set as ApplicationPath either in TrpServer's web.xml or TrpServerApp.java
 	public static final String BASE_PATH = "rest";
