@@ -242,7 +242,7 @@ public class ExportUtils {
 		}
 		
 		for (CustomTag indexedTag : cl.getIndexedTags()) {
-			logger.debug("tagname" + indexedTag.getTagName());
+			//logger.debug("tagname " + indexedTag.getTagName());
 			storeCustomTag(indexedTag, textStr);
 
 		}

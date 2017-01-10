@@ -50,6 +50,8 @@ import eu.transkribus.core.model.beans.customtags.BlackeningTag;
 import eu.transkribus.core.model.beans.customtags.CommentTag;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
 import eu.transkribus.core.model.beans.customtags.CustomTagFactory;
+import eu.transkribus.core.model.beans.customtags.GapTag;
+import eu.transkribus.core.model.beans.customtags.SuppliedTag;
 import eu.transkribus.core.model.beans.customtags.TextStyleTag;
 import eu.transkribus.core.model.beans.pagecontent.BaselineType;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
@@ -774,9 +776,9 @@ public class TrpPdfDocument extends APdfDocument {
 						logger.debug("&&&&&&&& STRING IS RTL : ");
 						rtl = true;
 					}
-					else{
-						logger.debug("&&&&&&&& STRING IS NOT RTL : ");
-					}
+//					else{
+//						logger.debug("&&&&&&&& STRING IS NOT RTL : ");
+//					}
 				}
 				
 				/*
@@ -1623,7 +1625,7 @@ public class TrpPdfDocument extends APdfDocument {
 				String color = CustomTagFactory.getTagColor(currTagname);
 				
 
-				addUniformTagList(lineHeight, twelfthPoints[1][0], posY, currTagname + " Tags:", "", cb, 0, 0, bfArial, twelfthPoints[1][0], false, color, 0, false);
+				addUniformTagList(lineHeight, twelfthPoints[1][0], posY, "", currTagname + " Tags:", "", cb, 0, 0, bfArial, twelfthPoints[1][0], false, color, 0, false);
 				//addUniformStringTest(lineMeanHeight, twelfthPoints[1][0], posY, currTagname + " Tags:", cb, 0, 0, bfArial, twelfthPoints[1][0], false, color, 0);
 				
 				Collection<String> valueSet = allTagsOfThisTagname.values();
@@ -1638,11 +1640,16 @@ public class TrpPdfDocument extends APdfDocument {
 					CustomTag currEntry = it.next();
 					
 					String currValue = allTagsOfThisTagname.get(currEntry);
+					
+					//case for gap tag
+					if(currValue == null){
+						currValue="";
+					}
 					String expansion = "";
 					
 //					logger.debug("curr tag entry " + currEntry);
 //					logger.debug("curr tag value " + currValue);
-					
+										
 					//handles continued tags over several lines
 					while (currEntry.isContinued() && it.hasNext()){
 						currEntry = it.next();
@@ -1663,6 +1670,8 @@ public class TrpPdfDocument extends APdfDocument {
 					}
 					
 					boolean rtl = false;
+					String searchText = "";
+					
 					if (!currValue.isEmpty() && textIsRTL(currValue)){
 						rtl = true;
 						//logger.debug("rtl tag found " + currValue);
@@ -1694,7 +1703,31 @@ public class TrpPdfDocument extends APdfDocument {
 							
 					}
 					
+					else if (currTagname.equals(GapTag.TAG_NAME)){
+						
+						GapTag at = (GapTag) currEntry;
+						currValue = currEntry.getTextOfShape();
+						searchText = currValue;
+						int offset = Math.max(at.getOffset(), currValue.length()-1);
+						String sub1 = currValue.substring(0, offset);
+						String sub2 = currValue.substring(offset);
+						String exp = (String) at.getAttributeValue("supplied");
+						if ( exp != null && exp != ""){
+							currValue = sub1.concat("["+exp+"]").concat(sub2);
+							//expansion = "[" + (String) at.getAttributeValue("supplied") + "]";
+						}
+						//no supplied attribute - gap must not be in the tag list
+						else{
+							continue;
+						}
+							
+					}
 					
+					else if (currTagname.equals(SuppliedTag.TAG_NAME)){
+						
+							
+					}
+										
 					//make sure that similar tags are only exported once
 					if (!uniqueValues.contains(currValue)){
 						uniqueValues.add(currValue);
@@ -1706,8 +1739,8 @@ public class TrpPdfDocument extends APdfDocument {
 							l = 1;
 						}
 
-						addUniformTagList(lineHeight, twelfthPoints[1][0], posY, currValue, expansion, cb, 0, 0, bfArial, twelfthPoints[1][0], true, null, 0, rtl);
-						logger.debug("tag value is " + currValue);
+						addUniformTagList(lineHeight, twelfthPoints[1][0], posY, searchText, currValue, expansion, cb, 0, 0, bfArial, twelfthPoints[1][0], true, null, 0, rtl);
+						//logger.debug("tag value is " + currValue);
 						l++;
 					}
 

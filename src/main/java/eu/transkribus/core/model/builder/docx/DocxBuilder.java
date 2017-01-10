@@ -332,9 +332,7 @@ public class DocxBuilder {
 		//main document part
 		wordMLPackage = WordprocessingMLPackage.createPackage();
 		MainDocumentPart mdp = wordMLPackage.getMainDocumentPart();
-		
 
-		
 		org.docx4j.wml.ObjectFactory factory = Context.getWmlObjectFactory();
 		
 		List<TrpPage> pages = doc.getPages();
