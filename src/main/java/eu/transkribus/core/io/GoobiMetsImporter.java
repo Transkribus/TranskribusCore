@@ -232,8 +232,8 @@ public class GoobiMetsImporter
 		for(DivType div : pageDivs){
 			//fetch all files and store them locally
 			
-			logger.debug("order " + div.getORDER());
-			//fetchFilesFromUrl(div, imgGrp, xmlGrp, dir);
+			//logger.debug("order " + div.getORDER());
+			fetchFilesFromUrl(div, imgGrp, xmlGrp, dir);
 			//pages.add(page);
 		}
 		return true;
