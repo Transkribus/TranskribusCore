@@ -193,6 +193,8 @@ public final class RESTConst {
 
 	public static final String URL_PARAM = "url";
 
+	public static final String HTR_TRAIN_PATH = "htrTraining";
+	
 	public static final String HTR_UPVLC_TRAIN_PATH = "htrTrainingUpvlc";
 	public static final String HTR_URO_TRAIN_PATH = "htrTrainingUro";
 	public static final String HTR_CITLAB_TRAIN_PATH = "htrTrainingCITlab";
