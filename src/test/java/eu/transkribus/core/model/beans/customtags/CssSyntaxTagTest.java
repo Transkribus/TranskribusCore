@@ -108,6 +108,19 @@ public class CssSyntaxTagTest {
 
 //		fail("Not yet implemented");
 	}
+	
+	public static void main(String[] args) throws Exception {
+//		StructureTag st = new StructureTag("paragraph, marginalia");
+		
+		CssSyntaxTag t = CssSyntaxTag.parseSingleCssTag("structure { type: paragraph, marginalia; }");
+//		logger.info(t.toString());
+		
+		System.out.println(t.toString());
+		System.out.println(t.getAttributeValue("type"));
+		
+		
+		
+	}
 
 
 }

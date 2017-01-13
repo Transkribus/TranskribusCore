@@ -6,6 +6,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.lang.StringUtils;
+
 import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescriptor;
 
 @XmlRootElement
@@ -68,4 +70,15 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 		}
 		return false;
 	}
+	@Override
+	public String toString() {
+		return "CitLabHtrTrainConfig [numEpochs=" + numEpochs + ", learningRate=" + learningRate + ", noise=" + noise
+				+ ", trainSizePerEpoch=" + trainSizePerEpoch + ", baseModelId=" + baseModelId + ", modelName="
+				+ modelName + ", description=" + description + ", language=" + language + ", colId=" + colId
+				+ ", train=" + "["+StringUtils.join(train, ", ")+"]" + ", test=" + "["+StringUtils.join(test, ", ")+"]"+ "]";
+	}
+	
+	
+	
+	
 }

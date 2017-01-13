@@ -10,6 +10,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.lang.StringUtils;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DocumentSelectionDescriptor implements Serializable {
@@ -54,5 +56,16 @@ public class DocumentSelectionDescriptor implements Serializable {
 		public void setTsId(int tsId) {
 			this.tsId = tsId;
 		}
+		
+		@Override
+		public String toString() {
+			return "PageDescriptor [pageId=" + pageId + ", tsId=" + tsId + "]";
+		}
 	}
+
+	@Override
+	public String toString() {
+		return "DocumentSelectionDescriptor [docId=" + docId + ", pages=" + "["+StringUtils.join(pages, ", ")+"]" + "]";
+	}
+	
 }
