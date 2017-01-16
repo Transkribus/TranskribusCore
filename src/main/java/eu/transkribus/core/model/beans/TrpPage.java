@@ -1,7 +1,6 @@
 package eu.transkribus.core.model.beans;
 
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -18,8 +17,10 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import eu.transkribus.core.exceptions.NullValueException;
+import eu.transkribus.core.model.beans.adapters.SqlTimestampAdapter;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 
 @Entity
@@ -75,6 +76,7 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	@XmlElement
 	private List<TrpPageImageVersion> imageVersions = new LinkedList<>();
 	
+	@XmlJavaTypeAdapter(SqlTimestampAdapter.class)
 	@Column(name="TAGS_STORED")
 	private java.sql.Timestamp tagsStored;
 
