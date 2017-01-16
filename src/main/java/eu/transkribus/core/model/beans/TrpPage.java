@@ -65,6 +65,8 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	@Column
 	@Transient
 	private int height;
+	
+	@XmlJavaTypeAdapter(SqlTimestampAdapter.class)
 	@Column
 	@Transient
 	private java.sql.Timestamp created;
