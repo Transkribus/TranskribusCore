@@ -25,6 +25,9 @@ public final class RESTConst {
 	public static final String SEARCH_PATH = "search";
 	public static final String ACTIONS_PATH = "actions";
 	
+	public static final String JOB_MGMT_PATH = "jobMgmt";
+	public static final String RETRIEVE_JOBS_PATH = "retrieveJobs";
+	
 	/* SECOND TIER: Methods */
 	public static final String DB_PATH = "db";
 	public static final String CURR_MD_PATH = "curr";
