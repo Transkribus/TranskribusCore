@@ -1,29 +1,32 @@
 package eu.transkribus.core.model.beans.job.enums;
 
 public enum JobTask {
-	CreateDocument(JobType.utility, "Create Document"),
-	DeleteDocument(JobType.utility, "Delete Document"),
-	DuplicateDocument(JobType.utility, "Duplicate Document"),
-	RebuildSolrIndex(JobType.utility, "Rebuild Solr Index"),	
-	IndexDocument(JobType.utility, "Build search index"),
-	Export(JobType.utility, "Export Document"),
+	CreateDocument(JobType.utility, "Create Document", "uibk"),
+	DeleteDocument(JobType.utility, "Delete Document", "uibk"),
+	DuplicateDocument(JobType.utility, "Duplicate Document", "uibk"),
+	RebuildSolrIndex(JobType.utility, "Rebuild Solr Index", "uibk"),	
+	IndexDocument(JobType.utility, "Build search index", "uibk"),
+	Export(JobType.utility, "Export Document", "uibk"),
 	
-	DetectBaselines(JobType.layoutAnalysis, "Detect Baselines"),
-	DetectBlocks(JobType.layoutAnalysis, "Block Segmentation"),
-	DetectLines(JobType.layoutAnalysis, "Line Segmentation"),
-	DetectWords(JobType.layoutAnalysis, "Word Segmentation"),
+	DetectBaselines(JobType.layoutAnalysis, "Detect Baselines", "ncsr"),
+	DetectBlocks(JobType.layoutAnalysis, "Block Segmentation", "ncsr"),
+	DetectLines(JobType.layoutAnalysis, "Line Segmentation", "ncsr"),
+	DetectWords(JobType.layoutAnalysis, "Word Segmentation", "ncsr"),
 	
-	Htr(JobType.recognition, "Handwritten Text Recognition"),
-	HtrTraining(JobType.recognition, "HTR Training"),
-	Ocr(JobType.recognition, "Optical Character Recognition"),
-	UpvlcHtr(JobType.upvlc, "Handwritten Text Recognition"),
-	UpvlcHtrTraining(JobType.upvlc, "HTR Training");
+	Htr(JobType.recognition, "Handwritten Text Recognition", "uro"),
+	HtrTraining(JobType.recognition, "HTR Training", "uro"),
+	Ocr(JobType.recognition, "Optical Character Recognition", "uibk"),
+	UpvlcHtr(JobType.upvlc, "Handwritten Text Recognition", "upvlc"),
+	UpvlcHtrTraining(JobType.upvlc, "HTR Training", "upvlc");
 	
 	private JobType type;
 	private String label;
-	JobTask(JobType type, String name){
+	private String defaultProvider;
+	
+	JobTask(JobType type, String name, String defaultProvider){
 		this.type = type;
 		this.label = name;
+		this.defaultProvider = defaultProvider;
 	}
 	
 	public String getLabel(){
@@ -32,5 +35,9 @@ public enum JobTask {
 	
 	public JobType getJobType(){
 		return type;
+	}
+	
+	public String getDefaultProvider() {
+		return defaultProvider;
 	}
 }

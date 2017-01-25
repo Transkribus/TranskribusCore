@@ -3,6 +3,7 @@ package eu.transkribus.core.util;
 import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -29,7 +30,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +63,22 @@ public class CoreUtils {
 //		}		
 //		
 //	}
+	
+	public static Properties loadProperties(String filename) throws IOException {
+		logger.debug("Loading properties file: " + filename);
+		
+		try (InputStream is = CoreUtils.class.getClassLoader().getResourceAsStream(filename)) {
+			Properties props = new Properties();
+			props.load(is);
+			return props;
+		} catch (Exception e) {
+			throw new IOException("Could not find properties file: " + filename, e);
+		}
+	}
+	
+	public static String join(Iterable<?> iterable) {
+		return join(iterable, ",", "", "");
+	}
 	
 	/**
 	 * Joins the objects of an iterable to a string using a delimiter and a prefix and/or suffix to append to each object
@@ -142,7 +158,7 @@ public class CoreUtils {
 		
 		return s;
 	}
-	
+		
 	public static boolean isEmpty(Collection<?> c) {
 		return c==null || c.isEmpty();
 	}
@@ -546,11 +562,23 @@ public class CoreUtils {
 		return str;
 	}
 
-	public static Properties readPropertiesFromString(String jobDataStr) throws IOException {
+	public static Properties readPropertiesFromString(String fn) throws IOException {
 		final Properties p = new Properties();
-		if(jobDataStr == null) return p;
-	    p.load(new StringReader(jobDataStr));
+		if(fn == null) return p;
+	    p.load(new StringReader(fn));
 	    return p;
+	}
+	
+	/**
+	 * Same as readPropertiesFromString but an error message is logged when not able to read the file and a RuntimeException is thrown
+	 */
+	public static Properties readPropertiesFromString2(String fn) throws RuntimeException {
+		try {
+			return readPropertiesFromString(fn);
+		} catch (IOException e) {
+			logger.error("Could not read properties file: "+e.getMessage(), e);
+			throw new RuntimeException("Could not read properties file: "+e.getMessage(), e);
+		}
 	}
 	
 	public static Set<Integer> parseRangeListStr(String text, int nrOfPages) throws IOException {

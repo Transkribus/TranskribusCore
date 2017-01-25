@@ -16,10 +16,12 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.model.beans.job.enums.JobImpl;
+import eu.transkribus.core.model.beans.job.enums.JobTask;
 import eu.transkribus.core.util.CoreUtils;
 
 //public class TrpJob extends ATrpJob {
@@ -119,6 +121,21 @@ public class TrpJobStatus implements Serializable {
 	@Column(name="JOB_IMPL")
 	private JobImpl jobImpl;
 	
+	// NEW cols
+	@Column(name="JOB_TYPE")
+	private String jobType;
+	@Column(name="JOB_TASK")
+	private String jobTask;
+	@Column(name="TOOL_PROVIDER")
+	private String toolProvider;
+	@Column(name="TOOL_VERSION")
+	private String toolVersion;
+	@Column(name="HOST")
+	private String host;
+	@Column(name="is_scheduled")
+	private Integer isScheduled;	
+	
+	
 	
 
 //	private Future<?> future = null;
@@ -137,6 +154,32 @@ public class TrpJobStatus implements Serializable {
 //	public TrpJobStatus(String jobId, int docId, int pageNr, int userId, String userName, String type) {
 //		this(jobId, docId, pageNr, userId, userName, type, null, null);
 //	}
+	
+	public TrpJobStatus(String jobId, int docId, String pages, int userId, String userName, String type, Integer session_history_id, JobTask task) {
+		this(jobId, docId, pages, userId, userName, type, null, session_history_id, task);
+	}
+	
+	public TrpJobStatus(String jobId, int docId, String pages, int userId, String userName, String type, String jobData, Integer session_history_id, JobTask task) {
+		Assert.assertNotNull("JobTask cannot be null!", task);
+		
+		this.jobId = jobId;
+		this.docId = docId;
+		this.userId = userId;
+		this.userName = userName;
+		this.type = type;
+		this.pages = pages;
+//		this.isPersistent = isPersistent;
+		this.createTime = System.currentTimeMillis();
+		this.jobData = jobData;
+		this.session_history_id = session_history_id;
+		
+		this.jobType = task.getJobType().toString();
+		this.jobTask = task.toString();
+
+		
+		
+//		this.jobImpl = impl;
+	}
 	
 	public TrpJobStatus(String jobId, int docId, String pages, int userId, String userName, String type, Integer session_history_id, JobImpl impl) {
 		this(jobId, docId, pages, userId, userName, type, null, session_history_id, impl);
@@ -402,13 +445,67 @@ public class TrpJobStatus implements Serializable {
 		return this.getState().equals(TrpJobStatus.FAILED);
 	}
 	
+	
+	
+	public String getJobType() {
+		return jobType;
+	}
+
+	public void setJobType(String jobType) {
+		this.jobType = jobType;
+	}
+
+	public String getJobTask() {
+		return jobTask;
+	}
+
+	public void setJobTask(String jobTask) {
+		this.jobTask = jobTask;
+	}
+
+	public String getToolProvider() {
+		return toolProvider;
+	}
+
+	public void setToolProvider(String toolProvider) {
+		this.toolProvider = toolProvider;
+	}
+
+	public String getToolVersion() {
+		return toolVersion;
+	}
+
+	public void setToolVersion(String toolVersion) {
+		this.toolVersion = toolVersion;
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public Integer getIsScheduled() {
+		return isScheduled;
+	}
+
+	public void setIsScheduled(Integer isScheduled) {
+		this.isScheduled = isScheduled;
+	}
+
 	@Override
 	public String toString() {
 		return "TrpJobStatus [jobId=" + jobId + ", docId=" + docId + ", pageNr=" + pageNr + ", pages=" + pages
 				+ ", type=" + type + ", state=" + state + ", success=" + success + ", description=" + description
 				+ ", userName=" + userName + ", userId=" + userId + ", createTime=" + createTime + ", startTime="
 				+ startTime + ", endTime=" + endTime + ", jobData=" + jobData + ", resumable=" + resumable
-				+ ", className=" + className + ", session_history_id=" + session_history_id + ", jobImpl=" + jobImpl
-				+ ", result=" + result + "]";
+				+ ", className=" + className + ", result=" + result + ", session_history_id=" + session_history_id
+				+ ", jobImpl=" + jobImpl + ", jobType=" + jobType + ", jobTask=" + jobTask + ", toolProvider="
+				+ toolProvider + ", toolVersion=" + toolVersion + ", host=" + host + ", isScheduled=" + isScheduled
+				+ "]";
 	}
+
+	
 }
