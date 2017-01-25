@@ -16,6 +16,10 @@ import org.slf4j.LoggerFactory;
 public abstract class AConf {
 		private static final Logger logger = LoggerFactory.getLogger(AConf.class);
 		protected static Properties props = new Properties();
+		
+//		protected AConf(String fn) {
+//			props = 
+//		}
 
 		public static String getString(String name){
 			return props.getProperty(name);

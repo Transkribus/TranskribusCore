@@ -6,12 +6,9 @@ import java.net.URISyntaxException;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import org.dea.fimgstoreclient.utils.FimgStoreUriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import eu.transkribus.core.io.util.AConf;
-
-import org.dea.fimgstoreclient.utils.FimgStoreUriBuilder;
 
 public class TrpFimgStoreConf {
 		private static final Logger logger = LoggerFactory.getLogger(TrpFimgStoreConf.class);
@@ -80,7 +77,7 @@ public class TrpFimgStoreConf {
 //			}
 			InputStream is = null;
 			try{
-				is = AConf.class.getClassLoader().getResourceAsStream(filename);
+				is = TrpFimgStoreConf.class.getClassLoader().getResourceAsStream(filename);
 				props.load(is);
 			} catch (Exception e) {
 				logger.debug("Could not find properties file: " + filename);
