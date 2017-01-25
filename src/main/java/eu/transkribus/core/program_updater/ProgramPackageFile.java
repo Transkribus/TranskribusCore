@@ -13,6 +13,7 @@ import eu.transkribus.core.program_updater.ProgramPackageFile.ProgramPackageProp
 public abstract class ProgramPackageFile {
 	public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd_MM_yyyy_HH:mm");
 	public final static String SNAPSHOT_SUFFIX = "-SNAPSHOT";
+	public final static String SNAPSHOT_KEYWORD = "SNAPSHOT";
 	public final static String BUILD_FN = "BUILD.txt";
 	
 	public static final String VERSION_PROP = "Version";
@@ -56,7 +57,8 @@ public abstract class ProgramPackageFile {
 	}
 	
 	public boolean isReleaseVersion() { 
-		return !getVersion().endsWith(SNAPSHOT_SUFFIX);
+//		return !getVersion().endsWith(SNAPSHOT_SUFFIX);
+		return !getVersion().contains(SNAPSHOT_KEYWORD);
 	};
 	
 	public abstract String getName();
