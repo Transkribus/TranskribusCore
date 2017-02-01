@@ -64,6 +64,17 @@ public class CoreUtils {
 //		
 //	}
 	
+	public static void print(List l) {
+		if (l != null) {
+			l.stream().forEach((j)-> {
+				if (j != null)
+					logger.info(j.toString());
+				else
+					logger.info("null");
+			});
+		}
+	}
+		
 	public static Properties loadProperties(String filename) throws IOException {
 		logger.debug("Loading properties file: " + filename);
 		

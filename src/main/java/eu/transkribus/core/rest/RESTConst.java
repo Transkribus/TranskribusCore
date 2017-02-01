@@ -33,10 +33,14 @@ public final class RESTConst {
 	
 	public static final String JOB_IDS_PARAM = "jobIds";
 	
-	public static final String JOB_TYPE_PARAM = "jobType";
-	public static final String JOB_TASK_PARAM = "jobTask";
-	public static final String TOOL_PROVIDER_PARAM = "toolProvider";
-	public static final String TOOL_VERSION_PARAM = "toolVersion";
+	public static final String VERSION_PARAM = "version";
+	public static final String TASKS_PARAM = "tasks";
+	
+//	public static final String JOB_TYPE_PARAM = "jobType";
+//	public static final String JOB_TASK_PARAM = "jobTask";
+//	public static final String TOOL_PROVIDER_PARAM = "toolProvider";
+//	public static final String TOOL_VERSION_PARAM = "toolVersion";
+	
 	public static final String TOOL_HOST_PARAM = "toolHost";
 	public static final String REGISTER_PARAM = "register";
 	

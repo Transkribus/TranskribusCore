@@ -122,21 +122,12 @@ public class TrpJobStatus implements Serializable {
 	private JobImpl jobImpl;
 	
 	// NEW cols
-	@Column(name="JOB_TYPE")
-	private String jobType;
-	@Column(name="JOB_TASK")
-	private String jobTask;
-	@Column(name="TOOL_PROVIDER")
-	private String toolProvider;
-	@Column(name="TOOL_VERSION")
-	private String toolVersion;
-	@Column(name="HOST")
-	private String host;
-	@Column(name="is_scheduled")
-	private Integer isScheduled;	
-	
-	
-	
+	@Column(name="MODULE_URL")
+	private String moduleUrl;
+	@Column(name="MODULE_NAME")
+	private String moduleName;
+	@Column(name="MODULE_VERSION")
+	private String moduleVersion;
 
 //	private Future<?> future = null;
 
@@ -172,12 +163,7 @@ public class TrpJobStatus implements Serializable {
 		this.createTime = System.currentTimeMillis();
 		this.jobData = jobData;
 		this.session_history_id = session_history_id;
-		
-		this.jobType = task.getJobType().toString();
-		this.jobTask = task.toString();
-
-		
-		
+				
 //		this.jobImpl = impl;
 	}
 	
@@ -218,6 +204,10 @@ public class TrpJobStatus implements Serializable {
 	    this.session_history_id = other.session_history_id;
 	    this.jobImpl = other.jobImpl;
 	    this.result = other.result;
+	    
+	    this.moduleName = other.moduleName;
+	    this.moduleUrl = other.moduleUrl;
+	    this.moduleVersion = other.moduleVersion;
 //	    this.future = trpJobStatus.future;
 	}
 	
@@ -444,55 +434,29 @@ public class TrpJobStatus implements Serializable {
 	public boolean isFailed() {
 		return this.getState().equals(TrpJobStatus.FAILED);
 	}
-	
-	
-	
-	public String getJobType() {
-		return jobType;
+
+	public String getModuleUrl() {
+		return moduleUrl;
 	}
 
-	public void setJobType(String jobType) {
-		this.jobType = jobType;
+	public void setModuleUrl(String moduleUrl) {
+		this.moduleUrl = moduleUrl;
 	}
 
-	public String getJobTask() {
-		return jobTask;
+	public String getModuleName() {
+		return moduleName;
 	}
 
-	public void setJobTask(String jobTask) {
-		this.jobTask = jobTask;
+	public void setModuleName(String moduleName) {
+		this.moduleName = moduleName;
 	}
 
-	public String getToolProvider() {
-		return toolProvider;
+	public String getModuleVersion() {
+		return moduleVersion;
 	}
 
-	public void setToolProvider(String toolProvider) {
-		this.toolProvider = toolProvider;
-	}
-
-	public String getToolVersion() {
-		return toolVersion;
-	}
-
-	public void setToolVersion(String toolVersion) {
-		this.toolVersion = toolVersion;
-	}
-
-	public String getHost() {
-		return host;
-	}
-
-	public void setHost(String host) {
-		this.host = host;
-	}
-
-	public Integer getIsScheduled() {
-		return isScheduled;
-	}
-
-	public void setIsScheduled(Integer isScheduled) {
-		this.isScheduled = isScheduled;
+	public void setModuleVersion(String moduleVersion) {
+		this.moduleVersion = moduleVersion;
 	}
 
 	@Override
@@ -502,10 +466,11 @@ public class TrpJobStatus implements Serializable {
 				+ ", userName=" + userName + ", userId=" + userId + ", createTime=" + createTime + ", startTime="
 				+ startTime + ", endTime=" + endTime + ", jobData=" + jobData + ", resumable=" + resumable
 				+ ", className=" + className + ", result=" + result + ", session_history_id=" + session_history_id
-				+ ", jobImpl=" + jobImpl + ", jobType=" + jobType + ", jobTask=" + jobTask + ", toolProvider="
-				+ toolProvider + ", toolVersion=" + toolVersion + ", host=" + host + ", isScheduled=" + isScheduled
-				+ "]";
+				+ ", jobImpl=" + jobImpl + ", moduleUrl=" + moduleUrl + ", moduleName=" + moduleName
+				+ ", moduleVersion=" + moduleVersion + "]";
 	}
+	
+	
 
 	
 }

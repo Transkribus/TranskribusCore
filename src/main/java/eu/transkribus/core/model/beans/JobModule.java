@@ -1,7 +1,5 @@
 package eu.transkribus.core.model.beans;
 
-import java.sql.Timestamp;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -15,33 +13,44 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class JobModule {
+	
+	public static final String SERVICE_TYPE_WEB = "web";
+	public static final String SERVICE_TYPE_CONSOLE = "console";
+	
 	@Id
 	@Column(name = "URL")
 	String url;
 	
-	@Column(name = "JOB_TYPE")
-	String jobType;
+	@Column(name = "NAME")
+	String name;
 	
-	@Column(name = "JOB_TASK")
-	String jobTask;
+	@Column(name = "TASKS")
+	String tasks;
 	
-	@Column(name = "TOOL_PROVIDER")
-	String toolProvider;	
-	
-	@Column(name = "TOOL_VERSION")
-	String toolVersion;
+	@Column(name = "VERSION")
+	String version;
 	
 	@Column(name = "REGISTERED_TIME")
 	java.sql.Timestamp registeredTime;
+	
+	@Column(name = "UNREGISTERED_TIME")
+	java.sql.Timestamp unregisteredTime;
+	
+	@Column(name = "ISACTIVE")
+	Integer isActive;
+	
+	@Column(name = "SERVICE_TYPE")
+	String serviceType;
 
-	public JobModule(String url, String jobType, String jobTask, String toolProvider, String toolVersion) {
+	public JobModule(String url, String name, String tasks, String version, String serviceType) {
 		super();
 		this.url = url;
-		this.jobType = jobType;
-		this.jobTask = jobTask;
-		this.toolProvider = toolProvider;
-		this.toolVersion = toolVersion;
+		this.name = name;
+		this.tasks = tasks;
+		this.version = version;
 		this.registeredTime = new java.sql.Timestamp(System.currentTimeMillis());
+		this.isActive = 1;
+		this.serviceType = serviceType;
 	}
 
 	public JobModule() {
@@ -55,36 +64,28 @@ public class JobModule {
 		this.url = url;
 	}
 
-	public String getJobType() {
-		return jobType;
+	public String getName() {
+		return name;
 	}
 
-	public void setJobType(String jobType) {
-		this.jobType = jobType;
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	public String getJobTask() {
-		return jobTask;
+	public String getTasks() {
+		return tasks;
 	}
 
-	public void setJobTask(String jobTask) {
-		this.jobTask = jobTask;
+	public void setTasks(String tasks) {
+		this.tasks = tasks;
 	}
 
-	public String getToolProvider() {
-		return toolProvider;
+	public String getVersion() {
+		return version;
 	}
 
-	public void setToolProvider(String toolProvider) {
-		this.toolProvider = toolProvider;
-	}
-
-	public String getToolVersion() {
-		return toolVersion;
-	}
-
-	public void setToolVersion(String toolVersion) {
-		this.toolVersion = toolVersion;
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
 	public java.sql.Timestamp getRegisteredTime() {
@@ -95,10 +96,35 @@ public class JobModule {
 		this.registeredTime = registeredTime;
 	}
 
+	public java.sql.Timestamp getUnregisteredTime() {
+		return unregisteredTime;
+	}
+
+	public void setUnregisteredTime(java.sql.Timestamp unregisteredTime) {
+		this.unregisteredTime = unregisteredTime;
+	}
+
+	public Integer getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Integer isActive) {
+		this.isActive = isActive;
+	}
+
+	public String getServiceType() {
+		return serviceType;
+	}
+
+	public void setServiceType(String serviceType) {
+		this.serviceType = serviceType;
+	}
+
 	@Override
 	public String toString() {
-		return "JobModule [url=" + url + ", jobType=" + jobType + ", jobTask=" + jobTask + ", toolProvider="
-				+ toolProvider + ", toolVersion=" + toolVersion + ", registeredTime=" + registeredTime + "]";
+		return "JobModule [url=" + url + ", name=" + name + ", tasks=" + tasks + ", version=" + version
+				+ ", registeredTime=" + registeredTime + ", unregisteredTime=" + unregisteredTime + ", isActive="
+				+ isActive + ", serviceType=" + serviceType + "]";
 	}
 
 }
