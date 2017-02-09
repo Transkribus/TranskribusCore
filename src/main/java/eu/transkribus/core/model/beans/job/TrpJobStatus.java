@@ -2,6 +2,7 @@ package eu.transkribus.core.model.beans.job;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -128,6 +129,16 @@ public class TrpJobStatus implements Serializable {
 	private String moduleName;
 	@Column(name="MODULE_VERSION")
 	private String moduleVersion;
+	
+	@Column(name="STARTED")
+	private java.sql.Timestamp started;
+	@Column(name="ENDED")
+	private java.sql.Timestamp ended;
+	@Column(name="CREATED")
+	private java.sql.Timestamp created;
+	
+	@Column(name="PID")
+	private String pid;
 
 //	private Future<?> future = null;
 
@@ -160,13 +171,17 @@ public class TrpJobStatus implements Serializable {
 		this.type = type;
 		this.pages = pages;
 //		this.isPersistent = isPersistent;
-		this.createTime = System.currentTimeMillis();
+		
+		setCreatedNow();
+		
 		this.jobData = jobData;
 		this.session_history_id = session_history_id;
 				
 //		this.jobImpl = impl;
 	}
 	
+
+
 	public TrpJobStatus(String jobId, int docId, String pages, int userId, String userName, String type, Integer session_history_id, JobImpl impl) {
 		this(jobId, docId, pages, userId, userName, type, null, session_history_id, impl);
 	}
@@ -179,7 +194,9 @@ public class TrpJobStatus implements Serializable {
 		this.type = type;
 		this.pages = pages;
 //		this.isPersistent = isPersistent;
-		this.createTime = System.currentTimeMillis();
+		
+		setCreatedNow();
+		
 		this.jobData = jobData;
 		this.session_history_id = session_history_id;
 		this.jobImpl = impl;
@@ -208,6 +225,12 @@ public class TrpJobStatus implements Serializable {
 	    this.moduleName = other.moduleName;
 	    this.moduleUrl = other.moduleUrl;
 	    this.moduleVersion = other.moduleVersion;
+	    
+	    this.started = other.started;
+	    this.ended = other.ended;
+	    this.created = other.created;
+	    
+	    this.pid = other.pid;
 //	    this.future = trpJobStatus.future;
 	}
 	
@@ -459,6 +482,53 @@ public class TrpJobStatus implements Serializable {
 		this.moduleVersion = moduleVersion;
 	}
 
+	public java.sql.Timestamp getStarted() {
+		return started;
+	}
+
+	public void setStarted(java.sql.Timestamp started) {
+		this.started = started;
+	}
+
+	public java.sql.Timestamp getEnded() {
+		return ended;
+	}
+	
+	public void setEnded(java.sql.Timestamp ended) {
+		this.ended = ended;
+	}
+
+	public java.sql.Timestamp getCreated() {
+		return created;
+	}
+
+	public void setCreated(java.sql.Timestamp created) {
+		this.created = created;
+	}
+	
+	public void setEndedNow() {
+		this.endTime = System.currentTimeMillis();
+		this.ended = new Timestamp(endTime);
+	}
+	
+	public void setStartedNow() {
+		this.startTime = System.currentTimeMillis();
+		this.started = new Timestamp(startTime);
+	}	
+	
+	public void setCreatedNow() {
+		this.createTime = System.currentTimeMillis();
+		this.created = new Timestamp(this.createTime);
+	}
+
+	public String getPid() {
+		return pid;
+	}
+
+	public void setPid(String pid) {
+		this.pid = pid;
+	}
+
 	@Override
 	public String toString() {
 		return "TrpJobStatus [jobId=" + jobId + ", docId=" + docId + ", pageNr=" + pageNr + ", pages=" + pages
@@ -467,10 +537,8 @@ public class TrpJobStatus implements Serializable {
 				+ startTime + ", endTime=" + endTime + ", jobData=" + jobData + ", resumable=" + resumable
 				+ ", className=" + className + ", result=" + result + ", session_history_id=" + session_history_id
 				+ ", jobImpl=" + jobImpl + ", moduleUrl=" + moduleUrl + ", moduleName=" + moduleName
-				+ ", moduleVersion=" + moduleVersion + "]";
+				+ ", moduleVersion=" + moduleVersion + ", started=" + started + ", ended=" + ended + ", created="
+				+ created + ", pid=" + pid + "]";
 	}
-	
-	
 
-	
 }

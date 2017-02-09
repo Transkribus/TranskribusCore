@@ -1,6 +1,14 @@
 package eu.transkribus.core.util;
 
-public class SysUtils {
+import java.lang.reflect.Field;
+
+import org.apache.poi.hdgf.pointers.Pointer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class SysUtils {	
+	private final static Logger logger = LoggerFactory.getLogger(SysUtils.class);
+	
 	public static String getOSName() {
 		String osNameProperty = System.getProperty("os.name");
 
@@ -46,4 +54,68 @@ public class SysUtils {
 	public static boolean isLinux() {
 		return getOSName().equals("linux");
 	}
+	
+	
+	public static Long processId(Process process) {
+		if (isLinux() || isOsx()) {
+			return unixLikeProcessId(process);
+		} 
+//		else if (isWin()) {
+//			return windowsProcessId(process);
+//		}
+		else {
+			throw new RuntimeException("Unsuppored operating system while retrieving process id: "+getOSName());
+		}
+	}
+
+	private static Long unixLikeProcessId(Process process) {
+		Class<?> clazz = process.getClass();
+		try {
+			if (clazz.getName().equals("java.lang.UNIXProcess")) {
+				Field pidField = clazz.getDeclaredField("pid");
+				pidField.setAccessible(true);
+				Object value = pidField.get(process);
+				if (value instanceof Integer) {
+					logger.trace("Detected pid: {}", value);
+					return ((Integer) value).longValue();
+				}
+			}
+		} catch (SecurityException sx) {
+			sx.printStackTrace();
+		} catch (NoSuchFieldException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+//	/**
+//	 * @see http://www.golesny.de/p/code/javagetpid
+//	 *
+//	 * @return
+//	 */
+//	private static Long windowsProcessId(Process process) {
+//		if (process.getClass().getName().equals("java.lang.Win32Process")
+//				|| process.getClass().getName().equals("java.lang.ProcessImpl")) {
+//			/* determine the pid on windows plattforms */
+//			try {
+//				Field f = process.getClass().getDeclaredField("handle");
+//				f.setAccessible(true);
+//				long handl = f.getLong(process);
+//
+//				Kernel32 kernel = Kernel32.INSTANCE;
+//				WinNT.HANDLE handle = new WinNT.HANDLE();
+//				handle.setPointer(Pointer.createConstant(handl));
+//				int ret = kernel.GetProcessId(handle);
+//				logger.debug("Detected pid: {}", ret);
+//				return Long.valueOf(ret);
+//			} catch (Throwable e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		return null;
+//	}	
 }
