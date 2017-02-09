@@ -446,6 +446,11 @@ public class CustomTagList {
 				newTags.add(right);
 				addCustomTagToList(right);
 			}
+			
+//			for (CustomTag t : newTags){
+//				logger.debug(" newly created tags :  " + t.getOffset());
+//				logger.debug(" newly created tags :  " + t.getContainedText());
+//			}
 
 			logger.trace("overlapping tag, i=" + i);
 		} // end for all overlapping tags i
@@ -757,6 +762,7 @@ public class CustomTagList {
 		// adjust indices according to edit position:
 		final int adjust = -(end - start) + replacement.length();
 		for (CustomTag t : tags) {
+			logger.debug("tag from tags" + t.getContainedText());
 			if (!t.isIndexed())
 				continue;
 
@@ -772,15 +778,25 @@ public class CustomTagList {
 		}
 
 		// add new tags if new text was inserted:
-		if (!isEmptyText) {
-			for (CustomTag t : startIndexTags) {
-				CustomTag newT = t.copy();
-				newT.setOffset(start);
-				newT.setLength(replacement.length());
-				addOrMergeTag(newT, null, false);
-				// tags.add(newT);
-			}
-		}
+		/*
+		 * if the user edit text which is tagged then the next block produces 
+		 * e.g. 3 tags out of one
+		 * but the tag should just be adapted to the new text
+		 * so without the next block this should be fine - the existent tag is adjusted with the code above
+		 * and no new tags get created
+		 */
+//		if (!isEmptyText) {
+//			for (CustomTag t : startIndexTags) {
+//				CustomTag newT = t.copy();
+//				newT.setOffset(start);
+//				newT.setLength(replacement.length());
+//				
+//
+//				addOrMergeTag(newT, null, false);
+//				logger.debug("new tag " + newT.getContainedText());
+//				// tags.add(newT);
+//			}
+//		}
 
 		sortTags();
 		checkAllTagRanges();
