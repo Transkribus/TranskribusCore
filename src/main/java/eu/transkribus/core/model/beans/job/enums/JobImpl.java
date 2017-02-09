@@ -41,7 +41,8 @@ public enum JobImpl {
 	
 	//for testing
 	DummyJob(JobTask.CreateDocument, "Dummy Job", "DummyJob", null),
-	DummyJob2(JobTask.CreateDocument, "Dummy Job 2", "DummyJob2", null);
+//	DummyJob2(JobTask.CreateDocument, "Dummy Job 2", "DummyJob2", null),
+	;
 	
 	private final static Logger logger = LoggerFactory.getLogger(JobImpl.class);
 	
