@@ -72,8 +72,8 @@ public class PdfExporter extends Observable {
 
 			logger.info("Processing page " + (i+1));			
 			TrpPage p = doc.getPages().get(i);
-			URL imgUrl = p.getUrl();
-			
+			URL imgUrl = p.getUrl();	
+
 			/*
 			 * md is only needed for getting resolution because in the image it may be missing
 			 * But if it is a local doc we have to try to get from img because md is null

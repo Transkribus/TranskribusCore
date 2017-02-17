@@ -222,6 +222,7 @@ public class DocExporter extends Observable {
 			
 			if (doc2.isRemoteDoc()) {
 				final URI imgUri = uriBuilder.getFileUri(p.getKey());
+				
 				if (opts.doWriteImages) {
 					imgFile = getter.saveFile(imgUri, imgOutputDir.getAbsolutePath(), baseFileName + imgExt);
 					p.setUrl(imgFile.toURI().toURL());

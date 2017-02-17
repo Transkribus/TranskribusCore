@@ -7,6 +7,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -158,8 +159,21 @@ public class TrpPdfDocument extends APdfDocument {
 //		}
 		
 		BufferedImage imgBuffer = null;
-		InputStream input = imgUrl.openStream();
-		imgBuffer = ImageIO.read(input);
+		InputStream input;
+		try {
+			input = imgUrl.openStream();
+			
+			imgBuffer = ImageIO.read(input);
+		} catch (FileNotFoundException e) {
+	
+			logger.error("File was not found at url " + imgUrl);
+			URL origUrl = new URL(imgUrl.getProtocol(), imgUrl.getHost(), imgUrl.getFile().replace("view", "orig"));			
+			logger.debug("try orig file location " + origUrl);
+			input = origUrl.openStream();
+			imgBuffer = ImageIO.read(input);
+			
+		}
+		
 	    Graphics2D graph = imgBuffer.createGraphics();
 	    graph.setColor(Color.BLACK);
 	    
