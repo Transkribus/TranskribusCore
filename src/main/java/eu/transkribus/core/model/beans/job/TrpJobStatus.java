@@ -19,6 +19,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.io.util.TrpProperties;
 import eu.transkribus.core.util.CoreUtils;
 
 @Entity
@@ -347,11 +348,12 @@ public class TrpJobStatus implements Serializable {
 		return jobData;
 	}
 	
-	public Properties getJobDataProps(){
+	public TrpProperties getJobDataProps() {
 		try {
-			return CoreUtils.readPropertiesFromString(jobData);
-		} catch (IOException e) {
-			return new Properties();
+//			return CoreUtils.readPropertiesFromString(jobData);
+			return new TrpProperties(jobData, false);
+		} catch (Exception e) {
+			return new TrpProperties();
 		}
 	}
 	

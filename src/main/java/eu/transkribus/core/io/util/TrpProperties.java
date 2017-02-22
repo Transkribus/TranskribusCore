@@ -23,6 +23,14 @@ public class TrpProperties {
 		
 		protected Properties props;
 		
+		public TrpProperties() {
+			props = new Properties();
+		}
+		
+		public TrpProperties(Properties props) {
+			this.props = CoreUtils.copyProperties(props);
+		}
+		
 		public TrpProperties(String filename) throws ParsePropertiesException {
 			this(filename, true);
 		}
@@ -113,27 +121,31 @@ public class TrpProperties {
 		}
 		
 		public List<String> getStringListProperty(String key) {
-			List<String> result = new LinkedList<>();
-			String str = getProperty(key);
-			if(str != null && !str.isEmpty()) {
-				String[] arr = str.split(",");
-				for(String s : arr) {
-					result.add(s);
-				}
-			}
-			return result;
+			return CoreUtils.parseStringList(getProperty(key));
+			
+//			List<String> result = new LinkedList<>();
+//			String str = getProperty(key);
+//			if(str != null && !str.isEmpty()) {
+//				String[] arr = str.split(",");
+//				for(String s : arr) {
+//					result.add(s);
+//				}
+//			}
+//			return result;
 		}
 		
 		public List<Integer> getIntListProperty(String key) {
-			List<Integer> result = new LinkedList<>();
-			String str = getProperty(key);
-			if(str != null && !str.isEmpty()) {
-				String[] arr = str.split(",");
-				for(String s : arr) {
-					result.add(Integer.parseInt(s));
-				}
-			}
-			return result;
+			return CoreUtils.parseIntList(getProperty(key));
+			
+//			List<Integer> result = new LinkedList<>();
+//			String str = getProperty(key);
+//			if(str != null && !str.isEmpty()) {
+//				String[] arr = str.split(",");
+//				for(String s : arr) {
+//					result.add(Integer.parseInt(s));
+//				}
+//			}
+//			return result;
 		}
 
 		protected Properties loadPropsFromFilename() throws ParsePropertiesException {
