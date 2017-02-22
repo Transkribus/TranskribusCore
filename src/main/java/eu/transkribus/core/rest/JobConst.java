@@ -22,6 +22,7 @@ public class JobConst {
 	public static final String PROP_TITLE = "title";
 	public static final String PROP_TRANSCRIPT_ID = "transcriptId";
 	public static final String PROP_REG_IDS = "regIds";
+	public static final String PROP_TRANSCRIPTS = "transcripts";
 	
 	public static final String PROP_STATE = "state";
 	public static final String PROP_MODELNAME = "modelName";
@@ -43,6 +44,7 @@ public class JobConst {
 	
 	public static final String PROP_DO_BLOCK_SEG = "doBlockSeg";
 	public static final String PROP_DO_LINE_SEG = "doLineSeg";
+	public static final String PROP_DO_WORD_SEG = "doWordSeg";
 
 	public static final String PROP_SOLR_URL = "solrUrl";
 

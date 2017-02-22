@@ -67,11 +67,15 @@ public final class RESTConst {
 	public static final String UPLOAD_PATH_MULTIPART = "uploadMultipart";
 	public static final String UPLOAD_PATH_FTP = "uploadFromFtp";
 	public static final String DELETE_PATH = "delete";
+	
+	public static final String ANALYZE_PATH = "analyze";
+	
 	public static final String ANALYZE_LAYOUT_BATCH_PATH = "batch";
 	public static final String ANALYZE_LAYOUT_PATH = "blocks";
 	public static final String ANALYZE_LINES_PATH = "lines";
 	public static final String ANALYZE_WORDS_PATH = "words";
 	public static final String ANALYZE_BASELINES_PATH = "baselines";
+	
 	public static final String WORDGRAPHS_PATH = "wordgraphs";
 	public static final String LIST_USERS_PATH = "userlist";
 	public static final String LIST_LOGINS_PATH = "loginlist";
@@ -152,9 +156,14 @@ public final class RESTConst {
 	public static final String LIBS_MAP_PARAM = "libsMap";
 	
 	//Layout analysis
+	public static final String JOB_IMPL_PARAM = "jobImpl";
+	
 	public static final String REG_ID_PARAM = "regId";
+	
 	public static final String DO_BLOCK_SEG_PARAM = "doBlockSeg";
 	public static final String DO_LINE_SEG_PARAM = "doLineSeg";
+	public static final String DO_WORD_SEG_PARAM = "doWordSeg";
+	
 	@Deprecated
 	public static final String IMG_KEY_PARAM = "imgKey";
 
@@ -303,6 +312,7 @@ public final class RESTConst {
 	public static final String TAG_VALUE_PARAM = "tagValue";
 	public static final String REGION_TYPE_PARAM = "regionType";
 	public static final String ATTRIBUTES_PARAM = "attributes";
+	public static final String PARS_PARAM = "pars";
 	
 	//Actions
 	public static final String TYPE_ID_PARAM = "typeId";

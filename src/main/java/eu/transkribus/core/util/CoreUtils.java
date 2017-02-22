@@ -106,7 +106,7 @@ public class CoreUtils {
 		
 		String joined="";
 		for (Object o : iterable) {
-			String str = o==null ? "" : o.toString();
+			String str = o==null ? "null" : o.toString();
 			str = prefix + str + suffix;
 			
 			joined += str+delimiter;
@@ -549,7 +549,7 @@ public class CoreUtils {
 //		}
 //	}
 
-	public static String writePropertiesToString(Properties p) {
+	public static String propertiesToString(Properties p) {
 		if(p == null){
 			return "";
 		}

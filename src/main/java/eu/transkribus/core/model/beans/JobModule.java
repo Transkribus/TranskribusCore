@@ -31,10 +31,10 @@ public class JobModule {
 	String version;
 	
 	@Column(name = "REGISTERED_TIME")
-	java.sql.Timestamp registeredTime;
+	java.util.Date registeredTime;
 	
 	@Column(name = "UNREGISTERED_TIME")
-	java.sql.Timestamp unregisteredTime;
+	java.util.Date unregisteredTime;
 	
 	@Column(name = "ISACTIVE")
 	Integer isActive;
@@ -88,19 +88,19 @@ public class JobModule {
 		this.version = version;
 	}
 
-	public java.sql.Timestamp getRegisteredTime() {
+	public java.util.Date getRegisteredTime() {
 		return registeredTime;
 	}
 
-	public void setRegisteredTime(java.sql.Timestamp registeredTime) {
+	public void setRegisteredTime(java.util.Date registeredTime) {
 		this.registeredTime = registeredTime;
 	}
 
-	public java.sql.Timestamp getUnregisteredTime() {
+	public java.util.Date getUnregisteredTime() {
 		return unregisteredTime;
 	}
 
-	public void setUnregisteredTime(java.sql.Timestamp unregisteredTime) {
+	public void setUnregisteredTime(java.util.Date unregisteredTime) {
 		this.unregisteredTime = unregisteredTime;
 	}
 
