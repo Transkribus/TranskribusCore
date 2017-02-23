@@ -120,18 +120,8 @@ public class TrpProperties {
 			return Boolean.parseBoolean(getProperty(key));
 		}
 		
-		public List<String> getStringListProperty(String key) {
-			return CoreUtils.parseStringList(getProperty(key));
-			
-//			List<String> result = new LinkedList<>();
-//			String str = getProperty(key);
-//			if(str != null && !str.isEmpty()) {
-//				String[] arr = str.split(",");
-//				for(String s : arr) {
-//					result.add(s);
-//				}
-//			}
-//			return result;
+		public List<String> getStringListProperty(String key, boolean trimEntries) {
+			return CoreUtils.parseStringList(getProperty(key), trimEntries);
 		}
 		
 		public List<Integer> getIntListProperty(String key) {

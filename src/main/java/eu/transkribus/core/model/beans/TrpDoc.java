@@ -1,5 +1,6 @@
 package eu.transkribus.core.model.beans;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
@@ -11,6 +12,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescriptor;
+import eu.transkribus.core.util.CoreUtils;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -145,6 +149,20 @@ public class TrpDoc implements Serializable, Comparable<TrpDoc> {
 
 	public void setCollection(TrpCollection collection) {
 		this.collection = collection;
+	}
+	
+	public DocumentSelectionDescriptor getDocSelectionDescriptorForPagesString(String pagesStr) throws IOException {
+		DocumentSelectionDescriptor dd = new DocumentSelectionDescriptor(md.getDocId());
+		for (int pageIndex : CoreUtils.parseRangeListStr(pagesStr, getNPages())) {
+			try {
+				TrpPage p = getPages().get(pageIndex);
+				dd.addPage(new PageDescriptor(p.getPageId()));
+			} catch (IndexOutOfBoundsException e) {
+				throw new IOException(e);
+			}
+		}
+		
+		return dd;
 	}
 
 	@Override

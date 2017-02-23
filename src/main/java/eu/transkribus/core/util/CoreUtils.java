@@ -74,12 +74,15 @@ public class CoreUtils {
 		return temp.toArray(new String[0]);
 	}
 	
-	public static List<String> parseStringList(String str) {
+	public static List<String> parseStringList(String str, boolean trimEntries) {
 		List<String> result = new ArrayList<>();
 		
 		if(str != null && !str.isEmpty()) {
 			String[] arr = str.split(",");
 			for(String s : arr) {
+				if (trimEntries) {
+					s = StringUtils.trim(s);
+				}
 				result.add(s);
 			}
 		}
