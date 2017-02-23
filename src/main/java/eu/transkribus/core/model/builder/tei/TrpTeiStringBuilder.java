@@ -511,7 +511,9 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		
 		final String escapedContent = StringEscapeUtils.escapeXml(content);
 		logger.debug("CONTENT = "+content+" escaped: "+escapedContent);
-		lStr+=escapedContent+getLineOrWordEnd(shape, facsId);
+		
+		//do not use escaped content - then we have &lt;Tagname&gt; fro the tags in the text!!
+		lStr+=content+getLineOrWordEnd(shape, facsId);
 		
 //		if (isLine)
 			sb.incIndent();
