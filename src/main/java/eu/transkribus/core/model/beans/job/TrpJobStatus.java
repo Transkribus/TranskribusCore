@@ -2,7 +2,6 @@ package eu.transkribus.core.model.beans.job;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -17,26 +16,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.transkribus.core.model.beans.job.enums.JobImpl;
-import eu.transkribus.core.model.beans.job.enums.JobTask;
+import eu.transkribus.core.io.util.TrpProperties;
 import eu.transkribus.core.util.CoreUtils;
-
-//public class TrpJob extends ATrpJob {
-//	private static final long serialVersionUID = -2312854543251222064L;
-//	
-//	public TrpJob(){
-//		super();
-//	}
-//	
-//	public TrpJob(final String jobId, final int docId, final String userId, final long startTime) {
-//		super(jobId, docId, userId, startTime);
-//	}
-//	
-//}
 
 @Entity
 @Table(name = "JOBS")
@@ -56,7 +40,6 @@ public class TrpJobStatus implements Serializable {
 	public static final String WAITING = "WAITING";
 	public static final String RUNNING = "RUNNING";
 	public static final String CANCELED = "CANCELED";
-	
 	public static final String UNFINISHED = "UNFINISHED"; // meta-status -> all but FINISHED
 
 	@Id
@@ -111,95 +94,101 @@ public class TrpJobStatus implements Serializable {
 	@Column
 	private String result;
 	
-	//isPersistent specifies whether the job is to be stored in the DB. 
-	//This is always true if not stated otherwise in constructor call.
-//	private boolean isPersistent;
-	
 	@XmlTransient
 	@Column
 	private Integer session_history_id;
 	
+//	@Column(name="JOB_IMPL")
+//	private JobImpl jobImpl;
+	
 	@Column(name="JOB_IMPL")
-	private JobImpl jobImpl;
+	private String jobImpl;	
 	
 	// NEW cols
+	@XmlTransient
 	@Column(name="MODULE_URL")
 	private String moduleUrl;
+	
+	@XmlTransient
 	@Column(name="MODULE_NAME")
 	private String moduleName;
+	
+	@XmlTransient
 	@Column(name="MODULE_VERSION")
 	private String moduleVersion;
 	
 	@Column(name="STARTED")
-	private java.sql.Timestamp started;
+	private java.util.Date started;
 	@Column(name="ENDED")
-	private java.sql.Timestamp ended;
+	private java.util.Date ended;
 	@Column(name="CREATED")
-	private java.sql.Timestamp created;
+	private java.util.Date created;
 	
+	@XmlTransient
 	@Column(name="PID")
 	private String pid;
-
-//	private Future<?> future = null;
+	
+	@Column
+	private Integer batchId;
+	
+	@Column
+	private Integer pageid;
+	
+	@Column
+	private Integer tsid;
+	
+	@Column
+	private String regionids;
+	
+	@Column
+	private Integer parent_jobid;
+	
+	@Column
+	private Integer parent_batchid;
 
 	/**
 	 * Empty, public constructor for Jaxb and DbUtils
 	 */
 	public TrpJobStatus() {
-//		this.isPersistent = true;
 	}
 
-//	public TrpJobStatus(String jobId, int docId, int userId, String userName, String type) {
-//		this(jobId, docId, -1, userId, userName, type);
+//	public TrpJobStatus(String jobId, int docId, String pages, int userId, String userName, String type, String jobData, Integer session_history_id, JobImpl impl) {
+//		this(jobId, docId, pages, userId, userName, type, jobData, session_history_id, impl==null ? null : impl.toString());
 //	}
 	
-//	public TrpJobStatus(String jobId, int docId, int pageNr, int userId, String userName, String type) {
-//		this(jobId, docId, pageNr, userId, userName, type, null, null);
-//	}
-	
-	public TrpJobStatus(String jobId, int docId, String pages, int userId, String userName, String type, Integer session_history_id, JobTask task) {
-		this(jobId, docId, pages, userId, userName, type, null, session_history_id, task);
-	}
-	
-	public TrpJobStatus(String jobId, int docId, String pages, int userId, String userName, String type, String jobData, Integer session_history_id, JobTask task) {
-		Assert.assertNotNull("JobTask cannot be null!", task);
-		
+	public TrpJobStatus(String jobId, Integer batchId, Integer docId, Integer pageid, Integer tsid, String regionids, int userId, String userName, String type, String jobData, Integer session_history_id, String jobImpl) {
 		this.jobId = jobId;
+		this.batchId = batchId;
+		
 		this.docId = docId;
-		this.userId = userId;
-		this.userName = userName;
-		this.type = type;
-		this.pages = pages;
-//		this.isPersistent = isPersistent;
-		
-		setCreatedNow();
-		
-		this.jobData = jobData;
-		this.session_history_id = session_history_id;
+		this.pageid = pageid;
+		this.tsid = tsid;
+		this.regionids = regionids;
 				
-//		this.jobImpl = impl;
+		this.userId = userId;
+		this.userName = userName;
+		this.type = type;
+		
+		this.jobData = jobData;
+		this.session_history_id = session_history_id;
+		this.jobImpl = jobImpl;
+		
+		setCreatedNow();
 	}
 	
-
-
-	public TrpJobStatus(String jobId, int docId, String pages, int userId, String userName, String type, Integer session_history_id, JobImpl impl) {
-		this(jobId, docId, pages, userId, userName, type, null, session_history_id, impl);
-	}
-	
-	public TrpJobStatus(String jobId, int docId, String pages, int userId, String userName, String type, String jobData, Integer session_history_id, JobImpl impl) {
+	public TrpJobStatus(String jobId, Integer batchId, int docId, String pages, int userId, String userName, String type, String jobData, Integer session_history_id, String jobImpl) {
 		this.jobId = jobId;
+		this.batchId = batchId;
 		this.docId = docId;
 		this.userId = userId;
 		this.userName = userName;
 		this.type = type;
 		this.pages = pages;
-//		this.isPersistent = isPersistent;
-		
-		setCreatedNow();
-		
 		this.jobData = jobData;
 		this.session_history_id = session_history_id;
-		this.jobImpl = impl;
+		this.jobImpl = jobImpl;
+		
+		setCreatedNow();
 	}
 	
 	public void copy(TrpJobStatus other) {
@@ -231,19 +220,14 @@ public class TrpJobStatus implements Serializable {
 	    this.created = other.created;
 	    
 	    this.pid = other.pid;
-//	    this.future = trpJobStatus.future;
+	    this.batchId = other.batchId;
+	    this.pageid = other.pageid;
+	    this.tsid = other.tsid;
+	    this.regionids = other.regionids;
+	    this.parent_jobid = other.parent_jobid;
+	    this.parent_batchid = other.parent_batchid;
 	}
 	
-//	public boolean hasState(String state) {
-//		if (state == null)
-//			return true;
-//		
-//		if (state.equals(UNFINISHED))
-//			return !isFinished();
-//		
-//		return this.state.equals(state);
-//	}
-
 	public String getJobId() {
 		return jobId;
 	}
@@ -364,11 +348,12 @@ public class TrpJobStatus implements Serializable {
 		return jobData;
 	}
 	
-	public Properties getJobDataProps(){
+	public TrpProperties getJobDataProps() {
 		try {
-			return CoreUtils.readPropertiesFromString(jobData);
-		} catch (IOException e) {
-			return new Properties();
+//			return CoreUtils.readPropertiesFromString(jobData);
+			return new TrpProperties(jobData, false);
+		} catch (Exception e) {
+			return new TrpProperties();
 		}
 	}
 	
@@ -377,7 +362,7 @@ public class TrpJobStatus implements Serializable {
 	}
 	
 	public void setJobData(Properties jobData) {
-		this.jobData = CoreUtils.writePropertiesToString(jobData);
+		this.jobData = CoreUtils.propertiesToString(jobData);
 	}
 
 	public boolean isResumable() {
@@ -416,11 +401,11 @@ public class TrpJobStatus implements Serializable {
 		this.session_history_id = session_history_id;
 	}
 
-	public JobImpl getJobImpl(){
+	public String getJobImpl(){
 		return this.jobImpl;
 	}
 	
-	public void setJobImpl(JobImpl jobImpl){
+	public void setJobImpl(String jobImpl){
 		this.jobImpl = jobImpl;
 	}
 	
@@ -482,43 +467,67 @@ public class TrpJobStatus implements Serializable {
 		this.moduleVersion = moduleVersion;
 	}
 
-	public java.sql.Timestamp getStarted() {
+//	public java.sql.Timestamp getStarted() {
+//		return started;
+//	}
+//
+//	public void setStarted(java.sql.Timestamp started) {
+//		this.started = started;
+//	}
+//
+//	public java.sql.Timestamp getEnded() {
+//		return ended;
+//	}
+//	
+//	public void setEnded(java.sql.Timestamp ended) {
+//		this.ended = ended;
+//	}
+//
+//	public java.sql.Timestamp getCreated() {
+//		return created;
+//	}
+//
+//	public void setCreated(java.sql.Timestamp created) {
+//		this.created = created;
+//	}
+		
+	public java.util.Date getStarted() {
 		return started;
 	}
 
-	public void setStarted(java.sql.Timestamp started) {
+	public void setStarted(java.util.Date started) {
 		this.started = started;
 	}
 
-	public java.sql.Timestamp getEnded() {
+	public java.util.Date getEnded() {
 		return ended;
 	}
-	
-	public void setEnded(java.sql.Timestamp ended) {
+
+	public void setEnded(java.util.Date ended) {
 		this.ended = ended;
 	}
 
-	public java.sql.Timestamp getCreated() {
+	public java.util.Date getCreated() {
 		return created;
 	}
 
-	public void setCreated(java.sql.Timestamp created) {
+	public void setCreated(java.util.Date created) {
 		this.created = created;
 	}
 	
 	public void setEndedNow() {
 		this.endTime = System.currentTimeMillis();
-		this.ended = new Timestamp(endTime);
+		this.ended = new Date(endTime);
 	}
-	
+
 	public void setStartedNow() {
 		this.startTime = System.currentTimeMillis();
-		this.started = new Timestamp(startTime);
+		this.started = new Date(startTime);
 	}	
 	
 	public void setCreatedNow() {
 		this.createTime = System.currentTimeMillis();
-		this.created = new Timestamp(this.createTime);
+		this.created = new Date(this.createTime);
 	}
 
 	public String getPid() {
@@ -527,6 +536,54 @@ public class TrpJobStatus implements Serializable {
 
 	public void setPid(String pid) {
 		this.pid = pid;
+	}
+
+	public Integer getBatchId() {
+		return batchId;
+	}
+
+	public void setBatchId(Integer batchId) {
+		this.batchId = batchId;
+	}
+
+	public Integer getPageid() {
+		return pageid;
+	}
+
+	public void setPageid(Integer pageid) {
+		this.pageid = pageid;
+	}
+
+	public Integer getTsid() {
+		return tsid;
+	}
+
+	public void setTsid(Integer tsid) {
+		this.tsid = tsid;
+	}
+
+	public String getRegionids() {
+		return regionids;
+	}
+
+	public void setRegionids(String regionids) {
+		this.regionids = regionids;
+	}
+
+	public Integer getParent_jobid() {
+		return parent_jobid;
+	}
+
+	public void setParent_jobid(Integer parent_jobid) {
+		this.parent_jobid = parent_jobid;
+	}
+
+	public Integer getParent_batchid() {
+		return parent_batchid;
+	}
+
+	public void setParent_batchid(Integer parent_batchid) {
+		this.parent_batchid = parent_batchid;
 	}
 
 	@Override
@@ -538,7 +595,9 @@ public class TrpJobStatus implements Serializable {
 				+ ", className=" + className + ", result=" + result + ", session_history_id=" + session_history_id
 				+ ", jobImpl=" + jobImpl + ", moduleUrl=" + moduleUrl + ", moduleName=" + moduleName
 				+ ", moduleVersion=" + moduleVersion + ", started=" + started + ", ended=" + ended + ", created="
-				+ created + ", pid=" + pid + "]";
+				+ created + ", pid=" + pid + ", batchId=" + batchId + ", pageid=" + pageid + ", tsid=" + tsid
+				+ ", regionids=" + regionids + ", parent_jobid=" + parent_jobid + ", parent_batchid=" + parent_batchid
+				+ "]";
 	}
 
 }

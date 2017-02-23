@@ -64,6 +64,49 @@ public class CoreUtils {
 //		
 //	}
 	
+	public static String[] appendValue(String[] arr, String newObj) {
+		List<String> temp = new ArrayList<>();
+		if (arr != null) {
+			temp = new ArrayList<String>(Arrays.asList(arr));
+		}
+		
+		temp.add(newObj);
+		return temp.toArray(new String[0]);
+	}
+	
+	public static List<String> parseStringList(String str) {
+		List<String> result = new ArrayList<>();
+		
+		if(str != null && !str.isEmpty()) {
+			String[] arr = str.split(",");
+			for(String s : arr) {
+				result.add(s);
+			}
+		}
+		
+		return result;
+	}
+	
+	public static List<Integer> parseIntList(String str) {
+		List<Integer> result = new ArrayList<>();
+		
+		if(str != null && !str.isEmpty()) {
+			String[] arr = str.split(",");
+			for(String s : arr) {
+				result.add(Integer.parseInt(s));
+			}
+		}
+		
+		return result;
+	}
+	
+	public static Properties copyProperties(Properties props) {
+		Properties propsCopy = new Properties();
+		propsCopy.putAll(props);
+		
+		return propsCopy;
+	}
+	
 	public static void print(List l) {
 		if (l != null) {
 			l.stream().forEach((j)-> {
@@ -106,7 +149,7 @@ public class CoreUtils {
 		
 		String joined="";
 		for (Object o : iterable) {
-			String str = o==null ? "" : o.toString();
+			String str = o==null ? "null" : o.toString();
 			str = prefix + str + suffix;
 			
 			joined += str+delimiter;
@@ -549,7 +592,7 @@ public class CoreUtils {
 //		}
 //	}
 
-	public static String writePropertiesToString(Properties p) {
+	public static String propertiesToString(Properties p) {
 		if(p == null){
 			return "";
 		}

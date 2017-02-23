@@ -13,6 +13,8 @@ public enum JobTask {
 	DetectLines(JobType.layoutAnalysis, "Line Segmentation", "ncsr"),
 	DetectWords(JobType.layoutAnalysis, "Word Segmentation", "ncsr"),
 	
+	LayoutAnalysis(JobType.layoutAnalysis, "Layout Analysis", "ncsr"),
+	
 	Htr(JobType.recognition, "Handwritten Text Recognition", "uro"),
 	HtrTraining(JobType.recognition, "HTR Training", "uro"),
 	Ocr(JobType.recognition, "Optical Character Recognition", "uibk"),

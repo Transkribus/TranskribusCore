@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public enum JobImpl {
+	// --- utility jobs ---
 	DeleteDocumentJob(JobTask.DeleteDocument, JobTask.DeleteDocument.getLabel(), "DeleteDocJob", null),
 	MetsImportJob(JobTask.CreateDocument, JobTask.CreateDocument.getLabel(), "MetsImportJob", null),
 	DocImportJob(JobTask.CreateDocument, JobTask.CreateDocument.getLabel(), "DocImportJob", null),
@@ -14,30 +15,32 @@ public enum JobImpl {
 	RebuildSolrIndexJob(JobTask.RebuildSolrIndex, JobTask.RebuildSolrIndex.getLabel(), "RebuildSolrIndexJob", null),	
 	IndexDocumentJob(JobTask.IndexDocument, JobTask.IndexDocument.getLabel(), "IndexDocumentJob", null),
 	DocExportJob(JobTask.Export, JobTask.Export.getLabel(), "ExportDocumentJob", null),
-	
-	NcsrDetectBaselinesJob(JobTask.DetectBaselines, JobTask.DetectBaselines.getLabel(), "NcsrDetectBaselinesJob", null),
+	// ---------------------
+
+	// --- LA jobs ---
 	NcsrDetectLinesJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "NcsrDetectLinesJob", null),
 	NcsrDetectBlocksJob(JobTask.DetectBlocks, JobTask.DetectBlocks.getLabel(), "NcsrDetectBlocksJob", null),
-	NcsrDetectWordsJob(JobTask.DetectWords, JobTask.DetectWords.getLabel(), "NcsrDetectWordsJob", null),
 	NcsrBatchLaJob(JobTask.DetectBlocks, "Block/Line Segmentation", "NcsrBatchLaJob", null),
 	
+	// old and obsolete LA jobs:
+	NcsrDetectWordsJob(JobTask.DetectWords, JobTask.DetectWords.getLabel(), "NcsrDetectWordsJob", null),
+	NcsrDetectBaselinesJob(JobTask.DetectBaselines, JobTask.DetectBaselines.getLabel(), "NcsrDetectBaselinesJob", null),
+	
+	// new experimental NCSR jobs:
 	NcsrSinglePageLineSegmentationJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "SinglePageLaJob", "libNCSR_TextLineSegmentation.so"),
 	NcsrSinglePageWordSegmentationJob(JobTask.DetectWords, JobTask.DetectWords.getLabel(), "SinglePageLaJob", "libNCSR_WordSegmentation.so"),
 	
+	NcsrLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", "libNCSR_TextLineSegmentation.so"),
+	CITlabLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", null),
+//	NcsrLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "SinglePageLaJob", "libNCSR_TextLineSegmentation.so"),
+	// ---------------------
 	HmmHtrJob(JobTask.UpvlcHtr, "PRHLT " + JobTask.Htr.getLabel(), "HmmHtrJob", null),
 	HmmHtrTrainingJob(JobTask.UpvlcHtrTraining, "PRHLT " + JobTask.HtrTraining.getLabel(), "HmmHtrTrainingJob", null),
-	
 	RnnHtrJob(JobTask.Htr, "CITlab " + JobTask.Htr.getLabel(), "RnnHtrJob", null),
 	RnnHtrTrainingJob(JobTask.HtrTraining, "CITlab " + JobTask.HtrTraining.getLabel(), "RnnHtrTrainingJob", null),
-	
 	CITlabHtrTrainingJob(JobTask.HtrTraining, "CITlab " + JobTask.HtrTraining.getLabel(), "CITlabHtrTrainingJob", null),
-//	CITlabHtrTrainingJob2(JobTask.HtrTraining, "CITlab " + JobTask.HtrTraining.getLabel(), "CITlabHtrTrainingJob", null), // duplicate for new module!
-	
 	CITlabHtrJob(JobTask.Htr, "CITlab " + JobTask.Htr.getLabel(), "CITlabHtrJob", null),
-//	CITlabHtrJob2(JobTask.Htr, "CITlab " + JobTask.Htr.getLabel(), "CITlabHtrJob", null), // duplicate for new module!
-	
 	FinereaderOcrJob(JobTask.Ocr, JobTask.Ocr.getLabel(), "OcrJob", null),
-//	FinereaderOcrJob2(JobTask.Ocr, JobTask.Ocr.getLabel(), "OcrJob", null), // duplicate for new module!
 	
 	//for testing
 	DummyJob(JobTask.CreateDocument, "Dummy Job", "DummyJob", null),
