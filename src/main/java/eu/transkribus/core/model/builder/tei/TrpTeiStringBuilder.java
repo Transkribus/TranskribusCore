@@ -19,6 +19,7 @@ import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.customtags.AbbrevTag;
 import eu.transkribus.core.model.beans.customtags.BlackeningTag;
+import eu.transkribus.core.model.beans.customtags.CommentTag;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
 import eu.transkribus.core.model.beans.customtags.CustomTagList;
 import eu.transkribus.core.model.beans.customtags.GapTag;
@@ -134,7 +135,8 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		for (EdFeature f : trpDoc.getEdDeclList()) {
 			if (f.getSelectedOption()!=null) {
 				String str = f.getTitle()+" ("+f.getDescription()+"): "+f.getSelectedOption().getText();
-				sb.addLine("<p>"+str+"</p>");
+				String escapedstr = StringEscapeUtils.escapeXml(str);
+				sb.addLine("<p>"+escapedstr+"</p>");
 			}
 		}
 		sb.decIndent();
@@ -300,33 +302,33 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		}
 		else if (t instanceof AbbrevTag) {
 			AbbrevTag at = (AbbrevTag) t;
-			ts = "<choice><expan>"+at.getExpansion()+"</expan><abbr>";
+			ts = "<choice><expan>"+StringEscapeUtils.escapeXml(at.getExpansion())+"</expan><abbr>";
 		}
 		else if (t instanceof PersonTag) {
 			PersonTag pt = (PersonTag) t;
 			ts = "<persName>";
 			
 			if (!StringUtils.isEmpty(pt.getFirstname())) {
-				ts +="<forename>"+pt.getFirstname()+"</forename>";
+				ts +="<forename>"+StringEscapeUtils.escapeXml(pt.getFirstname())+"</forename>";
 			}
 			if (!StringUtils.isEmpty(pt.getLastname())) {
-				ts +="<surname>"+pt.getLastname()+"</surname>";
+				ts +="<surname>"+StringEscapeUtils.escapeXml(pt.getLastname())+"</surname>";
 			}
 			if (!StringUtils.isEmpty(pt.getDateOfBirth())) {
-				ts +="<birth>"+pt.getDateOfBirth()+"</birth>";
+				ts +="<birth>"+StringEscapeUtils.escapeXml(pt.getDateOfBirth())+"</birth>";
 			}
 			if (!StringUtils.isEmpty(pt.getDateOfBirth())) {
-				ts +="<death>"+pt.getDateOfDeath()+"</death>";
+				ts +="<death>"+StringEscapeUtils.escapeXml(pt.getDateOfDeath())+"</death>";
 			}
 			if (!StringUtils.isEmpty(pt.getNotice())) {
-				ts +="<notice>"+pt.getNotice()+"</notice>";
+				ts +="<notice>"+StringEscapeUtils.escapeXml(pt.getNotice())+"</notice>";
 			}
 		}
 		else if (t instanceof PlaceTag) {
 			PlaceTag pt = (PlaceTag) t;
 			ts = "<placeName>";
 			if (!StringUtils.isEmpty(pt.getCountry())) {
-				ts += "<country>"+pt.getCountry()+"</country>";
+				ts += "<country>"+StringEscapeUtils.escapeXml(pt.getCountry())+"</country>";
 			}
 		}
 		else if (t instanceof OrganizationTag) {
@@ -337,21 +339,26 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 			SpeechTag st = (SpeechTag) t;
 			ts = "<sp>";
 			if (!StringUtils.isEmpty(st.getSpeaker())) {
-				ts += "<speaker>"+st.getSpeaker()+"</speaker>";
+				ts += "<speaker>"+StringEscapeUtils.escapeXml(st.getSpeaker())+"</speaker>";
 			}
 		}
 		else if (t instanceof GapTag) {
 			ts = "<gap />";
 		}
+		//do nothing because comment tag is added at the end of the tag entry as note in the createTagEnd method
+		else if (t instanceof CommentTag){
+			ts = "";
+		}
 		else { // general tag
 			ts = "<"+t.getTagName();
+						
 			for (String an : t.getAttributeNames()) {
 				if (CustomTag.isOffsetOrLengthOrContinuedProperty(an))
 					continue;
 				
 				Object v = t.getAttributeValue(an);
 				if (v != null) {
-					ts+=" "+an+"='"+v.toString()+"'";
+					ts+=" "+StringEscapeUtils.escapeXml(an)+"='"+StringEscapeUtils.escapeXml(v.toString())+"'";
 				}
 			}
 			ts+=">";
@@ -382,6 +389,15 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		}
 		else if (t instanceof GapTag) {
 			te = "";
+		}
+		//no comment element in TEI - we use note instead
+		else if (t instanceof CommentTag){
+			CommentTag ct = (CommentTag) t;
+			te = "<note>";
+			if (!StringUtils.isEmpty(ct.getComment())) {
+				te += StringEscapeUtils.escapeXml(ct.getComment());
+			}
+			te += "</note>";
 		}
 		else {
 			te = "</"+t.getTagName()+">";
@@ -427,21 +443,24 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		
 		String text = shape.getUnicodeText();
 		
-		for (CustomTag t : ctList) {
+		//escape the shap text here - later on the tag elements would be escaped too
+		String escapedText = StringEscapeUtils.escapeXml(text);
+		logger.debug("ShapeText = "+text+" escaped: "+escapedText);
 		
+		for (CustomTag t : ctList) {
 			
 			if ( pars.selectedTags == null || pars.selectedTags.contains(t.getTagName()) 
 				|| (pars.doBlackening && t.getTagName().equals(BlackeningTag.TAG_NAME)) || t.getTagName().equals(TextStyleTag.TAG_NAME) ) {
-				text = insertTag(text, t, ctList);
+				escapedText = insertTag(escapedText, t, ctList);
 			}
 		}
 		
 		// replace blackened text:
 		if (pars.doBlackening) {
-			text = hideBlackenedText(text);
+			escapedText = hideBlackenedText(escapedText);
 		}
 		
-		return text;
+		return escapedText;
 	}
 	
 	public static String hideBlackenedText(String text) {
@@ -509,10 +528,13 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 				
 		String content = getTaggedContent(shape);
 		
-		final String escapedContent = StringEscapeUtils.escapeXml(content);
-		logger.debug("CONTENT = "+content+" escaped: "+escapedContent);
-		
-		//do not use escaped content - then we have &lt;Tagname&gt; fro the tags in the text!!
+		/*
+		 * do not use escape content here - then we have &lt;Tagname&gt; for the tags in the text!!
+		 * now is done a bit earlier before tags are added (in getTaggedContent)
+		 */
+//		final String escapedContent = StringEscapeUtils.escapeXml(content);
+//		logger.debug("CONTENT = "+content+" escaped: "+escapedContent);
+
 		lStr+=content+getLineOrWordEnd(shape, facsId);
 		
 //		if (isLine)
