@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -29,6 +31,9 @@ public class GsonUtil {
 	 * Returns an empty list, if any exception is thrown deserializing the json string
 	 */
 	public static List<String> toStrList2(String json) {
+		if (StringUtils.isEmpty(json))
+			return new ArrayList<>();
+		
 		try {
 			return toStrList(json);
 		} catch (Exception e) {
@@ -41,8 +46,11 @@ public class GsonUtil {
 	}
 	
 	public static Map<String, Object> toMap2(String json) {
+		if (StringUtils.isEmpty(json))
+			return new HashMap<>();
+		
 		try {
-			return GSON.fromJson(json, MAP_TYPE);
+			return toMap(json); 
 		} catch (Exception e) {
 			return new HashMap<>();
 		}

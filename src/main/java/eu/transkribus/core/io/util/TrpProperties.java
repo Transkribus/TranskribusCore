@@ -28,8 +28,10 @@ public class TrpProperties {
 			TrpProperties trpProps = new TrpProperties();
 			
 			Map<String, Object> props = GsonUtil.toMap2(jsonMapStr);
-			for (String key : props.keySet()) {
-				trpProps.props.put(key, props.get(key));
+			if (props != null) {
+				for (String key : props.keySet()) {
+					trpProps.props.put(key, props.get(key));
+				}
 			}
 			
 			return trpProps;
