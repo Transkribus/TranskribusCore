@@ -345,7 +345,13 @@ public class TrpPdfDocument extends APdfDocument {
 			cb.setFontAndSize(bfArial, 32);
 					
 			List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
-			Collections.sort(regions, new TrpElementCoordinatesComparator<RegionType>());
+			
+			/*
+			 * use reding order comparator for sorting since at this time reading order is more trustable
+			 * other sorting is not transitive and seldomly produces "Comparison violates its general contract" exception
+			 */
+			Collections.sort(regions, new TrpElementReadingOrderComparator<RegionType>(true));
+			//Collections.sort(regions, new TrpElementCoordinatesComparator<RegionType>());
 	
 			for(RegionType r : regions){
 				//TODO add paths for tables etc.
@@ -395,7 +401,13 @@ public class TrpPdfDocument extends APdfDocument {
 		cb.setFontAndSize(bfArial, 10);
 				
 		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
-		Collections.sort(regions, new TrpElementCoordinatesComparator<RegionType>());
+		
+		/*
+		 * use reding order comparator for sorting since at this time reading order is more trustable
+		 * other sorting is not transitive and seldomly produces "Comparison violates its general contract" exception
+		 */
+		Collections.sort(regions, new TrpElementReadingOrderComparator<RegionType>(true));
+		//Collections.sort(regions, new TrpElementCoordinatesComparator<RegionType>());
 		
 		float textBlockXStart = 0;
 
