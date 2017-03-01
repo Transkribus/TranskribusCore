@@ -1,8 +1,8 @@
 package eu.transkribus.core.io.util;
 
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.exceptions.ParsePropertiesException;
 import eu.transkribus.core.util.CoreUtils;
+import eu.transkribus.core.util.GsonUtil;
 
 /**
  * Utility class containing for reading property files and mapping values to various data types
@@ -22,6 +23,27 @@ public class TrpProperties {
 		protected String string;
 		
 		protected Properties props;
+		
+		public static TrpProperties fromJsonMapStr(String jsonMapStr) {
+			TrpProperties trpProps = new TrpProperties();
+			
+			Map<String, Object> props = GsonUtil.toMap2(jsonMapStr);
+			if (props != null) {
+				for (String key : props.keySet()) {
+					trpProps.props.put(key, props.get(key));
+				}
+			}
+			
+			return trpProps;
+		}
+		
+		public static TrpProperties fromFile(String filename) {
+			return new TrpProperties(filename, true);
+		}
+		
+		public static TrpProperties fromProperties(Properties props) {
+			return new TrpProperties(props);
+		}
 		
 		public TrpProperties() {
 			props = new Properties();

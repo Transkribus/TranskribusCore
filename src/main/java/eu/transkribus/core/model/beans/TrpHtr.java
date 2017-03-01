@@ -37,7 +37,7 @@ public class TrpHtr {
 	private Timestamp created;
 	
 	@Column(name="TRAIN_GT_DOCID")
-	private int gtDocId;
+	private Integer gtDocId;
 	
 	@Column(name="TEST_GT_DOCID")
 	private Integer testGtDocId;
@@ -103,11 +103,11 @@ public class TrpHtr {
 		this.created = created;
 	}
 
-	public int getGtDocId() {
+	public Integer getGtDocId() {
 		return gtDocId;
 	}
 
-	public void setGtDocId(int gtDocId) {
+	public void setGtDocId(Integer gtDocId) {
 		this.gtDocId = gtDocId;
 	}
 	
