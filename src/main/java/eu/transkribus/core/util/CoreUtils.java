@@ -2,6 +2,7 @@ package eu.transkribus.core.util;
 
 import java.awt.Point;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -64,6 +65,28 @@ public class CoreUtils {
 //		
 //	}
 	
+	public static void loadTranskribusInterfacesLib() {
+		SebisStopWatch sw = new SebisStopWatch();
+		String libName = "TranskribusInterfacesWrapper";
+		try {
+			sw.start();
+			System.loadLibrary(libName);
+			sw.stop(true, "Loaded transkribus interfaces lib in ", logger);
+		} catch (UnsatisfiedLinkError e) {
+			throw new RuntimeException("Could not load "+libName+".so: " + e.getMessage(), e);
+		}
+	}
+	
+	public static File getFileFromPossiblePaths(String... paths) throws FileNotFoundException {
+		for (String path : paths) {
+			File f = new File(path);
+			if (f.isFile())
+				return f;
+		}
+		
+		throw new FileNotFoundException("File not found in paths: "+CoreUtils.join(Arrays.asList(paths)));
+	}
+		
 	public static String[] appendValue(String[] arr, String newObj) {
 		List<String> temp = new ArrayList<>();
 		if (arr != null) {
@@ -105,7 +128,9 @@ public class CoreUtils {
 	
 	public static Properties copyProperties(Properties props) {
 		Properties propsCopy = new Properties();
-		propsCopy.putAll(props);
+		if (props != null) {
+			propsCopy.putAll(props);
+		}
 		
 		return propsCopy;
 	}

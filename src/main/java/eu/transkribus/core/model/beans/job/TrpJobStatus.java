@@ -228,6 +228,14 @@ public class TrpJobStatus implements Serializable {
 	    this.parent_batchid = other.parent_batchid;
 	}
 	
+	public int getJobIdAsInt() {
+		try {
+			return Integer.parseInt(jobId);
+		} catch (Exception e) {
+			return -1;
+		}
+	}
+	
 	public String getJobId() {
 		return jobId;
 	}
