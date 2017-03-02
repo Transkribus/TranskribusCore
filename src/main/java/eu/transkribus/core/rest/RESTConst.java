@@ -67,6 +67,7 @@ public final class RESTConst {
 	public static final String UPLOAD_PATH_MULTIPART = "uploadMultipart";
 	public static final String UPLOAD_PATH_FTP = "uploadFromFtp";
 	public static final String DELETE_PATH = "delete";
+	public static final String CHECK_PATH = "check";
 	
 	public static final String ANALYZE_PATH = "analyze";
 	
