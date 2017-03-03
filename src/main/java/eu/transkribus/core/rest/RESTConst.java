@@ -27,14 +27,18 @@ public final class RESTConst {
 	
 	/* jobMgmt */
 	public static final String JOB_MGMT_PATH = "jobMgmt";
-	public static final String RETRIEVE_JOBS_PATH = "retrieveJobs";
 	public static final String REGISTER_JOB_MODULE_PATH = "registerModule";
-	public static final String SCHEDULE_JOBS_PATH = "scheduleJobs";
+	public static final String GET_PENDING_JOBS_PATH = "getPendingJobs";
+	public static final String SCHEDULE_JOB_PATH = "scheduleJob";
+	public static final String UPDATE_JOB_PATH = "updateJob";
+	public static final String QUERY_JOB_PATH = "queryJob";
+	public static final String GET_MODULE_VERSIONS_PATH = "getModuleVersions";
 	
-	public static final String JOB_IDS_PARAM = "jobIds";
-	
+	public static final String JOB_PARAM = "job";
+	public static final String JOB_ID_PARAM = "jobId";
 	public static final String VERSION_PARAM = "version";
 	public static final String TASKS_PARAM = "tasks";
+	public static final String RELEASE_ONLY_PARAM = "releaseOnly";
 	
 //	public static final String JOB_TYPE_PARAM = "jobType";
 //	public static final String JOB_TASK_PARAM = "jobTask";
@@ -354,5 +358,6 @@ public final class RESTConst {
 	public static final String DO_BLACKENING_PARAM = "doBlackening";
 	public static final String DO_CREATE_TITLE_PARAM = "doCreateTitle";
 	public static final String USE_VERSION_STATUS_PARAM = "useVersionStatus";
+	public static final String DUMMY_PATH = "dummy";
 	
 }
