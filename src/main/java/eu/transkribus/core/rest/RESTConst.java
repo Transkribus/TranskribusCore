@@ -39,6 +39,7 @@ public final class RESTConst {
 	public static final String VERSION_PARAM = "version";
 	public static final String TASKS_PARAM = "tasks";
 	public static final String RELEASE_ONLY_PARAM = "releaseOnly";
+	public static final String NOT_OLDER_THAN_SECONDS_PARAM = "notOlderThanSeconds";
 	
 //	public static final String JOB_TYPE_PARAM = "jobType";
 //	public static final String JOB_TASK_PARAM = "jobTask";

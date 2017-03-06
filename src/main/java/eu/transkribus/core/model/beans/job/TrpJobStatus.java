@@ -105,15 +105,15 @@ public class TrpJobStatus implements Serializable {
 	private String jobImpl;	
 	
 	// NEW cols
-	@XmlTransient
+//	@XmlTransient
 	@Column(name="MODULE_URL")
 	private String moduleUrl;
 	
-	@XmlTransient
+//	@XmlTransient
 	@Column(name="MODULE_NAME")
 	private String moduleName;
 	
-	@XmlTransient
+//	@XmlTransient
 	@Column(name="MODULE_VERSION")
 	private String moduleVersion;
 	
@@ -124,7 +124,7 @@ public class TrpJobStatus implements Serializable {
 	@Column(name="CREATED")
 	private java.util.Date created;
 	
-	@XmlTransient
+//	@XmlTransient
 	@Column(name="PID")
 	private String pid;
 	
@@ -145,6 +145,10 @@ public class TrpJobStatus implements Serializable {
 	
 	@Column
 	private Integer parent_batchid;
+	
+//	@XmlTransient
+	@Column(name="STACKTRACE")
+	private String stackTrace;
 
 	/**
 	 * Empty, public constructor for Jaxb and DbUtils
@@ -226,6 +230,7 @@ public class TrpJobStatus implements Serializable {
 	    this.regionids = other.regionids;
 	    this.parent_jobid = other.parent_jobid;
 	    this.parent_batchid = other.parent_batchid;
+	    this.stackTrace = other.stackTrace;
 	}
 	
 	public int getJobIdAsInt() {
@@ -593,6 +598,14 @@ public class TrpJobStatus implements Serializable {
 	public void setParent_batchid(Integer parent_batchid) {
 		this.parent_batchid = parent_batchid;
 	}
+	
+	public String getStackTrace() {
+		return stackTrace;
+	}
+
+	public void setStackTrace(String stackTrace) {
+		this.stackTrace = stackTrace;
+	}
 
 	@Override
 	public String toString() {
@@ -605,7 +618,9 @@ public class TrpJobStatus implements Serializable {
 				+ ", moduleVersion=" + moduleVersion + ", started=" + started + ", ended=" + ended + ", created="
 				+ created + ", pid=" + pid + ", batchId=" + batchId + ", pageid=" + pageid + ", tsid=" + tsid
 				+ ", regionids=" + regionids + ", parent_jobid=" + parent_jobid + ", parent_batchid=" + parent_batchid
-				+ "]";
+				+ ", stackTrace="+stackTrace+"]";
 	}
+
+	
 
 }
