@@ -35,8 +35,12 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 //				coords2 = ((TrpPrintSpaceType) o2).getCoords().getPoints();
 //			}		
 			if (o1 instanceof RegionType) {
-				coords1 = ((RegionType) o1).getCoords().getPoints();
-				coords2 = ((RegionType) o2).getCoords().getPoints();
+				RegionType r1 = (RegionType) o1;
+				RegionType r2 = (RegionType) o2;
+				if (r1.getCoords() != null && r2.getCoords() != null) {
+					coords1 = r1.getCoords().getPoints();
+					coords2 = r2.getCoords().getPoints();					
+				}
 			}
 			else if (TextLineType.class.isAssignableFrom(o1.getClass())) {
 				/*
@@ -52,7 +56,7 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 					List<Point> pts1 = PointStrUtils.parsePoints(coords1);
 					List<Point> pts2 = PointStrUtils.parsePoints(coords2);
 					
-					if (pts1.size() > 0 && pts2.size() > 0){
+					if (pts1.size() > 0 && pts2.size() > 0) {
 						
 						x1 = pts1.get(0).getX();
 						y1 = pts1.get(0).getY();
@@ -74,8 +78,14 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 //				coords2 = ((TrpBaselineType) o2).getPoints();
 //			}
 			else if (WordType.class.isAssignableFrom(o1.getClass())) {
-				coords1 = ((WordType) o1).getCoords().getPoints();
-				coords2 = ((WordType) o2).getCoords().getPoints();
+				WordType w1 = (WordType) o1;
+				WordType w2 = (WordType) o2;
+				
+				if (w1.getCoords()!=null && w2.getCoords()!=null) {
+					coords1 = w1.getCoords().getPoints();
+					coords2 = w2.getCoords().getPoints();					
+				}
+
 			}
 			
 //			if (coords1.isEmpty() || coords2.isEmpty()) {
