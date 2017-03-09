@@ -119,8 +119,8 @@ public class XslTransformer {
 	public static Result transform(Document sourceXML, String xslFileResource, Result result, Map<String, Object> params)
 			throws TransformerException, FileNotFoundException {
 
-		// Create a transform factory instance.
-		TransformerFactory tfactory = TransformerFactory.newInstance();
+		// Create a transform factory instance. specify saxon for XSLT 2.0 support
+		TransformerFactory tfactory = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
 		InputStream is = XslTransformer.class.getClassLoader().getResourceAsStream(xslFileResource);
 //		InputStream xslIS = new BufferedInputStream(new FileInputStream(xslID));
 		InputStream xslIS = new BufferedInputStream(is);
@@ -129,7 +129,13 @@ public class XslTransformer {
 		// Create a transformer for the stylesheet.
 
 		DOMSource dom = new DOMSource(sourceXML);
+		
+		// this method MAY return null although the JavaDoc says it doesn't! 
+		// That can happen when an XSLT 2.0 conformant XSL file is given. To work around this, 
+		// Saxon is specified as impl above which can handle such files
 		javax.xml.transform.Transformer transformer = tfactory.newTransformer(xslSource);
+		
+		logger.debug("Transformer impl = " + (transformer == null ? "null" : transformer.getClass().getCanonicalName()));
 		
 		if(params != null && !params.entrySet().isEmpty()){
 			for(Entry<String, Object> e : params.entrySet()){
