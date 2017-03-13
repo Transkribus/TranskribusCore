@@ -398,24 +398,24 @@ public class LocalDocReader {
 		List<TrpDocDir> result = new LinkedList<>();
 		
 		for(File d : docDirs){
-			Map<String, File> imgs;
-			try {
-				imgs = findImgFiles(d);
-			} catch(IOException e){
-				logger.debug("Dir does not contain image files: " + d.getAbsolutePath());
-				continue;
-			}
+//			Map<String, File> imgs;
+//			try {
+//				imgs = findImgFiles(d);
+//			} catch(IOException e){
+//				logger.debug("Dir does not contain image files: " + d.getAbsolutePath());
+//				continue;
+//			}
 			final String name = d.getName();
 //			final long size = FileUtils.sizeOf(d);
-			final long size = -1; // too slow...
+//			final long size = -1; // too slow...
 			final Date date = new Date(d.lastModified());
 			TrpDocDir docDir = new TrpDocDir();
 			docDir.setName(name);
-			docDir.setNrOfImgs(imgs.size());
+			docDir.setNrOfFiles(d.list().length);
 			docDir.setCreateDate(date);
-			TrpDocMetadata md = findOrCreateDocMd(d);
-			md.setLocalFolder(null); // delete local folder s.t. server dir is not visible for clients!
-			docDir.setMetadata(findOrCreateDocMd(d));
+//			TrpDocMetadata md = findOrCreateDocMd(d);
+//			md.setLocalFolder(null); // delete local folder s.t. server dir is not visible for clients!
+//			docDir.setMetadata(md);
 			
 			result.add(docDir);
 			if(monitor != null){

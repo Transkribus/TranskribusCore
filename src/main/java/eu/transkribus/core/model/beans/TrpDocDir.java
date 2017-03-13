@@ -10,10 +10,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TrpDocDir {
 	private String name;
+	@Deprecated
 	private int nrOfImgs;
 	@Deprecated
 	private long size;
+	private int nrOfFiles;
 	private Date createDate;
+	@Deprecated
 	private TrpDocMetadata metadata;
 
 	public TrpDocDir() {
@@ -26,11 +29,11 @@ public class TrpDocDir {
 	public void setName(String name) {
 		this.name = name;
 	}
-
+	@Deprecated
 	public int getNrOfImgs() {
 		return nrOfImgs;
 	}
-
+	@Deprecated
 	public void setNrOfImgs(int nrOfImgs) {
 		this.nrOfImgs = nrOfImgs;
 	}
@@ -50,13 +53,21 @@ public class TrpDocDir {
 	public void setCreateDate(Date createDate) {
 		this.createDate = createDate;
 	}
-
+	@Deprecated
 	public TrpDocMetadata getMetadata() {
 		return metadata;
 	}
-
+	@Deprecated
 	public void setMetadata(TrpDocMetadata metadata) {
 		this.metadata = metadata;
+	}
+
+	public int getNrOfFiles() {
+		return nrOfFiles;
+	}
+
+	public void setNrOfFiles(int nrOfFiles) {
+		this.nrOfFiles = nrOfFiles;
 	}
 	
 }
