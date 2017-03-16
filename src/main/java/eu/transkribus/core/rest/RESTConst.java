@@ -33,6 +33,9 @@ public final class RESTConst {
 	public static final String UPDATE_JOB_PATH = "updateJob";
 	public static final String QUERY_JOB_PATH = "queryJob";
 	public static final String GET_MODULE_VERSIONS_PATH = "getModuleVersions";
+	public static final String GET_TRANSCRIPT_PATH = "getTranscript";
+	public static final String UPDATE_TRANSCRIPT_PATH = "updateTranscript";
+	public static final String GET_PAGE_PATH = "getPage";
 	
 	public static final String JOB_PARAM = "job";
 	public static final String JOB_ID_PARAM = "jobId";
@@ -40,6 +43,7 @@ public final class RESTConst {
 	public static final String TASKS_PARAM = "tasks";
 	public static final String RELEASE_ONLY_PARAM = "releaseOnly";
 	public static final String NOT_OLDER_THAN_SECONDS_PARAM = "notOlderThanSeconds";
+	public static final String TOOL_NAME_PARAM = "toolName";
 	
 //	public static final String JOB_TYPE_PARAM = "jobType";
 //	public static final String JOB_TASK_PARAM = "jobTask";
