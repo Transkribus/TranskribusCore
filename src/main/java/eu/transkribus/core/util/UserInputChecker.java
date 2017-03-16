@@ -19,7 +19,7 @@ public class UserInputChecker {
 	public static String PASSWORD_PATTERN = ".{4,50}";
 	public static String FIRST_OR_LAST_NAME_PATTERN = ".{1,50}";
 	public static String EMAIL_PATTERN = ".{3,320}"; // check email with better pattern??
-	public static String ORCID_PATTERN = "[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}";
+	public static String ORCID_PATTERN = "[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]{1}";
 	
 	public static void checkEmailBlackListed(String email) throws InvalidUserInputException {
 		// check email name:
