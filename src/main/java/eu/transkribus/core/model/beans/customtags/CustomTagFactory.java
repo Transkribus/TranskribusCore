@@ -132,6 +132,7 @@ public class CustomTagFactory {
 			CustomTagFactory.addToRegistry(new WorkTag());
 			CustomTagFactory.addToRegistry(new SicTag());
 			CustomTagFactory.addToRegistry(new GapTag());
+			CustomTagFactory.addToRegistry(new DivTag());
 			CustomTagFactory.addToRegistry(new UnclearTag());
 			CustomTagFactory.addToRegistry(new BlackeningTag());
 			CustomTagFactory.addToRegistry(new SuppliedTag());
