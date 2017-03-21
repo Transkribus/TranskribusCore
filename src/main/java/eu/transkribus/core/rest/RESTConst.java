@@ -120,6 +120,7 @@ public final class RESTConst {
 	public static final String DOWNLOAD_CLIENT_FILE_NEW = "downloadClientFileNew";
 	public static final String INGEST_PATH = "ingest";
 	public static final String INFO_PATH = "info";
+	public static final String CHECK_SESSION = "checkSession";
 	
 	/* Parameters */
 	public static final String DOC_ID_PARAM = "id";
