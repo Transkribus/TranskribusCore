@@ -53,6 +53,8 @@ public class TrpHtr {
 	
 	private String cerString;
 	
+	private String cerTestString;
+	
 	private String charList;
 
 	public int getHtrId() {
@@ -149,6 +151,14 @@ public class TrpHtr {
 
 	public void setCerString(String cerString) {
 		this.cerString = cerString;
+	}
+	
+	public String getCerTestString() {
+		return cerTestString;
+	}
+
+	public void setCerTestString(String cerTestString) {
+		this.cerTestString = cerTestString;
 	}
 	
 	public String getCharList() {
