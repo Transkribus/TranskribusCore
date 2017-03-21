@@ -202,6 +202,7 @@ public final class RESTConst {
 	public static final String IS_USER_AVAILABLE_PATH = "isUserAvailable";
 //	public static final String IS_EMAIL_AVAILABLE = "isEmailAvailable";
 	public static final String IS_EMAIL_BLACKLISTED = "isEmailBlacklisted";
+	public static final String IS_USER_ALLOWED_FOR_JOB_PATH="isUserAllowedForJob";
 
 	public static final String FIRST_NAME_PARAM = "firstName";
 	public static final String LAST_NAME_PARAM = "lastName";
