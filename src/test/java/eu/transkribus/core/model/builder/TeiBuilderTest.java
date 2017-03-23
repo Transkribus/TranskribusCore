@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.io.LocalDocReader;
 import eu.transkribus.core.model.beans.TrpDoc;
-import eu.transkribus.core.model.builder.tei.TeiExportPars.TeiExportMode;
+import eu.transkribus.core.model.builder.tei.TeiExportPars;
 import eu.transkribus.core.model.builder.tei.TrpTeiStringBuilder;
 import eu.transkribus.core.util.SebisStopWatch;
 
@@ -40,27 +40,32 @@ public class TeiBuilderTest {
 			boolean writeTextOnWordLevel = true;
 			boolean doBlackening = true;
 			TrpTeiStringBuilder tb = null;
+			boolean boundingBoxCoords=false;
+			
+			TeiExportPars pars = new TeiExportPars(false, false, false, boundingBoxCoords, TeiExportPars.LINE_BREAK_TYPE_LINE_TAG);
+			pars.writeTextOnWordLevel = writeTextOnWordLevel;
+			pars.doBlackening = doBlackening;
 			
 			sw.start();
-			tb = new TrpTeiStringBuilder(doc, TeiExportMode.SIMPLE, writeTextOnWordLevel, doBlackening, null, pageIndices, selectedTags);
+			tb = new TrpTeiStringBuilder(doc, pars, null);
 			tb.buildTei();
 			tb.writeTeiXml(new File(docPath + "/tei_simple_string_no_zones.xml"));
 			sw.stop(true, "simple: ", null);
-			
+						
 			sw.start();
-			tb.setMode(TeiExportMode.ZONE_PER_PAR);
+			pars.regionZones = true;
 			tb.buildTei();
 			tb.writeTeiXml(new File(docPath + "/tei_simple_string.xml"));
 			sw.stop(true, "zone per par: ", null);
-			
+
 			sw.start();
-			tb.setMode(TeiExportMode.ZONE_PER_LINE);
+			pars.lineZones = true;
 			tb.buildTei();
 			tb.writeTeiXml(new File(docPath + "/tei_simple_string_lines.xml"));
 			sw.stop(true, "zone per line: ");
 			
 			sw.start();
-			tb.setMode(TeiExportMode.ZONE_PER_WORD);
+			pars.wordZones = true;
 			tb.buildTei();
 			tb.writeTeiXml(new File(docPath + "/tei_simple_string_words.xml"));
 			sw.stop(true, "zone per word: ");			

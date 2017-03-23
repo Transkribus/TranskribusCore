@@ -17,6 +17,9 @@ public class TeiExportPars extends ExportPars {
 	public boolean boundingBoxCoords=false;
 	public String linebreakType = LINE_BREAK_TYPE_LINE_TAG;
 	
+	public TeiExportPars() {
+	}
+	
 	public TeiExportPars(boolean regionZones, boolean lineZones, boolean wordZones, boolean boundingBoxCoords,
 			String linebreakType) {
 		super();

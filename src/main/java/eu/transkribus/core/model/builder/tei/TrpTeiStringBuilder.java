@@ -230,29 +230,40 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 	void writeZonesForTextRegion(SebisStringBuilder sb, TextRegionType r, int pageNr) {
 		String facsId = FACS_ID_PREFIX+pageNr;
 
-		writeZoneForShape(sb, (TrpTextRegionType) r, facsId, pars.mode.val <= TeiExportMode.ZONE_PER_PAR.val);
-		if (pars.mode.val > TeiExportMode.ZONE_PER_PAR.val) {
-			for (TextLineType tl : r.getTextLine()) {
-				TrpTextLineType ttl = (TrpTextLineType) tl;
+		if (pars.regionZones) {
+			writeZoneForShape(sb, (TrpTextRegionType) r, facsId, !pars.lineZones && !pars.wordZones);
+		}
+		
+		if (!pars.lineZones && !pars.wordZones)
+			return;
+		
+		for (TextLineType tl : r.getTextLine()) {
+			TrpTextLineType ttl = (TrpTextLineType) tl;
+
+			if (pars.lineZones) {
+				writeZoneForShape(sb, ttl, facsId, !pars.wordZones);
+			}
+			if (pars.wordZones) {
+				for (WordType w : ttl.getWord()) {
+					TrpWordType tw = (TrpWordType) w;
+					writeZoneForShape(sb, tw, facsId, true);
+				}
 				
-				writeZoneForShape(sb, ttl, facsId, pars.mode.val <= TeiExportMode.ZONE_PER_LINE.val);
-				if (pars.mode.val > TeiExportMode.ZONE_PER_LINE.val) {
-					 for (WordType w : ttl.getWord()) {
-						 TrpWordType tw = (TrpWordType) w;
-						 writeZoneForShape(sb, tw, facsId, true);
-					 }
-					
+				if (pars.lineZones) {
 					closeElement(sb, "zone");
 				}
 			}
-			
+		}
+	
+		if (pars.regionZones) {
 			closeElement(sb, "zone");
 		}
+		
 	}
 	
 	void writePageBreak(SebisStringBuilder sb, TrpPage p, PcGtsType pc) {
 		String facsId = "#"+FACS_ID_PREFIX+p.getPageNr();
-		if (pars.mode.val <= TeiExportMode.SIMPLE.val) {
+		if (!pars.hasZones()) {
 			String graphicUrl = getPageGraphicsUrl(p, pc);
 			facsId = graphicUrl;
 		}
@@ -262,7 +273,7 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 	
 	void writeTextRegion(SebisStringBuilder sb, TextRegionType region, String facsId) {
 		String pStr = "<p";
-		if (pars.mode.val > TeiExportMode.SIMPLE.val) {
+		if (pars.hasZones()) {
 			String id = "#"+facsId+"_"+region.getId();	
 			pStr += " facs='"+id+"'";
 		}
@@ -270,7 +281,7 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		
 		sb.incIndent();
 		sb.addLine(pStr);
-		if (pars.linebreakMode == TeiLinebreakMode.LINE_TAG) {
+		if (pars.isLineTagType()) {
 			sb.incIndent();
 			sb.addLine("<lg>");
 		}
@@ -480,11 +491,11 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		
 		String id = "#"+facsId+"_"+shape.getId();
 		
-		if (!isLine || pars.linebreakMode == TeiLinebreakMode.LINE_TAG) {
+		if (!isLine || pars.isLineTagType()) {
 			String lStr = "<"+el;
-			if (pars.mode.val > TeiExportMode.ZONE_PER_PAR.val && isLine) {
+			if (pars.lineZones && isLine) {
 				lStr += " facs='"+id+"'";
-			} else if (pars.mode.val > TeiExportMode.ZONE_PER_LINE.val && !isLine) {
+			} else if (pars.wordZones && !isLine) {
 				lStr += " facs='"+id+"'";
 			}
 			lStr += ">";
@@ -497,7 +508,7 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 	String getLineOrWordEnd(ITrpShapeType shape, String facsId) {
 		boolean isLine = shape instanceof TrpTextLineType;
 		
-		if (!isLine || pars.linebreakMode == TeiLinebreakMode.LINE_TAG) {
+		if (!isLine || pars.isLineTagType()) {
 			String el = isLine ? "l" : "w";
 			return "</"+el+">";
 		} else {
@@ -584,7 +595,7 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 //	}
 	
 	void closeTextRegion(SebisStringBuilder sb) {
-		if (pars.linebreakMode == TeiLinebreakMode.LINE_TAG) {
+		if (pars.isLineTagType()) {
 			closeElement(sb, "lg");
 		}
 		
@@ -664,7 +675,7 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 			//check buffer for transcript or unmarshal the page XML
 			PcGtsType pc = this.getPcGtsTypeForPage(p);
 		
-			if (pars.mode.val > TeiExportMode.SIMPLE.val) {
+			if (pars.hasZones()) {
 				// create a facsimile element for each page that are appended to the root element of the TEI after header
 				openFacsimileElement(sbFacsimile, p, pc);
 			}
@@ -678,20 +689,20 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 			for(TrpRegionType r : regions){
 //				System.out.println(r.getClass());
 				if(r instanceof TextRegionType) {
-					if (pars.mode.val > TeiExportMode.SIMPLE.val) {
+					if (pars.hasZones()) {
 						writeZonesForTextRegion(sbFacsimile, (TrpTextRegionType) r, p.getPageNr());
 					}
 					writeTextForTextRegion(sbText, (TrpTextRegionType) r, p.getPageNr());
 				}
 				else { // write other regions
-					if (pars.mode.val > TeiExportMode.SIMPLE.val) {
+					if (pars.hasZones()) {
 						String facsId = FACS_ID_PREFIX+p.getPageNr();
 						writeZoneForShape(sbFacsimile, r, facsId, true);
 					}
 				}
 			}
 
-			if (pars.mode.val > TeiExportMode.SIMPLE.val) {
+			if (pars.hasZones()) {
 				closeFacsimilieElement(sbFacsimile);
 			}
 			
