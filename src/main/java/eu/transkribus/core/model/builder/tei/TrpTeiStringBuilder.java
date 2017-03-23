@@ -3,7 +3,6 @@ package eu.transkribus.core.model.builder.tei;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 
@@ -40,8 +39,6 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
-import eu.transkribus.core.model.builder.tei.TeiExportPars.TeiExportMode;
-import eu.transkribus.core.model.builder.tei.TeiExportPars.TeiLinebreakMode;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.SebisStringBuilder;
 
@@ -53,11 +50,11 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 //	boolean writeTextOnWordLevel=true;
 //	boolean doBlackening=false;
 	
-	public TrpTeiStringBuilder(TrpDoc doc, TeiExportMode mode, boolean writeTextOnWordLevel, boolean doBlackening, IProgressMonitor monitor, Set<Integer> pageIndices, Set<String> selectedTags) {
-		super(doc, mode, monitor, pageIndices, selectedTags);
-		this.pars.writeTextOnWordLevel = writeTextOnWordLevel;
-		this.pars.doBlackening = doBlackening;
-	}
+//	public TrpTeiStringBuilder(TrpDoc doc, TeiExportMode mode, boolean writeTextOnWordLevel, boolean doBlackening, IProgressMonitor monitor, Set<Integer> pageIndices, Set<String> selectedTags) {
+//		super(doc, mode, monitor, pageIndices, selectedTags);
+//		this.pars.writeTextOnWordLevel = writeTextOnWordLevel;
+//		this.pars.doBlackening = doBlackening;
+//	}
 	
 	public TrpTeiStringBuilder(TrpDoc doc, TeiExportPars pars, IProgressMonitor monitor) {
 		super(doc, pars, monitor);

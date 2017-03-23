@@ -100,6 +100,16 @@ public class TrpProperties {
 			return (String) props.getOrDefault(key, defaultValue);
 		}
 		
+		public boolean getOrDefault(String string, boolean defaultValue) {
+			String v = (String) props.get(string);
+			
+			try {
+				return Boolean.valueOf(v);
+			} catch (Exception e) {
+				return defaultValue;
+			}
+		}
+		
 		public int getOrDefault(String string, int defaultValue) {
 			String v = (String) props.get(string);
 			
