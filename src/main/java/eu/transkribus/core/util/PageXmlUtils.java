@@ -670,8 +670,9 @@ public class PageXmlUtils {
 			return tRegions;
 		}
 		for(RegionType r : regions){
-			if(r != null && r instanceof TextRegionType){
-				tRegions.add((TextRegionType)r);
+//			if(r != null && r instanceof TextRegionType){
+			if(r != null && TextRegionType.class.isAssignableFrom(r.getClass())) {
+				tRegions.add((TextRegionType) r);
 			}
 		}
 		return tRegions;
