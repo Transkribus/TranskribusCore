@@ -8,8 +8,8 @@ import java.util.List;
 import javax.xml.bind.JAXBException;
 
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
+import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
-import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 
 public class PageXmlUtilsTest {
 	
@@ -18,15 +18,11 @@ public class PageXmlUtilsTest {
 		
 		PcGtsType t = PageXmlUtils.unmarshal(new URL(transcriptWithTables));
 		
-		TrpPageType tp = (TrpPageType) t.getPage();
-		List<TrpTextRegionType> tr = tp.getTextRegions(true);
+		List<TextRegionType> tr = PageXmlUtils.getTextRegions(t);
 		
-		for (TrpTextRegionType r : tr) {
+		for (TextRegionType r : tr) {
 			System.out.println("tr: "+r.getClass().getSimpleName()+" id: "+r.getId()+" n-lines: "+r.getTextLine().size());
 		}
-		
-		
-		
 	}
 	
 	public static void testSth() throws Exception {
