@@ -64,7 +64,6 @@ import eu.transkribus.core.model.beans.pagecontent.WordType;
 import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
 import eu.transkribus.core.model.beans.pagecontent_trp.RegionTypeUtil;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpBaselineType;
-import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementCoordinatesComparator;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementReadingOrderComparator;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
@@ -351,7 +350,6 @@ public class TrpPdfDocument extends APdfDocument {
 			 * other sorting is not transitive and seldomly produces "Comparison violates its general contract" exception
 			 */
 			Collections.sort(regions, new TrpElementReadingOrderComparator<RegionType>(true));
-			//Collections.sort(regions, new TrpElementCoordinatesComparator<RegionType>());
 	
 			for(RegionType r : regions){
 				//TODO add paths for tables etc.
@@ -1211,7 +1209,7 @@ public class TrpPdfDocument extends APdfDocument {
 		if(lines != null && !lines.isEmpty()){
 			//sort according to reading order
 
-			Collections.sort(lines, new TrpElementCoordinatesComparator<TextLineType>());
+			Collections.sort(lines, new TrpElementReadingOrderComparator<TextLineType>(true));
 			
 			double baseLineMeanY = 0;
 			double baseLineMeanYPrev = 0;

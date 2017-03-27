@@ -23,7 +23,7 @@ import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextTypeSimpleType;
-import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementCoordinatesComparator;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementReadingOrderComparator;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
 import eu.transkribus.core.model.builder.tei.TeiExportPars.TeiExportMode;
 import eu.transkribus.core.util.XmlUtils;
@@ -193,7 +193,8 @@ public class TrpTeiDomBuilder extends ATeiBuilder {
 			
 			// append all text-regions / lines / words to the xml:
 			List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
-			Collections.sort(regions, new TrpElementCoordinatesComparator<RegionType>());
+			Collections.sort(regions, new TrpElementReadingOrderComparator<RegionType>(true));
+			
 			for(TrpRegionType r : regions){
 //				System.out.println(r.getClass());
 				if(r instanceof TextRegionType){
@@ -273,7 +274,7 @@ public class TrpTeiDomBuilder extends ATeiBuilder {
 			//iterate lines and concatenate all text
 			StringBuilder sb = new StringBuilder();
 			List<TextLineType> lines = r.getTextLine();
-			Collections.sort(lines, new TrpElementCoordinatesComparator<TextLineType>());
+			Collections.sort(lines, new TrpElementReadingOrderComparator<TextLineType>(true));
 			for(int i = 0; i < lines.size(); i++){
 				TextLineType l = lines.get(i);
 				if(l.getTextEquiv() != null && l.getTextEquiv().getUnicode() != null){
