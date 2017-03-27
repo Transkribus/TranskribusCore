@@ -13,10 +13,10 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -41,22 +41,21 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import eu.transkribus.core.io.formats.XmlFormat;
-import eu.transkribus.core.model.beans.TrpDbTag;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata.TrpTranscriptStatistics;
 import eu.transkribus.core.model.beans.customtags.CustomTagUtil;
 import eu.transkribus.core.model.beans.pagecontent.CoordsType;
 import eu.transkribus.core.model.beans.pagecontent.MetadataType;
 import eu.transkribus.core.model.beans.pagecontent.ObjectFactory;
-import eu.transkribus.core.model.beans.pagecontent.PageType;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.PrintSpaceType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
+import eu.transkribus.core.model.beans.pagecontent.TableRegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
-import eu.transkribus.core.model.beans.pagecontent_trp.TaggedWord;
+import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementCoordinatesComparator;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpObjectFactory;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
@@ -454,18 +453,17 @@ public class PageXmlUtils {
 	}
 
 	public static List<TextLineType> getLinesInRegion(PcGtsType pc, final String regId) {
-		List<TextLineType> lines = null;
 		if (!hasRegions(pc)){
-			return lines;
+			return new ArrayList<>();
 		}
-		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
-		for (RegionType r : regions) {
-			if (r.getId().equals(regId) && r instanceof TextRegionType) {
-				TextRegionType tr = (TextRegionType) r;
-				lines = tr.getTextLine();
+		
+		List<TextRegionType> regions = PageXmlUtils.getTextRegions(pc);
+		for (TextRegionType r : regions) {
+			if (r.getId().equals(regId)) {
+				return r.getTextLine();
 			}
 		}
-		return lines;
+		return new ArrayList<>();
 	}
 	
 	public static void copyTextContent(PcGtsType origPc, PcGtsType newPc) {
@@ -662,16 +660,26 @@ public class PageXmlUtils {
 		}
 		return buildPolygon(psType.getCoords());
 	}
-
+	
 	public static List<TextRegionType> getTextRegions(PcGtsType pc) {
 		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
-		List<TextRegionType> tRegions = new LinkedList<>();
-		if (regions == null || regions.isEmpty()){
+		
+		List<TextRegionType> tRegions = new ArrayList<>();
+		if (regions == null || regions.isEmpty()) {
 			return tRegions;
 		}
-		for(RegionType r : regions){
-			if(r != null && r instanceof TextRegionType){
-				tRegions.add((TextRegionType)r);
+		
+		for(RegionType r : regions) {
+			if (r == null)
+				continue;
+			
+			if (TextRegionType.class.isAssignableFrom(r.getClass())) {
+				tRegions.add((TextRegionType) r);
+			}
+			
+			if (TableRegionType.class.isAssignableFrom(r.getClass())) {
+				TableRegionType table = (TableRegionType) r;
+				tRegions.addAll(table.getTableCell());				
 			}
 		}
 		return tRegions;
