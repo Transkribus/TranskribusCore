@@ -45,6 +45,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -121,11 +122,13 @@ import eu.transkribus.core.model.beans.customtags.GapTag;
 import eu.transkribus.core.model.beans.customtags.SuppliedTag;
 import eu.transkribus.core.model.beans.customtags.TextStyleTag;
 import eu.transkribus.core.model.beans.customtags.UnclearTag;
+import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextStyleType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
 import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
 import eu.transkribus.core.model.beans.pagecontent_trp.RegionTypeUtil;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementReadingOrderComparator;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableCellType;
@@ -595,6 +598,7 @@ public class DocxBuilder {
 		
 		//TrpTableRegionType is contained in the regions too
 		List<TrpRegionType> regions = trpPage.getRegions();
+		Collections.sort(regions, new TrpElementReadingOrderComparator<RegionType>(true));
 		
 		for (int j=0; j<regions.size(); ++j) {
 			TrpRegionType r = regions.get(j);

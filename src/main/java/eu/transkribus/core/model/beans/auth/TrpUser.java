@@ -29,6 +29,8 @@ public class TrpUser implements Serializable {
 	protected String orcid;
 	protected String profilePicUrl;
 	
+	
+	
 	protected int isActive=1;
 	protected boolean isAdmin = false;
 	
@@ -36,6 +38,8 @@ public class TrpUser implements Serializable {
 		
 	@XmlTransient // shall not be transferred!
 	protected String password;
+	@XmlTransient
+	protected String hash;
 	
 	// gets set when retrieving user for collection
 	protected TrpUserCollection userCollection = null; 
@@ -172,6 +176,14 @@ public class TrpUser implements Serializable {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	
+	public String getHash() {
+		return hash;
+	}
+	
+	public void setHash(String hash) {
+		this.hash = hash;
 	}
 	
 	public java.sql.Timestamp getCreated() {
