@@ -1,15 +1,20 @@
 package eu.transkribus.core.model.builder.tei;
 
-import eu.transkribus.core.model.builder.ExportPars;
+import java.util.Set;
 
 
 
 /**
  * TEI specific extension of ExportPars
  */
-public class TeiExportPars extends ExportPars {
+public class TeiExportPars {
 	public static final String LINE_BREAK_TYPE_LINE_TAG = "LINE_TAG";
 	public static final String LINE_BREAK_TYPE_LINE_BREAKS = "LINE_BREAKS";
+	
+	public boolean writeTextOnWordLevel = false;
+	public boolean doBlackening = false;
+	public Set<Integer> pageIndices = null;
+	public Set<String> selectedTags = null;	
 	
 	public boolean regionZones=true;
 	public boolean lineZones=true;
