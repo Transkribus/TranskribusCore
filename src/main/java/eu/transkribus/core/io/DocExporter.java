@@ -28,6 +28,7 @@ import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.mets.Mets;
+import eu.transkribus.core.model.builder.CommonExportPars;
 import eu.transkribus.core.model.builder.ExportUtils;
 import eu.transkribus.core.model.builder.alto.AltoExporter;
 import eu.transkribus.core.model.builder.docx.DocxBuilder;
@@ -115,8 +116,8 @@ public class DocExporter extends Observable {
 		pdfWriter.export(doc, path, pageIndices, wordBased, addTextPages, imagesOnly, highlightTags, doBlackening, createTitle);
 	}
 	
-	public void writeTEI(final TrpDoc doc, final String path, final TeiExportPars pars) throws Exception{
-		ATeiBuilder builder = new TrpTeiStringBuilder(doc, pars, null);
+	public void writeTEI(final TrpDoc doc, final String path, CommonExportPars commonPars, final TeiExportPars pars) throws Exception{
+		ATeiBuilder builder = new TrpTeiStringBuilder(doc, commonPars, pars, null);
 		builder.buildTei();
 		builder.writeTeiXml(new File(path));
 	}

@@ -1,5 +1,6 @@
 package eu.transkribus.core.model.builder.tei;
 
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +40,7 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
+import eu.transkribus.core.model.builder.CommonExportPars;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.SebisStringBuilder;
 
@@ -46,6 +48,8 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 	private final static Logger logger = LoggerFactory.getLogger(TrpTeiStringBuilder.class);
 
 	SebisStringBuilder sbTotal = new SebisStringBuilder();
+	
+//	String currentPbXmlId=null;
 	
 //	boolean writeTextOnWordLevel=true;
 //	boolean doBlackening=false;
@@ -56,8 +60,8 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 //		this.pars.doBlackening = doBlackening;
 //	}
 	
-	public TrpTeiStringBuilder(TrpDoc doc, TeiExportPars pars, IProgressMonitor monitor) {
-		super(doc, pars, monitor);
+	public TrpTeiStringBuilder(TrpDoc doc, CommonExportPars commonPars, TeiExportPars pars, IProgressMonitor monitor) {
+		super(doc, commonPars, pars, monitor);
 	}
 
 //	public boolean isWriteTextOnWordLevel() {
@@ -170,13 +174,22 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		
 		sb.incIndent();
 		sb.addLine("<facsimile xml:id='"+facsId+"'>");
-		sb.addLineWIndent("<graphic url='"+graphicUrl+"'/>");
+		
 		sb.incIndent();
-		sb.addLine("<surface ulx='0' uly='0' lrx='"+width+"' lry='"+height+"'>");
+		
+		String surfaceStr = "<surface ulx='0' uly='0' lrx='"+width+"' lry='"+height+"'";
+		if (pars.pbImageNameAsXmlId && !StringUtils.isEmpty(graphicUrl)) {
+			surfaceStr += " corresp='"+graphicUrl+"'";
+		}
+		surfaceStr += ">";
+		
+		sb.addLine(surfaceStr);
+		
+		sb.addLineWIndent("<graphic url='"+graphicUrl+"' width='"+width+"px' height='"+height+"px'/>");
 		
 		// add printspace zone if its there:
 		if (pc.getPage().getPrintSpace() != null) {
-			sb.addLineWIndent("<zone points='"+pc.getPage().getPrintSpace().getCoords().getPoints()+"' type='printspace'/>");
+			sb.addLineWIndent("<zone points='"+pc.getPage().getPrintSpace().getCoords().getPoints()+"' rendition='printspace'/>");
 		}
 	}
 	
@@ -192,7 +205,15 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 	
 	void writeZoneForShape(SebisStringBuilder sb, ITrpShapeType s, String facsId, boolean close) {
 		String id = facsId+"_"+s.getId();
-		String zoneStr = "<zone points='"+s.getCoordinates()+"'";
+		
+		String zoneStr;
+		if (pars.boundingBoxCoords) {
+			Rectangle bb = s.getBoundingBox();
+			zoneStr = "<zone ulx='"+(int)bb.getX()+"' uly='"+(int)bb.getY()+"' lrx='"+(int)bb.getMaxX()+"' lry='"+(int)bb.getMaxY()+"'";
+		}
+		else {
+			zoneStr = "<zone points='"+s.getCoordinates()+"'";
+		}
 		
 		// write type of shape:
 		String type = RegionTypeUtil.getRegionType(s);
@@ -208,7 +229,7 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 //		}
 		
 		if (!type.isEmpty()) {
-			zoneStr += " type='"+type+"'";
+			zoneStr += " rendition='"+type+"'";
 		}
 		
 		// write struct type:
@@ -262,13 +283,24 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 	}
 	
 	void writePageBreak(SebisStringBuilder sb, TrpPage p, PcGtsType pc) {
-		String facsId = "#"+FACS_ID_PREFIX+p.getPageNr();
-		if (!pars.hasZones()) {
-			String graphicUrl = getPageGraphicsUrl(p, pc);
-			facsId = graphicUrl;
+		String pbStr = "<pb ";
+		
+		if (pars.hasZones()) {
+			String facsId = "#"+FACS_ID_PREFIX+p.getPageNr();
+			String facsStr = "facs='"+facsId+"'";
+			
+			pbStr += facsStr+" ";
 		}
 		
-		sb.addLineWIndent("<pb facs='"+facsId+"' n='"+p.getPageNr()+"'/>");
+		String graphicUrl = getPageGraphicsUrl(p, pc);
+		if (pars.pbImageNameAsXmlId && !StringUtils.isEmpty(graphicUrl)) {
+			String xmlIdStr = "xml:id='"+graphicUrl+"'";
+			pbStr += xmlIdStr+" ";
+		}
+		
+		pbStr += "n='"+p.getPageNr()+"'/>";
+		
+		sb.addLineWIndent(pbStr);
 	}
 	
 	void writeTextRegion(SebisStringBuilder sb, TextRegionType region, String facsId) {
@@ -457,14 +489,14 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		
 		for (CustomTag t : ctList) {
 			
-			if ( pars.selectedTags == null || pars.selectedTags.contains(t.getTagName()) 
-				|| (pars.doBlackening && t.getTagName().equals(BlackeningTag.TAG_NAME)) || t.getTagName().equals(TextStyleTag.TAG_NAME) ) {
+			if ( commonPars.isTagSelected(t.getTagName()) 
+				|| (commonPars.isDoBlackening() && t.getTagName().equals(BlackeningTag.TAG_NAME)) || t.getTagName().equals(TextStyleTag.TAG_NAME) ) {
 				escapedText = insertTag(escapedText, t, ctList);
 			}
 		}
 		
 		// replace blackened text:
-		if (pars.doBlackening) {
+		if (commonPars.isDoBlackening()) {
 			escapedText = hideBlackenedText(escapedText);
 		}
 		
@@ -488,11 +520,14 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		
 		boolean isLine = shape instanceof TrpTextLineType;
 		String el = isLine ? "l" : "w";
-		
 		String id = "#"+facsId+"_"+shape.getId();
+		String xml_id = shape.getId();
 		
 		if (!isLine || pars.isLineTagType()) {
 			String lStr = "<"+el;
+			if (pars.lineXmlIds) {
+				lStr += " xml:id='"+xml_id+"'";
+			}
 			if (pars.lineZones && isLine) {
 				lStr += " facs='"+id+"'";
 			} else if (pars.wordZones && !isLine) {
@@ -500,31 +535,55 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 			}
 			lStr += ">";
 			return lStr;
-		} else { // if line and linebreak mode != LINE_TAG
-			return "";
+		} 
+		else { // if line and linebreak mode != LINE_TAG
+			if (pars.lineBreakAtBeginningOfLine) {
+				if (! (shape instanceof TrpTextLineType) ) {
+					logger.error("Unexpected error: not a line given!");
+					return "";
+				}
+				
+				return getLbElement((TrpTextLineType) shape, id, xml_id);
+			} else {
+				return "";
+			}
 		}
 	}
 	
 	String getLineOrWordEnd(ITrpShapeType shape, String facsId) {
 		boolean isLine = shape instanceof TrpTextLineType;
+		String el = isLine ? "l" : "w";
+		String id = "#"+facsId+"_"+shape.getId();
+		String xml_id = shape.getId();
 		
 		if (!isLine || pars.isLineTagType()) {
-			String el = isLine ? "l" : "w";
 			return "</"+el+">";
 		} else {
-			if (! (shape instanceof TrpTextLineType) ) {
-				// error!
-				logger.error("Unexpected error: not a line given!");
+			if (pars.lineBreakAtBeginningOfLine) {
 				return "";
+			} else {
+				if (! (shape instanceof TrpTextLineType) ) {
+					logger.error("Unexpected error: not a line given!");
+					return "";
+				}
+				
+				return getLbElement((TrpTextLineType) shape, id, xml_id);
 			}
-			
-			TrpTextLineType line = (TrpTextLineType) shape;
-			String nStr = "N"+StringUtils.leftPad(""+(line.getIndex()+1), 3, '0');
-
-			String id = "#"+facsId+"_"+shape.getId();
-			String lbStr = "<lb facs='"+id+"' n='"+nStr+"'/>";
-			return lbStr;
 		}
+	}
+	
+	String getLbElement(TrpTextLineType line, String id, String xml_id) {
+		String nStr = "N"+StringUtils.leftPad(""+(line.getIndex()+1), 3, '0');
+		
+		String lbStr = "<lb";
+		if (pars.lineXmlIds) {
+			lbStr += " xml:id='"+xml_id+"'";
+		}
+		lbStr += " facs='"+id+"'";
+		lbStr += " n='"+nStr+"'/>";
+		
+//		String lbStr = "<lb facs='"+id+"' n='"+nStr+"'/>";
+		return lbStr;
 	}
 	
 	void writeLineOrWord(SebisStringBuilder sb, ITrpShapeType shape, String facsId) {
@@ -615,7 +674,7 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		for (TextLineType tl : r.getTextLine()) {
 			TrpTextLineType ttl = (TrpTextLineType) tl;
 			
-			if (!pars.writeTextOnWordLevel) {
+			if (!commonPars.isWriteTextOnWordLevel()) {
 				writeLineOrWord(sb, ttl, facsId);
 			} else {
 				String lStart = getLineOrWordStart(ttl, facsId);
@@ -646,19 +705,19 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		sbText.addLine("<text>");
 		sbText.incIndent();
 		sbText.addLine("<body>");
-		sbText.incIndent();
+//		sbText.incIndent();
 		
 //		text = tei.createElementNS(TEI_NS, "text");
 //		body = tei.createElementNS(TEI_NS, "body");
 		
-		int totalPages = pars.pageIndices==null ? pages.size() : pars.pageIndices.size();
+		int totalPages = commonPars.getPageIndices()==null ? pages.size() : commonPars.getPageIndices().size();
 		if (monitor != null) {
 			monitor.beginTask("Creating TEI", totalPages);
 		}
 		
 		int c=0;
 		for (int i=0; i<pages.size(); ++i) {
-			if (pars.pageIndices!=null && !pars.pageIndices.contains(i))
+			if (commonPars.getPageIndices()!=null && !commonPars.getPageIndices().contains(i))
 				continue;
 			
 			if (monitor != null) {
@@ -715,7 +774,7 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 //		text.appendChild(body);
 //		root.appendChild(text);
 		
-		sbText.decIndent();
+//		sbText.decIndent();
 		sbText.addLine("</body>");
 		sbText.decIndent();
 		sbText.addLine("</text>");

@@ -1,5 +1,6 @@
 package eu.transkribus.core.model.beans.pagecontent_trp;
 
+import java.awt.Rectangle;
 import java.util.List;
 import java.util.Observer;
 
@@ -8,6 +9,7 @@ import eu.transkribus.core.model.beans.customtags.TextStyleTag;
 import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
 import eu.transkribus.core.model.beans.pagecontent.TextStyleType;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObservable;
+import eu.transkribus.core.util.PointStrUtils;
 
 public interface ITrpShapeType {
 	public static final int PRINTSPACE_BASE_LEVEL = -1;
@@ -54,6 +56,9 @@ public interface ITrpShapeType {
 	
 	void setCoordinates(String value, Object who);
 	String getCoordinates();
+	default Rectangle getBoundingBox() {
+		return PointStrUtils.getBoundingBox(getCoordinates());
+	}
 	
 	void setUnicodeText(String unicode, Object who);
 	void editUnicodeText(int start, int end, String replacement, Object who);

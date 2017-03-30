@@ -22,6 +22,7 @@ import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
+import eu.transkribus.core.model.builder.CommonExportPars;
 import eu.transkribus.core.model.builder.ExportUtils;
 
 public abstract class ATeiBuilder {
@@ -45,6 +46,7 @@ public abstract class ATeiBuilder {
 //	Set<Integer> pageIndices;
 //	Set<String> selectedTags;
 	
+	CommonExportPars commonPars;
 	TeiExportPars pars;
 	
 //	public ATeiBuilder(TrpDoc doc, TeiExportMode mode, IProgressMonitor monitor, Set<Integer> pageIndices, Set<String> selectedTags) {
@@ -64,16 +66,14 @@ public abstract class ATeiBuilder {
 //		Assert.assertNotNull("tei pars is null!", this.pars);
 //	}
 	
-	public ATeiBuilder(TrpDoc doc, TeiExportPars pars, IProgressMonitor monitor) {
+	public ATeiBuilder(TrpDoc doc, CommonExportPars commonPars, TeiExportPars pars, IProgressMonitor monitor) {
 		this.trpDoc = doc;
 		this.transcrBuffer = new HashMap<>();
 		this.monitor = monitor;
 		
-		if (pars != null)
-			this.pars = pars;
-		else
-			this.pars = new TeiExportPars();
-		
+		this.commonPars = commonPars==null ? new CommonExportPars() : commonPars;
+		this.pars = pars==null ? new TeiExportPars() : pars;
+
 		Assert.assertNotNull("tei pars is null!", this.pars);
 	}
 	

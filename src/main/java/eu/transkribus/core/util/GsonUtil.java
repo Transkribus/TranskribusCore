@@ -54,7 +54,19 @@ public class GsonUtil {
 		} catch (Exception e) {
 			return new HashMap<>();
 		}
-	}	
+	}
+
+	public static <T> T fromJson(String json, Class<T> clazz) {
+		return GSON.fromJson(json, clazz);
+	}
+	
+	public static <T> T fromJson2(String json, Class<T> clazz) {
+		try {
+			return fromJson(json, clazz);
+		} catch (Exception e) {
+			return null;
+		}
+	}
 	
 	
 
