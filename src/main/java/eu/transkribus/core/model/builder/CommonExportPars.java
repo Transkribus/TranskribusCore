@@ -43,6 +43,9 @@ public class CommonExportPars {
 
 	public void setPageIndices(Set<Integer> pageIndices) {
 		this.pageIndices = pageIndices;
+		
+		if (this.pageIndices != null && this.pageIndices.isEmpty()) // if no pages -> set to null -> means all pages in tei export
+			this.pageIndices = null;
 	}
 
 	public Set<String> getSelectedTags() {
@@ -56,6 +59,12 @@ public class CommonExportPars {
 	// utility method:
 	public boolean isTagSelected(String tagName) {
 		return selectedTags == null || selectedTags.contains(tagName);
+	}
+
+	@Override
+	public String toString() {
+		return "CommonExportPars [writeTextOnWordLevel=" + writeTextOnWordLevel + ", doBlackening=" + doBlackening
+				+ ", pageIndices=" + pageIndices + ", selectedTags=" + selectedTags + "]";
 	}
 
 	
