@@ -9,6 +9,8 @@ import eu.transkribus.core.util.GsonUtil;
  * A general set of export parameters. Can and shall be subclassed for special exports as e.g. in {@link TeiExportPars}
  */
 public class CommonExportPars {
+	public static final String PARAMETER_KEY = "commonPars";
+	
 	boolean writeTextOnWordLevel = false;
 	boolean doBlackening = false;
 	Set<Integer> pageIndices = null;
