@@ -663,6 +663,15 @@ public class CoreUtils {
 		}
 	}
 	
+	public static boolean isValidRangeListStr(String text, int nrOfPages) {
+		try {
+			parseRangeListStr(text, nrOfPages);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	
 	public static Set<Integer> parseRangeListStr(String text, int nrOfPages) throws IOException {
 		Set<Integer> pi = new HashSet<Integer>();
 		return (Set<Integer>)parseRangeListStr(text, nrOfPages, pi);

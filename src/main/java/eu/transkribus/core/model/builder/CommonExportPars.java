@@ -11,16 +11,44 @@ import eu.transkribus.core.util.GsonUtil;
 public class CommonExportPars {
 	public static final String PARAMETER_KEY = "commonPars";
 	
+	String pages = null;
+//	Set<Integer> pageIndices = null;
+	
+	boolean doWriteMets=true;
+	boolean doWriteImages=true;
+	boolean doExportPageXml=true; 
+	boolean doExportAltoXml=true;
+	boolean doWritePdf=false;
+	boolean doWriteTei=false;
+	boolean doWriteDocx=false;
+	
+	boolean doCreateTitle=false;
+	String useVersionStatus="Latest";
+	
 	boolean writeTextOnWordLevel = false;
 	boolean doBlackening = false;
-	Set<Integer> pageIndices = null;
 	Set<String> selectedTags = null;
 			
 	public CommonExportPars() {
 	}
-	
-	public static void main(String[] args) {
-		System.out.println(GsonUtil.toJson(new CommonExportPars()));
+
+	public CommonExportPars(String pages, boolean doWriteMets, boolean doWriteImages, boolean doExportPageXml,
+			boolean doExportAltoXml, boolean doWritePdf, boolean doWriteTei, boolean doWriteDocx, boolean doCreateTitle,
+			String useVersionStatus, boolean writeTextOnWordLevel, boolean doBlackening, Set<String> selectedTags) {
+		super();
+		this.pages = pages;
+		this.doWriteMets = doWriteMets;
+		this.doWriteImages = doWriteImages;
+		this.doExportPageXml = doExportPageXml;
+		this.doExportAltoXml = doExportAltoXml;
+		this.doWritePdf = doWritePdf;
+		this.doWriteTei = doWriteTei;
+		this.doWriteDocx = doWriteDocx;
+		this.doCreateTitle = doCreateTitle;
+		this.useVersionStatus = useVersionStatus;
+		this.writeTextOnWordLevel = writeTextOnWordLevel;
+		this.doBlackening = doBlackening;
+		this.selectedTags = selectedTags;
 	}
 
 	public boolean isWriteTextOnWordLevel() {
@@ -39,25 +67,107 @@ public class CommonExportPars {
 		this.doBlackening = doBlackening;
 	}
 
-	public Set<Integer> getPageIndices() {
-		return pageIndices;
-	}
-
-	public void setPageIndices(Set<Integer> pageIndices) {
-		this.pageIndices = pageIndices;
-		
-		if (this.pageIndices != null && this.pageIndices.isEmpty()) // if no pages -> set to null -> means all pages in tei export
-			this.pageIndices = null;
-	}
+//	public Set<Integer> getPageIndices() {
+//		return pageIndices;
+//	}
+//
+//	public void setPageIndices(Set<Integer> pageIndices) {
+//		this.pageIndices = pageIndices;
+//		
+//		if (this.pageIndices != null && this.pageIndices.isEmpty()) // if no pages -> set to null -> means all pages in tei export
+//			this.pageIndices = null;
+//	}
+	
+	
 
 	public Set<String> getSelectedTags() {
 		return selectedTags;
 	}
 
+	public String getPages() {
+		return pages;
+	}
+
+	public void setPages(String pages) {
+		this.pages = pages;
+	}
+
 	public void setSelectedTags(Set<String> selectedTags) {
 		this.selectedTags = selectedTags;
 	}
-	
+
+	public boolean isDoWriteMets() {
+		return doWriteMets;
+	}
+
+	public void setDoWriteMets(boolean doWriteMets) {
+		this.doWriteMets = doWriteMets;
+	}
+
+	public boolean isDoWriteImages() {
+		return doWriteImages;
+	}
+
+	public void setDoWriteImages(boolean doWriteImages) {
+		this.doWriteImages = doWriteImages;
+	}
+
+	public boolean isDoExportPageXml() {
+		return doExportPageXml;
+	}
+
+	public void setDoExportPageXml(boolean doExportPageXml) {
+		this.doExportPageXml = doExportPageXml;
+	}
+
+	public boolean isDoExportAltoXml() {
+		return doExportAltoXml;
+	}
+
+	public void setDoExportAltoXml(boolean doExportAltoXml) {
+		this.doExportAltoXml = doExportAltoXml;
+	}
+
+	public boolean isDoWritePdf() {
+		return doWritePdf;
+	}
+
+	public void setDoWritePdf(boolean doWritePdf) {
+		this.doWritePdf = doWritePdf;
+	}
+
+	public boolean isDoWriteTei() {
+		return doWriteTei;
+	}
+
+	public void setDoWriteTei(boolean doWriteTei) {
+		this.doWriteTei = doWriteTei;
+	}
+
+	public boolean isDoWriteDocx() {
+		return doWriteDocx;
+	}
+
+	public void setDoWriteDocx(boolean doWriteDocx) {
+		this.doWriteDocx = doWriteDocx;
+	}
+
+	public boolean isDoCreateTitle() {
+		return doCreateTitle;
+	}
+
+	public void setDoCreateTitle(boolean doCreateTitle) {
+		this.doCreateTitle = doCreateTitle;
+	}
+
+	public String getUseVersionStatus() {
+		return useVersionStatus;
+	}
+
+	public void setUseVersionStatus(String useVersionStatus) {
+		this.useVersionStatus = useVersionStatus;
+	}
+
 	// utility method:
 	public boolean isTagSelected(String tagName) {
 		return selectedTags == null || selectedTags.contains(tagName);
@@ -65,9 +175,15 @@ public class CommonExportPars {
 
 	@Override
 	public String toString() {
-		return "CommonExportPars [writeTextOnWordLevel=" + writeTextOnWordLevel + ", doBlackening=" + doBlackening
-				+ ", pageIndices=" + pageIndices + ", selectedTags=" + selectedTags + "]";
+		return "CommonExportPars [doWriteMets=" + doWriteMets + ", doWriteImages=" + doWriteImages
+				+ ", doExportPageXml=" + doExportPageXml + ", doExportAltoXml=" + doExportAltoXml + ", doWritePdf="
+				+ doWritePdf + ", doWriteTei=" + doWriteTei + ", doWriteDocx=" + doWriteDocx + ", doCreateTitle="
+				+ doCreateTitle + ", useVersionStatus=" + useVersionStatus + ", writeTextOnWordLevel="
+				+ writeTextOnWordLevel + ", doBlackening=" + doBlackening + ", pages=" + pages
+				+ ", selectedTags=" + selectedTags + "]";
 	}
+
+	
 
 	
 

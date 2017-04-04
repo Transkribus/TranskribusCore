@@ -710,14 +710,14 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 //		text = tei.createElementNS(TEI_NS, "text");
 //		body = tei.createElementNS(TEI_NS, "body");
 		
-		int totalPages = commonPars.getPageIndices()==null ? pages.size() : commonPars.getPageIndices().size();
+		int totalPages = pageIndices==null ? pages.size() : pageIndices.size();
 		if (monitor != null) {
 			monitor.beginTask("Creating TEI", totalPages);
 		}
 		
 		int c=0;
 		for (int i=0; i<pages.size(); ++i) {
-			if (commonPars.getPageIndices()!=null && !commonPars.getPageIndices().contains(i))
+			if (pageIndices!=null && !pageIndices.contains(i))
 				continue;
 			
 			if (monitor != null) {
