@@ -56,6 +56,15 @@ public class TrpHtr {
 	private String cerTestString;
 	
 	private String charList;
+	
+	@Column(name="NR_OF_LINES")
+	private int nrOfLines;
+	
+	@Column(name="NR_OF_WORDS")
+	private int nrOfWords;
+	
+	@Column(name="PARAMS")
+	private String params;
 
 	public int getHtrId() {
 		return htrId;
@@ -169,11 +178,37 @@ public class TrpHtr {
 		this.charList = charList;
 	}
 	
+	public String getParams() {
+		return params;
+	}
+	
+	public void setParams(String params) {
+		this.params = params;
+	}
+
+	public int getNrOfLines() {
+		return nrOfLines;
+	}
+
+	public void setNrOfLines(int nrOfLines) {
+		this.nrOfLines = nrOfLines;
+	}
+
+	public int getNrOfWords() {
+		return nrOfWords;
+	}
+
+	public void setNrOfWords(int nrOfWords) {
+		this.nrOfWords = nrOfWords;
+	}
+
 	@Override
 	public String toString() {
 		return "TrpHtr [htrId=" + htrId + ", name=" + name + ", description=" + description + ", provider=" + provider
 				+ ", path=" + path + ", created=" + created + ", gtDocId=" + gtDocId + ", testGtDocId=" + testGtDocId
-				+ ", language=" + language + ", baseHtrId=" + baseHtrId + ", trainJobId=" + trainJobId + "]";
+				+ ", language=" + language + ", baseHtrId=" + baseHtrId + ", trainJobId=" + trainJobId + ", cerString="
+				+ cerString + ", cerTestString=" + cerTestString + ", charList=" + charList + ", nrOfLines=" + nrOfLines
+				+ ", nrOfWords=" + nrOfWords + ", params=" + params + "]";
 	}
-
+	
 }
