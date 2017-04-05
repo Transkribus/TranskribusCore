@@ -38,6 +38,7 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.model.builder.ExportUtils;
+import eu.transkribus.core.model.builder.NoTagsException;
 import eu.transkribus.core.model.builder.rtf.TrpRtfBuilder;
 
 
@@ -232,11 +233,11 @@ public class TrpXlsxBuilder {
 		
 	}
 
-	public static void writeXlsxForDoc(TrpDoc doc, boolean wordBased, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor) throws Exception {
+	public static void writeXlsxForDoc(TrpDoc doc, boolean wordBased, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor) throws NoTagsException, Exception {
 		
 		if (ExportUtils.getCustomTagMapForDoc().isEmpty()) {
 			logger.info("No tags to store -> Xlsx export cancelled");
-			throw new Exception("No tags available to store into Xlsx");
+			throw new NoTagsException("No tags available to store into Xlsx");
 		}
 
 		List<TrpPage> pages = doc.getPages();

@@ -12,6 +12,17 @@ public class PdfExportPars {
 		
 	}
 
+	public PdfExportPars(boolean doPdfImagesOnly, boolean doPdfImagesPlusText, boolean doPdfWithTextPages,
+			boolean doPdfWithTags) {
+		super();
+		this.doPdfImagesOnly = doPdfImagesOnly;
+		this.doPdfImagesPlusText = doPdfImagesPlusText;
+		this.doPdfWithTextPages = doPdfWithTextPages;
+		this.doPdfWithTags = doPdfWithTags;
+	}
+
+
+
 	public boolean isDoPdfImagesOnly() {
 		return doPdfImagesOnly;
 	}

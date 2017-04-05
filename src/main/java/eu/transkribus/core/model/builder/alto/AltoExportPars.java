@@ -9,6 +9,15 @@ public class AltoExportPars {
 	public AltoExportPars() {
 		
 	}
+	
+	
+
+	public AltoExportPars(boolean splitIntoWordsInAltoXml) {
+		super();
+		this.splitIntoWordsInAltoXml = splitIntoWordsInAltoXml;
+	}
+
+
 
 	public boolean isSplitIntoWordsInAltoXml() {
 		return splitIntoWordsInAltoXml;

@@ -203,7 +203,7 @@ public class TrpMetsBuilder extends Observable {
 				String absAltoPath = path.substring(0, path.lastIndexOf(File.separator));
 				absAltoPath = absAltoPath.concat("/alto/").concat(p.getImgFileName().substring(0, p.getImgFileName().lastIndexOf(".")).concat(".xml"));
 				//logger.info("alto path starts with: " + absAltoPath);
-				if (absAltoPath.startsWith("\\") || absAltoPath.startsWith("/")){
+				if (absAltoPath.startsWith("\\") /*|| absAltoPath.startsWith("/")*/){
 					//logger.info("alto path starts with \\ or /");
 					absAltoPath = absAltoPath.substring(1);
 				}

@@ -21,6 +21,8 @@ public class CommonExportPars {
 	boolean doWritePdf=false;
 	boolean doWriteTei=false;
 	boolean doWriteDocx=false;
+	boolean doWriteTagsXlsx = false;
+	boolean doWriteTablesXlsx = false;
 	
 	boolean doCreateTitle=false;
 	String useVersionStatus="Latest";
@@ -33,8 +35,9 @@ public class CommonExportPars {
 	}
 
 	public CommonExportPars(String pages, boolean doWriteMets, boolean doWriteImages, boolean doExportPageXml,
-			boolean doExportAltoXml, boolean doWritePdf, boolean doWriteTei, boolean doWriteDocx, boolean doCreateTitle,
-			String useVersionStatus, boolean writeTextOnWordLevel, boolean doBlackening, Set<String> selectedTags) {
+			boolean doExportAltoXml, boolean doWritePdf, boolean doWriteTei, boolean doWriteDocx, 
+			boolean doWriteTagsXlsx, boolean doWriteTablesXlsx,
+			boolean doCreateTitle, String useVersionStatus, boolean writeTextOnWordLevel, boolean doBlackening, Set<String> selectedTags) {
 		super();
 		this.pages = pages;
 		this.doWriteMets = doWriteMets;
@@ -44,11 +47,31 @@ public class CommonExportPars {
 		this.doWritePdf = doWritePdf;
 		this.doWriteTei = doWriteTei;
 		this.doWriteDocx = doWriteDocx;
+		this.doWriteTagsXlsx = doWriteTagsXlsx;
+		this.doWriteTablesXlsx = doWriteTablesXlsx;
 		this.doCreateTitle = doCreateTitle;
 		this.useVersionStatus = useVersionStatus;
 		this.writeTextOnWordLevel = writeTextOnWordLevel;
 		this.doBlackening = doBlackening;
 		this.selectedTags = selectedTags;
+	}
+	
+	
+
+	public boolean isDoWriteTagsXlsx() {
+		return doWriteTagsXlsx;
+	}
+
+	public void setDoWriteTagsXlsx(boolean doWriteTagsXlsx) {
+		this.doWriteTagsXlsx = doWriteTagsXlsx;
+	}
+
+	public boolean isDoWriteTablesXlsx() {
+		return doWriteTablesXlsx;
+	}
+
+	public void setDoWriteTablesXlsx(boolean doWriteTablesXlsx) {
+		this.doWriteTablesXlsx = doWriteTablesXlsx;
 	}
 
 	public boolean isWriteTextOnWordLevel() {
@@ -172,15 +195,21 @@ public class CommonExportPars {
 	public boolean isTagSelected(String tagName) {
 		return selectedTags == null || selectedTags.contains(tagName);
 	}
+	
+	public boolean isTaggableExport() {
+		return (isDoWritePdf() || isDoWriteDocx() || isDoWriteTagsXlsx() || isDoWriteTei() || isDoWriteTagsXlsx());			
+//		return (isDoWritePdf() || isDoWriteDocx() || isDoWriteTagsXlsx() || isDoWriteTei())
+//				&& (isHighlightTags() || isDocxTagExport() || isTagXlsxExport());
+	}
 
 	@Override
 	public String toString() {
-		return "CommonExportPars [doWriteMets=" + doWriteMets + ", doWriteImages=" + doWriteImages
+		return "CommonExportPars [pages=" + pages + ", doWriteMets=" + doWriteMets + ", doWriteImages=" + doWriteImages
 				+ ", doExportPageXml=" + doExportPageXml + ", doExportAltoXml=" + doExportAltoXml + ", doWritePdf="
-				+ doWritePdf + ", doWriteTei=" + doWriteTei + ", doWriteDocx=" + doWriteDocx + ", doCreateTitle="
-				+ doCreateTitle + ", useVersionStatus=" + useVersionStatus + ", writeTextOnWordLevel="
-				+ writeTextOnWordLevel + ", doBlackening=" + doBlackening + ", pages=" + pages
-				+ ", selectedTags=" + selectedTags + "]";
+				+ doWritePdf + ", doWriteTei=" + doWriteTei + ", doWriteDocx=" + doWriteDocx + ", doWriteTagsXlsx="
+				+ doWriteTagsXlsx + ", doWriteTablesXlsx=" + doWriteTablesXlsx + ", doCreateTitle=" + doCreateTitle
+				+ ", useVersionStatus=" + useVersionStatus + ", writeTextOnWordLevel=" + writeTextOnWordLevel
+				+ ", doBlackening=" + doBlackening + ", selectedTags=" + selectedTags + "]";
 	}
 
 	

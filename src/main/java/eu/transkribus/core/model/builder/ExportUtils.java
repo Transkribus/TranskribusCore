@@ -58,10 +58,7 @@ public class ExportUtils {
 
 	static List<String> persons = new ArrayList<String>();
 	static List<String> places = new ArrayList<String>();
-	
-	
-	
-	
+
 	public static void storePageTranscripts4Export(TrpDoc doc, Set<Integer> pageIndices, IProgressMonitor monitor, String versionStatus, int pageIdx, TrpTranscriptMetadata loadedTranscript) throws Exception{
 		
 		pageTranscripts = new ArrayList<JAXBPageTranscript>();

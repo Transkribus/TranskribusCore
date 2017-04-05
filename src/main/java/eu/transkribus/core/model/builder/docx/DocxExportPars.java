@@ -13,6 +13,17 @@ public class DocxExportPars {
 	public DocxExportPars() {
 	}
 
+	public DocxExportPars(boolean doDocxWithTags, boolean doDocxPreserveLineBreaks, boolean doDocxMarkUnclear,
+			boolean doDocxKeepAbbrevs, boolean doDocxExpandAbbrevs, boolean doDocxSubstituteAbbrevs) {
+		super();
+		this.doDocxWithTags = doDocxWithTags;
+		this.doDocxPreserveLineBreaks = doDocxPreserveLineBreaks;
+		this.doDocxMarkUnclear = doDocxMarkUnclear;
+		this.doDocxKeepAbbrevs = doDocxKeepAbbrevs;
+		this.doDocxExpandAbbrevs = doDocxExpandAbbrevs;
+		this.doDocxSubstituteAbbrevs = doDocxSubstituteAbbrevs;
+	}
+
 	public boolean isDoDocxWithTags() {
 		return doDocxWithTags;
 	}

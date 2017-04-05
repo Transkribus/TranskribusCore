@@ -485,7 +485,7 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		
 		//escape the shap text here - later on the tag elements would be escaped too
 		String escapedText = StringEscapeUtils.escapeXml(text);
-		logger.debug("ShapeText = "+text+" escaped: "+escapedText);
+		logger.trace("ShapeText = "+text+" escaped: "+escapedText);
 		
 		for (CustomTag t : ctList) {
 			

@@ -35,6 +35,7 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableCellType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableRegionType;
 import eu.transkribus.core.model.builder.ExportUtils;
+import eu.transkribus.core.model.builder.NoTablesException;
 
 
 
@@ -46,8 +47,7 @@ public class TrpXlsxTableBuilder {
 		
 	}
 	
-	public static void writeXlsxForTables(TrpDoc doc, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor) throws Exception {
-		
+	public static void writeXlsxForTables(TrpDoc doc, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor) throws NoTablesException, IOException, InterruptedException {
 		//TrpTableRegionType is contained in the regions too
 
 		List<TrpPage> pages = doc.getPages();
@@ -148,10 +148,7 @@ public class TrpXlsxTableBuilder {
 			}
 			}
 		}
-		
 
-		
-		
 		/*
 		 * auto size the columns
 		 */
@@ -180,14 +177,15 @@ public class TrpXlsxTableBuilder {
 		try {
 			//means no tables at all
 			if (wb.getNumberOfSheets() == 0){
-				throw new IOException("Sorry - No tables available for export");
+				throw new NoTablesException("Sorry - No tables available for export");
 			}
 			fOut = new FileOutputStream(exportPath);
 			wb.write(fOut);
 			fOut.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if (!(e instanceof NoTablesException)) {
+				logger.error(e.getMessage(), e);
+			}
 			throw e;
 		}
 		logger.info("wrote xlsx to: "+ exportPath);
