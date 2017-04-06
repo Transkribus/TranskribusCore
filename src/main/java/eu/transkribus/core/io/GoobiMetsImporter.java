@@ -287,7 +287,7 @@ public class GoobiMetsImporter
 					//fetch file from this URL and store locally
 					FileUtils.copyURLToFile(new URL(href), imgFile);
 				
-					logger.debug("file loaded from URL: " + href);
+					logger.info("file loaded from URL: " + href);
 					//System.in.read();
 				}
 				//}
