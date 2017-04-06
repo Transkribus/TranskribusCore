@@ -188,6 +188,17 @@ public class TrpProperties {
 			}
 		}
 		
+		public String writeToString() {
+			return CoreUtils.propertiesToString(props);
+		}
+		
+		public Object setProperty(String key, String value) {
+			if(key == null) {
+				return null;
+			}
+			return props.setProperty(key, value);
+		}
+		
 		
 		
 //		public void parseAndSetString(String propertyName) throws IOException, IllegalAccessException, InvocationTargetException {

@@ -4,6 +4,8 @@ package eu.transkribus.core.model.builder.tei;
  * TEI specific extension of ExportPars
  */
 public class TeiExportPars {
+	public static final String PARAMETER_KEY = "teiPars";
+	
 	public static final String LINE_BREAK_TYPE_LINE_TAG = "LINE_TAG";
 	public static final String LINE_BREAK_TYPE_LINE_BREAKS = "LINE_BREAKS";
 	
