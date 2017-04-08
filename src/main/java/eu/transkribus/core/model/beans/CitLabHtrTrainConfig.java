@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.StringUtils;
 
+import eu.transkribus.core.io.util.TrpProperties;
 import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescriptor;
 
 @XmlRootElement
@@ -20,6 +21,13 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 	protected String noise;
 	protected Integer trainSizePerEpoch;
 	protected Integer baseModelId;
+	
+	public final static String NUM_EPOCHS_KEY = "Nr. of Epochs";
+	public final static String LEARNING_RATE_KEY ="Learning Rate";
+	public final static String NOISE_KEY = "Noise";
+	public final static String TRAIN_SIZE_KEY = "Train Size per Epoch";
+	public final static String BASE_MODEL_ID_KEY = "HTR Base Model ID";
+	public final static String BASE_MODEL_NAME_KEY = "HTR Base Model Name";
 	
 	public Integer getNumEpochs() {
 		return numEpochs;
@@ -78,6 +86,15 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 				+ ", train=" + "["+StringUtils.join(train, ", ")+"]" + ", test=" + "["+StringUtils.join(test, ", ")+"]"+ "]";
 	}
 	
+	public TrpProperties getParamProps() {
+		TrpProperties p = new TrpProperties();
+		p.setProperty(NUM_EPOCHS_KEY, ""+numEpochs);
+		p.setProperty(LEARNING_RATE_KEY, learningRate);
+		p.setProperty(NOISE_KEY, noise);
+		p.setProperty(TRAIN_SIZE_KEY, ""+trainSizePerEpoch);
+		p.setProperty(BASE_MODEL_ID_KEY, ""+baseModelId);
+		return p;
+	}
 	
 	
 	

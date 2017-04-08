@@ -66,11 +66,7 @@ public class TrpProperties {
 				loadPropsFromString();
 			}
 		}
-		
-		public Object setProperty(String key, String value) {
-			return props.setProperty(key, value);
-		}
-		
+				
 		public Object get(Object key) {
 			return props.get(key);
 		}
@@ -195,9 +191,20 @@ public class TrpProperties {
 		public Properties getProperties() {
 			return props;
 		}
-		
+
 		public <T> T getJsonBean(String key, Class<T> clazz) {
 			return GsonUtil.fromJson2(props.getProperty(key), clazz);
+		}
+
+		public String writeToString() {
+			return CoreUtils.propertiesToString(props);
+		}
+		
+		public Object setProperty(String key, String value) {
+			if(key == null) {
+				return null;
+			}
+			return props.setProperty(key, value);
 		}
 		
 //		public void parseAndSetString(String propertyName) throws IOException, IllegalAccessException, InvocationTargetException {

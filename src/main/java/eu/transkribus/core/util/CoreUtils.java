@@ -630,7 +630,7 @@ public class CoreUtils {
 			p.store(new PrintWriter(writer), null);
 			str = writer.getBuffer().toString();	
 		} catch (IOException e) {
-			logger.info("Could not serialize job data. Trying alternate serialization...");
+			logger.info("Could not serialize Properties data. Trying alternate serialization...");
 			boolean isFirst = true;
 			for(Entry<Object, Object> o : p.entrySet()){
 				if(isFirst){
