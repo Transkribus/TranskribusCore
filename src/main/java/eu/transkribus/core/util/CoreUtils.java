@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
@@ -243,6 +244,10 @@ public class CoreUtils {
 		
 	public static boolean isEmpty(Collection<?> c) {
 		return c==null || c.isEmpty();
+	}
+	
+	public static boolean isEmpty(Map<?, ?> m) {
+		return m==null || m.isEmpty();
 	}
 	
 	public static int toInt(Integer i) {
