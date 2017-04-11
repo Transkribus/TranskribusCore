@@ -150,7 +150,15 @@ public class ZipUtils {
 			if (!onlyContent) {
 				addFolderToZip("", srcFolder, zip);	
 			} else {
+				File zipFile = new File(destZipFile);
+				
 				for (File f : srcFolderFile.listFiles()) {
+					if (zipFile.compareTo(f)==0) {
+						logger.debug("skipping output zip file that was created in input directory: "+f.getAbsolutePath());
+						continue;
+					}
+					
+					logger.trace("f = "+f.getAbsolutePath());
 					addFileToZip("", f.getAbsolutePath(), zip);
 				}
 			}
@@ -177,6 +185,8 @@ public class ZipUtils {
 		if (folder.isDirectory()) {
 			addFolderToZip(path, srcFile, zip);
 		} else {
+			logger.trace("adding file to zip: "+srcFile);
+			
 			byte[] buf = new byte[1024];
 			int len;
 			FileInputStream in = new FileInputStream(srcFile);
