@@ -45,6 +45,7 @@ public class JobConst {
 	public static final String PROP_DO_BLOCK_SEG = "doBlockSeg";
 	public static final String PROP_DO_LINE_SEG = "doLineSeg";
 	public static final String PROP_DO_WORD_SEG = "doWordSeg";
+	public static final String PROP_DO_POLYGON_TO_BASELINE = "doPolygonToBaseline";
 
 	public static final String PROP_SOLR_URL = "solrUrl";
 
