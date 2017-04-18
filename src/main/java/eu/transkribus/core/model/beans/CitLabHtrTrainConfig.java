@@ -92,7 +92,9 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 		p.setProperty(LEARNING_RATE_KEY, learningRate);
 		p.setProperty(NOISE_KEY, noise);
 		p.setProperty(TRAIN_SIZE_KEY, ""+trainSizePerEpoch);
-		p.setProperty(BASE_MODEL_ID_KEY, ""+baseModelId);
+		if(baseModelId != null) {
+			p.setProperty(BASE_MODEL_ID_KEY, ""+baseModelId);
+		}
 		return p;
 	}
 	
