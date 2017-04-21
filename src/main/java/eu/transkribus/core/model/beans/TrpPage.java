@@ -327,6 +327,77 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	}
 	
 	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TrpPage other = (TrpPage) obj;
+		if (created == null) {
+			if (other.created != null)
+				return false;
+		} else if (!created.equals(other.created))
+			return false;
+		if (docId != other.docId)
+			return false;
+		if (height != other.height)
+			return false;
+		if (imageId != other.imageId)
+			return false;
+		if (imageVersions == null) {
+			if (other.imageVersions != null)
+				return false;
+		} else if (!imageVersions.equals(other.imageVersions))
+			return false;
+		if (imgFileName == null) {
+			if (other.imgFileName != null)
+				return false;
+		} else if (!imgFileName.equals(other.imgFileName))
+			return false;
+		if (indexed != other.indexed)
+			return false;
+		if (key == null) {
+			if (other.key != null)
+				return false;
+		} else if (!key.equals(other.key))
+			return false;
+		if (md5Sum == null) {
+			if (other.md5Sum != null)
+				return false;
+		} else if (!md5Sum.equals(other.md5Sum))
+			return false;
+		if (pageId != other.pageId)
+			return false;
+		if (pageNr != other.pageNr)
+			return false;
+		if (tagsStored == null) {
+			if (other.tagsStored != null)
+				return false;
+		} else if (!tagsStored.equals(other.tagsStored))
+			return false;
+		if (thumbUrl == null) {
+			if (other.thumbUrl != null)
+				return false;
+		} else if (!thumbUrl.equals(other.thumbUrl))
+			return false;
+		if (transcripts == null) {
+			if (other.transcripts != null)
+				return false;
+		} else if (!transcripts.equals(other.transcripts))
+			return false;
+		if (url == null) {
+			if (other.url != null)
+				return false;
+		} else if (!url.equals(other.url))
+			return false;
+		if (width != other.width)
+			return false;
+		return true;
+	}
+
+	@Override
 	public String toString() {
 		return "TrpPage [pageId=" + pageId + ", docId=" + docId + ", pageNr=" + pageNr + ", key=" + key + ", imageId="
 				+ imageId + ", url=" + url + ", thumbUrl=" + thumbUrl + ", md5Sum=" + md5Sum + ", imgFileName="
