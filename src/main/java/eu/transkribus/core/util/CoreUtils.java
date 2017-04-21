@@ -120,7 +120,11 @@ public class CoreUtils {
 		if(str != null && !str.isEmpty()) {
 			String[] arr = str.split(",");
 			for(String s : arr) {
-				result.add(Integer.parseInt(s));
+				try {
+					result.add(Integer.parseInt(s));
+				} catch (Exception e) {
+					logger.error("Error parsing integer value: "+s+" - skipping!");
+				}
 			}
 		}
 		

@@ -1,6 +1,8 @@
 package eu.transkribus.core.model.beans;
 
+import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.Properties;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,11 +13,18 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import eu.transkribus.core.util.CoreUtils;
+
 @Entity
 @Table(name = "HTR")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TrpHtr {
+	private static final Logger logger = LoggerFactory.getLogger(TrpHtr.class);
+	
 	@Id
 	@Column(name="HTR_ID")
 	private int htrId;
@@ -180,6 +189,18 @@ public class TrpHtr {
 	
 	public String getParams() {
 		return params;
+	}
+	
+	public Properties getParamsProps() {
+		if(params == null || params.isEmpty()) {
+			return new Properties();
+		}
+		try {
+			return CoreUtils.readPropertiesFromString(params);
+		} catch (IOException ioe) {
+			logger.error("Could nor read Properties from String:\n" + params);
+			return new Properties();
+		}
 	}
 	
 	public void setParams(String params) {

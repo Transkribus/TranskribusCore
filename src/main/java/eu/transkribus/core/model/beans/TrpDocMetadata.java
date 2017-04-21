@@ -349,7 +349,7 @@ public class TrpDocMetadata implements Serializable, Comparable<TrpDocMetadata> 
 		if (this.getDocId() > md.getDocId()) {
 			return 1;
 		}
-		if (md.getDocId() < md.getDocId()) {
+		if (this.getDocId() < md.getDocId()) {
 			return -1;
 		}
 		return 0;

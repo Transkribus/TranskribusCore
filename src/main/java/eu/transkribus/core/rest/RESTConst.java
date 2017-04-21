@@ -43,6 +43,7 @@ public final class RESTConst {
 	public static final String TASKS_PARAM = "tasks";
 	public static final String RELEASE_ONLY_PARAM = "releaseOnly";
 	public static final String NOT_OLDER_THAN_SECONDS_PARAM = "notOlderThanSeconds";
+	public static final String USERS_PARAM = "users";
 	public static final String TOOL_NAME_PARAM = "toolName";
 	
 //	public static final String JOB_TYPE_PARAM = "jobType";
@@ -174,6 +175,7 @@ public final class RESTConst {
 	public static final String DO_BLOCK_SEG_PARAM = "doBlockSeg";
 	public static final String DO_LINE_SEG_PARAM = "doLineSeg";
 	public static final String DO_WORD_SEG_PARAM = "doWordSeg";
+	public static final String DO_POLYGON_TO_BASELINE_PARAM = "doPolygonToBaseline";
 	
 	@Deprecated
 	public static final String IMG_KEY_PARAM = "imgKey";
