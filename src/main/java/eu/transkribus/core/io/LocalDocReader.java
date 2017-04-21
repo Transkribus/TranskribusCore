@@ -231,83 +231,17 @@ public class LocalDocReader {
 			} 
 			
 			//if no page XML, then create one at this path
+			
+			
 			File pageOutFile = new File(pageInputDir.getAbsolutePath() + File.separatorChar + imgFileName
 					+ ".xml");
 			
-			if(pageXml == null && forceCreatePageXml){
-				//try find Abbyy XML
-				File abbyyXml = findXml(imgFileName, ocrInputDir);
-				if(abbyyXml != null){
-					try{
-						XmlFormat xmlFormat = XmlUtils.getXmlFormat(abbyyXml);
-						if(xmlFormat.equals(XmlFormat.ABBYY_10)){
-							logger.info(abbyyXml.getAbsolutePath() + ": Transforming Finereader10/11 XML to PAGE XML.");
-							PcGtsType pc = PageXmlUtils.createPcGtsTypeFromAbbyy(
-									abbyyXml, imgFile.getName(), 
-									preserveOcrTxtStyles, preserveOcrFontFamily, 
-									replaceBadChars
-									);
-							pageXml = JaxbUtils.marshalToFile(pc, pageOutFile);
-						}
-					} catch(IOException | TransformerException ioe){
-						logger.error(ioe.getMessage(), ioe);
-						throw new IOException("Could not migrate file: " + abbyyXml.getAbsolutePath(), ioe);
-					} catch (ParserConfigurationException | SAXException xmle) {
-						logger.error(xmle.getMessage(), xmle);
-						throw new IOException("Could not transform XML file!", xmle);
-					} catch (JAXBException je) {
-						/* TODO This exception is only thrown when the pageXML is unmarshalled 
-						 * for inserting the image filename which is not included in the abbyy xml! */
-						logger.error(je.getMessage(), je);
-						throw new IOException("Transformation output is not a valid page XML!", je);
-					}
-				}
-			}
+			File abbyyXml = findXml(imgFileName, ocrInputDir);
+			File altoXml = findXml(imgFileName, altoInputDir);
 			
-			if(pageXml == null && forceCreatePageXml){
-				//try find ALTO XML
-				File altoXml = findXml(imgFileName, altoInputDir);
-				if(altoXml != null){
-					try {
-						pageXml = createPageFromAlto2(imgFile, altoXml, pageOutFile, preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars);
-						
-//						XmlFormat xmlFormat = XmlUtils.getXmlFormat(altoXml);
-//						if(xmlFormat.equals(XmlFormat.ALTO_2)) {
-//							logger.info(altoXml.getAbsolutePath() + ": Transforming ALTO v2 XMLs to PAGE XML.");
-//							PcGtsType pc = PageXmlUtils.createPcGtsTypeFromAlto(
-//									altoXml, e.getValue().getName(), 
-//									preserveOcrTxtStyles, preserveOcrFontFamily, 
-//									replaceBadChars
-//									);
-//							pageXml = JaxbUtils.marshalToFile(pc, pageOutFile);
-//						}
-					} catch(IOException | TransformerException ioe){
-						logger.error(ioe.getMessage(), ioe);
-						throw new IOException("Could not migrate file: " + altoXml.getAbsolutePath(), ioe);
-					} catch (ParserConfigurationException | SAXException xmle) {
-						logger.error(xmle.getMessage(), xmle);
-						throw new IOException("Could not transform XML file!", xmle);
-					} catch (JAXBException je) {
-						/* TODO This exception is only thrown when the pageXML is unmarshalled 
-						 * for inserting the image filename which is not included in the abbyy xml! */
-						logger.error(je.getMessage(), je);
-						throw new IOException("Transformation output is not a valid page XML!", je);
-					}
-				}
-			}
+			pageXml = createPageXmlIfNull(pageXml, forceCreatePageXml, pageOutFile, abbyyXml, altoXml, preserveOcrFontFamily, preserveOcrTxtStyles, replaceBadChars, imgFile);
 			
-			//if still null, there is no suitable file for this page
-			if (pageXml == null && forceCreatePageXml) {
-				logger.warn("No Transcript XML found for img: " + imgFileName);
-				try{
-					logger.info("Creating empty PageXml.");
-					PcGtsType pc = PageXmlUtils.createEmptyPcGtsType(imgFile);
-					pageXml = JaxbUtils.marshalToFile(pc, pageOutFile);
-				} catch (JAXBException je) {
-					logger.error(je.getMessage(), je);
-					throw new IOException("Could not create empty PageXml!", je);
-				}
-			}
+
 			
 			TrpPage page = buildPage(inputDir, pageNr++, imgFile, pageXml, thumbFile);
 			pages.add(page);
@@ -322,6 +256,84 @@ public class LocalDocReader {
 
 		logger.debug(doc.toString());
 		return doc;
+	}
+
+	public static File createPageXmlIfNull(File pageXml, boolean forceCreatePageXml, File pageOutFile, File abbyyXml, File altoXml, boolean preserveOcrFontFamily, boolean preserveOcrTxtStyles, boolean replaceBadChars, File imgFile) throws IOException {
+		if(pageXml == null && forceCreatePageXml){
+			//try find Abbyy XML
+			
+			if(abbyyXml != null){
+				try{
+					XmlFormat xmlFormat = XmlUtils.getXmlFormat(abbyyXml);
+					if(xmlFormat.equals(XmlFormat.ABBYY_10)){
+						logger.info(abbyyXml.getAbsolutePath() + ": Transforming Finereader10/11 XML to PAGE XML.");
+						PcGtsType pc = PageXmlUtils.createPcGtsTypeFromAbbyy(
+								abbyyXml, imgFile.getName(), 
+								preserveOcrTxtStyles, preserveOcrFontFamily, 
+								replaceBadChars
+								);
+						pageXml = JaxbUtils.marshalToFile(pc, pageOutFile);
+					}
+				} catch(IOException | TransformerException ioe){
+					logger.error(ioe.getMessage(), ioe);
+					throw new IOException("Could not migrate file: " + abbyyXml.getAbsolutePath(), ioe);
+				} catch (ParserConfigurationException | SAXException xmle) {
+					logger.error(xmle.getMessage(), xmle);
+					throw new IOException("Could not transform XML file!", xmle);
+				} catch (JAXBException je) {
+					/* TODO This exception is only thrown when the pageXML is unmarshalled 
+					 * for inserting the image filename which is not included in the abbyy xml! */
+					logger.error(je.getMessage(), je);
+					throw new IOException("Transformation output is not a valid page XML!", je);
+				}
+			}
+		}
+		
+		if(pageXml == null && forceCreatePageXml){
+			//try find ALTO XML
+			
+			if(altoXml != null){
+				try {
+					pageXml = createPageFromAlto2(imgFile, altoXml, pageOutFile, preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars);
+					
+//					XmlFormat xmlFormat = XmlUtils.getXmlFormat(altoXml);
+//					if(xmlFormat.equals(XmlFormat.ALTO_2)) {
+//						logger.info(altoXml.getAbsolutePath() + ": Transforming ALTO v2 XMLs to PAGE XML.");
+//						PcGtsType pc = PageXmlUtils.createPcGtsTypeFromAlto(
+//								altoXml, e.getValue().getName(), 
+//								preserveOcrTxtStyles, preserveOcrFontFamily, 
+//								replaceBadChars
+//								);
+//						pageXml = JaxbUtils.marshalToFile(pc, pageOutFile);
+//					}
+				} catch(IOException | TransformerException ioe){
+					logger.error(ioe.getMessage(), ioe);
+					throw new IOException("Could not migrate file: " + altoXml.getAbsolutePath(), ioe);
+				} catch (ParserConfigurationException | SAXException xmle) {
+					logger.error(xmle.getMessage(), xmle);
+					throw new IOException("Could not transform XML file!", xmle);
+				} catch (JAXBException je) {
+					/* TODO This exception is only thrown when the pageXML is unmarshalled 
+					 * for inserting the image filename which is not included in the abbyy xml! */
+					logger.error(je.getMessage(), je);
+					throw new IOException("Transformation output is not a valid page XML!", je);
+				}
+			}
+		}
+		
+		//if still null, there is no suitable file for this page
+		if (pageXml == null && forceCreatePageXml) {
+			logger.warn("No Transcript XML found for img: " + FilenameUtils.getBaseName(imgFile.getName()));
+			try{
+				logger.info("Creating empty PageXml.");
+				PcGtsType pc = PageXmlUtils.createEmptyPcGtsType(imgFile);
+				pageXml = JaxbUtils.marshalToFile(pc, pageOutFile);
+			} catch (JAXBException je) {
+				logger.error(je.getMessage(), je);
+				throw new IOException("Could not create empty PageXml!", je);
+			}
+		}
+		return pageXml;
 	}
 
 	public static List<EdFeature> readEditDeclFeatures(File folder) {

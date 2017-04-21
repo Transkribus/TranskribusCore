@@ -21,6 +21,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.validation.Schema;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -33,6 +34,8 @@ import eu.transkribus.core.io.util.ImgPriority;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpPage;
+import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
+import eu.transkribus.core.model.beans.enums.EditStatus;
 import eu.transkribus.core.model.beans.mets.DivType;
 import eu.transkribus.core.model.beans.mets.FileGrpType;
 import eu.transkribus.core.model.beans.mets.FileType;
@@ -128,16 +131,23 @@ public class GoobiMetsImporter
 		//System.in.read();
 			
 		//collect files into "user.home" + "/GoobiTest/" + mods title
-		fetchFiles(localDirPath, mets);
+		//fetchFiles(localDirPath, mets);
 
-		md.setLocalFolder(null);
+		md.setLocalFolder(new File(localDirPath));
 
-		final TrpDoc doc = LocalDocReader.load(localDirPath, true);
+		/*
+		 * next line can disorder the ORDER of the pages of the Mets when filename length is not equal and we store 
+		 * the files temporary in a local folder instead of importing directly as we did now
+		 */
+		//final TrpDoc doc = LocalDocReader.load(localDirPath, true);
 		
 		//overwrite metadata with the metadata read from the MODS section in the METS file
-		doc.setMd(md);
 		
+		final TrpDoc doc = new TrpDoc();
+		doc.setMd(md);
+		doc.setPages(fetchFiles(localDirPath, mets));
 		return doc;
+
 	}
 	
 	static Mets unmarshalMets(File metsFile, boolean validate) throws IOException, JAXBException, SAXException {
@@ -169,7 +179,7 @@ public class GoobiMetsImporter
 	 * @return
 	 * @throws IOException
 	 */
-	public static boolean fetchFiles(String dir, Mets mets) throws IOException {
+	public static List<TrpPage> fetchFiles(String dir, Mets mets) throws IOException {
 
 		List<FileGrp> fileGrps = mets.getFileSec().getFileGrp();
 		List<FileType> xmlGrp = null;
@@ -233,24 +243,26 @@ public class GoobiMetsImporter
 			//fetch all files and store them locally
 			
 			//logger.debug("order " + div.getORDER());
-			fetchFilesFromUrl(div, imgGrp, xmlGrp, dir);
+			pages.add(fetchFilesFromUrl(div, imgGrp, xmlGrp, dir));
 			//pages.add(page);
 		}
-		return true;
+		return pages;
 	}
 	
 	
-	private static void fetchFilesFromUrl(DivType div, List<FileType> imgGrp, List<FileType> xmlGrp, String dir) throws IOException {
+	private static TrpPage fetchFilesFromUrl(DivType div, List<FileType> imgGrp, List<FileType> xmlGrp, String dir) throws IOException {
 		TrpPage page = new TrpPage();
 		int nr = div.getORDER().intValue();
 		page.setPageNr(nr);
 		
 		File imgFile = null;
-		File xmlFile = null;
+		File abbyyFile = null;
+		File altoFile = null;
 		
 		String imgDir = dir + File.separator + "img";
 		String xmlDir = dir + File.separator + "ocr";
 		String altoDir = dir + File.separator + "alto";
+		String pageDir = dir + File.separator + "page";
 		
 		//FIXME this will only work for local files
 		for(Fptr ptr : div.getFptr()){
@@ -299,9 +311,9 @@ public class GoobiMetsImporter
 					FLocat fLocat = type.getFLocat().get(0);
 					if(fLocat.getLOCTYPE() != null && fLocat.getLOCTYPE().equals("URL")){
 						String href = fLocat.getHref();
-						xmlFile = new File(xmlDir + href.substring(href.lastIndexOf("/")));
+						abbyyFile = new File(xmlDir + href.substring(href.lastIndexOf("/")));
 						//fetch file from this URL and store locally
-						FileUtils.copyURLToFile(new URL(href), xmlFile);
+						FileUtils.copyURLToFile(new URL(href), abbyyFile);
 						logger.debug("file loaded from URL: " + href);
 					}
 				}
@@ -313,20 +325,47 @@ public class GoobiMetsImporter
 					FLocat fLocat = type.getFLocat().get(0);
 					if(fLocat.getLOCTYPE() != null && fLocat.getLOCTYPE().equals("URL")){
 						String href = fLocat.getHref();
-						xmlFile = new File(altoDir + href.substring(href.lastIndexOf("/")));
+						altoFile = new File(altoDir + href.substring(href.lastIndexOf("/")));
 						//fetch file from this URL and store locally
-						FileUtils.copyURLToFile(new URL(href), xmlFile);
+						FileUtils.copyURLToFile(new URL(href), altoFile);
 						logger.debug("file loaded from URL: " + href);
 					}
 				}
 			}
 		}
 		
+		File pageXml = null;
+		File pageOutFile = new File(pageDir + File.separatorChar + FilenameUtils.getBaseName(imgFile.getName()) + ".xml");
+		pageXml = LocalDocReader.createPageXmlIfNull(pageXml, true, pageOutFile, abbyyFile, altoFile, true, true, false, imgFile);
+		
 		if(imgFile == null) {
 			logger.error("No master image mapped for page " + nr + " in the structmap!");
 		} else {
 			logger.info("Page " + page.getPageNr() + " image: " + imgFile.getAbsolutePath());
 		}
+		
+		//try to create TrpPage at this time instead of LocalDocReader
+		page.setUrl(imgFile.toURI().toURL());
+		page.setKey(null);
+		page.setDocId(-1);
+		page.setImgFileName(imgFile.getName());
+
+		if(pageXml == null) {
+			logger.error("No master xml mapped for page " + nr + " in the structmap!");
+		} else {
+			logger.info("Page " + page.getPageNr() + " xml: " + pageXml.getAbsolutePath());
+		}
+		TrpTranscriptMetadata tmd = new TrpTranscriptMetadata();
+		tmd.setPageReferenceForLocalDocs(page);
+		tmd.setPageId(page.getPageId());
+		tmd.setUrl(pageXml.toURI().toURL());
+		tmd.setKey(null);
+		tmd.setStatus(EditStatus.NEW);
+		tmd.setTimestamp(new Date().getTime());
+		tmd.setUserName("GoobiMetsImporter");
+
+		page.getTranscripts().add(tmd);
+		return page;
 	}
 	
 
