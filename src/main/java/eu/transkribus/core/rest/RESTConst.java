@@ -24,6 +24,8 @@ public final class RESTConst {
 	public static final String ADMIN_PATH = "admin";
 	public static final String SEARCH_PATH = "search";
 	public static final String ACTIONS_PATH = "actions";
+	public static final String DUMMY_PATH = "dummy";
+	public static final String CROWDSOURCE_PATH = "crowdsourcing";
 	
 	/* jobMgmt */
 	public static final String JOB_MGMT_PATH = "jobMgmt";
@@ -122,6 +124,9 @@ public final class RESTConst {
 	public static final String INGEST_PATH = "ingest";
 	public static final String INFO_PATH = "info";
 	public static final String CHECK_SESSION = "checkSession";
+	
+	public static final String DOC_STAT_PATH = "docStat";
+	public static final String COLL_STAT_PATH = "collStat";
 	
 	/* Parameters */
 	public static final String DOC_ID_PARAM = "id";
@@ -367,6 +372,5 @@ public final class RESTConst {
 	public static final String DO_BLACKENING_PARAM = "doBlackening";
 	public static final String DO_CREATE_TITLE_PARAM = "doCreateTitle";
 	public static final String USE_VERSION_STATUS_PARAM = "useVersionStatus";
-	public static final String DUMMY_PATH = "dummy";
 	
 }

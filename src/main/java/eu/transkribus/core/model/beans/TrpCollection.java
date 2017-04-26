@@ -32,7 +32,10 @@ public class TrpCollection implements Serializable {
 	
 	@Column(name="DEFAULT_FOR_APP")
 //	@Transient
-	private String defaultForApp = null;	
+	private String defaultForApp = null;
+	
+	@Column(name="IS_CROWDSOURCING")
+	private boolean crowdsourcing = false;
 	
 	@Column
 	@Transient
@@ -91,6 +94,14 @@ public class TrpCollection implements Serializable {
 		this.defaultForApp = defaultForApp;
 	}
 	
+	public boolean isCrowdsourcing() {
+		return crowdsourcing;
+	}
+
+	public void setCrowdsourcing(boolean isCrowdsourcing) {
+		this.crowdsourcing = isCrowdsourcing;
+	}
+	
 	public String getSummary() {
 		return getColName() +" ("+getColId()+", "+ (getRole() == null ? "Admin" : getRole())+")";
 	}
@@ -110,11 +121,14 @@ public class TrpCollection implements Serializable {
 				+ " - " 
 				+ this.getRole();
 	}
+	
 	@Override
 	public String toString() {
 		return "TrpCollection [colId=" + colId + ", colName=" + colName + ", description=" + description
-				+ ", defaultForApp=" + defaultForApp + ", label=" + label + ", role=" + role + "]";
+				+ ", defaultForApp=" + defaultForApp + ", isCrowdsourcing=" + crowdsourcing + ", label=" + label
+				+ ", role=" + role + "]";
 	}
+	
 	
 	
 }
