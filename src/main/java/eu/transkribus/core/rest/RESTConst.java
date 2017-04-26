@@ -128,6 +128,9 @@ public final class RESTConst {
 	public static final String DOC_STAT_PATH = "docStat";
 	public static final String COLL_STAT_PATH = "collStat";
 	
+	public static final String DOC_STAT_PATH = "docStat";
+	public static final String COLL_STAT_PATH = "collStat";
+	
 	/* Parameters */
 	public static final String DOC_ID_PARAM = "id";
 	public static final String PAGE_NR_PARAM = "page";
