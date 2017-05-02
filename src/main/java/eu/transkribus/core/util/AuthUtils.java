@@ -1,6 +1,8 @@
 package eu.transkribus.core.util;
 
+import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.auth.TrpRole;
+import eu.transkribus.core.model.beans.auth.TrpUserLogin;
 
 public class AuthUtils {
 	
@@ -30,4 +32,14 @@ public class AuthUtils {
 		return role != null && role.getValue() >= TrpRole.Reader.getValue();
 	}
 	
+	public static boolean canDuplicate(TrpRole roleInCollection, TrpDocMetadata doc, TrpUserLogin user) {
+		if (user.isAdmin() || doc.getUploaderId() == user.getUserId())
+			return true;
+		
+		if (roleInCollection.getValue() >= TrpRole.Editor.getValue())
+			return true;
+
+		return false;
+	}
+		
 }

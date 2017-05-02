@@ -817,6 +817,15 @@ public class CoreUtils {
 		return sql;
 	}
 	
+	public static String removeHtmlAtEnd(String msg) {
+		int is = msg.indexOf("<html>");
+		if (is > 0) {
+			return msg.substring(0, is);
+		}
+		
+		return msg;
+	}
+	
 	public static void main(String[] args) {
 		List<Integer> base = Arrays.asList(1, 3, 4, 5, 7, 10);
 		List<Integer> search = Arrays.asList(111, 45, 3, 4, 6, 8, 12);
@@ -824,10 +833,9 @@ public class CoreUtils {
 		List<Integer> common = CoreUtils.getFirstCommonSequence(base, search);
 		
 		System.out.println("common = "+StringUtils.join(common));
-		
-		
-		
-		
+
 	}
+
+
 
 }
