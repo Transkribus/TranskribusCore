@@ -7,7 +7,7 @@ import eu.transkribus.core.model.beans.auth.TrpUserLogin;
 public class AuthUtils {
 	
 	public static boolean isOwner(TrpRole role) {
-		return role!=null && role.getValue()==TrpRole.Owner.getValue();
+		return role!=null && role.getValue()>=TrpRole.Owner.getValue();
 	}
 	
 	/**
