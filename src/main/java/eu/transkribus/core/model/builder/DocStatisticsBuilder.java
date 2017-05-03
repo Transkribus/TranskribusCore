@@ -32,7 +32,7 @@ public class DocStatisticsBuilder extends Observable {
 			URL xmlUrl = p.getCurrentTranscript().getUrl();
 			PcGtsType pc = PageXmlUtils.unmarshal(xmlUrl);
 			TrpPageType page = (TrpPageType)pc.getPage();
-			stats.setNrOfLines(stats.getNrOfLines() + page.countLines());
+			stats.setNrOfTranscribedLines(stats.getNrOfTranscribedLines() + page.countLines());
 			stats.setNrOfWords(stats.getNrOfWords() + page.countWords());
 		}
 		
