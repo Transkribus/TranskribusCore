@@ -30,10 +30,10 @@ public class TrpDocStatistic implements Serializable{
 		nrOfWords = 0;
 	}
 
-	public int getNrOfLines() {
+	public int getNrOfTranscribedLines() {
 		return nrOfTranscribedLines;
 	}
-	public void setNrOfLines(int nrOfLines) {
+	public void setNrOfTranscribedLines(int nrOfLines) {
 		this.nrOfTranscribedLines = nrOfLines;
 	}
 	
