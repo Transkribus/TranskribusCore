@@ -62,6 +62,7 @@ public final class RESTConst {
 	public static final String CURR_MD_PATH = "curr";
 	public static final String MD_PATH = "list";
 	public static final String COUNT_PATH = "count";
+	public static final String COUNT_TAGS_PATH = "countTags";
 	
 	public static final String LOGIN_PATH = "login";
 	public static final String LOGOUT_PATH = "logout";
