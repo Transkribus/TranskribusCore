@@ -264,6 +264,11 @@ public class GoobiMetsImporter
 		String altoDir = dir + File.separator + "alto";
 		String pageDir = dir + File.separator + "page";
 		
+		File pageDirFile = new File(pageDir);
+		if(!pageDirFile.isDirectory() && !pageDirFile.mkdir()) {
+			throw new IOException("Could not create page dir at: " + pageDir);
+		}
+		
 		//FIXME this will only work for local files
 		for(Fptr ptr : div.getFptr()){
 			FileType type = (FileType) ptr.getFILEID();
@@ -296,8 +301,14 @@ public class GoobiMetsImporter
 					
 					imgFile = new File(imgDir + File.separator + filename + fileEnding);
 					
-					//fetch file from this URL and store locally
-					FileUtils.copyURLToFile(new URL(href), imgFile);
+					logger.debug("Downloading: " + href);
+					try {
+						//fetch file from this URL and store locally
+						FileUtils.copyURLToFile(new URL(href), imgFile);
+					} catch(IOException ioe) {
+						logger.error("Could not download file from: " + href, ioe);
+						throw ioe;
+					}
 				
 					logger.info("file loaded from URL: " + href);
 					//System.in.read();
