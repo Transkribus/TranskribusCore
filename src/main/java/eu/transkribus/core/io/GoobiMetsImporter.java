@@ -524,7 +524,7 @@ public class GoobiMetsImporter
 		String extractedUrlStr = null;
 		URL extractedUrl = null;
 		try {
-			System.out.println("Extracting METS URL from DFG-Viewer URL");
+			logger.info("Extracting METS URL from DFG-Viewer URL");
 			//set[mets]=https%3A%2F%2Farchive.thulb.uni-jena.de%2Fufb%2Fservlets%2FMCRMETSServlet%2Fufb_derivate_00003259%3FXSL.Style%3Ddfg&set[image]=2
 			String query = dfgViewerUrl.getQuery();
 			final String metsParamName = "set[mets]";
@@ -538,6 +538,9 @@ public class GoobiMetsImporter
 					extractedUrlStr = URLDecoder.decode(keyVal[1], "UTF-8");
 					logger.debug("Extracted URL = " + extractedUrlStr);
 				}
+			}
+			if(extractedUrlStr == null) {
+				throw new MalformedURLException("Could not find METS URL in: " +  dfgViewerUrl);
 			}
 			extractedUrl = new URL(extractedUrlStr);
 		} catch(MalformedURLException mue) {
