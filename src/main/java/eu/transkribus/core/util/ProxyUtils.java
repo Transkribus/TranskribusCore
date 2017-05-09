@@ -10,7 +10,8 @@ public class ProxyUtils {
 	public static final ProxyPrefs PROXY_UIBK = new ProxyPrefs(true, "http://proxy.uibk.ac.at", 3128, "", "");
 	
 	public static void setProxy(ProxyPrefs p) {
-		if(p != null) {
+		if(p != null && p.isEnabled()) {
+			logger.debug("PROXY IS ENABLED");
 			final String proxyHost = p.getHost();
 			final int proxyPort = p.getPort();
 			final String proxyUser = p.getUser();
@@ -26,6 +27,7 @@ public class ProxyUtils {
 			System.setProperty("http.proxyPassword", proxyPassword);
 			System.setProperty("http.nonProxyHosts", "localhost|127.0.0.1");
 		} else {
+			logger.debug("PROXY IS DISABLED");
 			System.setProperty("https.proxyHost", "");
 			System.setProperty("https.proxyPort", "");
 			System.setProperty("https.proxyUser", "");
