@@ -47,6 +47,7 @@ import eu.transkribus.core.model.beans.mets.StructMapType;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.util.JaxbUtils;
 import eu.transkribus.core.util.PageXmlUtils;
+import eu.transkribus.core.util.ProxyUtils;
 import eu.transkribus.core.util.XmlUtils;
 
 /**
@@ -301,6 +302,8 @@ public class GoobiMetsImporter
 					
 					imgFile = new File(imgDir + File.separator + filename + fileEnding);
 					
+					ProxyUtils.logProxySettings();
+					
 					logger.debug("Downloading: " + href);
 					try {
 						//fetch file from this URL and store locally
@@ -540,14 +543,14 @@ public class GoobiMetsImporter
 				}
 			}
 			if(extractedUrlStr == null) {
-				throw new MalformedURLException("Could not find METS URL in: " +  dfgViewerUrl);
+				throw new Exception("Could not find METS URL in: " +  dfgViewerUrl);
 			}
 			extractedUrl = new URL(extractedUrlStr);
 		} catch(MalformedURLException mue) {
 			logger.error("Extracted METS URL is not valid: " + extractedUrlStr);
 			throw mue;
 		} catch(Throwable t) {
-			logger.error("Could not parse input URL: " + dfgViewerUrl);
+			logger.error("Could not parse input URL: " + dfgViewerUrl, t);
 			throw new MalformedURLException("There seems to be no METS URL included: " + dfgViewerUrl);
 		}
 		return extractedUrl;

@@ -7,11 +7,10 @@ public class ProxyUtils {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ProxyUtils.class);
 	
-	public static final ProxyPrefs PROXY_UIBK = new ProxyPrefs(true, "http://proxy.uibk.ac.at", 3128, "", "");
+	public static final ProxySettings PROXY_UIBK = new ProxySettings("http://proxy.uibk.ac.at", 3128, "", "");
 	
-	public static void setProxy(ProxyPrefs p) {
-		if(p != null && p.isEnabled()) {
-			logger.debug("PROXY IS ENABLED");
+	public static void setProxy(ProxySettings p) {
+		if(p != null) {
 			final String proxyHost = p.getHost();
 			final int proxyPort = p.getPort();
 			final String proxyUser = p.getUser();
@@ -27,7 +26,6 @@ public class ProxyUtils {
 			System.setProperty("http.proxyPassword", proxyPassword);
 			System.setProperty("http.nonProxyHosts", "localhost|127.0.0.1");
 		} else {
-			logger.debug("PROXY IS DISABLED");
 			System.setProperty("https.proxyHost", "");
 			System.setProperty("https.proxyPort", "");
 			System.setProperty("https.proxyUser", "");
@@ -56,31 +54,22 @@ public class ProxyUtils {
 		logger.debug("NonProxyHosts = " + System.getProperty("http.nonProxyHosts"));
 	}
 	
-	public static class ProxyPrefs {
-		private boolean enabled;
-		private String host;
-		private int port;
-		private String user;
-		private String password;
-		public ProxyPrefs() {
-			enabled = false;
+	public static class ProxySettings {
+		protected String host;
+		protected int port;
+		protected String user;
+		protected String password;
+		public ProxySettings() {
 			host = "";
 			port = -1;
 			user = "";
 			password = "";
 		}
-		public ProxyPrefs(boolean enabled, String host, int port, String user, String password) {
-			this.enabled = enabled;
+		public ProxySettings(String host, int port, String user, String password) {
 			this.host = host;
 			this.port = port;
 			this.user = user;
 			this.password = password;
-		}
-		public boolean isEnabled() {
-			return enabled;
-		}
-		public void setEnabled(boolean enabled) {
-			this.enabled = enabled;
 		}
 		public String getHost() {
 			return host;
@@ -108,7 +97,7 @@ public class ProxyUtils {
 		}
 		@Override
 		public String toString() {
-			return "ProxyPrefs [enabled=" + enabled + ", host=" + host + ", port=" + port + ", user=" + user
+			return "ProxySettings [host=" + host + ", port=" + port + ", user=" + user
 					+ ", password=" + password + "]";
 		}
 	}
