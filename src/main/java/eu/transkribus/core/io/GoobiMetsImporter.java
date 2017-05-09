@@ -302,8 +302,6 @@ public class GoobiMetsImporter
 					
 					imgFile = new File(imgDir + File.separator + filename + fileEnding);
 					
-					ProxyUtils.logProxySettings();
-					
 					logger.debug("Downloading: " + href);
 					try {
 						//fetch file from this URL and store locally
