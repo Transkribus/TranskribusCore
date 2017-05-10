@@ -115,8 +115,8 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 				return compareByXY(b1.x, b2.x, b1.y, b2.y);
 			}
 			else {
-//				return compareByYX(b1.x, b2.x, b1.y, b2.y);
-				return compareBy_YOverlap_X(b1, b2);
+				return compareByYX(b1.x, b2.x, b1.y, b2.y);
+				//return compareBy_YOverlap_X(b1, b2);
 			}
 //		}
 //		catch (Exception e) {
@@ -131,7 +131,9 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 		return (yCompare != 0) ? yCompare : Integer.compare(x1, x2);
 	}
 	
-	/** First compare by y, then x */
+	/** First compare by y, then x 
+	 * @deprecated not transitive and throws exception when reading the pageXML
+	 * */
 	private int compareBy_YOverlap_X(Rectangle b1, Rectangle b2) {		
 		int yCompare=compareByYOverlap(b1, b2, 0.4); // if overlap is more than 40% -> yCompare=0
 
