@@ -151,6 +151,14 @@ public class RegionTypeUtil {
 	
 //	public List<List<Point>> getBlackeningPoints
 	
+	public static boolean isLine(ITrpShapeType s) {
+		return getRegionType(s).equals(LINE);
+	}
+	
+	public static boolean isBaseline(ITrpShapeType s) {
+		return getRegionType(s).equals(BASELINE);
+	}	
+	
 	public static boolean isBlackening(ITrpShapeType s) {
 		return getRegionType(s).equals(BLACKENING_REGION);
 	}
@@ -162,7 +170,7 @@ public class RegionTypeUtil {
 	public static boolean isSpecialRegion(String name) {
 		return SPECIAL_REGIONS.contains(name);
 	}
-	
+		
 	private static String getName(Class<? extends ITrpShapeType> clazz) {
 		for (String name : REGIONS.keySet()) {
 			Class c = REGIONS.get(name);
