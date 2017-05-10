@@ -60,7 +60,7 @@ public final class RESTConst {
 	/* SECOND TIER: Methods */
 	public static final String DB_PATH = "db";
 	public static final String CURR_MD_PATH = "curr";
-	public static final String MD_PATH = "list";
+	public static final String MD_PATH = "metadata";
 	public static final String COUNT_PATH = "count";
 	public static final String COUNT_TAGS_PATH = "countTags";
 	
@@ -110,6 +110,7 @@ public final class RESTConst {
 	public static final String ADD_OR_MODIFY_USER_IN_COLLECTION = "addOrModifyUserInCollection";
 	public static final String REMOVE_USER_FROM_COLLECTION = "removeUserFromCollection";
 	public static final String CREATE_COLLECTION_PATH = "createCollection";
+	@Deprecated
 	public static final String MODIFY_COLLECTION_PATH = "modifyCollection";
 	public static final String DELETE_EMPTY_COLLECTION = "deleteEmptyCollection";
 	

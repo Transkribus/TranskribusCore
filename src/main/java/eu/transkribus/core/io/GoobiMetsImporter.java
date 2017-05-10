@@ -2,13 +2,13 @@ package eu.transkribus.core.io;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -37,16 +37,17 @@ import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.enums.EditStatus;
 import eu.transkribus.core.model.beans.mets.DivType;
+import eu.transkribus.core.model.beans.mets.DivType.Fptr;
 import eu.transkribus.core.model.beans.mets.FileGrpType;
 import eu.transkribus.core.model.beans.mets.FileType;
-import eu.transkribus.core.model.beans.mets.Mets;
-import eu.transkribus.core.model.beans.mets.StructMapType;
-import eu.transkribus.core.model.beans.mets.DivType.Fptr;
 import eu.transkribus.core.model.beans.mets.FileType.FLocat;
+import eu.transkribus.core.model.beans.mets.Mets;
 import eu.transkribus.core.model.beans.mets.MetsType.FileSec.FileGrp;
+import eu.transkribus.core.model.beans.mets.StructMapType;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.util.JaxbUtils;
 import eu.transkribus.core.util.PageXmlUtils;
+import eu.transkribus.core.util.ProxyUtils;
 import eu.transkribus.core.util.XmlUtils;
 
 /**
@@ -264,6 +265,11 @@ public class GoobiMetsImporter
 		String altoDir = dir + File.separator + "alto";
 		String pageDir = dir + File.separator + "page";
 		
+		File pageDirFile = new File(pageDir);
+		if(!pageDirFile.isDirectory() && !pageDirFile.mkdir()) {
+			throw new IOException("Could not create page dir at: " + pageDir);
+		}
+		
 		//FIXME this will only work for local files
 		for(Fptr ptr : div.getFptr()){
 			FileType type = (FileType) ptr.getFILEID();
@@ -296,8 +302,14 @@ public class GoobiMetsImporter
 					
 					imgFile = new File(imgDir + File.separator + filename + fileEnding);
 					
-					//fetch file from this URL and store locally
-					FileUtils.copyURLToFile(new URL(href), imgFile);
+					logger.debug("Downloading: " + href);
+					try {
+						//fetch file from this URL and store locally
+						FileUtils.copyURLToFile(new URL(href), imgFile);
+					} catch(IOException ioe) {
+						logger.error("Could not download file from: " + href, ioe);
+						throw ioe;
+					}
 				
 					logger.info("file loaded from URL: " + href);
 					//System.in.read();
@@ -509,5 +521,36 @@ public class GoobiMetsImporter
 
 	}
 
-
+	public static URL extractMetsUrlFromDfgViewerUrl(URL dfgViewerUrl) throws MalformedURLException {
+		String extractedUrlStr = null;
+		URL extractedUrl = null;
+		try {
+			logger.info("Extracting METS URL from DFG-Viewer URL");
+			//set[mets]=https%3A%2F%2Farchive.thulb.uni-jena.de%2Fufb%2Fservlets%2FMCRMETSServlet%2Fufb_derivate_00003259%3FXSL.Style%3Ddfg&set[image]=2
+			String query = dfgViewerUrl.getQuery();
+			final String metsParamName = "set[mets]";
+			String[] queryParams = query.split("&");
+			for(String s : queryParams) {
+				String[] keyVal = s.split("=");
+				if(keyVal.length < 2) {
+					continue;
+				}
+				if(keyVal[0].equals(metsParamName)) {
+					extractedUrlStr = URLDecoder.decode(keyVal[1], "UTF-8");
+					logger.debug("Extracted URL = " + extractedUrlStr);
+				}
+			}
+			if(extractedUrlStr == null) {
+				throw new Exception("Could not find METS URL in: " +  dfgViewerUrl);
+			}
+			extractedUrl = new URL(extractedUrlStr);
+		} catch(MalformedURLException mue) {
+			logger.error("Extracted METS URL is not valid: " + extractedUrlStr);
+			throw mue;
+		} catch(Throwable t) {
+			logger.error("Could not parse input URL: " + dfgViewerUrl, t);
+			throw new MalformedURLException("There seems to be no METS URL included: " + dfgViewerUrl);
+		}
+		return extractedUrl;
+	}
 }
