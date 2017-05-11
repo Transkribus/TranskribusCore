@@ -26,7 +26,8 @@ public final class RESTConst {
 	public static final String ACTIONS_PATH = "actions";
 	public static final String DUMMY_PATH = "dummy";
 	public static final String CROWDSOURCE_PATH = "crowdsourcing";
-	
+	public static final String ELEARNING_PATH = "eLearning";
+		
 	/* jobMgmt */
 	public static final String JOB_MGMT_PATH = "jobMgmt";
 	public static final String REGISTER_JOB_MODULE_PATH = "registerModule";

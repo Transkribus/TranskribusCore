@@ -22,6 +22,9 @@ import eu.transkribus.core.model.beans.auth.TrpRole;
 public class TrpCollection implements Serializable {
 	private static final long serialVersionUID = -6247876122034400418L;
 	
+	private static final String IS_CROWDSOURCING_COLUMN_NAME = "IS_CROWDSOURCING";
+	private static final String IS_ELEARNING_COLUMN_NAME = "IS_ELEARNING";
+	
 	@Id
 	@Column(name="COLLECTION_ID")
 	private int colId;
@@ -34,8 +37,11 @@ public class TrpCollection implements Serializable {
 //	@Transient
 	private String defaultForApp = null;
 	
-	@Column(name="IS_CROWDSOURCING")
+	@Column(name=IS_CROWDSOURCING_COLUMN_NAME)
 	private boolean crowdsourcing = false;
+	
+	@Column(name=IS_ELEARNING_COLUMN_NAME)
+	private boolean eLearning = false;
 	
 	@Column
 	@Transient
@@ -102,6 +108,14 @@ public class TrpCollection implements Serializable {
 		this.crowdsourcing = isCrowdsourcing;
 	}
 	
+	public boolean isELearning() {
+		return eLearning;
+	}
+
+	public void setELearning(boolean isELearning) {
+		this.eLearning = isELearning;
+	}
+	
 	public String getSummary() {
 		return getColName() +" ("+getColId()+", "+ (getRole() == null ? "Admin" : getRole())+")";
 	}
@@ -121,14 +135,23 @@ public class TrpCollection implements Serializable {
 				+ " - " 
 				+ this.getRole();
 	}
-	
 	@Override
 	public String toString() {
 		return "TrpCollection [colId=" + colId + ", colName=" + colName + ", description=" + description
-				+ ", defaultForApp=" + defaultForApp + ", isCrowdsourcing=" + crowdsourcing + ", label=" + label
-				+ ", role=" + role + "]";
+				+ ", defaultForApp=" + defaultForApp + ", crowdsourcing=" + crowdsourcing + ", eLearning=" + eLearning
+				+ ", label=" + label + ", role=" + role + "]";
 	}
 	
-	
-	
+	public static enum TrpCollectionFlag {
+		crowdsourcing(IS_CROWDSOURCING_COLUMN_NAME),
+		eLearning(IS_ELEARNING_COLUMN_NAME);
+		
+		private final String colName;
+		private TrpCollectionFlag(String colName) {
+			this.colName = colName;
+		}
+		public final String getColumnName() {
+			return this.colName;
+		}
+	}
 }
