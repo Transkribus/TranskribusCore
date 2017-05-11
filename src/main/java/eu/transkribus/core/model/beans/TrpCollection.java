@@ -41,7 +41,7 @@ public class TrpCollection implements Serializable {
 	private boolean crowdsourcing = false;
 	
 	@Column(name=IS_ELEARNING_COLUMN_NAME)
-	private boolean eLearning = false;
+	private boolean elearning = false;
 	
 	@Column
 	@Transient
@@ -108,12 +108,12 @@ public class TrpCollection implements Serializable {
 		this.crowdsourcing = isCrowdsourcing;
 	}
 	
-	public boolean isELearning() {
-		return eLearning;
+	public boolean isElearning() {
+		return elearning;
 	}
 
-	public void setELearning(boolean isELearning) {
-		this.eLearning = isELearning;
+	public void setElearning(boolean isElearning) {
+		this.elearning = isElearning;
 	}
 	
 	public String getSummary() {
@@ -138,7 +138,7 @@ public class TrpCollection implements Serializable {
 	@Override
 	public String toString() {
 		return "TrpCollection [colId=" + colId + ", colName=" + colName + ", description=" + description
-				+ ", defaultForApp=" + defaultForApp + ", crowdsourcing=" + crowdsourcing + ", eLearning=" + eLearning
+				+ ", defaultForApp=" + defaultForApp + ", crowdsourcing=" + crowdsourcing + ", elearning=" + elearning
 				+ ", label=" + label + ", role=" + role + "]";
 	}
 	
