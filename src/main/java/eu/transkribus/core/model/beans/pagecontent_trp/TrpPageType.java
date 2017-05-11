@@ -590,10 +590,4 @@ public class TrpPageType extends PageType {
 		return textRegionOrImageRegionOrLineDrawingRegion.size();
 	}
 	
-	
-	
-	
-	
-	
-
 }

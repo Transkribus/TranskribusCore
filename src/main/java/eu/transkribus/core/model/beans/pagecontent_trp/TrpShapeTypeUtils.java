@@ -12,7 +12,27 @@ import eu.transkribus.core.util.SebisStopWatch;
 
 public class TrpShapeTypeUtils {
 	private final static Logger logger = LoggerFactory.getLogger(TrpShapeTypeUtils.class);
+	
+	public static TrpTextLineType getLine(ITrpShapeType st) {
+		if (RegionTypeUtil.isBaseline(st))
+			return ((TrpBaselineType) st).getLine();
+		else if (RegionTypeUtil.isLine(st)) {
+			return (TrpTextLineType) st;
+		}
+		
+		return null;
+	}
 
+	public static TrpBaselineType getBaseline(ITrpShapeType st) {
+		if (RegionTypeUtil.isBaseline(st))
+			return (TrpBaselineType) st;
+		else if (RegionTypeUtil.isLine(st)) {
+			return (TrpBaselineType) ((TrpTextLineType) st).getBaseline();
+		}
+		
+		return null;
+	}
+	
 	public static void setUnicodeText(ITrpShapeType shape, String unicode, Object who) {
 		logger.trace("setting unicode text in "+shape.getName()+", id: "+shape.getId()+", text: "+unicode);
 		int lBefore = shape.getUnicodeText().length();
