@@ -10,6 +10,7 @@ import eu.transkribus.core.model.beans.pagecontent.ColourSimpleType;
 import eu.transkribus.core.model.beans.pagecontent.TextStyleType;
 import eu.transkribus.core.util.BeanCopyUtils;
 import eu.transkribus.core.util.TextStyleTypeUtils;
+import net.sf.saxon.om.SelectedElementsSpaceStrippingRule;
 
 /**
  * A custom tag that wraps the fields of a {@link TextSyleType} object and is used for indexed styles.
@@ -378,6 +379,83 @@ public class TextStyleTag extends CustomTag {
 		}
 		
 		return atts;
+	}
+	
+	public static TextStyleTag getBoldTag() {
+		TextStyleTag t = new TextStyleTag();
+		t.setBold(true);
+		return t;
+	}
+	
+	public static TextStyleTag getItalicTag() {
+		TextStyleTag t = new TextStyleTag();
+		t.setItalic(true);
+		return t;
+	}
+	
+	public static TextStyleTag getSuperscriptTag() {
+		TextStyleTag t = new TextStyleTag();
+		t.setSuperscript(true);
+		return t;
+	}
+	
+	public static TextStyleTag getSubscriptTag() {
+		TextStyleTag t = new TextStyleTag();
+		t.setSubscript(true);
+		return t;
+	}
+	
+	public static TextStyleTag getUnderlinedTag() {
+		TextStyleTag t = new TextStyleTag();
+		t.setUnderlined(true);
+		return t;
+	}
+	
+	public static TextStyleTag getStrikethroughTag() {
+		TextStyleTag t = new TextStyleTag();
+		t.setStrikethrough(true);
+		return t;
+	}
+	
+	/**
+	 * Helper function to apply all boolean fields from tag t to this tag if they are true
+	 */
+	public void applyTrueValues(TextStyleTag t) {
+		// FIXME...
+		
+		
+		if (t.ts.isBold())
+			ts.setBold(true);
+		
+		if (t.ts.isItalic())
+			ts.setItalic(true);
+		
+		if (t.ts.isLetterSpaced())
+			ts.setLetterSpaced(true);
+		
+		if (t.ts.isMonospace())
+			ts.setMonospace(true);
+		
+		if (t.ts.isReverseVideo())
+			ts.setReverseVideo(true);
+		
+		if (t.ts.isSerif())
+			ts.setSerif(true);
+		
+		if (t.ts.isSmallCaps())
+			ts.setSmallCaps(true);
+		
+		if (t.ts.isStrikethrough())
+			ts.setStrikethrough(true);
+		
+		if (t.ts.isSubscript())
+			ts.setSubscript(true);
+		
+		if (t.ts.isSuperscript())
+			ts.setSuperscript(true);
+		
+		if (t.ts.isUnderlined())
+			ts.setUnderlined(true);
 	}
 	
 //	@Override public String getDisplayName() {
