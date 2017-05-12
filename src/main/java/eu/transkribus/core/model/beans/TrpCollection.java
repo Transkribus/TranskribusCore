@@ -22,6 +22,9 @@ import eu.transkribus.core.model.beans.auth.TrpRole;
 public class TrpCollection implements Serializable {
 	private static final long serialVersionUID = -6247876122034400418L;
 	
+	private static final String IS_CROWDSOURCING_COLUMN_NAME = "IS_CROWDSOURCING";
+	private static final String IS_ELEARNING_COLUMN_NAME = "IS_ELEARNING";
+	
 	@Id
 	@Column(name="COLLECTION_ID")
 	private int colId;
@@ -34,8 +37,11 @@ public class TrpCollection implements Serializable {
 //	@Transient
 	private String defaultForApp = null;
 	
-	@Column(name="IS_CROWDSOURCING")
+	@Column(name=IS_CROWDSOURCING_COLUMN_NAME)
 	private boolean crowdsourcing = false;
+	
+	@Column(name=IS_ELEARNING_COLUMN_NAME)
+	private boolean elearning = false;
 	
 	@Column
 	@Transient
@@ -102,6 +108,14 @@ public class TrpCollection implements Serializable {
 		this.crowdsourcing = isCrowdsourcing;
 	}
 	
+	public boolean isElearning() {
+		return elearning;
+	}
+
+	public void setElearning(boolean isElearning) {
+		this.elearning = isElearning;
+	}
+	
 	public String getSummary() {
 		return getColName() +" ("+getColId()+", "+ (getRole() == null ? "Admin" : getRole())+")";
 	}
@@ -122,13 +136,77 @@ public class TrpCollection implements Serializable {
 				+ this.getRole();
 	}
 	
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + colId;
+		result = prime * result + ((colName == null) ? 0 : colName.hashCode());
+		result = prime * result + (crowdsourcing ? 1231 : 1237);
+		result = prime * result + ((defaultForApp == null) ? 0 : defaultForApp.hashCode());
+		result = prime * result + ((description == null) ? 0 : description.hashCode());
+		result = prime * result + (elearning ? 1231 : 1237);
+		result = prime * result + ((label == null) ? 0 : label.hashCode());
+		result = prime * result + ((role == null) ? 0 : role.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TrpCollection other = (TrpCollection) obj;
+		if (colId != other.colId)
+			return false;
+		if (colName == null) {
+			if (other.colName != null)
+				return false;
+		} else if (!colName.equals(other.colName))
+			return false;
+		if (crowdsourcing != other.crowdsourcing)
+			return false;
+		if (defaultForApp == null) {
+			if (other.defaultForApp != null)
+				return false;
+		} else if (!defaultForApp.equals(other.defaultForApp))
+			return false;
+		if (description == null) {
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
+			return false;
+		if (elearning != other.elearning)
+			return false;
+		if (label == null) {
+			if (other.label != null)
+				return false;
+		} else if (!label.equals(other.label))
+			return false;
+		if (role != other.role)
+			return false;
+		return true;
+	}
 	@Override
 	public String toString() {
 		return "TrpCollection [colId=" + colId + ", colName=" + colName + ", description=" + description
-				+ ", defaultForApp=" + defaultForApp + ", isCrowdsourcing=" + crowdsourcing + ", label=" + label
-				+ ", role=" + role + "]";
+				+ ", defaultForApp=" + defaultForApp + ", crowdsourcing=" + crowdsourcing + ", elearning=" + elearning
+				+ ", label=" + label + ", role=" + role + "]";
 	}
 	
-	
-	
+	public static enum TrpCollectionFlag {
+		crowdsourcing(IS_CROWDSOURCING_COLUMN_NAME),
+		eLearning(IS_ELEARNING_COLUMN_NAME);
+		
+		private final String colName;
+		private TrpCollectionFlag(String colName) {
+			this.colName = colName;
+		}
+		public final String getColumnName() {
+			return this.colName;
+		}
+	}
 }
