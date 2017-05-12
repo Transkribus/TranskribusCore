@@ -135,6 +135,61 @@ public class TrpCollection implements Serializable {
 				+ " - " 
 				+ this.getRole();
 	}
+	
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + colId;
+		result = prime * result + ((colName == null) ? 0 : colName.hashCode());
+		result = prime * result + (crowdsourcing ? 1231 : 1237);
+		result = prime * result + ((defaultForApp == null) ? 0 : defaultForApp.hashCode());
+		result = prime * result + ((description == null) ? 0 : description.hashCode());
+		result = prime * result + (elearning ? 1231 : 1237);
+		result = prime * result + ((label == null) ? 0 : label.hashCode());
+		result = prime * result + ((role == null) ? 0 : role.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TrpCollection other = (TrpCollection) obj;
+		if (colId != other.colId)
+			return false;
+		if (colName == null) {
+			if (other.colName != null)
+				return false;
+		} else if (!colName.equals(other.colName))
+			return false;
+		if (crowdsourcing != other.crowdsourcing)
+			return false;
+		if (defaultForApp == null) {
+			if (other.defaultForApp != null)
+				return false;
+		} else if (!defaultForApp.equals(other.defaultForApp))
+			return false;
+		if (description == null) {
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
+			return false;
+		if (elearning != other.elearning)
+			return false;
+		if (label == null) {
+			if (other.label != null)
+				return false;
+		} else if (!label.equals(other.label))
+			return false;
+		if (role != other.role)
+			return false;
+		return true;
+	}
 	@Override
 	public String toString() {
 		return "TrpCollection [colId=" + colId + ", colName=" + colName + ", description=" + description

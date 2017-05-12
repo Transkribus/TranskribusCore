@@ -13,6 +13,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescriptor;
 import eu.transkribus.core.util.CoreUtils;
 
@@ -20,6 +23,7 @@ import eu.transkribus.core.util.CoreUtils;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TrpDoc implements Serializable, Comparable<TrpDoc> {
 	private static final long serialVersionUID = 1L;
+	private static final Logger logger = LoggerFactory.getLogger(TrpDoc.class);
 	
 //	@XmlElement
 	private TrpDocMetadata md;
@@ -196,6 +200,40 @@ public class TrpDoc implements Serializable, Comparable<TrpDoc> {
 	@Override
 	public int compareTo(TrpDoc doc) {
 		return this.getMd().compareTo(doc.getMd());
+	}
+	
+	/**
+	 * This method is just for testing equivalence of documents selected via different DocManager methods
+	 * @param doc
+	 * @return
+	 */
+	public boolean testEquals(TrpDoc doc) {
+		//TrpDocMetadata has overwritten equals method
+		if(!this.md.equals(doc.getMd())) {
+			return false;
+		}
+		if(this.collection == null && doc.collection != null) {
+			return false;
+		}
+		if(this.collection != null && doc.collection == null) {
+			return false;
+		}
+		if(this.collection != null && doc.collection != null && !this.collection.equals(doc.getCollection())) {
+			return false;
+		}
+		if(this.pages.size() != doc.pages.size()) {
+			return false;
+		}
+		logger.info("Doc fields are equal. Now checking pageList...");
+		for(int i = 0; i < pages.size(); i++) {
+			if(!pages.get(i).testEquals(doc.pages.get(i))) {
+				logger.info("Page nr. " + pages.get(i).getPageNr() + " is not equal in both docs!");
+				return false;
+			}
+		}
+		
+		//TODO compare Editorial Declaration (edDeclList)
+		return true;
 	}
 
 }
