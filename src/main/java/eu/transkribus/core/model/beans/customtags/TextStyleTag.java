@@ -205,6 +205,10 @@ public class TextStyleTag extends CustomTag {
 
 	public void setSubscript(Boolean subscript) {
 		ts.setSubscript(subscript);
+		// set superscript to false if subscript was set:
+		if (subscript!=null && subscript) {
+			ts.setSuperscript(false);
+		}		
 	}
 
 
@@ -215,6 +219,10 @@ public class TextStyleTag extends CustomTag {
 
 	public void setSuperscript(Boolean superscript) {
 		ts.setSuperscript(superscript);
+		// set subscript to false if superscript was set:
+		if (superscript!=null && superscript) {
+			ts.setSubscript(false);	
+		}
 	}
 
 
