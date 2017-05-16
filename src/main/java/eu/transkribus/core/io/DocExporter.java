@@ -16,6 +16,7 @@ import javax.xml.transform.TransformerException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.fop.afp.util.StringUtils;
 import org.dea.fimgstoreclient.FimgStoreGetClient;
+import org.dea.fimgstoreclient.beans.ImgType;
 import org.dea.fimgstoreclient.utils.FimgStoreUriBuilder;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.slf4j.Logger;
@@ -58,6 +59,7 @@ public class DocExporter extends Observable {
 		public boolean splitIntoWordsInAltoXml=false;
 		public String fileNamePattern = "${filename}";
 		public boolean useHttps=true;
+		public ImgType remoteImgQuality = ImgType.orig;
 		
 		@Override
 		public String toString() {
@@ -66,7 +68,7 @@ public class DocExporter extends Observable {
 					+ doWriteImages + ", exportPageXml=" + exportPageXml + ", pageDirName=" + pageDirName
 					+ ", exportAltoXml=" + exportAltoXml + ", splitIntoWordsInAltoXml=" + splitIntoWordsInAltoXml
 					+ ", fileNamePattern=" + fileNamePattern + ", useHttps="
-					+ useHttps + "]";
+					+ useHttps + ", remoteImgQuality=" + remoteImgQuality.toString() + "]";
 		}
 		
 	}
@@ -139,6 +141,7 @@ public class DocExporter extends Observable {
 			URISyntaxException, JAXBException, TransformerException {
 		FimgStoreGetClient getter = null;
 		FimgStoreUriBuilder uriBuilder = null;
+		ImgType imgType = opts.remoteImgQuality == null ? ImgType.orig : opts.remoteImgQuality;
 		if (doc.isRemoteDoc()) {
 			//FIXME fimagestore path should be read from docMd!
 			getter = new FimgStoreGetClient("dbis-thure.uibk.ac.at", "f");
@@ -221,10 +224,9 @@ public class DocExporter extends Observable {
 			final String imgExt = "." + FilenameUtils.getExtension(p.getImgFileName());
 			final String xmlExt = ".xml";
 			
-			if (doc2.isRemoteDoc()) {
-				final URI imgUri = uriBuilder.getFileUri(p.getKey());
-				
+			if (doc2.isRemoteDoc()) {				
 				if (opts.doWriteImages) {
+					final URI imgUri = uriBuilder.getImgUri(p.getKey(), imgType);
 					imgFile = getter.saveFile(imgUri, imgOutputDir.getAbsolutePath(), baseFileName + imgExt);
 					p.setUrl(imgFile.toURI().toURL());
 					p.setKey(null);
