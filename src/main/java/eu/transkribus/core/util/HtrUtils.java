@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -430,6 +431,11 @@ public class HtrUtils {
 		}
 		return result;
 	}
+	
+	public static double[] parseCitlabCerFile(File cerFile) throws IOException {
+		final String cerString = FileUtils.readFileToString(cerFile);
+		return HtrUtils.parseCitlabCerString(cerString);
+	}
 
 	public static double[] parseCitlabCerString(String cerString) {
 
@@ -447,5 +453,13 @@ public class HtrUtils {
 			}
 		}
 		return cerVals;
+	}
+
+	public static String printLastCerPercentage(double[] cerVals) {
+		if(cerVals.length < 1) {
+			return "N/A";
+		}
+		final double finalCerVal = cerVals[cerVals.length-1];
+		return (finalCerVal*100)+"%";
 	}
 }
