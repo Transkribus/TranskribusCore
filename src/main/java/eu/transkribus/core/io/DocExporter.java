@@ -60,6 +60,8 @@ public class DocExporter extends Observable {
 		public String fileNamePattern = "${filename}";
 		public boolean useHttps=true;
 		public ImgType remoteImgQuality = ImgType.orig;
+		@Deprecated //this will be in the Page element's custom attribute
+		public boolean exportTranscriptMetadata = false;
 		
 		@Override
 		public String toString() {
@@ -165,7 +167,7 @@ public class DocExporter extends Observable {
 		
 		File pageOutputDir = null, altoOutputDir = null;
 				
-		if(opts.exportPageXml){
+		if(opts.exportPageXml && !opts.pageDirName.isEmpty()){
 			pageOutputDir = new File(outputDir.getAbsolutePath() + File.separatorChar
 					+ opts.pageDirName);
 			if (pageOutputDir.mkdir()){
