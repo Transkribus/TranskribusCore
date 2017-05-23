@@ -151,6 +151,10 @@ public class RegionTypeUtil {
 	
 //	public List<List<Point>> getBlackeningPoints
 	
+	public static boolean isWord(ITrpShapeType s) {
+		return getRegionType(s).equals(WORD);
+	}
+	
 	public static boolean isLine(ITrpShapeType s) {
 		return getRegionType(s).equals(LINE);
 	}
