@@ -153,8 +153,6 @@ public class DocExporter extends Observable {
 					getter.getServerContext());
 		}
 		
-	
-
 		//create copy of object, as we alter it here while exporting
 		TrpDoc doc2;
 		doc2 = new TrpDoc(doc);
@@ -165,8 +163,18 @@ public class DocExporter extends Observable {
 		}
 		outputDir.mkdir();
 		
+		//decide where to put the images
+		final File imgOutputDir;
+		if (opts.useOcrMasterDir) {
+			imgOutputDir = new File(outputDir.getAbsolutePath() + File.separatorChar
+					+ LocalDocConst.OCR_MASTER_DIR);
+			imgOutputDir.mkdir();
+		} else {
+			imgOutputDir = outputDir;
+		}
+
+		
 		File pageOutputDir = null, altoOutputDir = null;
-				
 		if(opts.exportPageXml && !opts.pageDirName.isEmpty()){
 			pageOutputDir = new File(outputDir.getAbsolutePath() + File.separatorChar
 					+ opts.pageDirName);
@@ -176,7 +184,9 @@ public class DocExporter extends Observable {
 			else{
 				logger.debug("pageOutputDir could not be created!");
 			}
-			
+		} else {
+			//if pageDirName is not set, export the PAGE XMLs to imgOutputDir
+			pageOutputDir = imgOutputDir;
 		}
 		
 		AltoExporter altoEx = new AltoExporter();
@@ -200,16 +210,6 @@ public class DocExporter extends Observable {
 			} catch (JAXBException e) {
 				throw new IOException("Could not marshal metadata to file.", e);
 			}
-		}
-		
-		//decide where to put the images
-		final File imgOutputDir;
-		if (opts.useOcrMasterDir) {
-			imgOutputDir = new File(outputDir.getAbsolutePath() + File.separatorChar
-					+ LocalDocConst.OCR_MASTER_DIR);
-			imgOutputDir.mkdir();
-		} else {
-			imgOutputDir = outputDir;
 		}
 
 		List<TrpPage> pages = doc2.getPages();
