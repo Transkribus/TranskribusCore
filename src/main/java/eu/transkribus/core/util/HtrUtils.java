@@ -20,6 +20,10 @@ import eu.transkribus.core.model.beans.WordHypothesis;
 public class HtrUtils {
 	private static final Logger logger = LoggerFactory.getLogger(HtrUtils.class);
 
+	/**
+	 * use Transkribus storage instead
+	 */
+	@Deprecated
 	public static final String MODEL_PATH = "/mnt/dea_scratch/TRP/HTR/models/";
 
 	public static final String SEP = ".";
