@@ -47,6 +47,7 @@ public class DocExporter extends Observable {
 	
 	public static class ExportOptions implements Serializable {
 		private static final long serialVersionUID = -3767885415954377017L;
+		
 		public String dir=null;
 		public Set<Integer> pageIndices=null; // can be set to null to include all pages!
 		public boolean doOverwrite=true;
@@ -75,10 +76,10 @@ public class DocExporter extends Observable {
 		
 	}
 
-	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, boolean exportImg, boolean exportPage, boolean exportAlto, boolean splitIntoWordsInAlto) throws IOException,
-	IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
-		return writeRawDoc(doc, dir, doOverwrite, pageIndices, exportImg, exportPage, exportAlto, splitIntoWordsInAlto, null);
-	}
+//	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, boolean exportImg, boolean exportPage, boolean exportAlto, boolean splitIntoWordsInAlto) throws IOException,
+//	IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
+//		return writeRawDoc(doc, dir, doOverwrite, pageIndices, exportImg, exportPage, exportAlto, splitIntoWordsInAlto, null);
+//	}
 	
 	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, 
 			boolean exportImg, boolean exportPage, boolean exportAlto, boolean splitIntoWordsInAlto, String fileNamePattern) throws IOException,

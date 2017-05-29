@@ -1,14 +1,23 @@
 package eu.transkribus.core.model.builder;
 
+import java.io.IOException;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+import org.dea.fimgstoreclient.beans.ImgType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import eu.transkribus.core.io.LocalDocConst;
 import eu.transkribus.core.model.builder.tei.TeiExportPars;
-import eu.transkribus.core.util.GsonUtil;
+import eu.transkribus.core.util.CoreUtils;
 
 /**
  * A general set of export parameters. Can and shall be subclassed for special exports as e.g. in {@link TeiExportPars}
  */
 public class CommonExportPars {
+	private static final Logger logger = LoggerFactory.getLogger(CommonExportPars.class);
+	
 	public static final String PARAMETER_KEY = "commonPars";
 	
 	String pages = null;
@@ -30,6 +39,21 @@ public class CommonExportPars {
 	boolean writeTextOnWordLevel = false;
 	boolean doBlackening = false;
 	Set<String> selectedTags = null;
+	
+	// from ExportOptions:
+	public String dir=null;
+	public Set<Integer> pageIndices=null; // can be set to null to include all pages!
+
+	public String pageDirName = LocalDocConst.PAGE_FILE_SUB_FOLDER;
+	public boolean splitIntoWordsInAltoXml=false;
+	public String fileNamePattern = "${filename}";
+	public boolean useHttps=true;
+	public ImgType remoteImgQuality = ImgType.orig;
+	@Deprecated //this will be in the Page element's custom attribute
+	public boolean exportTranscriptMetadata = false;
+	
+	public boolean doOverwrite=true;
+	public boolean useOcrMasterDir=true;
 			
 	public CommonExportPars() {
 	}
@@ -90,10 +114,21 @@ public class CommonExportPars {
 		this.doBlackening = doBlackening;
 	}
 
-//	public Set<Integer> getPageIndices() {
-//		return pageIndices;
-//	}
-//
+	/**
+	 * Helper method that parses the pages string (this.pages) with a given number of pages (nPages) into a set of page indices (starting from 0!)
+	 */
+	public Set<Integer> getPageIndices(int nPages) {
+		if (StringUtils.isEmpty(this.pages))
+			return null;
+		
+		try {
+			return CoreUtils.parseRangeListStr(this.pages, nPages); 
+		} catch (IOException e) {
+			logger.warn("Could not pares pages string '"+pages+"' - "+e.getMessage());
+			return null;
+		}
+	}
+
 //	public void setPageIndices(Set<Integer> pageIndices) {
 //		this.pageIndices = pageIndices;
 //		
