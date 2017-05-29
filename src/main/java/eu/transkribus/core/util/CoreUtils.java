@@ -727,6 +727,18 @@ public class CoreUtils {
 		}
 		return pi;
 	}
+	
+
+	public static Set<Integer> invertPageIndices(Set<Integer> pageIndices, int nrOfPages) {
+		Set<Integer> out = new HashSet<>();
+		for(Integer i = 0; i < nrOfPages; i++) {
+			if(!pageIndices.contains(i)) {
+				out.add(i);
+			}
+		}
+		return out;
+	}
+
 			
 	/**
 	 * Returns a string of comma seperated ranges (starting from 1) indicating which values are true in the given list.
@@ -835,7 +847,4 @@ public class CoreUtils {
 		System.out.println("common = "+StringUtils.join(common));
 
 	}
-
-
-
 }
