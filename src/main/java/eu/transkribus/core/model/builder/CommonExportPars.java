@@ -322,9 +322,29 @@ public class CommonExportPars {
 				+ ", exportTranscriptMetadata=" + exportTranscriptMetadata + "]";
 	}
 
-	
+	public static CommonExportPars getDefaultParSetForHtrTraining() {
+		CommonExportPars c = new CommonExportPars();
+		c.setDoWriteImages(true);
+		c.setDoExportAltoXml(false);
+		c.setDoExportPageXml(true);
+		c.setPageDirName("");
+		c.setUseOcrMasterDir(false);
+		c.setDoWriteMets(false);
+		return c;
+	}
 
+	public static CommonExportPars getDefaultParSetForOcr() {
+		CommonExportPars opts = new CommonExportPars();
+		opts.setDoOverwrite(true);
+		opts.setDoWriteMets(false);
+		opts.setUseOcrMasterDir(true);
+		opts.setDoWriteImages(true);
+		opts.setDoExportPageXml(false);
+		opts.setDoExportAltoXml(false);
+		//store files with pageID as name. Important for matching result files to original document!
+		opts.setFileNamePattern("${pageId}");
+		return opts;
+	}
 	
-
 	
 }
