@@ -406,24 +406,29 @@ public class HtrUtils {
 	}
 
 	public static String getDictListStr() {
-		File[] models = new File(HtrUtils.DICT_PATH).listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				return pathname.isFile() && pathname.getName().endsWith(".dict");
-			}
-		});
+		File[] dicts = new File(HtrUtils.DICT_PATH).listFiles(new DictFileFilter());
 
 		String modelStr = "";
 		boolean isFirst = true;
-		for (File model : models) {
+		for (File dict : dicts) {
 			if (isFirst) {
-				modelStr += model.getName();
+				modelStr += dict.getName();
 				isFirst = false;
 			} else {
-				modelStr += "\n" + model.getName();
+				modelStr += "\n" + dict.getName();
 			}
 		}
 		return modelStr;
+	}
+	
+	public static List<String> getDictList() {
+		File[] dicts = new File(HtrUtils.DICT_PATH).listFiles(new DictFileFilter());
+		List<String> dictList = new ArrayList<>(dicts.length);
+		
+		for (File dict : dicts) {
+			dictList.add(dict.getName());
+		}
+		return dictList;
 	}
 
 	public static List<String> parseCitLabCharSet(String charSet) {
@@ -465,5 +470,12 @@ public class HtrUtils {
 		}
 		final double finalCerVal = cerVals[cerVals.length-1];
 		return (finalCerVal*100)+"%";
+	}
+	
+	public static class DictFileFilter implements FileFilter {
+		@Override
+		public boolean accept(File pathname) {
+			return pathname.isFile() && pathname.getName().endsWith(".dict");
+		}
 	}
 }
