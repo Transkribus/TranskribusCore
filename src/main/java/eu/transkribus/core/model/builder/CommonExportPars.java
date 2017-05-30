@@ -41,19 +41,17 @@ public class CommonExportPars {
 	Set<String> selectedTags = null;
 	
 	// from ExportOptions:
-	public String dir=null;
-	public Set<Integer> pageIndices=null; // can be set to null to include all pages!
-
-	public String pageDirName = LocalDocConst.PAGE_FILE_SUB_FOLDER;
-	public boolean splitIntoWordsInAltoXml=false;
-	public String fileNamePattern = "${filename}";
-	public boolean useHttps=true;
-	public ImgType remoteImgQuality = ImgType.orig;
-	@Deprecated //this will be in the Page element's custom attribute
-	public boolean exportTranscriptMetadata = false;
+	String dir=null;
 	
-	public boolean doOverwrite=true;
-	public boolean useOcrMasterDir=true;
+	boolean splitIntoWordsInAltoXml=false;
+	
+	String pageDirName = LocalDocConst.PAGE_FILE_SUB_FOLDER;
+	String fileNamePattern = "${filename}";
+	boolean useHttps=true;
+	ImgType remoteImgQuality = ImgType.orig;
+	boolean doOverwrite=true;
+	boolean useOcrMasterDir=true;
+	boolean exportTranscriptMetadata = false;
 			
 	public CommonExportPars() {
 	}
@@ -225,8 +223,81 @@ public class CommonExportPars {
 	public void setUseVersionStatus(String useVersionStatus) {
 		this.useVersionStatus = useVersionStatus;
 	}
+	
+	public String getDir() {
+		return dir;
+	}
 
-	// utility method:
+	public void setDir(String dir) {
+		this.dir = dir;
+	}
+
+	public boolean isSplitIntoWordsInAltoXml() {
+		return splitIntoWordsInAltoXml;
+	}
+
+	public void setSplitIntoWordsInAltoXml(boolean splitIntoWordsInAltoXml) {
+		this.splitIntoWordsInAltoXml = splitIntoWordsInAltoXml;
+	}
+
+	public String getPageDirName() {
+		return pageDirName;
+	}
+
+	public void setPageDirName(String pageDirName) {
+		this.pageDirName = pageDirName;
+	}
+
+	public String getFileNamePattern() {
+		return fileNamePattern;
+	}
+
+	public void setFileNamePattern(String fileNamePattern) {
+		this.fileNamePattern = fileNamePattern;
+	}
+
+	public boolean isUseHttps() {
+		return useHttps;
+	}
+
+	public void setUseHttps(boolean useHttps) {
+		this.useHttps = useHttps;
+	}
+
+	public ImgType getRemoteImgQuality() {
+		return remoteImgQuality;
+	}
+
+	public void setRemoteImgQuality(ImgType remoteImgQuality) {
+		this.remoteImgQuality = remoteImgQuality;
+	}
+
+	public boolean isDoOverwrite() {
+		return doOverwrite;
+	}
+
+	public void setDoOverwrite(boolean doOverwrite) {
+		this.doOverwrite = doOverwrite;
+	}
+
+	public boolean isUseOcrMasterDir() {
+		return useOcrMasterDir;
+	}
+
+	public void setUseOcrMasterDir(boolean useOcrMasterDir) {
+		this.useOcrMasterDir = useOcrMasterDir;
+	}
+
+	public boolean isExportTranscriptMetadata() {
+		return exportTranscriptMetadata;
+	}
+
+	public void setExportTranscriptMetadata(boolean exportTranscriptMetadata) {
+		this.exportTranscriptMetadata = exportTranscriptMetadata;
+	}
+
+	// --- utility methods ---
+
 	public boolean isTagSelected(String tagName) {
 		return selectedTags == null || selectedTags.contains(tagName);
 	}
@@ -244,7 +315,11 @@ public class CommonExportPars {
 				+ doWritePdf + ", doWriteTei=" + doWriteTei + ", doWriteDocx=" + doWriteDocx + ", doWriteTagsXlsx="
 				+ doWriteTagsXlsx + ", doWriteTablesXlsx=" + doWriteTablesXlsx + ", doCreateTitle=" + doCreateTitle
 				+ ", useVersionStatus=" + useVersionStatus + ", writeTextOnWordLevel=" + writeTextOnWordLevel
-				+ ", doBlackening=" + doBlackening + ", selectedTags=" + selectedTags + "]";
+				+ ", doBlackening=" + doBlackening + ", selectedTags=" + selectedTags + ", dir=" + dir
+				+ ", splitIntoWordsInAltoXml=" + splitIntoWordsInAltoXml + ", pageDirName=" + pageDirName
+				+ ", fileNamePattern=" + fileNamePattern + ", useHttps=" + useHttps + ", remoteImgQuality="
+				+ remoteImgQuality + ", doOverwrite=" + doOverwrite + ", useOcrMasterDir=" + useOcrMasterDir
+				+ ", exportTranscriptMetadata=" + exportTranscriptMetadata + "]";
 	}
 
 	
