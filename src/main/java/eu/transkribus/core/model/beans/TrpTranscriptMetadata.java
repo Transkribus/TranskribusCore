@@ -18,6 +18,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.dea.fimgstoreclient.utils.FimgStoreUtils;
+
 import eu.transkribus.core.exceptions.NullValueException;
 import eu.transkribus.core.model.beans.adapters.EditStatusAdapter;
 import eu.transkribus.core.model.beans.enums.EditStatus;
@@ -380,6 +382,36 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 		this.nrOfTranscribedWords = nrOfTranscribedWords;
 	}	
 	
+	/**
+	 * Check key and URL protocol.<br/>
+	 * This method returns false, if there is a filekey set which matches the pattern defined in FimagestoreClient.<br/>
+	 * It returns true, if there is no filekey and the URL points to an existing file.<br/>
+	 * 
+	 * @return
+	 * @throws IllegalStateException in case there are inconsistencies:
+	 * <ul>
+	 * <li>key of transcript is null, but the URL protocol is not "file://"</li>
+	 * <li>key of transcript is null, but the file URL does not point to an existing file</li>
+	 * <li>a filekey is set, but it does not match the fimagestore key pattern</li>
+	 * </ul>
+	 */
+	public boolean isLocalTranscript() {
+		if(key == null) {
+			final String prot = url.getProtocol();
+			if(!"file".equals(prot)) {
+				throw new IllegalStateException("Key of tanscript is null, but URL protocol is not file!");
+			}
+			if(!new File(url.getFile()).isFile()) {
+				throw new IllegalStateException("Key of tanscript is null, but file URL does not exis: " + url.getFile());			}
+			return true;
+		} else {
+			if(!FimgStoreUtils.isFimgStoreKey(key)) {
+				throw new IllegalStateException("Key of tanscript is not a valid fimagestore key!");
+			}
+			return false;
+		}
+	}
+	
 	@Override 
 	public boolean equals(Object o) {
 		// FIXME ?? (not tested)
@@ -505,7 +537,7 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 		return true;
 	}
 
-
+	
 
 	public PcGtsType unmarshallTranscript() throws NullValueException, JAXBException {
 		if (getUrl()==null)

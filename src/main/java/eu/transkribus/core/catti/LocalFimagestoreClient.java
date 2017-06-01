@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,40 @@ public class LocalFimagestoreClient {
 		outfn += fn;
 		
 		return outfn;
+	}
+	
+	/**
+	 * Returns the specified filetype for this file
+	 * @param storeLocation
+	 * @param key
+	 * @param fileType
+	 * @return
+	 * @throws FileNotFoundException
+	 */
+	public static File findFile(final String storeLocation, final String key, String fileType) throws FileNotFoundException {
+		if(StringUtils.isEmpty(storeLocation) || StringUtils.isEmpty(key)) {
+			throw new IllegalArgumentException("StoreLocation and key must not be null!");
+		}
+		if(fileType == null) {
+			fileType = FILE_TYPE_ORIG;
+		}
+		final File dir = findDir(storeLocation, key);
+		if(dir == null) {
+			throw new FileNotFoundException("Directory of file could not be found! "
+					+ "StoreLocation = " + storeLocation + ", key = " + key);
+		}
+		return getFile(dir, fileType);
+	}
+	
+	/**
+	 * Returns the original file
+	 * @param storeLocation
+	 * @param key
+	 * @return
+	 * @throws FileNotFoundException
+	 */
+	public static File findFile(final String storeLocation, final String key) throws FileNotFoundException {
+		return findFile(storeLocation, key, null);
 	}
 	
 	public static File findDir(String storeLocation, String key) {		
