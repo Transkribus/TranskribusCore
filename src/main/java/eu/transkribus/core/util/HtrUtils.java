@@ -59,9 +59,6 @@ public class HtrUtils {
 			+ "\\s[0-9]+\\s<s>\\s(.*)\\s</s>";
 	static final Pattern LATTICE_TOOL_LINE_PATTERN = Pattern.compile(LATTICE_TOOL_LINE_PATTERN_STR);
 
-	public static final String NET_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/net";
-	public static final String DICT_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/dict";
-
 	/**
 	 * Each extracted line image is named with the PAGE file's ID plus the
 	 * positional number of region and line according to the reading order, and
@@ -377,105 +374,5 @@ public class HtrUtils {
 			}
 		}
 		return modelStr;
-	}
-
-	public static File[] getNetList() {
-		File[] models = new File(HtrUtils.NET_PATH).listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				return pathname.isFile() && pathname.getName().endsWith(".sprnn");
-			}
-		});
-		return models;
-	}
-
-	public static String getNetListStr() {
-		File[] models = getNetList();
-
-		String modelStr = "";
-		boolean isFirst = true;
-		for (File model : models) {
-			if (isFirst) {
-				modelStr += model.getName();
-				isFirst = false;
-			} else {
-				modelStr += "\n" + model.getName();
-			}
-		}
-		return modelStr;
-	}
-
-	public static String getDictListStr() {
-		File[] dicts = new File(HtrUtils.DICT_PATH).listFiles(new DictFileFilter());
-
-		String modelStr = "";
-		boolean isFirst = true;
-		for (File dict : dicts) {
-			if (isFirst) {
-				modelStr += dict.getName();
-				isFirst = false;
-			} else {
-				modelStr += "\n" + dict.getName();
-			}
-		}
-		return modelStr;
-	}
-	
-	public static List<String> getDictList() {
-		File[] dicts = new File(HtrUtils.DICT_PATH).listFiles(new DictFileFilter());
-		List<String> dictList = new ArrayList<>(dicts.length);
-		
-		for (File dict : dicts) {
-			dictList.add(dict.getName());
-		}
-		return dictList;
-	}
-
-	public static List<String> parseCitLabCharSet(String charSet) {
-		Pattern p = Pattern.compile("(.)=[0-9]+");
-		Matcher m = p.matcher(charSet);
-		List<String> result = new LinkedList<>();
-		while (m.find()) {
-			result.add(m.group(1));
-		}
-		return result;
-	}
-	
-	public static double[] parseCitlabCerFile(File cerFile) throws IOException {
-		final String cerString = FileUtils.readFileToString(cerFile);
-		return HtrUtils.parseCitlabCerString(cerString);
-	}
-
-	public static double[] parseCitlabCerString(String cerString) {
-
-		if (cerString == null || cerString.isEmpty()) {
-			return new double[] {};
-		}
-
-		String[] cerStrs = cerString.split("\\s");
-		double[] cerVals = new double[cerStrs.length];
-		for (int i = 0; i < cerStrs.length; i++) {
-			try {
-				cerVals[i] = Double.parseDouble(cerStrs[i].replace(',', '.'));
-			} catch (NumberFormatException e) {
-				logger.error("Could not parse CER String: " + cerStrs[i]);
-			}
-		}
-		return cerVals;
-	}
-
-	public static String printLastCerPercentage(double[] cerVals) {
-		if(cerVals.length < 1) {
-			return "N/A";
-		}
-		final double finalCerVal = cerVals[cerVals.length-1];
-		return (finalCerVal*100)+"%";
-	}
-	
-	public static class DictFileFilter implements FileFilter {
-		@Override
-		public boolean accept(File pathname) {
-			return pathname.isFile() && pathname.getName().endsWith(".dict");
-		}
 	}
 }
