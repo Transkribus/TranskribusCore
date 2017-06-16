@@ -5,12 +5,15 @@ import java.awt.Rectangle;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.model.beans.pagecontent.BaselineType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
+import eu.transkribus.core.util.GeomUtils;
 import eu.transkribus.core.util.IntRange;
 import eu.transkribus.core.util.PageXmlUtils;
 import eu.transkribus.core.util.PointStrUtils;
@@ -27,6 +30,8 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 //		if (!isRegionLineOrWord(o1) || !isRegionLineOrWord(o2))
 //			return 0;
 		
+		logger.trace("compare in TrpElementCoordinatesComparator");
+		
 //		try {
 			String coords1="", coords2="";
 						
@@ -34,6 +39,7 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 //				coords1 = ((TrpPrintSpaceType) o1).getCoords().getPoints();
 //				coords2 = ((TrpPrintSpaceType) o2).getCoords().getPoints();
 //			}		
+						
 			if (o1 instanceof RegionType) {
 				RegionType r1 = (RegionType) o1;
 				RegionType r2 = (RegionType) o2;
@@ -43,40 +49,19 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 				}
 			}
 			else if (TextLineType.class.isAssignableFrom(o1.getClass())) {
-				/*
-				 * take baseline to compare and set the ro in this case
-				 */
+				// if existing, take baseline to compare position of lines
 				if (((TextLineType) o1).getBaseline() != null && ((TextLineType) o2).getBaseline() != null){
 					coords1 = ((TextLineType) o1).getBaseline().getPoints();
 					coords2 = ((TextLineType) o2).getBaseline().getPoints();
-					
-					double y1, x1;
-					double y2, x2;
-					
-					List<Point> pts1 = PointStrUtils.parsePoints(coords1);
-					List<Point> pts2 = PointStrUtils.parsePoints(coords2);
-					
-					if (pts1.size() > 0 && pts2.size() > 0) {
-						
-						x1 = pts1.get(0).getX();
-						y1 = pts1.get(0).getY();
-						
-						x2 = pts2.get(0).getX();
-						y2 = pts2.get(0).getY();
-						
-						return compareByYX((int)x1, (int)x2, (int)y1, (int)y2);
-					}
+				} else { //fall back if there are no baselines
+					coords1 = ((TextLineType) o1).getCoords().getPoints();
+					coords2 = ((TextLineType) o2).getCoords().getPoints();					
 				}
-
-				//fall back if there are no baselines
-				coords1 = ((TextLineType) o1).getCoords().getPoints();
-				coords2 = ((TextLineType) o2).getCoords().getPoints();
-				
 			}
-//			if (o1 instanceof BaselineType) {
-//				coords1 = ((TrpBaselineType) o1).getPoints();
-//				coords2 = ((TrpBaselineType) o2).getPoints();
-//			}
+			else if (o1 instanceof TrpBaselineType) {
+				coords1 = ((TrpBaselineType) o1).getPoints();
+				coords2 = ((TrpBaselineType) o2).getPoints();
+			}
 			else if (WordType.class.isAssignableFrom(o1.getClass())) {
 				WordType w1 = (WordType) o1;
 				WordType w2 = (WordType) o2;
@@ -91,6 +76,18 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 //			if (coords1.isEmpty() || coords2.isEmpty()) {
 //				throw new Exception("No coordinates in one of the objects - should not happen!");
 //			}
+			
+			// determine orientation of (parent) text regions
+			Float orientation = null;
+			if (o1 instanceof ITrpShapeType && o2 instanceof ITrpShapeType && !(o1 instanceof RegionType) && !(o2 instanceof RegionType)) {
+				TrpTextRegionType tr1 = TrpShapeTypeUtils.getTextRegion((ITrpShapeType) o1);
+				TrpTextRegionType tr2 = TrpShapeTypeUtils.getTextRegion((ITrpShapeType) o2);
+				
+				if (tr1!=null && tr2!=null && StringUtils.equals(tr1.getId(), tr2.getId()) && tr1.getOrientation()!=null) {
+					orientation = tr1.getOrientation();
+				}
+			}
+			// --------------------------
 			
 			java.awt.Polygon p1 = new java.awt.Polygon();
 			try {
@@ -111,11 +108,22 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 			Rectangle b1 = p1.getBounds();
 			Rectangle b2 = p2.getBounds();
 			
+			Point pt1 = new Point(b1.x, b1.y);
+			Point pt2 = new Point(b2.x, b2.y);
+			
+			if (orientation != null) {
+				pt1 = GeomUtils.rotate(pt1, orientation);
+				pt2 = GeomUtils.rotate(pt2, orientation);
+				
+				logger.debug("orientation set: "+orientation+" rotated points: "+pt1+", "+pt2);
+			}
 			if (WordType.class.isAssignableFrom(o1.getClass())) {
-				return compareByXY(b1.x, b2.x, b1.y, b2.y);
+//				return compareByXY(b1.x, b2.x, b1.y, b2.y);
+				return compareByXY(pt1.x, pt2.x, pt1.y, pt2.y);
 			}
 			else {
-				return compareByYX(b1.x, b2.x, b1.y, b2.y);
+				return compareByYX(pt1.x, pt2.x, pt1.y, pt2.y);
+//				return compareByYX(b1.x, b2.x, b1.y, b2.y);
 				//return compareBy_YOverlap_X(b1, b2);
 			}
 //		}

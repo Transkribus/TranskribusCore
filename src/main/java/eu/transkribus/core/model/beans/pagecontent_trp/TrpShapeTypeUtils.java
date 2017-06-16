@@ -12,6 +12,29 @@ import eu.transkribus.core.util.SebisStopWatch;
 
 public class TrpShapeTypeUtils {
 	private final static Logger logger = LoggerFactory.getLogger(TrpShapeTypeUtils.class);
+	
+	/**
+	 * Tries to get the (parent) text region of the specified shape; returns null if not found 
+	 */
+	public static TrpTextRegionType getTextRegion(ITrpShapeType st) {
+		if (RegionTypeUtil.isBaseline(st)) {
+			TrpBaselineType bl = (TrpBaselineType) st;
+			if (bl.getLine() != null) {
+				return bl.getLine().getRegion();
+			}
+		}
+		else if (RegionTypeUtil.isLine(st)) {
+			return ((TrpTextLineType) st).getRegion();
+		}
+		else if (RegionTypeUtil.isWord(st)) {
+			TrpWordType w = (TrpWordType) st;
+			if (w.getLine() != null) {
+				return w.getLine().getRegion();
+			}
+		}
+		
+		return null;
+	}
 		
 	public static TrpTextLineType getLine(ITrpShapeType st) {
 		if (RegionTypeUtil.isBaseline(st))
