@@ -41,6 +41,11 @@ public class TrpCollection implements Serializable {
 	@Transient
 	private String label;
 	
+	//actually nrOfDocuments is no real column. Transient annotated fields are ignored on inserts
+	@Column
+	@Transient
+	private int nrOfDocuments;
+	
 	@Column
 	@Transient
 	@XmlJavaTypeAdapter(TrpRoleAdapter.class)
@@ -112,6 +117,14 @@ public class TrpCollection implements Serializable {
 	public void setLabel(String label) {
 		this.label = label;
 	}
+	
+	public int getNrOfDocuments() {
+		return nrOfDocuments;
+	}
+	public void setNrOfDocuments(int nrOfDocuments) {
+		this.nrOfDocuments = nrOfDocuments;
+	}
+	
 	public String toShortString() {
 		return 	this.getColId() 
 				+ " - " 
@@ -126,8 +139,9 @@ public class TrpCollection implements Serializable {
 	public String toString() {
 		return "TrpCollection [colId=" + colId + ", colName=" + colName + ", description=" + description
 				+ ", defaultForApp=" + defaultForApp + ", isCrowdsourcing=" + crowdsourcing + ", label=" + label
-				+ ", role=" + role + "]";
+				+ ", role=" + role + ", nrOfDocuments=" + nrOfDocuments +"]";
 	}
+
 	
 	
 	
