@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +20,10 @@ import eu.transkribus.core.model.beans.WordHypothesis;
 public class HtrUtils {
 	private static final Logger logger = LoggerFactory.getLogger(HtrUtils.class);
 
+	/**
+	 * use Transkribus storage instead
+	 */
+	@Deprecated
 	public static final String MODEL_PATH = "/mnt/dea_scratch/TRP/HTR/models/";
 
 	public static final String SEP = ".";
@@ -53,9 +58,6 @@ public class HtrUtils {
 	private static final String LATTICE_TOOL_LINE_PATTERN_STR = FLOAT_NR + "\\s" + FLOAT_NR
 			+ "\\s[0-9]+\\s<s>\\s(.*)\\s</s>";
 	static final Pattern LATTICE_TOOL_LINE_PATTERN = Pattern.compile(LATTICE_TOOL_LINE_PATTERN_STR);
-
-	public static final String NET_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/net";
-	public static final String DICT_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/dict";
 
 	/**
 	 * Each extracted line image is named with the PAGE file's ID plus the
@@ -372,80 +374,5 @@ public class HtrUtils {
 			}
 		}
 		return modelStr;
-	}
-
-	public static File[] getNetList() {
-		File[] models = new File(HtrUtils.NET_PATH).listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				return pathname.isFile() && pathname.getName().endsWith(".sprnn");
-			}
-		});
-		return models;
-	}
-
-	public static String getNetListStr() {
-		File[] models = getNetList();
-
-		String modelStr = "";
-		boolean isFirst = true;
-		for (File model : models) {
-			if (isFirst) {
-				modelStr += model.getName();
-				isFirst = false;
-			} else {
-				modelStr += "\n" + model.getName();
-			}
-		}
-		return modelStr;
-	}
-
-	public static String getDictListStr() {
-		File[] models = new File(HtrUtils.DICT_PATH).listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				return pathname.isFile() && pathname.getName().endsWith(".dict");
-			}
-		});
-
-		String modelStr = "";
-		boolean isFirst = true;
-		for (File model : models) {
-			if (isFirst) {
-				modelStr += model.getName();
-				isFirst = false;
-			} else {
-				modelStr += "\n" + model.getName();
-			}
-		}
-		return modelStr;
-	}
-
-	public static List<String> parseCitLabCharSet(String charSet) {
-		Pattern p = Pattern.compile("(.)=[0-9]+");
-		Matcher m = p.matcher(charSet);
-		List<String> result = new LinkedList<>();
-		while (m.find()) {
-			result.add(m.group(1));
-		}
-		return result;
-	}
-
-	public static double[] parseCitlabCerString(String cerString) {
-
-		if (cerString == null || cerString.isEmpty()) {
-			return new double[] {};
-		}
-
-		String[] cerStrs = cerString.split("\\s");
-		double[] cerVals = new double[cerStrs.length];
-		for (int i = 0; i < cerStrs.length; i++) {
-			try {
-				cerVals[i] = Double.parseDouble(cerStrs[i].replace(',', '.'));
-			} catch (NumberFormatException e) {
-				logger.error("Could not parse CER String: " + cerStrs[i]);
-			}
-		}
-		return cerVals;
 	}
 }

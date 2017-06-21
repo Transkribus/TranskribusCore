@@ -1,14 +1,23 @@
 package eu.transkribus.core.model.builder;
 
+import java.io.IOException;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+import org.dea.fimgstoreclient.beans.ImgType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import eu.transkribus.core.io.LocalDocConst;
 import eu.transkribus.core.model.builder.tei.TeiExportPars;
-import eu.transkribus.core.util.GsonUtil;
+import eu.transkribus.core.util.CoreUtils;
 
 /**
  * A general set of export parameters. Can and shall be subclassed for special exports as e.g. in {@link TeiExportPars}
  */
 public class CommonExportPars {
+	private static final Logger logger = LoggerFactory.getLogger(CommonExportPars.class);
+	
 	public static final String PARAMETER_KEY = "commonPars";
 	
 	String pages = null;
@@ -30,6 +39,19 @@ public class CommonExportPars {
 	boolean writeTextOnWordLevel = false;
 	boolean doBlackening = false;
 	Set<String> selectedTags = null;
+	
+	// from ExportOptions:
+	String dir=null;
+	
+	boolean splitIntoWordsInAltoXml=false;
+	
+	String pageDirName = LocalDocConst.PAGE_FILE_SUB_FOLDER;
+	String fileNamePattern = "${filename}";
+	boolean useHttps=true;
+	ImgType remoteImgQuality = ImgType.orig;
+	boolean doOverwrite=true;
+	boolean useOcrMasterDir=true;
+	boolean exportTranscriptMetadata = false;
 			
 	public CommonExportPars() {
 	}
@@ -90,10 +112,21 @@ public class CommonExportPars {
 		this.doBlackening = doBlackening;
 	}
 
-//	public Set<Integer> getPageIndices() {
-//		return pageIndices;
-//	}
-//
+	/**
+	 * Helper method that parses the pages string (this.pages) with a given number of pages (nPages) into a set of page indices (starting from 0!)
+	 */
+	public Set<Integer> getPageIndices(int nPages) {
+		if (StringUtils.isEmpty(this.pages))
+			return null;
+		
+		try {
+			return CoreUtils.parseRangeListStr(this.pages, nPages); 
+		} catch (IOException e) {
+			logger.warn("Could not pares pages string '"+pages+"' - "+e.getMessage());
+			return null;
+		}
+	}
+
 //	public void setPageIndices(Set<Integer> pageIndices) {
 //		this.pageIndices = pageIndices;
 //		
@@ -190,8 +223,81 @@ public class CommonExportPars {
 	public void setUseVersionStatus(String useVersionStatus) {
 		this.useVersionStatus = useVersionStatus;
 	}
+	
+	public String getDir() {
+		return dir;
+	}
 
-	// utility method:
+	public void setDir(String dir) {
+		this.dir = dir;
+	}
+
+	public boolean isSplitIntoWordsInAltoXml() {
+		return splitIntoWordsInAltoXml;
+	}
+
+	public void setSplitIntoWordsInAltoXml(boolean splitIntoWordsInAltoXml) {
+		this.splitIntoWordsInAltoXml = splitIntoWordsInAltoXml;
+	}
+
+	public String getPageDirName() {
+		return pageDirName;
+	}
+
+	public void setPageDirName(String pageDirName) {
+		this.pageDirName = pageDirName;
+	}
+
+	public String getFileNamePattern() {
+		return fileNamePattern;
+	}
+
+	public void setFileNamePattern(String fileNamePattern) {
+		this.fileNamePattern = fileNamePattern;
+	}
+
+	public boolean isUseHttps() {
+		return useHttps;
+	}
+
+	public void setUseHttps(boolean useHttps) {
+		this.useHttps = useHttps;
+	}
+
+	public ImgType getRemoteImgQuality() {
+		return remoteImgQuality;
+	}
+
+	public void setRemoteImgQuality(ImgType remoteImgQuality) {
+		this.remoteImgQuality = remoteImgQuality;
+	}
+
+	public boolean isDoOverwrite() {
+		return doOverwrite;
+	}
+
+	public void setDoOverwrite(boolean doOverwrite) {
+		this.doOverwrite = doOverwrite;
+	}
+
+	public boolean isUseOcrMasterDir() {
+		return useOcrMasterDir;
+	}
+
+	public void setUseOcrMasterDir(boolean useOcrMasterDir) {
+		this.useOcrMasterDir = useOcrMasterDir;
+	}
+
+	public boolean isExportTranscriptMetadata() {
+		return exportTranscriptMetadata;
+	}
+
+	public void setExportTranscriptMetadata(boolean exportTranscriptMetadata) {
+		this.exportTranscriptMetadata = exportTranscriptMetadata;
+	}
+
+	// --- utility methods ---
+
 	public boolean isTagSelected(String tagName) {
 		return selectedTags == null || selectedTags.contains(tagName);
 	}
@@ -209,12 +315,36 @@ public class CommonExportPars {
 				+ doWritePdf + ", doWriteTei=" + doWriteTei + ", doWriteDocx=" + doWriteDocx + ", doWriteTagsXlsx="
 				+ doWriteTagsXlsx + ", doWriteTablesXlsx=" + doWriteTablesXlsx + ", doCreateTitle=" + doCreateTitle
 				+ ", useVersionStatus=" + useVersionStatus + ", writeTextOnWordLevel=" + writeTextOnWordLevel
-				+ ", doBlackening=" + doBlackening + ", selectedTags=" + selectedTags + "]";
+				+ ", doBlackening=" + doBlackening + ", selectedTags=" + selectedTags + ", dir=" + dir
+				+ ", splitIntoWordsInAltoXml=" + splitIntoWordsInAltoXml + ", pageDirName=" + pageDirName
+				+ ", fileNamePattern=" + fileNamePattern + ", useHttps=" + useHttps + ", remoteImgQuality="
+				+ remoteImgQuality + ", doOverwrite=" + doOverwrite + ", useOcrMasterDir=" + useOcrMasterDir
+				+ ", exportTranscriptMetadata=" + exportTranscriptMetadata + "]";
 	}
 
-	
+	public static CommonExportPars getDefaultParSetForHtrTraining() {
+		CommonExportPars c = new CommonExportPars();
+		c.setDoWriteImages(true);
+		c.setDoExportAltoXml(false);
+		c.setDoExportPageXml(true);
+		c.setPageDirName("");
+		c.setUseOcrMasterDir(false);
+		c.setDoWriteMets(false);
+		return c;
+	}
 
+	public static CommonExportPars getDefaultParSetForOcr() {
+		CommonExportPars opts = new CommonExportPars();
+		opts.setDoOverwrite(true);
+		opts.setDoWriteMets(false);
+		opts.setUseOcrMasterDir(true);
+		opts.setDoWriteImages(true);
+		opts.setDoExportPageXml(false);
+		opts.setDoExportAltoXml(false);
+		//store files with pageID as name. Important for matching result files to original document!
+		opts.setFileNamePattern("${pageId}");
+		return opts;
+	}
 	
-
 	
 }

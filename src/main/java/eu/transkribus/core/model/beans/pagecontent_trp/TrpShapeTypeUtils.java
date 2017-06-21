@@ -12,7 +12,56 @@ import eu.transkribus.core.util.SebisStopWatch;
 
 public class TrpShapeTypeUtils {
 	private final static Logger logger = LoggerFactory.getLogger(TrpShapeTypeUtils.class);
+	
+	/**
+	 * Tries to get the (parent) text region of the specified shape; returns null if not found 
+	 */
+	public static TrpTextRegionType getTextRegion(ITrpShapeType st) {
+		if (RegionTypeUtil.isBaseline(st)) {
+			TrpBaselineType bl = (TrpBaselineType) st;
+			if (bl.getLine() != null) {
+				return bl.getLine().getRegion();
+			}
+		}
+		else if (RegionTypeUtil.isLine(st)) {
+			return ((TrpTextLineType) st).getRegion();
+		}
+		else if (RegionTypeUtil.isWord(st)) {
+			TrpWordType w = (TrpWordType) st;
+			if (w.getLine() != null) {
+				return w.getLine().getRegion();
+			}
+		}
+		
+		return null;
+	}
+		
+	public static TrpTextLineType getLine(ITrpShapeType st) {
+		if (RegionTypeUtil.isBaseline(st))
+			return ((TrpBaselineType) st).getLine();
+		else if (RegionTypeUtil.isLine(st)) {
+			return (TrpTextLineType) st;
+		}
+		else if (RegionTypeUtil.isWord(st)) {
+			return ((TrpWordType) st).getLine();
+		}
+		
+		return null;
+	}
 
+	public static TrpBaselineType getBaseline(ITrpShapeType st) {
+		if (RegionTypeUtil.isBaseline(st))
+			return (TrpBaselineType) st;
+		else if (RegionTypeUtil.isLine(st)) {
+			return (TrpBaselineType) ((TrpTextLineType) st).getBaseline();
+		}
+		else if (RegionTypeUtil.isWord(st)) {
+			return (TrpBaselineType) ((TrpWordType) st).getLine().getBaseline();
+		}
+		
+		return null;
+	}
+	
 	public static void setUnicodeText(ITrpShapeType shape, String unicode, Object who) {
 		logger.trace("setting unicode text in "+shape.getName()+", id: "+shape.getId()+", text: "+unicode);
 		int lBefore = shape.getUnicodeText().length();

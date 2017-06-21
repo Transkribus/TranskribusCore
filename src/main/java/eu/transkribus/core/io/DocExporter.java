@@ -2,7 +2,6 @@ package eu.transkribus.core.io;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -14,8 +13,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.fop.afp.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dea.fimgstoreclient.FimgStoreGetClient;
+import org.dea.fimgstoreclient.beans.ImgType;
 import org.dea.fimgstoreclient.utils.FimgStoreUriBuilder;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.slf4j.Logger;
@@ -39,61 +39,84 @@ import eu.transkribus.core.model.builder.pdf.PdfExporter;
 import eu.transkribus.core.model.builder.tei.ATeiBuilder;
 import eu.transkribus.core.model.builder.tei.TeiExportPars;
 import eu.transkribus.core.model.builder.tei.TrpTeiStringBuilder;
+import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.JaxbUtils;
 
 public class DocExporter extends Observable {
 	private static final Logger logger = LoggerFactory.getLogger(DocExporter.class);
 	
-	public static class ExportOptions implements Serializable {
-		private static final long serialVersionUID = -3767885415954377017L;
-		public String dir=null;
-		public Set<Integer> pageIndices=null; // can be set to null to include all pages!
-		public boolean doOverwrite=true;
-		public boolean writeMets=true;
-		public boolean useOcrMasterDir=true;
-		public boolean doWriteImages=true;
-		public boolean exportPageXml=true;
-		public String pageDirName = LocalDocConst.PAGE_FILE_SUB_FOLDER;
-		public boolean exportAltoXml=true;
-		public boolean splitIntoWordsInAltoXml=false;
-		public String fileNamePattern = "${filename}";
-		public boolean useHttps=true;
-		
-		@Override
-		public String toString() {
-			return "ExportOptions [dir=" + dir + ", pageIndices=" + pageIndices + ", doOverwrite=" + doOverwrite
-					+ ", writeMets=" + writeMets + ", useOcrMasterDir=" + useOcrMasterDir + ", doWriteImages="
-					+ doWriteImages + ", exportPageXml=" + exportPageXml + ", pageDirName=" + pageDirName
-					+ ", exportAltoXml=" + exportAltoXml + ", splitIntoWordsInAltoXml=" + splitIntoWordsInAltoXml
-					+ ", fileNamePattern=" + fileNamePattern + ", useHttps="
-					+ useHttps + "]";
-		}
-		
-	}
+//	/**
+//	 * @deprecated not used anymore
+//	 */
+//	public static class ExportOptions implements Serializable {
+//		private static final long serialVersionUID = -3767885415954377017L;
+//		
+//		public String dir=null;
+//		public Set<Integer> pageIndices=null; // can be set to null to include all pages!
+//		public boolean doOverwrite=true;
+//		public boolean writeMets=true;
+//		public boolean useOcrMasterDir=true;
+//		public boolean doWriteImages=true;
+//		public boolean exportPageXml=true;
+//		public String pageDirName = LocalDocConst.PAGE_FILE_SUB_FOLDER;
+//		public boolean exportAltoXml=true;
+//		public boolean splitIntoWordsInAltoXml=false;
+//		public String fileNamePattern = "${filename}";
+//		public boolean useHttps=true;
+//		public ImgType remoteImgQuality = ImgType.orig;
+//		@Deprecated //this will be in the Page element's custom attribute
+//		public boolean exportTranscriptMetadata = false;
+//		
+//		@Override
+//		public String toString() {
+//			return "ExportOptions [dir=" + dir + ", pageIndices=" + pageIndices + ", doOverwrite=" + doOverwrite
+//					+ ", writeMets=" + writeMets + ", useOcrMasterDir=" + useOcrMasterDir + ", doWriteImages="
+//					+ doWriteImages + ", exportPageXml=" + exportPageXml + ", pageDirName=" + pageDirName
+//					+ ", exportAltoXml=" + exportAltoXml + ", splitIntoWordsInAltoXml=" + splitIntoWordsInAltoXml
+//					+ ", fileNamePattern=" + fileNamePattern + ", useHttps="
+//					+ useHttps + ", remoteImgQuality=" + remoteImgQuality.toString() + "]";
+//		}
+//		
+//	}
 
-	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, boolean exportImg, boolean exportPage, boolean exportAlto, boolean splitIntoWordsInAlto) throws IOException,
-	IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
-		return writeRawDoc(doc, dir, doOverwrite, pageIndices, exportImg, exportPage, exportAlto, splitIntoWordsInAlto, null);
-	}
+//	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, boolean exportImg, boolean exportPage, boolean exportAlto, boolean splitIntoWordsInAlto) throws IOException,
+//	IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
+//		return writeRawDoc(doc, dir, doOverwrite, pageIndices, exportImg, exportPage, exportAlto, splitIntoWordsInAlto, null);
+//	}
 	
 	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, 
 			boolean exportImg, boolean exportPage, boolean exportAlto, boolean splitIntoWordsInAlto, String fileNamePattern) throws IOException,
 			IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
-		ExportOptions opts = new ExportOptions();
-		opts.dir = dir;
-		opts.doOverwrite = doOverwrite;
-		opts.writeMets = true;
-		opts.useOcrMasterDir = false;
-		opts.doWriteImages = exportImg;
-		opts.exportPageXml = exportPage;
-		opts.exportAltoXml = exportAlto;
-		opts.splitIntoWordsInAltoXml = splitIntoWordsInAlto;
-		opts.pageIndices = pageIndices;
-		if(fileNamePattern != null){
-			opts.fileNamePattern = fileNamePattern;
+		CommonExportPars pars = new CommonExportPars();
+		pars.setDoWriteMets(true);
+		pars.setDoExportPageXml(exportPage);
+		pars.setDoExportAltoXml(exportAlto);
+		pars.setDoWriteImages(exportImg);
+		pars.setUseOcrMasterDir(false);
+		pars.setSplitIntoWordsInAltoXml(splitIntoWordsInAlto);
+		pars.setPages(CoreUtils.getRangeListStrFromSet(pageIndices));
+		pars.setDir(dir);
+		pars.setDoOverwrite(doOverwrite);
+		
+		if(fileNamePattern != null) {
+			pars.setFileNamePattern(fileNamePattern);
 		}
 		
-		return exportDoc(doc, opts);
+//		ExportOptions opts = new ExportOptions();
+//		opts.dir = dir;
+//		opts.doOverwrite = doOverwrite;
+//		opts.writeMets = true;
+//		opts.useOcrMasterDir = false;
+//		opts.doWriteImages = exportImg;
+//		opts.exportPageXml = exportPage;
+//		opts.exportAltoXml = exportAlto;
+//		opts.splitIntoWordsInAltoXml = splitIntoWordsInAlto;
+//		opts.pageIndices = pageIndices;
+//		if(fileNamePattern != null){
+//			opts.fileNamePattern = fileNamePattern;
+//		}
+		
+		return exportDoc(doc, pars);
 	}
 
 //	public File writeFatDoc(TrpDoc doc, final String dir, boolean doOverwrite) throws IOException,
@@ -135,47 +158,57 @@ public class DocExporter extends Observable {
 		TrpXlsxTableBuilder.writeXlsxForTables(doc, new File(path), pageIndices, null);
 	}
 
-	public File exportDoc(TrpDoc doc, final ExportOptions opts) throws IOException, IllegalArgumentException,
+	public File exportDoc(TrpDoc doc, CommonExportPars pars) throws IOException, IllegalArgumentException,
 			URISyntaxException, JAXBException, TransformerException {
 		FimgStoreGetClient getter = null;
 		FimgStoreUriBuilder uriBuilder = null;
+		ImgType imgType = pars.getRemoteImgQuality() == null ? ImgType.orig : pars.getRemoteImgQuality();
 		if (doc.isRemoteDoc()) {
 			//FIXME fimagestore path should be read from docMd!
 			getter = new FimgStoreGetClient("dbis-thure.uibk.ac.at", "f");
-			final String scheme = opts.useHttps ? "https" : "http";
-			final int port = opts.useHttps ? 443 : 80;
+			final String scheme = pars.isUseHttps() ? "https" : "http";
+			final int port = pars.isUseHttps() ? 443 : 80;
 			uriBuilder = new FimgStoreUriBuilder(scheme, getter.getHost(), port,
 					getter.getServerContext());
 		}
 		
-	
-
 		//create copy of object, as we alter it here while exporting
 		TrpDoc doc2;
 		doc2 = new TrpDoc(doc);
 		
-		File outputDir = new File(opts.dir);
-		if (!opts.doOverwrite && outputDir.exists()) {
+		File outputDir = new File(pars.getDir());
+		if (!pars.isDoOverwrite() && outputDir.exists()) {
 			throw new IOException("File path already exists.");
 		}
 		outputDir.mkdir();
 		
+		//decide where to put the images
+		final File imgOutputDir;
+		if (pars.isUseOcrMasterDir()) {
+			imgOutputDir = new File(outputDir.getAbsolutePath() + File.separatorChar
+					+ LocalDocConst.OCR_MASTER_DIR);
+			imgOutputDir.mkdir();
+		} else {
+			imgOutputDir = outputDir;
+		}
+		
 		File pageOutputDir = null, altoOutputDir = null;
-				
-		if(opts.exportPageXml){
-			pageOutputDir = new File(outputDir.getAbsolutePath() + File.separatorChar
-					+ opts.pageDirName);
+		String pageDirName = pars.getPageDirName();
+		if (pars.isDoExportPageXml() && !StringUtils.isEmpty(pageDirName)) {
+			pageOutputDir = new File(outputDir.getAbsolutePath() + File.separatorChar + pageDirName);
 			if (pageOutputDir.mkdir()){
 				logger.debug("pageOutputDir created successfully ");
 			}
 			else{
 				logger.debug("pageOutputDir could not be created!");
 			}
-			
+		} else {
+			//if pageDirName is not set, export the PAGE XMLs to imgOutputDir
+			pageOutputDir = imgOutputDir;
 		}
 		
 		AltoExporter altoEx = new AltoExporter();
-		if (opts.exportAltoXml){
+		if (pars.isDoExportAltoXml()){
 			altoOutputDir = altoEx.createAltoOuputDir(doc2, outputDir.getAbsolutePath());
 			
 //			try {
@@ -196,40 +229,31 @@ public class DocExporter extends Observable {
 				throw new IOException("Could not marshal metadata to file.", e);
 			}
 		}
-		
-		//decide where to put the images
-		final File imgOutputDir;
-		if (opts.useOcrMasterDir) {
-			imgOutputDir = new File(outputDir.getAbsolutePath() + File.separatorChar
-					+ LocalDocConst.OCR_MASTER_DIR);
-			imgOutputDir.mkdir();
-		} else {
-			imgOutputDir = outputDir;
-		}
 
 		List<TrpPage> pages = doc2.getPages();
 		
+		Set<Integer> pageIndices = pars.getPageIndices(doc.getNPages());
+		
 		for (int i=0; i<pages.size(); ++i) {
 //			for (TrpPage p : pages) {
-			if (opts.pageIndices!=null && !opts.pageIndices.contains(i))
+			if (pageIndices!=null && !pageIndices.contains(i))
 				continue;
 		
 			TrpPage p = pages.get(i);
 			File imgFile = null, xmlFile = null, altoFile = null;
 			
-			final String baseFileName = buildFileName(opts.fileNamePattern, p);
+			final String baseFileName = buildFileName(pars.getFileNamePattern(), p);
 			final String imgExt = "." + FilenameUtils.getExtension(p.getImgFileName());
 			final String xmlExt = ".xml";
 			
-			if (doc2.isRemoteDoc()) {
-				final URI imgUri = uriBuilder.getFileUri(p.getKey());
-				
-				if (opts.doWriteImages) {
+			if (doc2.isRemoteDoc()) {				
+				if (pars.isDoWriteImages()) {
+					final URI imgUri = uriBuilder.getImgUri(p.getKey(), imgType);
 					imgFile = getter.saveFile(imgUri, imgOutputDir.getAbsolutePath(), baseFileName + imgExt);
 					p.setUrl(imgFile.toURI().toURL());
 					p.setKey(null);
 				}
-				if(opts.exportPageXml) {
+				if(pars.isDoExportPageXml()) {
 					//old
 					//TrpTranscriptMetadata t = p.getCurrentTranscript();
 					/*
@@ -250,16 +274,16 @@ public class DocExporter extends Observable {
 					
 				}
 			} else {
-				if (opts.doWriteImages) {
+				if (pars.isDoWriteImages()) {
 					imgFile = LocalDocWriter.copyImgFile(p, p.getUrl(), imgOutputDir.getAbsolutePath(), baseFileName + imgExt);
 				}
-				if(opts.exportPageXml) {
+				if(pars.isDoExportPageXml()) {
 					xmlFile = LocalDocWriter.copyTranscriptFile(p, pageOutputDir.getAbsolutePath(), baseFileName + xmlExt);
 				}
 			}
 			// export alto:
-			if (opts.exportAltoXml) {
-				altoFile = altoEx.exportAltoFile(p, baseFileName + xmlExt, altoOutputDir, opts.splitIntoWordsInAltoXml);
+			if (pars.isDoExportAltoXml()) {
+				altoFile = altoEx.exportAltoFile(p, baseFileName + xmlExt, altoOutputDir, pars.isSplitIntoWordsInAltoXml());
 			}
 			
 			if (imgFile != null)
@@ -280,7 +304,7 @@ public class DocExporter extends Observable {
 			setChanged();
 		}
 		
-		if (opts.writeMets) {
+		if (pars.isDoWriteMets()) {
 			//load the exported doc from its new location
 			//FIXME this does not work for export of PAGE XMLs only!
 //			final TrpDoc localDoc = LocalDocReader.load(outputDir.getAbsolutePath(), false);
@@ -288,7 +312,7 @@ public class DocExporter extends Observable {
 			//set local folder or else TrpMetsBuilder will treat this as remote doc!
 			doc2.getMd().setLocalFolder(outputDir);
 			//write mets with file pointers to local files
-			Mets mets = TrpMetsBuilder.buildMets(doc2, opts.exportPageXml, opts.exportAltoXml, opts.doWriteImages, opts.pageIndices);
+			Mets mets = TrpMetsBuilder.buildMets(doc2, pars.isDoExportPageXml(), pars.isDoExportAltoXml(), pars.isDoWriteImages(), pageIndices);
 			File metsFile = new File(outputDir.getAbsolutePath() + File.separator
 					+ TrpMetsBuilder.METS_FILE_NAME);
 	
@@ -320,9 +344,9 @@ public class DocExporter extends Observable {
 		if(!isFileNamePatternValid(fileNamePattern)){
 			throw new IllegalArgumentException("Filename pattern is invalid: " + fileNamePattern);
 		}
-		
-		final String pageNrStr = StringUtils.lpad(""+pageNr, '0', 4);
-		final String docIdStr = StringUtils.lpad(""+docId, '0', 6);
+
+		final String pageNrStr = StringUtils.leftPad(""+pageNr, 4, '0');
+		final String docIdStr = StringUtils.leftPad(""+docId, 6, '0');
 		
 		String fileName = fileNamePattern
 		.replaceAll("\\$\\{filename\\}", FilenameUtils.getBaseName(imgFileName))

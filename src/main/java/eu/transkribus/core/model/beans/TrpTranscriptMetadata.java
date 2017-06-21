@@ -18,6 +18,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.dea.fimgstoreclient.utils.FimgStoreUtils;
+
 import eu.transkribus.core.exceptions.NullValueException;
 import eu.transkribus.core.model.beans.adapters.EditStatusAdapter;
 import eu.transkribus.core.model.beans.enums.EditStatus;
@@ -380,7 +382,38 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 		this.nrOfTranscribedWords = nrOfTranscribedWords;
 	}	
 	
-	@Override public boolean equals(Object o) {
+	/**
+	 * Check key and URL protocol.<br/>
+	 * This method returns false, if there is a filekey set which matches the pattern defined in FimagestoreClient.<br/>
+	 * It returns true, if there is no filekey and the URL points to an existing file.<br/>
+	 * 
+	 * @return
+	 * @throws IllegalStateException in case there are inconsistencies:
+	 * <ul>
+	 * <li>key of transcript is null, but the URL protocol is not "file://"</li>
+	 * <li>key of transcript is null, but the file URL does not point to an existing file</li>
+	 * <li>a filekey is set, but it does not match the fimagestore key pattern</li>
+	 * </ul>
+	 */
+	public boolean isLocalTranscript() {
+		if(key == null) {
+			final String prot = url.getProtocol();
+			if(!"file".equals(prot)) {
+				throw new IllegalStateException("Key of tanscript is null, but URL protocol is not file!");
+			}
+			if(!new File(url.getFile()).isFile()) {
+				throw new IllegalStateException("Key of tanscript is null, but file URL does not exis: " + url.getFile());			}
+			return true;
+		} else {
+			if(!FimgStoreUtils.isFimgStoreKey(key)) {
+				throw new IllegalStateException("Key of tanscript is not a valid fimagestore key!");
+			}
+			return false;
+		}
+	}
+	
+	@Override 
+	public boolean equals(Object o) {
 		// FIXME ?? (not tested)
 		
 		if (o==null || !(o instanceof TrpTranscriptMetadata))
@@ -415,7 +448,97 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 		}
 		return result;
 	}
+
+	/**
+	 * This method is just for testing equivalence of documents selected via different DocManager methods
+	 * @param obj
+	 * @return
+	 */
+	public boolean testEquals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TrpTranscriptMetadata other = (TrpTranscriptMetadata) obj;
+		if (docId != other.docId)
+			return false;
+		if (key == null) {
+			if (other.key != null)
+				return false;
+		} else if (!key.equals(other.key))
+			return false;
+		if (localFolder == null) {
+			if (other.localFolder != null)
+				return false;
+		} else if (!localFolder.equals(other.localFolder))
+			return false;
+		if (md5Sum == null) {
+			if (other.md5Sum != null)
+				return false;
+		} else if (!md5Sum.equals(other.md5Sum))
+			return false;
+		if (note == null) {
+			if (other.note != null)
+				return false;
+		} else if (!note.equals(other.note))
+			return false;
+		if (nrOfLines != other.nrOfLines)
+			return false;
+		if (nrOfRegions != other.nrOfRegions)
+			return false;
+		if (nrOfTranscribedLines != other.nrOfTranscribedLines)
+			return false;
+		if (nrOfTranscribedRegions != other.nrOfTranscribedRegions)
+			return false;
+		if (nrOfTranscribedWords != other.nrOfTranscribedWords)
+			return false;
+		if (nrOfWords != other.nrOfWords)
+			return false;
+		if (nrOfWordsInLines != other.nrOfWordsInLines)
+			return false;
+		if (nrOfWordsInRegions != other.nrOfWordsInRegions)
+			return false;
+		if (pageId != other.pageId)
+			return false;
+		if (pageNr != other.pageNr)
+			return false;
+		if (pageReferenceForLocalDocs == null) {
+			if (other.pageReferenceForLocalDocs != null)
+				return false;
+		} else if (!pageReferenceForLocalDocs.equals(other.pageReferenceForLocalDocs))
+			return false;
+		if (parentTsId != other.parentTsId)
+			return false;
+		if (status != other.status)
+			return false;
+		if (timestamp != other.timestamp)
+			return false;
+		if (toolName == null) {
+			if (other.toolName != null)
+				return false;
+		} else if (!toolName.equals(other.toolName))
+			return false;
+		if (tsId != other.tsId)
+			return false;
+		if (url == null) {
+			if (other.url != null)
+				return false;
+		} else if (!url.equals(other.url))
+			return false;
+		if (userId != other.userId)
+			return false;
+		if (userName == null) {
+			if (other.userName != null)
+				return false;
+		} else if (!userName.equals(other.userName))
+			return false;
+		return true;
+	}
+
 	
+
 	public PcGtsType unmarshallTranscript() throws NullValueException, JAXBException {
 		if (getUrl()==null)
 			throw new NullValueException("URL of transcript is null!");

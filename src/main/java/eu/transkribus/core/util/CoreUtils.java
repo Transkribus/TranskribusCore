@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -727,6 +728,49 @@ public class CoreUtils {
 		}
 		return pi;
 	}
+	
+
+	public static Set<Integer> invertPageIndices(Set<Integer> pageIndices, int nrOfPages) {
+		Set<Integer> out = new HashSet<>();
+		for(Integer i = 0; i < nrOfPages; i++) {
+			if(!pageIndices.contains(i)) {
+				out.add(i);
+			}
+		}
+		return out;
+	}
+	
+	public static String getRangeListStrFromSet(Set<Integer> set) {
+		List<Integer> list = new ArrayList<>();
+		list.addAll(set);
+		
+		return getRangeListStrFromList(list);
+	}
+	
+	public static String getRangeListStrFromList(List<Integer> l) {
+		Collections.sort(l);
+		
+		String str = "";
+		
+		Integer last=null;
+		for (Integer i : l) {
+			if (StringUtils.isEmpty(str)) {
+				str += (i+1);
+			}
+			else if (i==last+1) {
+				str = str.replaceAll("\\-\\d+$", "");
+				str += "-"+(i+1);
+			}
+			else {
+				str += ","+(i+1);
+			}
+			
+			last = i;
+		}
+
+		return str;
+	}
+
 			
 	/**
 	 * Returns a string of comma seperated ranges (starting from 1) indicating which values are true in the given list.
@@ -826,6 +870,10 @@ public class CoreUtils {
 		return msg;
 	}
 	
+	public static String replaceNonPathCharacters(String str, String replace) {
+		return str.replaceAll("[\\/:*?\"<>|]", replace);
+	}
+	
 	public static void main(String[] args) {
 		List<Integer> base = Arrays.asList(1, 3, 4, 5, 7, 10);
 		List<Integer> search = Arrays.asList(111, 45, 3, 4, 6, 8, 12);
@@ -835,7 +883,4 @@ public class CoreUtils {
 		System.out.println("common = "+StringUtils.join(common));
 
 	}
-
-
-
 }
