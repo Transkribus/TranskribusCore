@@ -71,6 +71,7 @@ public class TrpCollection implements Serializable {
 		defaultForApp = c.getDefaultForApp();
 		label = c.getLabel();
 		role = c.getRole();
+		nrOfDocuments = c.getNrOfDocuments();
 	}
 	
 	public int getColId() {
@@ -162,6 +163,7 @@ public class TrpCollection implements Serializable {
 		result = prime * result + (elearning ? 1231 : 1237);
 		result = prime * result + ((label == null) ? 0 : label.hashCode());
 		result = prime * result + ((role == null) ? 0 : role.hashCode());
+		result = prime * result + nrOfDocuments;
 		return result;
 	}
 	@Override
@@ -200,6 +202,8 @@ public class TrpCollection implements Serializable {
 		} else if (!label.equals(other.label))
 			return false;
 		if (role != other.role)
+			return false;
+		if (nrOfDocuments != other.nrOfDocuments)
 			return false;
 		return true;
 	}
