@@ -12,6 +12,8 @@ public enum JobTask {
 	DetectBlocks(JobType.layoutAnalysis, "Block Segmentation", "ncsr"),
 	DetectLines(JobType.layoutAnalysis, "Line Segmentation", "ncsr"),
 	DetectWords(JobType.layoutAnalysis, "Word Segmentation", "ncsr"),
+	Polygon2Baseline(JobType.layoutAnalysis, "Polygon to Baseline", "ncsr"),
+	Baseline2Polygon(JobType.layoutAnalysis, "Baseline to Polygon", "upvlc"),
 	
 	LayoutAnalysis(JobType.layoutAnalysis, "Layout Analysis", "ncsr"),
 	
