@@ -50,7 +50,7 @@ public class TrpCollection implements Serializable {
 	//actually nrOfDocuments is no real column. Transient annotated fields are ignored on inserts
 	@Column
 	@Transient
-	private int nrOfDocuments;
+	private int nrOfDocuments = 0;
 	
 	@Column
 	@Transient
