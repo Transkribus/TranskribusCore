@@ -187,6 +187,7 @@ public final class RESTConst {
 	public static final String DO_LINE_SEG_PARAM = "doLineSeg";
 	public static final String DO_WORD_SEG_PARAM = "doWordSeg";
 	public static final String DO_POLYGON_TO_BASELINE_PARAM = "doPolygonToBaseline";
+	public static final String DO_BASELINE_TO_POLYGON_PARAM = "doBaselineToPolygon";
 	
 	@Deprecated
 	public static final String IMG_KEY_PARAM = "imgKey";
