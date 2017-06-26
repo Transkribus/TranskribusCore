@@ -1,6 +1,5 @@
 package eu.transkribus.core.model.beans.job;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -149,6 +148,9 @@ public class TrpJobStatus implements Serializable {
 //	@XmlTransient
 	@Column(name="STACKTRACE")
 	private String stackTrace;
+	
+	@Column
+	private Integer colId;
 
 	/**
 	 * Empty, public constructor for Jaxb and DbUtils
@@ -197,6 +199,7 @@ public class TrpJobStatus implements Serializable {
 	
 	public void copy(TrpJobStatus other) {
 	    this.jobId = other.jobId;
+	    this.colId = other.colId;
 	    this.docId = other.docId;
 	    this.pages = other.pages;
 	    this.type = other.type;
@@ -241,6 +244,14 @@ public class TrpJobStatus implements Serializable {
 		}
 	}
 	
+	public Integer getColId() {
+		return colId;
+	}
+
+	public void setColId(Integer colId) {
+		this.colId = colId;
+	}
+
 	public String getJobId() {
 		return jobId;
 	}
@@ -609,7 +620,7 @@ public class TrpJobStatus implements Serializable {
 
 	@Override
 	public String toString() {
-		return "TrpJobStatus [jobId=" + jobId + ", docId=" + docId + ", pageNr=" + pageNr + ", pages=" + pages
+		return "TrpJobStatus [jobId=" + jobId + ", colId=" + colId+", docId=" + docId + ", pageNr=" + pageNr + ", pages=" + pages
 				+ ", type=" + type + ", state=" + state + ", success=" + success + ", description=" + description
 				+ ", userName=" + userName + ", userId=" + userId + ", createTime=" + createTime + ", startTime="
 				+ startTime + ", endTime=" + endTime + ", jobData=" + jobData + ", resumable=" + resumable
