@@ -11,11 +11,14 @@ import org.apache.commons.lang3.StringUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import eu.transkribus.core.model.beans.DocumentSelectionDescriptor;
+
 public class GsonUtil {
 	
 	public static final Gson GSON = new Gson();
 	
 	public static final Type STRING_LIST_TYPE = new TypeToken<List<String>>(){}.getType();
+	public static final Type DOCUMENT_SELECTION_DESCRIPTOR_LIST_TYPE = new TypeToken<List<DocumentSelectionDescriptor>>(){}.getType();
 	
 	public static final Type MAP_TYPE = new TypeToken<Map<String, Object>>(){}.getType();
 		
@@ -25,6 +28,20 @@ public class GsonUtil {
 	
 	public static List<String> toStrList(String json) {
 		return GSON.fromJson(json, STRING_LIST_TYPE);
+	}
+	
+	public static List<DocumentSelectionDescriptor> toDocumentSelectionDescriptorList(String json) {
+		return GSON.fromJson(json, DOCUMENT_SELECTION_DESCRIPTOR_LIST_TYPE);
+	}
+	
+	/**
+	 * Generic toList method - creates a TypeToken depending on the type of the given clazz object 
+	 * @deprecated does not seem to work => create dedicated toXXXList methods instead, cf. e.g. {@link #toDocumentSelectionDescriptorList}
+	 */
+	public static <T> List<T> toList(String json, Class<T> clazz) {
+		Type type = new TypeToken<List<T>>(){}.getType();
+		
+		return (List<T>) GSON.fromJson(json, type);
 	}
 	
 	/**
