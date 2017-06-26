@@ -30,19 +30,15 @@ public class GsonUtilTest {
 		dsds.add(d3);
 		
 		System.out.println("dsds orig = "+CoreUtils.toListString(dsds));
-		for (DocumentSelectionDescriptor dd : dsds) {
-			System.out.println(dd);
-		}
-		
 		String jsonStr = GsonUtil.toJson(dsds);
 		System.out.println("json = "+jsonStr);
 		
-//		List<DocumentSelectionDescriptor> dsdsUnmarshalled = GsonUtil.toList(jsonStr, DocumentSelectionDescriptor.class);
-		List<DocumentSelectionDescriptor> dsdsUnmarshalled = GsonUtil.toDocumentSelectionDescriptorList(jsonStr);
-		System.out.println("dsds unmarshalled = "+dsdsUnmarshalled);
+//		List<DocumentSelectionDescriptor> dsdsUnserialized = GsonUtil.toList(jsonStr, DocumentSelectionDescriptor.class);
+		List<DocumentSelectionDescriptor> dsdsUnserialized = GsonUtil.toDocumentSelectionDescriptorList(jsonStr);
+		System.out.println("dsds unserialized = "+dsdsUnserialized);
 		
 		for (int i=0; i<3; ++i) {
-			DocumentSelectionDescriptor dd = dsdsUnmarshalled.get(i);
+			DocumentSelectionDescriptor dd = dsdsUnserialized.get(i);
 			DocumentSelectionDescriptor ddOrig = dsds.get(i);
 			
 			Assert.assertEquals("Unserialized descriptor not equal to original one: "+dd+" / "+ddOrig, dd, ddOrig);
