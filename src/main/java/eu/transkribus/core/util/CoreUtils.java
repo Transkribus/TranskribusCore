@@ -741,6 +741,9 @@ public class CoreUtils {
 	}
 	
 	public static String getRangeListStrFromSet(Set<Integer> set) {
+		if (set == null)
+			return "";
+		
 		List<Integer> list = new ArrayList<>();
 		list.addAll(set);
 		
@@ -748,6 +751,9 @@ public class CoreUtils {
 	}
 	
 	public static String getRangeListStrFromList(List<Integer> l) {
+		if (l == null)
+			return "";
+		
 		Collections.sort(l);
 		
 		String str = "";
