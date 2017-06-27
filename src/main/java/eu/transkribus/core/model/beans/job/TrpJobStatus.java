@@ -151,6 +151,12 @@ public class TrpJobStatus implements Serializable {
 	
 	@Column
 	private Integer colId;
+	
+	@Column
+	private Integer progress;
+	
+	@Column(name="TOTAL_WORK")
+	private Integer totalWork;
 
 	/**
 	 * Empty, public constructor for Jaxb and DbUtils
@@ -618,6 +624,22 @@ public class TrpJobStatus implements Serializable {
 		this.stackTrace = stackTrace;
 	}
 
+	public Integer getProgress() {
+		return progress;
+	}
+
+	public void setProgress(Integer progress) {
+		this.progress = progress;
+	}
+
+	public Integer getTotalWork() {
+		return totalWork;
+	}
+
+	public void setTotalWork(Integer totalWork) {
+		this.totalWork = totalWork;
+	}
+
 	@Override
 	public String toString() {
 		return "TrpJobStatus [jobId=" + jobId + ", colId=" + colId+", docId=" + docId + ", pageNr=" + pageNr + ", pages=" + pages
@@ -629,7 +651,7 @@ public class TrpJobStatus implements Serializable {
 				+ ", moduleVersion=" + moduleVersion + ", started=" + started + ", ended=" + ended + ", created="
 				+ created + ", pid=" + pid + ", batchId=" + batchId + ", pageid=" + pageid + ", tsid=" + tsid
 				+ ", regionids=" + regionids + ", parent_jobid=" + parent_jobid + ", parent_batchid=" + parent_batchid
-				+ ", stackTrace="+stackTrace+"]";
+				+ ", stackTrace="+stackTrace+", progress="+progress+", totalWork="+totalWork+"]";
 	}
 
 	
