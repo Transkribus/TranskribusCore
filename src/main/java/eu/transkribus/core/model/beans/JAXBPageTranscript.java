@@ -91,4 +91,16 @@ public class JAXBPageTranscript extends AbstractPageTranscript<PcGtsType> {
 			throw new IOException(e);
 		}
 	}
+	
+	public void write(File fileOut) throws IOException {
+		if (pageData == null) {
+			throw new IOException("PageData not set - use build() method to unmarshall object!");
+		}
+
+		try {
+			PageXmlUtils.marshalToFile(pageData, fileOut);
+		} catch (JAXBException e) {
+			throw new IOException(e);
+		}
+	}
 }

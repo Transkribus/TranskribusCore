@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 import java.util.Observable;
 import java.util.Set;
@@ -23,11 +24,14 @@ import org.slf4j.LoggerFactory;
 
 import com.itextpdf.text.DocumentException;
 
+import eu.transkribus.core.model.beans.JAXBPageTranscript;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.mets.Mets;
+import eu.transkribus.core.model.beans.pagecontent.MetadataType;
+import eu.transkribus.core.model.beans.pagecontent.TranskribusMetadataType;
 import eu.transkribus.core.model.builder.CommonExportPars;
 import eu.transkribus.core.model.builder.ExportUtils;
 import eu.transkribus.core.model.builder.alto.AltoExporter;
@@ -44,46 +48,7 @@ import eu.transkribus.core.util.JaxbUtils;
 
 public class DocExporter extends Observable {
 	private static final Logger logger = LoggerFactory.getLogger(DocExporter.class);
-	
-//	/**
-//	 * @deprecated not used anymore
-//	 */
-//	public static class ExportOptions implements Serializable {
-//		private static final long serialVersionUID = -3767885415954377017L;
-//		
-//		public String dir=null;
-//		public Set<Integer> pageIndices=null; // can be set to null to include all pages!
-//		public boolean doOverwrite=true;
-//		public boolean writeMets=true;
-//		public boolean useOcrMasterDir=true;
-//		public boolean doWriteImages=true;
-//		public boolean exportPageXml=true;
-//		public String pageDirName = LocalDocConst.PAGE_FILE_SUB_FOLDER;
-//		public boolean exportAltoXml=true;
-//		public boolean splitIntoWordsInAltoXml=false;
-//		public String fileNamePattern = "${filename}";
-//		public boolean useHttps=true;
-//		public ImgType remoteImgQuality = ImgType.orig;
-//		@Deprecated //this will be in the Page element's custom attribute
-//		public boolean exportTranscriptMetadata = false;
-//		
-//		@Override
-//		public String toString() {
-//			return "ExportOptions [dir=" + dir + ", pageIndices=" + pageIndices + ", doOverwrite=" + doOverwrite
-//					+ ", writeMets=" + writeMets + ", useOcrMasterDir=" + useOcrMasterDir + ", doWriteImages="
-//					+ doWriteImages + ", exportPageXml=" + exportPageXml + ", pageDirName=" + pageDirName
-//					+ ", exportAltoXml=" + exportAltoXml + ", splitIntoWordsInAltoXml=" + splitIntoWordsInAltoXml
-//					+ ", fileNamePattern=" + fileNamePattern + ", useHttps="
-//					+ useHttps + ", remoteImgQuality=" + remoteImgQuality.toString() + "]";
-//		}
-//		
-//	}
 
-//	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, boolean exportImg, boolean exportPage, boolean exportAlto, boolean splitIntoWordsInAlto) throws IOException,
-//	IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
-//		return writeRawDoc(doc, dir, doOverwrite, pageIndices, exportImg, exportPage, exportAlto, splitIntoWordsInAlto, null);
-//	}
-	
 	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, 
 			boolean exportImg, boolean exportPage, boolean exportAlto, boolean splitIntoWordsInAlto, String fileNamePattern) throws IOException,
 			IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
@@ -102,37 +67,8 @@ public class DocExporter extends Observable {
 			pars.setFileNamePattern(fileNamePattern);
 		}
 		
-//		ExportOptions opts = new ExportOptions();
-//		opts.dir = dir;
-//		opts.doOverwrite = doOverwrite;
-//		opts.writeMets = true;
-//		opts.useOcrMasterDir = false;
-//		opts.doWriteImages = exportImg;
-//		opts.exportPageXml = exportPage;
-//		opts.exportAltoXml = exportAlto;
-//		opts.splitIntoWordsInAltoXml = splitIntoWordsInAlto;
-//		opts.pageIndices = pageIndices;
-//		if(fileNamePattern != null){
-//			opts.fileNamePattern = fileNamePattern;
-//		}
-		
 		return exportDoc(doc, pars);
 	}
-
-//	public File writeFatDoc(TrpDoc doc, final String dir, boolean doOverwrite) throws IOException,
-//			IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
-//		return writeFatDoc(doc, null, dir, doOverwrite, "${pageNr}_${filekey}", null, null);
-//	}
-//	
-//	public File writeFatDoc(TrpDoc doc, final Set<Integer> pages, final String dir, boolean doOverwrite, 
-//			final String fileNamePattern, final String language, final String typeFace) throws IOException,
-//	IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
-//
-//		
-//		
-//		final File outputDir = exportDoc(doc, opts);
-//		return outputDir;
-//	}
 	
 	public void writePDF(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean addTextPages, final boolean imagesOnly, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, boolean createTitle) throws MalformedURLException, DocumentException, IOException, JAXBException, URISyntaxException, InterruptedException{
 		PdfExporter pdfWriter = new PdfExporter();
@@ -210,14 +146,6 @@ public class DocExporter extends Observable {
 		AltoExporter altoEx = new AltoExporter();
 		if (pars.isDoExportAltoXml()){
 			altoOutputDir = altoEx.createAltoOuputDir(doc2, outputDir.getAbsolutePath());
-			
-//			try {
-//
-//				altoEx.export(doc, outputDir.getAbsolutePath());
-//			} catch (DocumentException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
 		}
 
 		if (doc2.getMd() != null) {
@@ -242,6 +170,8 @@ public class DocExporter extends Observable {
 			TrpPage p = pages.get(i);
 			File imgFile = null, xmlFile = null, altoFile = null;
 			
+			URL imgUrl = p.getUrl(); 
+			
 			final String baseFileName = buildFileName(pars.getFileNamePattern(), p);
 			final String imgExt = "." + FilenameUtils.getExtension(p.getImgFileName());
 			final String xmlExt = ".xml";
@@ -259,19 +189,55 @@ public class DocExporter extends Observable {
 					/*
 					 * new: to get the previously stored choosen version
 					 */
-					TrpTranscriptMetadata t;
-					if(ExportUtils.getPageTranscriptAtIndex(i) == null) {
-						t = p.getCurrentTranscript();
-					} else {
-						t = ExportUtils.getPageTranscriptAtIndex(i).getMd();
-					}
-					xmlFile = getter.saveFile(t.getUrl().toURI(), pageOutputDir.getAbsolutePath(), baseFileName + xmlExt);
-					p.getTranscripts().clear();
-					TrpTranscriptMetadata tCopy = new TrpTranscriptMetadata(t, p);
-					tCopy.setUrl(xmlFile.toURI().toURL());
-					//so the current (and only) transcript is set to the one selected in the export dialog
-					p.getTranscripts().add(tCopy);
+					TrpTranscriptMetadata transcriptMd;
+					JAXBPageTranscript transcript = ExportUtils.getPageTranscriptAtIndex(i);
 					
+					if(transcript == null) {
+						transcriptMd = p.getCurrentTranscript();
+						logger.warn("Have to unmarshall transcript in DocExporter for transcript "+transcriptMd+" - should have been built before using ExportUtils::storePageTranscripts4Export!");
+						transcript = new JAXBPageTranscript(transcriptMd);
+						transcript.build();
+					} else {
+						transcriptMd = transcript.getMd();
+					}
+					
+					URL xmlUrl = transcriptMd.getUrl();
+										
+					if (pars.isExportTranscriptMetadata()) {
+						MetadataType md = transcript.getPage().getPcGtsType().getMetadata();
+						if (md == null) {
+							throw new JAXBException("Transcript does not contain a metadata element: "+transcriptMd);
+						}
+						
+						String imgUrlStr = CoreUtils.urlToString(imgUrl);
+						String xmlUrlStr = CoreUtils.urlToString(xmlUrl);
+						String status = transcriptMd.getStatus() == null ? null : transcriptMd.getStatus().toString();
+
+						TranskribusMetadataType tmd = new TranskribusMetadataType();
+						tmd.setDocId(doc.getId());
+						tmd.setPageId(p.getPageId());
+						tmd.setPageNr(p.getPageNr());
+						tmd.setTsid(transcriptMd.getTsId());
+						tmd.setStatus(status);
+						tmd.setUserId(transcriptMd.getUserId());
+						tmd.setImgUrl(imgUrlStr);
+						tmd.setXmlUrl(xmlUrlStr);
+						tmd.setImageId(p.getImageId());
+						md.setTranskribusMetadata(tmd);
+					}
+					
+					xmlFile = new File(FilenameUtils.normalizeNoEndSeparator(pageOutputDir.getAbsolutePath())+File.separator+baseFileName + xmlExt);
+					logger.debug("PAGE XMl output file: "+xmlFile.getAbsolutePath());
+					transcript.write(xmlFile);
+
+					// old code: save file by just downloading to disk
+//					xmlFile = getter.saveFile(transcriptMd.getUrl().toURI(), pageOutputDir.getAbsolutePath(), baseFileName + xmlExt);
+					
+					// make sure (for other exports) that the transcript that is exported is the only one set in the transcripts list of TrpPage
+					p.getTranscripts().clear();
+					TrpTranscriptMetadata tCopy = new TrpTranscriptMetadata(transcriptMd, p);
+					tCopy.setUrl(xmlFile.toURI().toURL());
+					p.getTranscripts().add(tCopy);
 				}
 			} else {
 				if (pars.isDoWriteImages()) {

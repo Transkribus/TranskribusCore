@@ -22,8 +22,29 @@
 				<annotation>
 					<documentation>The timestamp has to be in UTC (Coordinated Universal Time) and not local time.</documentation></annotation></element>
 			<element name="Comments" type="string" minOccurs="0" maxOccurs="1"/>
+									
+			<element name="TranskribusMetadata" type="pc:TranskribusMetadataType" minOccurs="0" maxOccurs="1">
+				<annotation>
+					<documentation>Transkribus specific metadata for this transcript</documentation>
+				</annotation>
+			</element>
 		</sequence>
 	</complexType>
+	
+	<complexType name="TranskribusMetadataType">
+		<attribute name="docId" type="int" use="required"/>
+		<attribute name="pageId" type="int" use="required"/>
+		<attribute name="pageNr" type="int" use="required"/>
+		<attribute name="tsid" type="int" use="optional"/>
+		
+		<attribute name="status" type="string" use="optional"/>
+		<attribute name="userId" type="int" use="optional"/>
+		<attribute name="imgUrl" type="string" use="optional"/>
+		<attribute name="xmlUrl" type="string" use="optional"/>
+		<attribute name="imageId" type="int" use="optional"/>
+	</complexType>
+	
+	
 	<complexType name="PageType">
 		<sequence>
 			<element name="Tag" type="pc:TagType" minOccurs="0" maxOccurs="unbounded"/>

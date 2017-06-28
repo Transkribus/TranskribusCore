@@ -51,7 +51,7 @@ public class CommonExportPars {
 	ImgType remoteImgQuality = ImgType.orig;
 	boolean doOverwrite=true;
 	boolean useOcrMasterDir=true;
-	boolean exportTranscriptMetadata = false;
+	boolean exportTranscriptMetadata = true;
 			
 	public CommonExportPars() {
 	}

@@ -289,9 +289,9 @@ public class CoreUtils {
 	 */
 	public static String urlToString(URL url) {
 		if (url != null) {
-			File imgFile = FileUtils.toFile(url);
-			if (imgFile!=null)
-				return imgFile.getAbsolutePath();
+			File file = FileUtils.toFile(url);
+			if (file!=null)
+				return file.getAbsolutePath();
 			else
 				return url.toString();
 		}
@@ -392,7 +392,7 @@ public class CoreUtils {
 //		str += ")";
 //		return str;
 	}
-		
+			
 	public static String removeFileTypeFromUrl(String urlStr) {
 		StringBuffer buf = new StringBuffer(urlStr);
 		int s = urlStr.indexOf("&fileType=");
