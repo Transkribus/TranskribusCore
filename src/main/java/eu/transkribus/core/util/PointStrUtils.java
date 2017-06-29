@@ -130,7 +130,7 @@ public class PointStrUtils {
 	/**
 	 * Parse points from String and do not throw an exception if some point could not be parsed
 	 */
-	public static List<Point> parsePoints2(String pts) {
+	public static List<Point> parsePoints2(String pts) {		
 		logger.trace("parsing points2: "+pts);
 		List<Point> ptsList = new ArrayList<Point>();
 		for (String pt : pts.trim().split("\\s+")) {

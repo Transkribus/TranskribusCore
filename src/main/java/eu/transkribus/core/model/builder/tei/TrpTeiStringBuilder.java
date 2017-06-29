@@ -1,5 +1,6 @@
 package eu.transkribus.core.model.builder.tei;
 
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +43,7 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.model.builder.CommonExportPars;
 import eu.transkribus.core.util.CoreUtils;
+import eu.transkribus.core.util.PointStrUtils;
 import eu.transkribus.core.util.SebisStringBuilder;
 
 public class TrpTeiStringBuilder extends ATeiBuilder {
@@ -189,7 +191,8 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		
 		// add printspace zone if its there:
 		if (pc.getPage().getPrintSpace() != null) {
-			sb.addLineWIndent("<zone points='"+pc.getPage().getPrintSpace().getCoords().getPoints()+"' rendition='printspace'/>");
+//			sb.addLineWIndent("<zone points='"+pc.getPage().getPrintSpace().getCoords().getPoints()+"' rendition='printspace'/>");
+			sb.addLineWIndent("<zone points='"+getValidZonePointsString(pc.getPage().getPrintSpace().getCoords().getPoints())+"' rendition='printspace'/>");
 		}
 	}
 	
@@ -203,6 +206,23 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		closeElement(sb, "facsimile");
 	}
 	
+	String getValidZonePointsString(String coordsStr) {
+		List<Point> pts = PointStrUtils.parsePoints2(coordsStr);
+		
+		// a zone must have at least three coordinates, so fill up with zeros if they are not there
+		if (pts.size()==0) {
+			coordsStr = "0,0 0,0";
+		}
+		else if (pts.size()==1) {
+			coordsStr += " 0,0 0,0";
+		}
+		else if (pts.size()==2) {
+			coordsStr += " 0,0";
+		}
+		
+		return coordsStr;
+	}
+	
 	void writeZoneForShape(SebisStringBuilder sb, ITrpShapeType s, String facsId, boolean close) {
 		String id = facsId+"_"+s.getId();
 		
@@ -212,7 +232,7 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 			zoneStr = "<zone ulx='"+(int)bb.getX()+"' uly='"+(int)bb.getY()+"' lrx='"+(int)bb.getMaxX()+"' lry='"+(int)bb.getMaxY()+"'";
 		}
 		else {
-			zoneStr = "<zone points='"+s.getCoordinates()+"'";
+			zoneStr = "<zone points='"+getValidZonePointsString(s.getCoordinates())+"'";
 		}
 		
 		// write type of shape:
@@ -318,21 +338,7 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 			sb.addLine("<lg>");
 		}
 	}
-	
-	void correctTagOffsets(int insertOffset, int insertLength, List<CustomTag> tags) {
-		for (CustomTag t : tags) {
-			// inserted text before tag -> extend offset!
-			if (insertOffset <= t.getOffset()) {
-				t.setOffset(t.getOffset() + insertLength);
-			}
-			// inserted text inside tag -> extend length!
-			else if (insertOffset > t.getOffset() && insertOffset < t.getEnd()) {
-				t.setLength(t.getLength() + insertLength);
-			}
-			// else: do not bother!!
-		}
-	}
-	
+		
 	String createTagStart(CustomTag t) {
 		String ts="";
 		if (t instanceof TextStyleTag) {
@@ -446,6 +452,20 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		return te;
 	}
 	
+	void correctTagOffsetsForTagInsertion(int insertOffset, int insertLength, List<CustomTag> tags) {
+		for (CustomTag t : tags) {
+			// inserted text before tag -> extend offset!
+			if (insertOffset <= t.getOffset()) {
+				t.setOffset(t.getOffset() + insertLength);
+			}
+			// inserted text inside tag -> extend length!
+			else if (insertOffset > t.getOffset() && insertOffset < t.getEnd()) {
+				t.setLength(t.getLength() + insertLength);
+			}
+			// else: do not bother!!
+		}
+	}
+	
 	String insertTag(String text, CustomTag t, List<CustomTag> tags) {
 		logger.trace("custom tag: "+t);
 		logger.trace("text: "+text);
@@ -461,15 +481,55 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		StringBuilder sb = new StringBuilder(text);
 		sb.insert(t.getOffset(), ts).toString();
 		
-		correctTagOffsets(t.getOffset(), ts.length(), tags);
+		correctTagOffsetsForTagInsertion(t.getOffset(), ts.length(), tags);
 
 		// insert tag end:
 		String te = createTagEnd(t);
 		
 		sb.insert(t.getEnd(), te).toString();
-		correctTagOffsets(t.getEnd(), te.length(), tags);		
+		correctTagOffsetsForTagInsertion(t.getEnd(), te.length(), tags);		
 		
 		return sb.toString();
+	}
+	
+	void correctTagOffsetsForEscapedString(int indexOfCharacter, String escapedReplacement, List<CustomTag> tags) {
+		if (escapedReplacement.length() > 1) {
+			int additonalLength = escapedReplacement.length()-1;
+			
+			for (CustomTag t : tags) {
+				// character before tag -> move offset to the right
+				if (indexOfCharacter < t.getOffset()) {
+					t.setOffset(t.getOffset() + additonalLength);
+				}
+				// inserted text inside tag -> extend length!
+				else if (indexOfCharacter >= t.getOffset() && indexOfCharacter < t.getEnd()) {
+					t.setLength(t.getLength() + additonalLength);
+				}
+				// else: do not bother!!
+			}
+		}
+	}
+	
+	/**
+	 * Escapes the given shape text for XML and adjusts offset/length values of given tags accordingly
+	 */
+	String escapeShapeText(String text, List<CustomTag> tags) {
+		String escapedText="";
+		for (int i=0; i<text.length(); ++i) {
+			char c = text.charAt(i);
+			String escaped = StringEscapeUtils.escapeXml(""+c);
+			int indexOfChar = escapedText.length();
+			escapedText += escaped;
+			
+			correctTagOffsetsForEscapedString(indexOfChar, escaped, tags);
+			
+//			// adapt tag indices for the additional characters that may have been inserted due to escape
+//			if (escaped.length() > 1) {
+//				logger.trace("escaped = "+escaped+" length = "+escaped.length());
+//				correctTagOffsetsForTagInsertion(insertOffset, escaped.length(), tags);
+//			}
+		}
+		return escapedText;
 	}
 	
 	String getTaggedContent(ITrpShapeType shape) {
@@ -483,17 +543,17 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		
 		String text = shape.getUnicodeText();
 		
-		//escape the shap text here - later on the tag elements would be escaped too
-		String escapedText = StringEscapeUtils.escapeXml(text);
+		// escape the shape text here - later on the tag elements would be escaped too
+		String escapedText = escapeShapeText(text, ctList);
 		logger.trace("ShapeText = "+text+" escaped: "+escapedText);
 		
 		for (CustomTag t : ctList) {
-			
 			if ( commonPars.isTagSelected(t.getTagName()) 
 				|| (commonPars.isDoBlackening() && t.getTagName().equals(BlackeningTag.TAG_NAME)) || t.getTagName().equals(TextStyleTag.TAG_NAME) ) {
 				escapedText = insertTag(escapedText, t, ctList);
 			}
 		}
+		logger.trace("escaped text after tag insertion: "+escapedText);
 		
 		// replace blackened text:
 		if (commonPars.isDoBlackening()) {
