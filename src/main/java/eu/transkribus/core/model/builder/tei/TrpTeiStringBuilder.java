@@ -8,12 +8,15 @@ import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.io.DocExporter;
+import eu.transkribus.core.io.ExportFilePatternUtils;
 import eu.transkribus.core.model.beans.EdFeature;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
@@ -152,7 +155,8 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 	}
 	
 	String getPageGraphicsUrl(TrpPage p, PcGtsType pc) {
-		String graphicUrl=pc.getPage().getImageFilename();
+		String graphicUrl = ExportFilePatternUtils.buildBaseFileName(commonPars.getFileNamePattern(), p) + "." + FilenameUtils.getExtension(p.getImgFileName());
+		logger.trace("graphicUrl = "+graphicUrl);
 		
 		if (false) {
 			if(trpDoc.getMd().getLocalFolder() == null) {

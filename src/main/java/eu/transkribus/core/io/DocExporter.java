@@ -172,7 +172,7 @@ public class DocExporter extends Observable {
 			
 			URL imgUrl = p.getUrl(); 
 			
-			final String baseFileName = buildFileName(pars.getFileNamePattern(), p);
+			final String baseFileName = ExportFilePatternUtils.buildBaseFileName(pars.getFileNamePattern(), p);
 			final String imgExt = "." + FilenameUtils.getExtension(p.getImgFileName());
 			final String xmlExt = ".xml";
 			
@@ -291,66 +291,12 @@ public class DocExporter extends Observable {
 		
 		return outputDir;
 	}
-	
-	
 
-	private String buildFileName(String fileNamePattern, TrpPage p) {
-		if(fileNamePattern == null || fileNamePattern.equals("${filename}")) {
-			return FilenameUtils.getBaseName(p.getImgFileName());
-		} else {
-			String fileName = buildFileName(fileNamePattern, p.getImgFileName(), p.getPageId(), 
-					p.getDocId(), p.getKey(), p.getPageNr());
-			return fileName;
-		}
-	}
 
-	private static String buildFileName(String fileNamePattern, String imgFileName, int pageId, int docId,
-			String key, int pageNr) {
-		
-		if(!isFileNamePatternValid(fileNamePattern)){
-			throw new IllegalArgumentException("Filename pattern is invalid: " + fileNamePattern);
-		}
-
-		final String pageNrStr = StringUtils.leftPad(""+pageNr, 4, '0');
-		final String docIdStr = StringUtils.leftPad(""+docId, 6, '0');
-		
-		String fileName = fileNamePattern
-		.replaceAll("\\$\\{filename\\}", FilenameUtils.getBaseName(imgFileName))
-		.replaceAll("\\$\\{pageId\\}", ""+pageId)
-		.replaceAll("\\$\\{docId\\}", ""+docIdStr)
-		.replaceAll("\\$\\{filekey\\}", key)
-		.replaceAll("\\$\\{pageNr\\}", pageNrStr);
-		
-		return fileName;
-	}
-
-	public static boolean isFileNamePatternValid(final String fnp) {
-		//filename must have a unique component with respect to document
-		boolean isValid = fnp.contains("${filename}") || fnp.contains("${filekey}") 
-				|| fnp.contains("${pageId}") || fnp.contains("${pageNr}");
-		if(!isValid){
-			return false;
-		}
-		//remove all valid placeholders
-		String fnpRemainder = fnp
-				.replaceAll("\\$\\{filename\\}", "")
-				.replaceAll("\\$\\{pageId\\}", "")
-				.replaceAll("\\$\\{docId\\}", "")
-				.replaceAll("\\$\\{filekey\\}", "")
-				.replaceAll("\\$\\{pageNr\\}", "");	
-		//check for occurence of illegal chars
-		final String[] illegalChars = {"\\", "/", ":", "*", "?", "\"", "<", ">", "|", "~", "{", "}"};
-		for(String s : illegalChars){
-			if(fnpRemainder.contains(s)){
-				return false;
-			}
-		}
-		return true;
-	}
 	
 	public static void main(String[] args){
 		final String p = "${filename}_${${pageId}_${pageNr}";
-		System.out.println(isFileNamePatternValid(p));
-		System.out.println(buildFileName(p, "test.jpg", 123, 456, "AAAAA", 7));
+		System.out.println(ExportFilePatternUtils.isFileNamePatternValid(p));
+		System.out.println(ExportFilePatternUtils.buildBaseFileName(p, "test.jpg", 123, 456, "AAAAA", 7));
 	}
 }

@@ -8,6 +8,7 @@ import org.dea.fimgstoreclient.beans.ImgType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.io.ExportFilePatternUtils;
 import eu.transkribus.core.io.LocalDocConst;
 import eu.transkribus.core.model.builder.tei.TeiExportPars;
 import eu.transkribus.core.util.CoreUtils;
@@ -46,7 +47,7 @@ public class CommonExportPars {
 	boolean splitIntoWordsInAltoXml=false;
 	
 	String pageDirName = LocalDocConst.PAGE_FILE_SUB_FOLDER;
-	String fileNamePattern = "${filename}";
+	String fileNamePattern = ExportFilePatternUtils.FILENAME_PATTERN;
 	boolean useHttps=true;
 	ImgType remoteImgQuality = ImgType.orig;
 	boolean doOverwrite=true;

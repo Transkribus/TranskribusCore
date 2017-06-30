@@ -403,6 +403,27 @@ public class CoreUtils {
 //		str += ")";
 //		return str;
 	}
+	
+	/**
+	 * Checks if the given pathToFile exists and generates an alternative filename, 
+	 * trying to add an increasing number suffix of size at most suffixSize
+	 */
+	public static String createNonExistingFilename(String pathToFile, int suffixSize) {
+		String uniquePathToFile = pathToFile;
+		
+		int i=1;
+		while (fileExists(uniquePathToFile)) {
+			uniquePathToFile = pathToFile + "_"+ StringUtils.leftPad((""+i), suffixSize, "0");
+			
+			++i;
+		}
+		
+		return uniquePathToFile;
+	}
+	
+	public static boolean fileExists(String path) {
+		return Files.exists(Paths.get(path));
+	}
 			
 	public static String removeFileTypeFromUrl(String urlStr) {
 		StringBuffer buf = new StringBuffer(urlStr);
