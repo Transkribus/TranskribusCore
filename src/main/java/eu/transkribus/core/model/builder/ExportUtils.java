@@ -403,7 +403,18 @@ public class ExportUtils {
 	}
 	
 	public static String getAdjustedDocTitle(String title) {
-		return (title.replaceAll("([/\\?%*:| \"<>. ])", "_"));
+		return getAdjustedDocTitle(title, "_");
+	}
+	
+	public static String getAdjustedDocTitle(String title, String replacement) {
+		return title.replaceAll("([/\\?%*:| \"<>. \\\\])", replacement);
+//		return title.replaceAll("([/\\?%*:| \"<>. ])", replacement); // bug -> no backslash included!
+	}
+	
+	public static void main(String[] args) {
+		
+		System.out.println(getAdjustedDocTitle("Document at C:\\Users\\zidkmai\\Downloads\\5149\\5149", "_"));
+		
 	}
 	
 

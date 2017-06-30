@@ -908,9 +908,9 @@ public class CoreUtils {
 		return msg;
 	}
 	
-	public static String replaceNonPathCharacters(String str, String replace) {
-		return str.replaceAll("[\\/:*?\"<>|]", replace);
-	}
+//	public static String replaceNonPathCharacters(String str, String replace) {
+//		return str.replaceAll("[\\/:*?\"<>|]", replace);
+//	}
 	
 	public static void main(String[] args) {
 		List<Integer> base = Arrays.asList(1, 3, 4, 5, 7, 10);
