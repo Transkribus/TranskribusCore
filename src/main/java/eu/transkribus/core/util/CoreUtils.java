@@ -299,6 +299,17 @@ public class CoreUtils {
 		return "";
 	}
 	
+	public static void deleteDir(File dir) {
+		if (dir != null) {
+			logger.debug("deleting dir: "+dir.getAbsolutePath());
+			try {
+				FileUtils.deleteDirectory(dir);
+			} catch (IOException e) {
+				logger.error("Error deleting directory: "+e.getMessage());
+			}
+		}
+	}
+	
 	public static <T> List<T> getFirstCommonSequence(List<T> base, List<T> search) {
 		List<T> common = new ArrayList<>();
 		
