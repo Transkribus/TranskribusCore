@@ -47,7 +47,7 @@ public class CommonExportPars {
 	boolean splitIntoWordsInAltoXml=false;
 	
 	String pageDirName = LocalDocConst.PAGE_FILE_SUB_FOLDER;
-	String fileNamePattern = ExportFilePatternUtils.FILENAME_PATTERN;
+	String fileNamePattern = ExportFilePatternUtils.PAGENR_FILENAME_PATTERN;
 	boolean useHttps=true;
 	ImgType remoteImgQuality = ImgType.orig;
 	boolean doOverwrite=true;
