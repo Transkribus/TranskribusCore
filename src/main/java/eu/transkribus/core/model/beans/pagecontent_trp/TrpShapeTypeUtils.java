@@ -48,6 +48,14 @@ public class TrpShapeTypeUtils {
 		
 		return null;
 	}
+	
+	public static ITrpShapeType getParentShape(ITrpShapeType st) {
+		if (st != null && st.getParent() instanceof ITrpShapeType) {
+			return (ITrpShapeType) st.getParent();
+		} else {
+			return null;
+		}
+	}
 
 	public static TrpBaselineType getBaseline(ITrpShapeType st) {
 		if (RegionTypeUtil.isBaseline(st))
