@@ -66,6 +66,8 @@ public class TrpHtr {
 	
 	private String charList;
 	
+	private boolean bestNetStored;
+	
 	@Column(name="NR_OF_LINES")
 	private int nrOfLines;
 	
@@ -187,6 +189,14 @@ public class TrpHtr {
 		this.charList = charList;
 	}
 	
+	public boolean isBestNetStored() {
+		return bestNetStored;
+	}
+
+	public void setBestNetStored(boolean bestNetStored) {
+		this.bestNetStored = bestNetStored;
+	}
+
 	public String getParams() {
 		return params;
 	}
@@ -228,8 +238,8 @@ public class TrpHtr {
 		return "TrpHtr [htrId=" + htrId + ", name=" + name + ", description=" + description + ", provider=" + provider
 				+ ", path=" + path + ", created=" + created + ", gtDocId=" + gtDocId + ", testGtDocId=" + testGtDocId
 				+ ", language=" + language + ", baseHtrId=" + baseHtrId + ", trainJobId=" + trainJobId + ", cerString="
-				+ cerString + ", cerTestString=" + cerTestString + ", charList=" + charList + ", nrOfLines=" + nrOfLines
-				+ ", nrOfWords=" + nrOfWords + ", params=" + params + "]";
+				+ cerString + ", cerTestString=" + cerTestString + ", charList=" + charList + ", bestNetStored="
+				+ bestNetStored + ", nrOfLines=" + nrOfLines + ", nrOfWords=" + nrOfWords + ", params=" + params + "]";
 	}
 	
 }
