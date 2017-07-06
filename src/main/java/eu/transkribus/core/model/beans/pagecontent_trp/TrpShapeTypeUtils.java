@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpTextChangedEvent;
+import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.SebisStopWatch;
 
 public class TrpShapeTypeUtils {
@@ -103,30 +104,38 @@ public class TrpShapeTypeUtils {
 	}
 		
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static void applyReadingOrderFromCoordinates(List content, boolean fireEvents, boolean deleteReadingOrder) {
+	public static void applyReadingOrderFromCoordinates(List<? extends ITrpShapeType> shapes, boolean fireEvents, boolean deleteReadingOrder, boolean recursive) {
 		//sort with coordinates
-		Collections.sort(content, new TrpElementCoordinatesComparator());
+		Collections.sort(shapes, new TrpElementCoordinatesComparator());
 		
 		int i=0;
-		for (Object o : content) {
-			if (o instanceof ITrpShapeType) {
-				ITrpShapeType st = (ITrpShapeType) o;
-				if (!deleteReadingOrder)
-					logger.trace("setting reading order "+i+" to: "+st.getId());
-				else
-					logger.trace("deleting reading order from: "+st.getId());
-				
-				if (!fireEvents)
-					st.getObservable().setActive(false);
-				
-				if (deleteReadingOrder)
-					st.setReadingOrder(null, st);
-				else
-					st.setReadingOrder(i++, st);
-				
-				if (!fireEvents) 
-					st.getObservable().setActive(true);
+		for (ITrpShapeType st : shapes) {
+			
+			List<? extends ITrpShapeType> children = st.getChildren(false);
+			if (st instanceof TrpTextLineType) {
+				TrpTextLineType tl = (TrpTextLineType) st;
+				children = tl.getChildrenWithoutBaseline();
 			}
+			
+			if (!CoreUtils.isEmpty(children)) {
+				applyReadingOrderFromCoordinates(children, fireEvents, deleteReadingOrder, recursive);
+			}
+			
+			if (!deleteReadingOrder)
+				logger.trace("setting reading order "+i+" to: "+st.getId());
+			else
+				logger.trace("deleting reading order from: "+st.getId());
+			
+			if (!fireEvents)
+				st.getObservable().setActive(false);
+			
+			if (deleteReadingOrder)
+				st.setReadingOrder(null, st);
+			else
+				st.setReadingOrder(i++, st);
+			
+			if (!fireEvents) 
+				st.getObservable().setActive(true);
 		}
 	}
 	
