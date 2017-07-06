@@ -67,6 +67,14 @@ public class CoreUtils {
 //		
 //	}
 	
+	@SafeVarargs
+	public static <T> List<T> asList(T... array) {
+		if (array==null)
+			return new ArrayList<>();
+		
+		return Arrays.asList(array);
+	}
+	
 	public static void loadTranskribusInterfacesLib() {
 		SebisStopWatch sw = new SebisStopWatch();
 		String libName = "TranskribusInterfacesWrapper";
