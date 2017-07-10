@@ -81,6 +81,10 @@ public class TrpDoc implements Serializable, Comparable<TrpDoc> {
 		return pages;
 	}
 	
+	/**
+	 * Get count of pages
+	 * @return count of pages in document
+	 */
 	public int getNPages() {
 		return pages.size();
 	}

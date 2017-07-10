@@ -49,6 +49,24 @@ import eu.transkribus.core.util.JaxbUtils;
 public class DocExporter extends Observable {
 	private static final Logger logger = LoggerFactory.getLogger(DocExporter.class);
 
+	/**
+	 * Export raw document to local directory according to set parameters
+	 * @param doc raw document to export
+	 * @param dir target directory on local machine
+	 * @param doOverwrite 
+	 * @param pageIndices indices of pages to export
+	 * @param exportImg if set images will be exported
+	 * @param exportPage if set transcripts will be exported
+	 * @param exportAlto if set alto format will be exported
+	 * @param splitIntoWordsInAlto
+	 * @param fileNamePattern
+	 * @return
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws URISyntaxException
+	 * @throws JAXBException
+	 * @throws TransformerException
+	 */
 	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, 
 			boolean exportImg, boolean exportPage, boolean exportAlto, boolean splitIntoWordsInAlto, String fileNamePattern) throws IOException,
 			IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
@@ -94,11 +112,24 @@ public class DocExporter extends Observable {
 		TrpXlsxTableBuilder.writeXlsxForTables(doc, new File(path), pageIndices, null);
 	}
 
+	/**
+	 * Export current document with the provided parameters.
+	 * @param doc current document
+	 * @param pars export settings 
+	 * @return directory to which the export files were written 
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws URISyntaxException
+	 * @throws JAXBException
+	 * @throws TransformerException
+	 */
 	public File exportDoc(TrpDoc doc, CommonExportPars pars) throws IOException, IllegalArgumentException,
 			URISyntaxException, JAXBException, TransformerException {
+
 		FimgStoreGetClient getter = null;
 		FimgStoreUriBuilder uriBuilder = null;
 		ImgType imgType = pars.getRemoteImgQuality() == null ? ImgType.orig : pars.getRemoteImgQuality();
+
 		if (doc.isRemoteDoc()) {
 			//FIXME fimagestore path should be read from docMd!
 			getter = new FimgStoreGetClient("dbis-thure.uibk.ac.at", "f");
@@ -112,6 +143,7 @@ public class DocExporter extends Observable {
 		TrpDoc doc2;
 		doc2 = new TrpDoc(doc);
 		
+		// check and create output directory
 		File outputDir = new File(pars.getDir());
 		if (!pars.isDoOverwrite() && outputDir.exists()) {
 			throw new IOException("File path already exists.");
@@ -129,6 +161,8 @@ public class DocExporter extends Observable {
 		}
 		
 		File pageOutputDir = null, altoOutputDir = null;
+		
+		// check PAGE export settings and create output directory
 		String pageDirName = pars.getPageDirName();
 		if (pars.isDoExportPageXml() && !StringUtils.isEmpty(pageDirName)) {
 			pageOutputDir = new File(outputDir.getAbsolutePath() + File.separatorChar + pageDirName);
@@ -143,11 +177,13 @@ public class DocExporter extends Observable {
 			pageOutputDir = imgOutputDir;
 		}
 		
+		// check Alto export settings and create output directory
 		AltoExporter altoEx = new AltoExporter();
 		if (pars.isDoExportAltoXml()){
 			altoOutputDir = altoEx.createAltoOuputDir(doc2, outputDir.getAbsolutePath());
 		}
 
+		// check and write metadata
 		if (doc2.getMd() != null) {
 			File fileOut = new File(outputDir.getAbsolutePath() + File.separatorChar
 					+ "metadata.xml");
@@ -159,9 +195,9 @@ public class DocExporter extends Observable {
 		}
 
 		List<TrpPage> pages = doc2.getPages();
-		
 		Set<Integer> pageIndices = pars.getPageIndices(doc.getNPages());
 		
+		// do export for all defined pages
 		for (int i=0; i<pages.size(); ++i) {
 //			for (TrpPage p : pages) {
 			if (pageIndices!=null && !pageIndices.contains(i))
@@ -176,6 +212,7 @@ public class DocExporter extends Observable {
 			final String imgExt = "." + FilenameUtils.getExtension(p.getImgFileName());
 			final String xmlExt = ".xml";
 			
+			// gather remote files and export document
 			if (doc2.isRemoteDoc()) {				
 				if (pars.isDoWriteImages()) {
 					final URI imgUri = uriBuilder.getImgUri(p.getKey(), imgType);
@@ -192,6 +229,7 @@ public class DocExporter extends Observable {
 					TrpTranscriptMetadata transcriptMd;
 					JAXBPageTranscript transcript = ExportUtils.getPageTranscriptAtIndex(i);
 					
+					// set up transcript metadata
 					if(transcript == null) {
 						transcriptMd = p.getCurrentTranscript();
 						logger.warn("Have to unmarshall transcript in DocExporter for transcript "+transcriptMd+" - should have been built before using ExportUtils::storePageTranscripts4Export!");
@@ -202,7 +240,7 @@ public class DocExporter extends Observable {
 					}
 					
 					URL xmlUrl = transcriptMd.getUrl();
-										
+					
 					if (pars.isExportTranscriptMetadata()) {
 						MetadataType md = transcript.getPage().getPcGtsType().getMetadata();
 						if (md == null) {
@@ -226,6 +264,7 @@ public class DocExporter extends Observable {
 						md.setTranskribusMetadata(tmd);
 					}
 					
+					// write transcript to file
 					xmlFile = new File(FilenameUtils.normalizeNoEndSeparator(pageOutputDir.getAbsolutePath())+File.separator+baseFileName + xmlExt);
 					logger.debug("PAGE XMl output file: "+xmlFile.getAbsolutePath());
 					transcript.write(xmlFile);
@@ -240,6 +279,7 @@ public class DocExporter extends Observable {
 					p.getTranscripts().add(tCopy);
 				}
 			} else {
+				// copy local files during export
 				if (pars.isDoWriteImages()) {
 					imgFile = LocalDocWriter.copyImgFile(p, p.getUrl(), imgOutputDir.getAbsolutePath(), baseFileName + imgExt);
 				}
