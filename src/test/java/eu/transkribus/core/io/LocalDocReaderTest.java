@@ -16,7 +16,19 @@ public class LocalDocReaderTest {
 	public static final String TEST_DOC2 = BASE + "TrpTestDoc_20140508/";
 	
 	public static void main(String[] args) {
-		
+		logger.debug("Setting up doc loading process...");
+		try {
+
+			TrpDoc doc = LocalDocReader.load("C:\\Users\\lange\\Desktop\\testimages");
+			System.out.print("Logging messages from this / LocalDocReader: ");
+			System.out.println(logger.isDebugEnabled() + " / " +LoggerFactory.getLogger(LocalDocReader.class).isDebugEnabled());
+			System.out.println(doc.toString());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error(e.toString());
+		}
+
 //		String[] docs = {
 		//				BASE + "TrpTestDoc_20131209/"
 		//				TEST_DOC1, 
