@@ -85,7 +85,11 @@ import eu.transkribus.core.util.XmlUtils;
 public class LocalDocReader {
 
 	private final static Logger logger = LoggerFactory.getLogger(LocalDocReader.class);
+	private static boolean isSyncMode = false;
 
+	public void setSync(boolean syncMode) {
+		isSyncMode = syncMode;
+	}
 
 	public static TrpDoc load(final String path) throws IOException {
 		return load(path, true, true, false, true);
@@ -117,6 +121,19 @@ public class LocalDocReader {
 	 * @throws IOException if the path can't be read or is malformed or an invalid XML format is found
 	 */
 	public static TrpDoc load(final String path, boolean forceCreatePageXml) throws IOException {
+		return load(path, true, true, false, forceCreatePageXml);
+	}
+	
+	/**
+	 * Load document given extra parameter for syncing
+	 * @param path the path where the document is stored
+	 * @param forceCreatePageXml if true, then a Page XML skeleton is created for pages where none exists
+	 * @param enableSyncWithoutImages if true, a document is created even if there are no images (only relevant for syncing) 
+	 * @return the constructed document
+	 * @throws IOException if the path can't be read or is malformed or an invalid XML format is found
+	 */
+	public static TrpDoc load(final String path, boolean forceCreatePageXml, boolean enableSync) throws IOException {
+		isSyncMode = enableSync;
 		return load(path, true, true, false, forceCreatePageXml);
 	}
 	
@@ -208,8 +225,10 @@ public class LocalDocReader {
 		
 		// TODO:FIXME Test, test, test!!!
 		// need a special variable to test whether we are in sync mode (only then do the following!!!!)
-		if (pages.size() == 0) 
+		if (pages.size() == 0 && isSyncMode ) {
 			pageMap = createDummyImgFilesForXmls(inputDir, pageInputDir);
+			isSyncMode = false;
+		}
 		
 		for (Entry<String, File> e : pageMap.entrySet()) {
 			
