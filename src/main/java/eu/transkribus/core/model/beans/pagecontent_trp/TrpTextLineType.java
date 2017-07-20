@@ -514,5 +514,9 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	public List<TrpWordType> getTrpWord() {
 		return (List<TrpWordType>)(Object) getWord();
 	}
+	
+	public TrpBaselineType getTrpBaseline() {
+		return ((TrpBaselineType) getBaseline());
+	}
 
 }
