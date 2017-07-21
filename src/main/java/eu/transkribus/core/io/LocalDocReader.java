@@ -85,14 +85,9 @@ import eu.transkribus.core.util.XmlUtils;
 public class LocalDocReader {
 
 	private final static Logger logger = LoggerFactory.getLogger(LocalDocReader.class);
-	private static boolean isSyncMode = false;
-
-	public void setSync(boolean syncMode) {
-		isSyncMode = syncMode;
-	}
 
 	public static TrpDoc load(final String path) throws IOException {
-		return load(path, true, true, false, true);
+		return load(path, true, true, false, true, false);
 	}
 
 	/**
@@ -121,7 +116,7 @@ public class LocalDocReader {
 	 * @throws IOException if the path can't be read or is malformed or an invalid XML format is found
 	 */
 	public static TrpDoc load(final String path, boolean forceCreatePageXml) throws IOException {
-		return load(path, true, true, false, forceCreatePageXml);
+		return load(path, true, true, false, forceCreatePageXml, false);
 	}
 	
 	/**
@@ -132,9 +127,8 @@ public class LocalDocReader {
 	 * @return the constructed document
 	 * @throws IOException if the path can't be read or is malformed or an invalid XML format is found
 	 */
-	public static TrpDoc load(final String path, boolean forceCreatePageXml, boolean enableSync) throws IOException {
-		isSyncMode = enableSync;
-		return load(path, true, true, false, forceCreatePageXml);
+	public static TrpDoc load(final String path, boolean forceCreatePageXml, boolean enableSyncWithoutImages) throws IOException {
+		return load(path, true, true, false, forceCreatePageXml, enableSyncWithoutImages);
 	}
 	
 	/**
@@ -158,10 +152,13 @@ public class LocalDocReader {
 	 * @param preserveOcrFontFamily when creating the pageXML from alto/finereader XMLs, preserve the font information
 	 * @param replaceBadChars TODO when creating the pageXML from alto/finereader XMLs, specific characters are replaced. see FinereaderUtils
 	 * @param forceCreatePageXml if true, then a Page XML skeleton is created for pages where none exists
+	 * @param enableSyncWithoutImages if true, document will be created from XMLs only even if no images exist
 	 * @return the constructed document
 	 * @throws IOException if the path can't be read or is malformed
 	 */
-	public static TrpDoc load(final String path, boolean preserveOcrTxtStyles, boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml) throws IOException {
+	public static TrpDoc load(final String path, boolean preserveOcrTxtStyles, 
+			boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml,
+			boolean enableSyncWithoutImages) throws IOException {
 		//check OS and adjust URL protocol
 		final String os = System.getProperty("os.name");
 		if (os.toLowerCase().contains("win")) {
@@ -225,9 +222,8 @@ public class LocalDocReader {
 		
 		// TODO:FIXME Test, test, test!!!
 		// need a special variable to test whether we are in sync mode (only then do the following!!!!)
-		if (pages.size() == 0 && isSyncMode ) {
+		if (pages.size() == 0 && enableSyncWithoutImages ) {
 			pageMap = createDummyImgFilesForXmls(inputDir, pageInputDir);
-			isSyncMode = false;
 		}
 		
 		for (Entry<String, File> e : pageMap.entrySet()) {
