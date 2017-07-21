@@ -1441,7 +1441,7 @@ It does not contain pagenumber (if not part of running title), marginals, signat
     			paragraph)
     		</documentation>
     	</annotation>
-    	<sequence minOccurs="2" maxOccurs="2">
+    	<sequence minOccurs="2" maxOccurs="unbounded">
     		<element name="RegionRef" type="pc:RegionRefType"/>
     	</sequence>
     	<attribute name="type" use="required">
