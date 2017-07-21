@@ -86,9 +86,8 @@ public class LocalDocReader {
 
 	private final static Logger logger = LoggerFactory.getLogger(LocalDocReader.class);
 
-
 	public static TrpDoc load(final String path) throws IOException {
-		return load(path, true, true, false, true);
+		return load(path, true, true, false, true, false);
 	}
 
 	/**
@@ -117,7 +116,19 @@ public class LocalDocReader {
 	 * @throws IOException if the path can't be read or is malformed or an invalid XML format is found
 	 */
 	public static TrpDoc load(final String path, boolean forceCreatePageXml) throws IOException {
-		return load(path, true, true, false, forceCreatePageXml);
+		return load(path, true, true, false, forceCreatePageXml, false);
+	}
+	
+	/**
+	 * Load document given extra parameter for syncing
+	 * @param path the path where the document is stored
+	 * @param forceCreatePageXml if true, then a Page XML skeleton is created for pages where none exists
+	 * @param enableSyncWithoutImages if true, a document is created even if there are no images (only relevant for syncing) 
+	 * @return the constructed document
+	 * @throws IOException if the path can't be read or is malformed or an invalid XML format is found
+	 */
+	public static TrpDoc load(final String path, boolean forceCreatePageXml, boolean enableSyncWithoutImages) throws IOException {
+		return load(path, true, true, false, forceCreatePageXml, enableSyncWithoutImages);
 	}
 	
 	/**
@@ -141,10 +152,13 @@ public class LocalDocReader {
 	 * @param preserveOcrFontFamily when creating the pageXML from alto/finereader XMLs, preserve the font information
 	 * @param replaceBadChars TODO when creating the pageXML from alto/finereader XMLs, specific characters are replaced. see FinereaderUtils
 	 * @param forceCreatePageXml if true, then a Page XML skeleton is created for pages where none exists
+	 * @param enableSyncWithoutImages if true, document will be created from XMLs only even if no images exist
 	 * @return the constructed document
 	 * @throws IOException if the path can't be read or is malformed
 	 */
-	public static TrpDoc load(final String path, boolean preserveOcrTxtStyles, boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml) throws IOException {
+	public static TrpDoc load(final String path, boolean preserveOcrTxtStyles, 
+			boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml,
+			boolean enableSyncWithoutImages) throws IOException {
 		//check OS and adjust URL protocol
 		final String os = System.getProperty("os.name");
 		if (os.toLowerCase().contains("win")) {
@@ -205,6 +219,13 @@ public class LocalDocReader {
 		// iterate imgList, search for corresponding XML files and build TrpPages
 		int pageNr = 1;
 		List<TrpPage> pages = new ArrayList<TrpPage>(pageMap.entrySet().size());
+		
+		// TODO:FIXME Test, test, test!!!
+		// need a special variable to test whether we are in sync mode (only then do the following!!!!)
+		if (pages.size() == 0 && enableSyncWithoutImages ) {
+			pageMap = createDummyImgFilesForXmls(inputDir, pageInputDir);
+		}
+		
 		for (Entry<String, File> e : pageMap.entrySet()) {
 			
 			File imgFile = e.getValue();
@@ -557,6 +578,40 @@ public class LocalDocReader {
 	}
 	
 	/**
+	 * Check existence of PAGE XML files and return tree map of (fake) image filenames and files
+	 * @param baseDir folder in which images should be found
+	 * @param xmlDir folder holding all existing xml files - by default named "page"
+	 * @return
+	 * @throws IOException
+	 */
+	public static TreeMap<String, File> createDummyImgFilesForXmls(File baseDir, File xmlDir) throws IOException {
+		File[] xmlArr = xmlDir.listFiles();
+		
+		//Use number sensitive ordering so that:		
+		//img1 -> img2 -> ... -> img9 -> img10 -> etc.
+		//try Java 8: http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html#naturalOrder--
+		Comparator<String> naturalOrderComp = new NaturalOrderComparator();
+		TreeMap<String, File> pageMap = new TreeMap<>(naturalOrderComp);
+
+		if (xmlArr == null || xmlArr.length == 0){
+			logger.debug("Folder " + xmlDir.getAbsolutePath() + " does not contain any XML files!");
+			logger.debug("No PAGE XML files found - returning empty TreeMap");
+			return pageMap;
+		}
+		
+		for (File xml : xmlArr) {
+			final String pageName = FilenameUtils.getBaseName(xml.getName());
+			if (!pageMap.containsKey(pageName)) {
+				//new page. add this xml
+				File img = new File(baseDir, pageName+".png");
+				pageMap.put(pageName, img);
+				logger.debug(pageName + ": created fake image for: " + img.getName());
+			} 
+		}
+		return pageMap;
+	}
+	
+	/**
 	 * Finds image files and builds a list with distinct pages (based on
 	 * filenames).<br>
 	 * If several image files in different formats are found for one page, the
@@ -585,9 +640,6 @@ public class LocalDocReader {
 			imgArr = fepImgDir.listFiles(new ImgFileFilter());
 		}
 		
-		if(imgArr == null || imgArr.length == 0){
-			throw new IOException("Folder " + inputDir.getAbsolutePath() + " does not contain any image files!");
-		}
 		
 		//Use number sensitive ordering so that:		
 		//img1 -> img2 -> ... -> img9 -> img10 -> etc.
@@ -595,6 +647,12 @@ public class LocalDocReader {
 		Comparator<String> naturalOrderComp = new NaturalOrderComparator();
 		TreeMap<String, File> pageMap = new TreeMap<>(naturalOrderComp);
 
+		if (imgArr == null || imgArr.length == 0){
+			logger.debug("Folder " + inputDir.getAbsolutePath() + " does not contain any image files!");
+			logger.debug("No images found - returning empty TreeMap");
+			return pageMap;
+		}
+		
 		for (File img : imgArr) {
 //			logger.debug("img = " + img.getName());
 			final String pageName = FilenameUtils.getBaseName(img.getName());

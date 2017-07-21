@@ -63,4 +63,8 @@
     <appender-ref ref="CONSOLE"/>
     <appender-ref ref="LOGFILE"/>
   </logger>
+  <logger name="eu.transkribus.core.io" level="DEBUG">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="LOGFILE"/>
+  </logger>
 </configuration>
