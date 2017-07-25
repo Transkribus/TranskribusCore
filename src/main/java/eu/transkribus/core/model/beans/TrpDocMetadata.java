@@ -2,6 +2,7 @@ package eu.transkribus.core.model.beans;
 
 import java.io.File;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -67,6 +68,15 @@ public class TrpDocMetadata implements Serializable, Comparable<TrpDocMetadata> 
 	@Transient
 	private int nrOfPages;
 	
+	@Column(name="IMG_ID")
+	private int imageId;
+	@Column
+	@Transient
+	private URL url;
+	@Column
+	@Transient
+	private URL thumbUrl;
+	
 	@Column(name="EXTID")
 	private String externalId;
 	
@@ -124,6 +134,9 @@ public class TrpDocMetadata implements Serializable, Comparable<TrpDocMetadata> 
 		createdFromTimestamp = md.getCreatedFromTimestamp();
 		createdToTimestamp = md.getCreatedToTimestamp();
 		origDocId = md.getOrigDocId();
+		imageId = md.getImageId();
+		url = md.getUrl();
+		thumbUrl = md.getThumbUrl();
 		for(TrpCollection c : md.getColList()) {
 			colList.add(new TrpCollection(c));
 		}
@@ -329,6 +342,30 @@ public class TrpDocMetadata implements Serializable, Comparable<TrpDocMetadata> 
 		this.origDocId = origDocId;
 	}
 	
+	public int getImageId() {
+		return imageId;
+	}
+
+	public void setImageId(int imageId) {
+		this.imageId = imageId;
+	}
+
+	public URL getUrl() {
+		return url;
+	}
+
+	public void setUrl(URL url) {
+		this.url = url;
+	}
+
+	public URL getThumbUrl() {
+		return thumbUrl;
+	}
+
+	public void setThumbUrl(URL thumbUrl) {
+		this.thumbUrl = thumbUrl;
+	}
+
 	public String getColString() {
 		String colsStr = "";
 		if (getColList() != null) {
@@ -521,6 +558,18 @@ public class TrpDocMetadata implements Serializable, Comparable<TrpDocMetadata> 
 			if (other.writer != null)
 				return false;
 		} else if (!writer.equals(other.writer))
+			return false;
+		if (imageId != other.imageId)
+			return false;
+		if (thumbUrl == null) {
+			if (other.thumbUrl != null)
+				return false;
+		} else if (!thumbUrl.equals(other.thumbUrl))
+			return false;
+		if (url == null) {
+			if (other.url != null)
+				return false;
+		} else if (!url.equals(other.url))
 			return false;
 		return true;
 	}

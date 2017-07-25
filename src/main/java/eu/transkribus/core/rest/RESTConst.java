@@ -277,6 +277,17 @@ public final class RESTConst {
 	public static final String DELETE_EDIT_DECL_OPTION = "deleteEditDeclOption";	
 	public static final String LIST_EDIT_DECL_FEATURES = "listEditDeclFeats";
 	public static final String EDIT_DECL_PATH = "editorialDeclaration";
+	
+	//crowd project
+	public static final String STORE_CROWD_PROJECT = "storeCrowdProject";
+	public static final String STORE_CROWD_PROJECT_MILESTONE = "storeCrowdProjectMilestone";
+	public static final String STORE_CROWD_PROJECT_MESSAGE = "storeCrowdProjectMessage";
+	public static final String DELETE_CROWD_PROJECT_MILESTONES = "deleteProjectMilestones";
+	public static final String DELETE_CROWD_PROJECT_MESSAGES = "deleteProjectMessages";
+	public static final String CROWD_PROJECT = "crowdProject";
+	public static final String CROWD_PROJECT_ID_PARAM = "projectId";
+	public static final String CROWD_PROJECT_MILESTONE = "crowdProjectMilestone";
+	public static final String CROWD_PROJECT_MESSAGE = "crowdProjectMessage";
 
 	public static final String FIND_DOCUMENTS_PATH = "findDocuments";
 	public static final String COUNT_FIND_DOCUMENTS_PATH = "countFindDocuments";

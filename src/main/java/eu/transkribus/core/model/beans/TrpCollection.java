@@ -9,6 +9,8 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -56,6 +58,9 @@ public class TrpCollection implements Serializable {
 	@Transient
 	@XmlJavaTypeAdapter(TrpRoleAdapter.class)
 	private TrpRole role = null;
+	
+	@XmlElement
+	private TrpCrowdProject crowdProject = null;
 	
 	public TrpCollection(){}
 	public TrpCollection(final int colId, final String name, final String description){
@@ -140,6 +145,12 @@ public class TrpCollection implements Serializable {
 		this.nrOfDocuments = nrOfDocuments;
 	}
 	
+	public TrpCrowdProject getCrowdProject() {
+		return crowdProject;
+	}
+	public void setCrowdProject(TrpCrowdProject crowdProject) {
+		this.crowdProject = crowdProject;
+	}
 	public String toShortString() {
 		return 	this.getColId() 
 				+ " - " 
