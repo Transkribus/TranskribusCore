@@ -21,6 +21,15 @@ import eu.transkribus.core.util.PointStrUtils;
 public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 	private final static Logger logger = LoggerFactory.getLogger(TrpElementCoordinatesComparator.class);
 	
+	Boolean compareByYX = null;
+
+	public TrpElementCoordinatesComparator() {
+	}
+	
+	public TrpElementCoordinatesComparator(boolean compareByYX) {
+		this.compareByYX=compareByYX;
+	}
+	
 	private boolean isRegionLineOrWord(T o) {
 		return (o instanceof RegionType || TextLineType.class.isAssignableFrom(o.getClass()) || WordType.class.isAssignableFrom(o.getClass()));		
 	}
@@ -117,7 +126,12 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 				
 				logger.debug("orientation set: "+orientation+" rotated points: "+pt1+", "+pt2);
 			}
-			if (WordType.class.isAssignableFrom(o1.getClass())) {
+			
+			if (compareByYX == null) { // if compareByYX was not set by constructor, determine via shape
+				compareByYX = !WordType.class.isAssignableFrom(o1.getClass());
+			}
+			
+			if (!compareByYX) {
 //				return compareByXY(b1.x, b2.x, b1.y, b2.y);
 				return compareByXY(pt1.x, pt2.x, pt1.y, pt2.y);
 			}
