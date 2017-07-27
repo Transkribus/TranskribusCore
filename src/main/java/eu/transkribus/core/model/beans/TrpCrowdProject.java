@@ -24,17 +24,17 @@ public class TrpCrowdProject implements Serializable {
 	public TrpCrowdProject (){
 	}
 	
-	public TrpCrowdProject (int colId){
+	public TrpCrowdProject (Integer colId){
 		this.colId = colId;
 	}
 	
 	@Id
 	@Column(name="PROJ_ID")
-	private int projId;
+	private Integer projId;
 	@Column(name="AIM")
 	private String aim;
 	@Column(name="COLLECTION_ID")
-	private int colId;
+	private Integer colId;
 	
 	@XmlElementWrapper(name="milestoneList")
 	@XmlElement
@@ -44,10 +44,10 @@ public class TrpCrowdProject implements Serializable {
 	@XmlElement
 	private ArrayList<TrpCrowdProjectMessage> crowdProjectMessages = new ArrayList<TrpCrowdProjectMessage>();
 		
-	public int getProjId() {
+	public Integer getProjId() {
 		return projId;
 	}
-	public void setProjId(int projId) {
+	public void setProjId(Integer projId) {
 		this.projId = projId;
 	}
 	public String getAim() {
@@ -56,16 +56,16 @@ public class TrpCrowdProject implements Serializable {
 	public void setAim(String aim) {
 		this.aim = aim;
 	}
-	public int getColId() {
+	public Integer getColId() {
 		return colId;
 	}
-	public void setColId(int colId) {
+	public void setColId(Integer colId) {
 		this.colId = colId;
 	}
 	public ArrayList<TrpCrowdProjectMilestone> getCrowdProjectMilestones() {
 		return crowdProjectMilestones;
 	}
-	public TrpCrowdProjectMilestone getCrowdProjectMilestone(int id) {
+	public TrpCrowdProjectMilestone getCrowdProjectMilestone(Integer id) {
 		for (TrpCrowdProjectMilestone milestone : crowdProjectMilestones){
 			if (milestone.getMilestoneId() == id){
 				return milestone;
@@ -79,7 +79,7 @@ public class TrpCrowdProject implements Serializable {
 	public ArrayList<TrpCrowdProjectMessage> getCrowdProjectMessages() {
 		return crowdProjectMessages;
 	}
-	public TrpCrowdProjectMessage getCrowdProjectMessage(int id) {
+	public TrpCrowdProjectMessage getCrowdProjectMessage(Integer id) {
 		for (TrpCrowdProjectMessage message : crowdProjectMessages){
 			if (message.getMessageId() == id){
 				return message;
