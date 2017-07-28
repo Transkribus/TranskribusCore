@@ -69,7 +69,7 @@ public class TrpDocMetadata implements Serializable, Comparable<TrpDocMetadata> 
 	private int nrOfPages;
 	
 	@Column(name="IMG_ID")
-	private int imageId;
+	private Integer imageId;
 	@Column
 	@Transient
 	private URL url;
@@ -342,11 +342,11 @@ public class TrpDocMetadata implements Serializable, Comparable<TrpDocMetadata> 
 		this.origDocId = origDocId;
 	}
 	
-	public int getImageId() {
+	public Integer getImageId() {
 		return imageId;
 	}
 
-	public void setImageId(int imageId) {
+	public void setImageId(Integer imageId) {
 		this.imageId = imageId;
 	}
 
