@@ -211,6 +211,10 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 	}
 	
 	String getValidZonePointsString(String coordsStr) {
+		if(StringUtils.isEmpty(coordsStr)) {
+			logger.error("A coords String is empty!");
+			return "0,0 0,0 0,0";
+		}
 		List<Point> pts = PointStrUtils.parsePoints2(coordsStr);
 		
 		// a zone must have at least three coordinates, so fill up with zeros if they are not there
@@ -236,7 +240,12 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 			zoneStr = "<zone ulx='"+(int)bb.getX()+"' uly='"+(int)bb.getY()+"' lrx='"+(int)bb.getMaxX()+"' lry='"+(int)bb.getMaxY()+"'";
 		}
 		else {
-			zoneStr = "<zone points='"+getValidZonePointsString(s.getCoordinates())+"'";
+			if(StringUtils.isEmpty(s.getCoordinates())) {
+				logger.error("Coordinates are empty on shape with ID = " + s.getId());
+				zoneStr = "<zone points=''";
+			} else {
+				zoneStr = "<zone points='"+getValidZonePointsString(s.getCoordinates())+"'";
+			}
 		}
 		
 		// write type of shape:
