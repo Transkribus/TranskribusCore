@@ -45,6 +45,7 @@ import eu.transkribus.core.model.beans.enums.EditStatus;
 import eu.transkribus.core.model.beans.mets.Mets;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.builder.mets.TrpMetsBuilder;
+import eu.transkribus.core.model.builder.mets.util.MetsUtil;
 import eu.transkribus.core.util.JaxbList;
 import eu.transkribus.core.util.JaxbUtils;
 import eu.transkribus.core.util.NaturalOrderComparator;
@@ -389,9 +390,9 @@ public class LocalDocReader {
 //		FIXME set TRP_METS_VERSION to PROFILE, not TYPE
 		if (mets.getPROFILE().equals(TrpMetsBuilder.TRP_METS_PROFILE)) {
 			//unmarshal TrpDocMetadata
-			md = TrpMetsBuilder.getTrpDocMd(mets);
+			md = MetsUtil.getTrpDocMd(mets);
 			//collect files
-			pages = TrpMetsBuilder.getTrpPages(mets, parentDir);
+			pages = MetsUtil.getTrpPages(mets, parentDir);
 //		} else if (mets.getPROFILE().equals(EnmapMetsBuilder.ENMAP_METS_PROFILE)){
 //			md = EnmapMetsBuilder.getTrpDocMd(mets);			
 //			pages = EnmapMetsBuilder.getTrpPages(mets, parentDir);

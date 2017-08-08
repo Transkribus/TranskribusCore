@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.util.CoreUtils;
+import eu.transkribus.core.util.HtrCITlabUtils;
 
 @Entity
 @Table(name = "HTR")
@@ -63,6 +64,9 @@ public class TrpHtr {
 	private String cerString;
 	
 	private String cerTestString;
+	
+	private double[] cerLog = null;
+	private double[] cerTestLog = null;
 	
 	private String charList;
 	
@@ -169,16 +173,16 @@ public class TrpHtr {
 		return cerString;
 	}
 
-	public void setCerString(String cerString) {
-		this.cerString = cerString;
+	public void setCerString(String cerLogString) {
+		this.cerString = cerLogString;
 	}
 	
 	public String getCerTestString() {
 		return cerTestString;
 	}
 
-	public void setCerTestString(String cerTestString) {
-		this.cerTestString = cerTestString;
+	public void setCerTestString(String cerTestLogString) {
+		this.cerTestString = cerTestLogString;
 	}
 	
 	public String getCharList() {
@@ -232,7 +236,36 @@ public class TrpHtr {
 	public void setNrOfWords(int nrOfWords) {
 		this.nrOfWords = nrOfWords;
 	}
+	
+	public double[] getCerLog() {
+		if(cerLog == null) {
+			cerLog = HtrCITlabUtils.parseCitlabCerString(cerString);
+		}
+		return cerLog;
+	}
+	
+	public double[] getCerTestLog() {
+		if(cerTestLog == null) {
+			cerTestLog = HtrCITlabUtils.parseCitlabCerString(cerTestString);
+		}
+		return cerTestLog;
+	}
+	
+	public double getFinalTrainCerVal() {
+		if(!hasCerLog()) {
+			return -1;
+		}
+		return getCerLog()[getCerLog().length-1];
+	}
+	
+	public boolean hasCerLog() {
+		return cerString != null && !cerString.isEmpty();
+	}
 
+	public boolean hasCerTestLog() {
+		return cerTestString != null && !cerTestString.isEmpty();
+	}
+	
 	@Override
 	public String toString() {
 		return "TrpHtr [htrId=" + htrId + ", name=" + name + ", description=" + description + ", provider=" + provider

@@ -26,6 +26,15 @@ public class PcGtsTypeMessageBodyReader implements MessageBodyReader<PcGtsType> 
 	
 	@Override
 	public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+		/*
+		 * FIXME type check should actually be done here!
+		 * This was "return true;" since the beginning and in order to not break any third party clients
+		 * I leave it like that for now. P
+		 */
+//		final boolean res = type == PcGtsType.class;
+//		logger.debug("isReadable() in PcGtsTypeMessageBodyReader: " + res);
+//		logger.debug("type = " + type + " | genericType = " + genericType + " | mediaType = " + mediaType);
+//		return res;
 		return true;
 	}
 

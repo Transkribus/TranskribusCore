@@ -23,6 +23,7 @@ import eu.transkribus.core.model.beans.mets.FileType;
 import eu.transkribus.core.model.beans.mets.FileType.FLocat;
 import eu.transkribus.core.model.beans.mets.Mets;
 import eu.transkribus.core.model.builder.mets.TrpMetsBuilder;
+import eu.transkribus.core.model.builder.mets.util.MetsUtil;
 import eu.transkribus.core.util.ChecksumUtils;
 import eu.transkribus.core.util.JaxbUtils;
 import eu.transkribus.core.util.ZipUtils;
@@ -84,7 +85,7 @@ public class TrpDocPacker extends Observable {
 		fileList.add(TrpMetsBuilder.METS_FILE_NAME);
 		
 		//traverse the METS filesection and add all files to be zipped
-		List <FileGrpType> typeGrps = TrpMetsBuilder.getMasterFileGrp(mets);
+		List <FileGrpType> typeGrps = MetsUtil.getMasterFileGrp(mets);
 		for(FileGrpType type : typeGrps){
 			if(type.getID().equals(TrpMetsBuilder.IMG_GROUP_ID) 
 					|| type.getID().equals(TrpMetsBuilder.PAGE_GROUP_ID)){

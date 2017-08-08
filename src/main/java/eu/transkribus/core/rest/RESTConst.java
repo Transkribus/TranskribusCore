@@ -27,6 +27,7 @@ public final class RESTConst {
 	public static final String DUMMY_PATH = "dummy";
 	public static final String CROWDSOURCE_PATH = "crowdsourcing";
 	public static final String ELEARNING_PATH = "eLearning";
+	public static final String UPLOADS_PATH = "uploads";
 		
 	/* jobMgmt */
 	public static final String JOB_MGMT_PATH = "jobMgmt";
@@ -390,5 +391,8 @@ public final class RESTConst {
 	public static final String DO_BLACKENING_PARAM = "doBlackening";
 	public static final String DO_CREATE_TITLE_PARAM = "doCreateTitle";
 	public static final String USE_VERSION_STATUS_PARAM = "useVersionStatus";
+	
+	//uploads
+	public static final String UPLOAD_ID_PARAM = "uploadId";
 	
 }

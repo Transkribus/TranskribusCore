@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,6 +31,10 @@ public class HtrCITlabUtils {
 	public static final String NET_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/net";
 	public static final String DICT_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/dict";
 
+	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("####0.00");
+	static {
+		DECIMAL_FORMAT.setRoundingMode(RoundingMode.UP);
+	}
 	
 	public static File resolveDict(String dictName) throws FileNotFoundException {
 		if (StringUtils.isEmpty(dictName)) {
@@ -135,7 +141,11 @@ public class HtrCITlabUtils {
 			return "N/A";
 		}
 		final double finalCerVal = cerVals[cerVals.length-1];
-		return (finalCerVal*100)+"%";
+		return formatCerVal(finalCerVal);
+	}
+	
+	public static String formatCerVal(double val) {
+		return DECIMAL_FORMAT.format(val*100) + "%";
 	}
 	
 	public static class DictFileFilter implements FileFilter {
@@ -143,5 +153,10 @@ public class HtrCITlabUtils {
 		public boolean accept(File pathname) {
 			return pathname.isFile() && pathname.getName().endsWith(".dict");
 		}
+	}
+	
+	public static void main(String[] args) {
+		double test = 0.33444;
+		System.out.println(formatCerVal(test));
 	}
 }
