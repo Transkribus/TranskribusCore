@@ -350,15 +350,14 @@ public class MetsUtil {
 		String xmlChecksum = null;
 		
 		for(Fptr ptr : div.getFptr()){
-			FileType type = (FileType)ptr.getArea().getFILEID();				
+			FileType type = (FileType)ptr.getArea().getFILEID();
+			final Pair<String, String> fileNameAndChecksum = MetsUtil.getFileNameAndChecksum(type);
 			if(imgGrp.contains(type)){
-				final Pair<String, String> imgPair = MetsUtil.getFileNameAndChecksum(type);
-				imgFileName = imgPair.getLeft();
-				imgChecksum = imgPair.getRight();
+				imgFileName = fileNameAndChecksum.getLeft();
+				imgChecksum = fileNameAndChecksum.getRight();
 			} else if (xmlGrp != null && xmlGrp.contains(type)){
-				final Pair<String, String> xmlPair = MetsUtil.getFileNameAndChecksum(type);
-				xmlFileName = xmlPair.getLeft();
-				xmlChecksum = xmlPair.getRight();
+				xmlFileName = fileNameAndChecksum.getLeft();
+				xmlChecksum = fileNameAndChecksum.getRight();
 			}
 		}
 		
@@ -370,7 +369,7 @@ public class MetsUtil {
 		image.setFileName(imgFileName);
 		image.setImgChecksum(imgChecksum);
 		image.setPageXmlName(xmlFileName);
-		image.setXmlChecksum(xmlChecksum);
+		image.setPageXmlChecksum(xmlChecksum);
 		
 		return image;
 	}

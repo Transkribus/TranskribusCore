@@ -51,18 +51,18 @@ public class TrpDocStructure implements Serializable {
 		@XmlElement
 		boolean imgUploaded = false;
 		@XmlElement
-		boolean xmlUploaded = false;
+		boolean pageXmlUploaded = false;
 		@XmlElement
 		int index = -1;
 		@XmlElement
 		String imgChecksum = null;
 		@XmlElement
-		String xmlChecksum = null;
+		String pageXmlChecksum = null;
 		public TrpDocStructureImage() {
 			fileName = null;
 			pageXmlName = null;
 			imgUploaded = false;
-			xmlUploaded = false;
+			pageXmlUploaded = false;
 			index = -1;
 			imgChecksum = null;
 		}
@@ -84,11 +84,11 @@ public class TrpDocStructure implements Serializable {
 		public void setImgUploaded(boolean imgUploaded) {
 			this.imgUploaded = imgUploaded;
 		}
-		public boolean isXmlUploaded() {
-			return xmlUploaded;
+		public boolean isPageXmlUploaded() {
+			return pageXmlUploaded;
 		}
-		public void setXmlUploaded(boolean xmlUploaded) {
-			this.xmlUploaded = xmlUploaded;
+		public void setPageXmlUploaded(boolean pageXmlUploaded) {
+			this.pageXmlUploaded = pageXmlUploaded;
 		}
 		public int getIndex() {
 			return index;
@@ -102,11 +102,11 @@ public class TrpDocStructure implements Serializable {
 		public void setImgChecksum(String imgChecksum) {
 			this.imgChecksum = imgChecksum;
 		}
-		public String getXmlChecksum() {
-			return xmlChecksum;
+		public String getPageXmlChecksum() {
+			return pageXmlChecksum;
 		}
-		public void setXmlChecksum(String xmlChecksum) {
-			this.xmlChecksum = xmlChecksum;
+		public void setPageXmlChecksum(String pageXmlChecksum) {
+			this.pageXmlChecksum = pageXmlChecksum;
 		}
 		/**
 		 * Uses the page index for comparison

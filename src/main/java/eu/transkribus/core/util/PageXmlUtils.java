@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -29,7 +30,12 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.util.ValidationEventCollector;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 
 import org.apache.commons.io.FileUtils;
 import org.dea.fimgstoreclient.FimgStoreGetClient;
@@ -55,7 +61,6 @@ import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
-import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementCoordinatesComparator;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpObjectFactory;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
@@ -846,5 +851,25 @@ public class PageXmlUtils {
 		s.setNrOfWordsInRegions(nrOfWordsInRegions);
 		
 		return s;
+	}
+	
+	public static boolean isValid(File xmlFile) throws IOException {
+		if(xmlFile == null || !xmlFile.isFile()) {
+			throw new IllegalArgumentException("Bad argument: " + xmlFile);
+		}
+		//FIXME TranskribusCore issue #20: Schema location should be set in XmlFormat.java!
+//		URL schemaFile = new URL("http://host:port/filename.xsd");
+		URL schemaUrl = PageXmlUtils.class.getClassLoader().getResource("xsd/pagecontent_extension.xsd");
+		return XmlUtils.isValid(xmlFile, schemaUrl);
+	}
+	
+	public static void main(String[] args) {
+		final String path = "/mnt/dea_scratch/TRP/Bentham_box_002/page/002_080_001.xml";
+		try {
+			logger.info(""+PageXmlUtils.isValid(new File(path)));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
