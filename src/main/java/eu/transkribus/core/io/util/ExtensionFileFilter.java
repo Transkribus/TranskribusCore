@@ -28,7 +28,7 @@ public class ExtensionFileFilter implements FileFilter {
 		}
 		//no other dots allowed
 		if(extension.contains(".")){
-			throw new IllegalArgumentException("Extension may not include a dot.");
+			throw new IllegalArgumentException("Extension must not include a dot.");
 		}
 		this.extension = extension;
 		
