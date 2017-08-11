@@ -8,6 +8,7 @@ import java.util.Properties;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
+import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -25,12 +26,15 @@ import org.slf4j.LoggerFactory;
 public class SendMail {
 	private static Logger logger = LoggerFactory.getLogger(SendMail.class);
 	
+	private static final String MAIL_SMTP_AUTH_KEY = "mail.smtp.auth";
+	
 	String smtp;
 	int smtpPort;
 	String username;
 	String password;
 	String email;
 	Properties props;
+	Authenticator authenticator;
 	
 	public SendMail(String smtp, int port, String username, String password, String email) {
 		this.smtp = smtp;
@@ -45,10 +49,20 @@ public class SendMail {
 		props.put("mail.smtp.socketFactory.port", ""+smtpPort);
 		props.put("mail.smtp.socketFactory.class",
 				"javax.net.ssl.SSLSocketFactory");
-		props.put("mail.smtp.auth", "true");
-		props.put("mail.smtp.port", ""+smtpPort);		
+		props.put("mail.smtp.port", ""+smtpPort);
+		
+		authenticator = initAuthenticator();
 	}
 	
+	private Authenticator initAuthenticator() {
+		return new javax.mail.Authenticator() {
+			@Override
+			protected PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(username, password);
+			}
+		};
+	}
+
 	public String getSmtp() {
 		return smtp;
 	}
@@ -97,20 +111,20 @@ public class SendMail {
 		this.props = props;
 	}
 	
-	private Session createSession() {
-		return Session.getDefaultInstance(props, new javax.mail.Authenticator() {
-			@Override
-			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(username, password);
-			}
-		});
+	private Session createSession(boolean useAuth) {
+		props.put(MAIL_SMTP_AUTH_KEY, ""+useAuth);
+		if(useAuth) {
+			return Session.getDefaultInstance(props, authenticator);
+		} else {
+			return Session.getDefaultInstance(props);
+		}
 	}
 	
 	/**
 	 * {@link #sendMailSSL(String, String, File[], String)}
 	 */
-	public void sendMailSSL(String toAddress, String subject, String messageText, String replyTo) throws MessagingException {
-		sendMailSSL(toAddress, subject, messageText, null, replyTo);
+	public void sendMailSSL(String toAddress, String subject, String messageText, String replyTo, boolean doAuthentication) throws MessagingException {
+		sendMailSSL(toAddress, subject, messageText, null, replyTo, doAuthentication);
 	}
 	
 	public static Multipart createMultiPartMessage(String message, File[] atts) throws MessagingException {
@@ -137,10 +151,11 @@ public class SendMail {
 	 * @param messageText The message of the mail
 	 * @param attachment The attachments of the mail - can be empty or null
 	 * @param replyTo The reply to addresses (comma seperated!) - can be empty of null
+	 * @param doAuthentication should be true in most cases! UIBK IT allows to send unlimited mails when set to false
 	 * @throws MessagingException
 	 */
-	public void sendMailSSL(String toAddress, String subject, String messageText, File[] attachment, String replyTo) throws MessagingException {
-		Session session = createSession();
+	public void sendMailSSL(String toAddress, String subject, String messageText, File[] attachment, String replyTo, boolean doAuthentication) throws MessagingException {
+		Session session = createSession(doAuthentication);
 		
 		Message message = new MimeMessage(session);
 		message.setFrom(new InternetAddress(email));
