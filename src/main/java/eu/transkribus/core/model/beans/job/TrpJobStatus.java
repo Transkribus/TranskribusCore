@@ -41,6 +41,9 @@ public class TrpJobStatus implements Serializable {
 	public static final String CANCELED = "CANCELED";
 	public static final String UNFINISHED = "UNFINISHED"; // meta-status -> all but FINISHED
 
+	/**
+	 * TODO this is acutually int now!
+	 */
 	@Id
 	@Column
 	private String jobId = "-1";
@@ -264,6 +267,18 @@ public class TrpJobStatus implements Serializable {
 	
 	public void setJobId(String jobId) {
 		this.jobId = jobId;
+	}
+	
+	public int getJobIdInt() {
+		try{
+			return Integer.parseInt(jobId);
+		} catch (NumberFormatException nfe){
+			throw new IllegalStateException("Job ID does not represent an int value: " + jobId);
+		}
+	}
+	
+	public void setJobId(int jobId) {
+		this.jobId = ""+jobId;
 	}
 
 	public int getDocId() {

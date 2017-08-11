@@ -48,8 +48,8 @@ public class TrpUpload extends TrpDocStructure implements Serializable {
 	@Column
 	private UploadType type;
 	
-	@Column
-	private String jobId;
+	@Column(name="JOB_ID")
+	private Integer jobId;
 	
 	@Column(name="COLLECTION_ID")
 	private int colId;
@@ -171,11 +171,11 @@ public class TrpUpload extends TrpDocStructure implements Serializable {
 		this.type = type;
 	}
 
-	public String getJobId() {
+	public Integer getJobId() {
 		return jobId;
 	}
 
-	public void setJobId(String jobId) {
+	public void setJobId(Integer jobId) {
 		this.jobId = jobId;
 	}
 
