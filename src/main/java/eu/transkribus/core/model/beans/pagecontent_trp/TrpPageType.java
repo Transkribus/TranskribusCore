@@ -426,6 +426,14 @@ public class TrpPageType extends PageType {
 		return shapes;
 	}
 	
+	public ITrpShapeType getShape(String id) {
+		for (ITrpShapeType t : getAllShapes(true)) {
+			if (t.getId().equals(id))
+				return t;
+		}
+		return null;		
+	}
+	
 	public void writeCustomTagsToPage() {
 		CustomTagUtil.writeCustomTagsToPage(this);
 	}
@@ -466,6 +474,14 @@ public class TrpPageType extends PageType {
 		}
 		
 		return lines;
+	}
+	
+	public TrpTextLineType getLineWithId(String id) {
+		for (TrpTextLineType l : getLines()) {
+			if (l.getId().equals(id))
+				return l;
+		}
+		return null;
 	}
 	
 	/** Returns all words of all lines in the current order. */
