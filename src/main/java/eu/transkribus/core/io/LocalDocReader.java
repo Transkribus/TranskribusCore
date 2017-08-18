@@ -11,7 +11,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
@@ -56,7 +55,7 @@ import eu.transkribus.core.util.XmlUtils;
  * Reader class for loading a TRP Document from the local filesystem.<br>
  * The given path should contain:<br>
  * <ul>
- * <li>Image files of type JPG or TIFF (allowed types and priorities defined in
+ * <li>Image files of type JPG, PNG or TIFF (allowed types and priorities defined in
  * {@link ImgPriority})</li>
  * <li>Optional: PAGE XML files (corresponding images and XMLs must have the
  * same name)</li>

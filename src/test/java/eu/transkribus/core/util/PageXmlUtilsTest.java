@@ -7,12 +7,14 @@ import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
-import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 
 public class PageXmlUtilsTest {
-	
+	private static final Logger logger = LoggerFactory.getLogger(PageXmlUtilsTest.class);
 	public static void testGetTextRegions() throws Exception {
 		String transcriptWithTables = "https://dbis-thure.uibk.ac.at/f/Get?id=VCLTRLDSWETCXIHQNHKOPRLS";
 		
@@ -50,8 +52,19 @@ public class PageXmlUtilsTest {
 //		}
 	}
 	
+	public static void testValidation() {
+		final String path = "/mnt/dea_scratch/TRP/Bentham_box_002/page/002_080_001.xml";
+		try {
+			logger.info(""+PageXmlUtils.isValid(new File(path)));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public static void main(String[] args) throws Exception {
-		testGetTextRegions();
+//		testGetTextRegions();
 //		testSth();
+		testValidation();
 	}
 }

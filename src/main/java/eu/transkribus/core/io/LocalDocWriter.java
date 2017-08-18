@@ -173,7 +173,7 @@ public class LocalDocWriter {
 		FileUtils.forceMkdir(dir);
 		
 		// write metadata:
-		File mF = new File(FilenameUtils.normalize(path)+"/"+MdFileFilter.MD_FILENAME);
+		File mF = new File(FilenameUtils.normalize(path)+ "/" + LocalDocConst.METADATA_FILENAME);
 		JaxbUtils.marshalToFile(doc.getMd(), mF);
 //		doc.getMd().writeXml(mF);
 		logger.debug("Written metadata file "+mF.getAbsolutePath());

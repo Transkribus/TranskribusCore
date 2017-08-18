@@ -24,6 +24,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import eu.transkribus.core.io.LocalDocConst;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpDocStructure.TrpDocStructureImage;
 import eu.transkribus.core.model.beans.TrpPage;
@@ -358,6 +359,11 @@ public class MetsUtil {
 			} else if (xmlGrp != null && xmlGrp.contains(type)){
 				xmlFileName = fileNameAndChecksum.getLeft();
 				xmlChecksum = fileNameAndChecksum.getRight();
+				if(!StringUtils.isEmpty(xmlFileName) 
+						&& xmlFileName.startsWith(LocalDocConst.PAGE_FILE_SUB_FOLDER + "/")) {
+					//remove the "page/" prefix in XML filename if existent
+					xmlFileName = xmlFileName.replaceFirst(LocalDocConst.PAGE_FILE_SUB_FOLDER + "/", "");
+				}
 			}
 		}
 		

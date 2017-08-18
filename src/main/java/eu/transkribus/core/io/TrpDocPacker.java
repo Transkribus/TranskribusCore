@@ -2,43 +2,48 @@ package eu.transkribus.core.io;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Observable;
 
 import javax.xml.bind.JAXBException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.io.util.Md5SumComputer;
+import eu.transkribus.core.misc.APassthroughObservable;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
-import eu.transkribus.core.model.beans.TrpPage;
-import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.mets.FileGrpType;
 import eu.transkribus.core.model.beans.mets.FileType;
 import eu.transkribus.core.model.beans.mets.FileType.FLocat;
 import eu.transkribus.core.model.beans.mets.Mets;
 import eu.transkribus.core.model.builder.mets.TrpMetsBuilder;
 import eu.transkribus.core.model.builder.mets.util.MetsUtil;
-import eu.transkribus.core.util.ChecksumUtils;
 import eu.transkribus.core.util.JaxbUtils;
 import eu.transkribus.core.util.ZipUtils;
 
 /**
- * TODO compute checksums for files
  * TODO techmd extraction
  * 
  * @author philip
  *
  */
-public class TrpDocPacker extends Observable {
+public class TrpDocPacker extends APassthroughObservable {
 	private static final Logger logger = LoggerFactory.getLogger(TrpDocPacker.class);
 	private static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
 	
+	/**
+	 * Zips a local TrpDoc into a file at the given zipFilePath.
+	 * The process involves computing MD5 sums for all files.
+	 * METS file will be included.
+	 * 
+	 * @param doc
+	 * @param zipFilePath
+	 * @return
+	 * @throws IOException
+	 */
 	public File packDocFiles(TrpDoc doc, String zipFilePath) throws IOException{		
 		File localFolder = doc.getMd().getLocalFolder();
 		
@@ -46,14 +51,9 @@ public class TrpDocPacker extends Observable {
 			throw new IOException("Not a local Document!");
 		}
 		
-		updateStatus("Computing checksums...");
-		for (TrpPage p : doc.getPages()) {
-			p.setMd5Sum(computeChkSum(p.getUrl()));
-			for(TrpTranscriptMetadata t : p.getTranscripts()){
-				t.setMd5Sum(computeChkSum(t.getUrl()));
-			}
-		}
-		
+		Md5SumComputer md5Comp = new Md5SumComputer();
+		md5Comp.addObserver(passthroughObserver);
+		doc = md5Comp.computeAndSetMd5Sums(doc);		
 		
 		if(zipFilePath == null || zipFilePath.isEmpty()){
 			logger.info("No zip file path specified.");
@@ -95,11 +95,10 @@ public class TrpDocPacker extends Observable {
 		}
 		updateStatus("Creating ZIP file...");
 		File zipFile = ZipUtils.zip(fileList, localFolder.getAbsolutePath(), zipFilePath);
-		
-		//TADAAAA!
+
 		return zipFile;
 	}
-	
+
 	public TrpDoc unpackDoc(File zipFile, String path) throws IOException{
 		
 		if(path == null || path.isEmpty()){
@@ -128,11 +127,6 @@ public class TrpDocPacker extends Observable {
 		TrpDoc doc = LocalDocReader.load(mets, dir);
 		return doc;
 	}
-
-	private void updateStatus(String string) {
-		setChanged();
-		notifyObservers(string);
-	}
 	
 	private List<String> getFiles(FileGrpType type) {
 		List<String> fileList = new LinkedList<>();
@@ -146,16 +140,5 @@ public class TrpDocPacker extends Observable {
 			}
 		}
 		return fileList;
-	}
-	
-	private String computeChkSum(URL url) throws IOException{
-		if(!url.getProtocol().contains("file")){
-			throw new IOException(url + " is not a local file!");
-		}
-		final String chkSum;
-		File f = FileUtils.toFile(url);
-		updateStatus("Computing checksum: " + f.getAbsolutePath());
-		chkSum = ChecksumUtils.getMd5SumHex(f);
-		return chkSum;
 	}
 }

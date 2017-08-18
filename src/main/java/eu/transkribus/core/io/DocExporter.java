@@ -186,7 +186,7 @@ public class DocExporter extends Observable {
 		// check and write metadata
 		if (doc2.getMd() != null) {
 			File fileOut = new File(outputDir.getAbsolutePath() + File.separatorChar
-					+ "metadata.xml");
+					+ LocalDocConst.METADATA_FILENAME);
 			try {
 				JaxbUtils.marshalToFile(doc2.getMd(), fileOut);
 			} catch (JAXBException e) {

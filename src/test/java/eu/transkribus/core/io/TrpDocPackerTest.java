@@ -4,6 +4,7 @@ import java.io.File;
 
 import eu.transkribus.core.io.LocalDocReader;
 import eu.transkribus.core.io.TrpDocPacker;
+import eu.transkribus.core.io.util.Md5SumComputer;
 import eu.transkribus.core.model.beans.TrpDoc;
 
 public class TrpDocPackerTest {
@@ -25,6 +26,10 @@ public class TrpDocPackerTest {
 		TrpDocPacker packer = new TrpDocPacker();
 		
 		TrpDoc doc = LocalDocReader.load(shitDoc, true);
+		
+		Md5SumComputer md5Comp = new Md5SumComputer();
+//		md5Comp.addObserver(passthroughObserver);
+		doc = md5Comp.computeAndSetMd5Sums(doc);	
 		
 		File zipFile = packer.packDocFiles(doc, zipPath);
 //		

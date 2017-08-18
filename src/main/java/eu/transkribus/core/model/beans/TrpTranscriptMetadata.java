@@ -18,6 +18,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.apache.commons.io.FilenameUtils;
 import org.dea.fimgstoreclient.utils.FimgStoreUtils;
 
 import eu.transkribus.core.exceptions.NullValueException;
@@ -223,6 +224,14 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 		this.url = xmlUrl;
 	}
 
+	public String getXmlFileName() {
+		String name = null;
+		if(this.isLocalTranscript()) {
+			name = FilenameUtils.getName(this.getUrl().getPath());
+		}
+		return name;
+	}
+	
 	public EditStatus getStatus() {
 		return status;
 	}

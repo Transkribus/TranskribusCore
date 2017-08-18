@@ -11,4 +11,5 @@ public class LocalDocConst {
 	public static final int THUMB_SIZE_HEIGHT = 120;
 	public static final String THUMB_FILE_EXT = ".jpg";
 	public static final String EDITORIAL_DECLARATION_FN = "editorialDeclaration.xml";
+	public static final String METADATA_FILENAME = "metadata.xml";
 }
