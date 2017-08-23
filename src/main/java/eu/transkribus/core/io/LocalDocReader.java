@@ -33,6 +33,7 @@ import eu.transkribus.core.io.formats.XmlFormat;
 import eu.transkribus.core.io.util.ImgFileFilter;
 import eu.transkribus.core.io.util.ImgPriority;
 import eu.transkribus.core.io.util.MdFileFilter;
+import eu.transkribus.core.model.beans.DocumentUploadDescriptor.PageUploadDescriptor;
 import eu.transkribus.core.model.beans.EdFeature;
 import eu.transkribus.core.model.beans.EdOption;
 import eu.transkribus.core.model.beans.TrpDoc;
@@ -40,6 +41,7 @@ import eu.transkribus.core.model.beans.TrpDocDir;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
+import eu.transkribus.core.model.beans.TrpUpload;
 import eu.transkribus.core.model.beans.enums.EditStatus;
 import eu.transkribus.core.model.beans.mets.Mets;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
@@ -730,5 +732,52 @@ public class LocalDocReader {
 		}
 		
 		return docMd;
+	}
+
+	public static TrpDoc load(TrpUpload upload) throws IOException {
+		//validate most necessary things
+		if(upload == null) {
+			throw new IllegalArgumentException("Upload is null.");
+		}
+		if(upload.getUploadId() < 1) {
+			throw new IllegalArgumentException("Invalid upload ID: " + upload.getUploadId());
+		}
+		if(!upload.canReadDirectories()) {
+			throw new IllegalArgumentException("Directories are not readable: " + upload.getUploadTmpDir().getAbsolutePath());
+		}
+		//transform the upload object into a TRP document
+		TrpDoc doc = new TrpDoc();
+		TrpDocMetadata md = upload.getMd();
+		md.setLocalFolder(upload.getUploadTmpDir());
+		doc.setMd(md);
+		
+		File baseDir = upload.getUploadTmpDir();
+		File xmlDir = upload.getUploadPageTmpDir();
+		File thumbDir = new File(baseDir.getAbsolutePath() + File.separatorChar + LocalDocConst.THUMBS_FILE_SUB_FOLDER);
+		for(PageUploadDescriptor p : upload.getPages()) {
+			final int pageNr = p.getPageNr();
+			File img = new File(baseDir.getAbsolutePath() + File.separator + p.getFileName());
+			if(!img.isFile()){
+				throw new FileNotFoundException("Image for page " + pageNr + " does not exist: " + img.getAbsolutePath());
+			}
+			final String imgBaseName = FilenameUtils.getBaseName(img.getName());
+			File thumb = getThumbFile(thumbDir, imgBaseName);
+			
+			File pageXml;
+			if(StringUtils.isEmpty(p.getPageXmlName())) {
+				File pageOutFile = new File(xmlDir.getAbsolutePath() + File.separatorChar + imgBaseName
+						+ ".xml");
+				pageXml = createPageXmlIfNull(null, true, pageOutFile, null, null, false, false, false, img);
+			} else {
+				pageXml = new File(xmlDir.getAbsolutePath() + File.separator + p.getPageXmlName());
+				if(!pageXml.isFile()){
+					throw new FileNotFoundException("PAGE XML for page " + pageNr + " does not exist: " + img.getAbsolutePath());
+				}
+			}
+			TrpPage page = buildPage(baseDir, pageNr, img, pageXml, thumb);
+			doc.getPages().add(page);
+		}
+								
+		return doc;
 	}
 }

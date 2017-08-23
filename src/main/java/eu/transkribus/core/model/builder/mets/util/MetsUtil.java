@@ -26,7 +26,7 @@ import org.xml.sax.SAXException;
 
 import eu.transkribus.core.io.LocalDocConst;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
-import eu.transkribus.core.model.beans.TrpDocStructure.TrpDocStructureImage;
+import eu.transkribus.core.model.beans.DocumentUploadDescriptor.PageUploadDescriptor;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.enums.EditStatus;
@@ -245,7 +245,7 @@ public class MetsUtil {
 		return Pair.of(name, checksum);
 	}
 	
-	public static List<TrpDocStructureImage> getImagesToUpload(Mets mets) {
+	public static List<PageUploadDescriptor> getImagesToUpload(Mets mets) {
 		//check filesection. needs img group and xml group to distinguish them without going for mimetypes
 		List<FileGrpType> typeGrps = getMasterFileGrp(mets);
 		boolean hasXml = true;
@@ -273,9 +273,9 @@ public class MetsUtil {
 		if(pageDivs == null)
 			throw new IllegalArgumentException("No valid StructMap was found!");
 		
-		List<TrpDocStructureImage> images = new ArrayList<TrpDocStructureImage>(pageDivs.size());
+		List<PageUploadDescriptor> images = new ArrayList<PageUploadDescriptor>(pageDivs.size());
 		for(DivType div : pageDivs){
-			TrpDocStructureImage image = buildUploadImage(div, imgGrp, xmlGrp);
+			PageUploadDescriptor image = buildUploadImage(div, imgGrp, xmlGrp);
 			images.add(image);
 		}
 		return images;
@@ -340,10 +340,10 @@ public class MetsUtil {
 		return page;
 	}
 	
-	private static TrpDocStructureImage buildUploadImage(DivType div, List<FileType> imgGrp, List<FileType> xmlGrp) {
-		TrpDocStructureImage image = new TrpDocStructureImage();
+	private static PageUploadDescriptor buildUploadImage(DivType div, List<FileType> imgGrp, List<FileType> xmlGrp) {
+		PageUploadDescriptor image = new PageUploadDescriptor();
 		int pageIndex = div.getORDER().intValue() - 1;
-		image.setIndex(pageIndex);
+		image.setPageNr(pageIndex);
 		
 		String imgFileName = null;
 		String xmlFileName = null;
@@ -370,7 +370,7 @@ public class MetsUtil {
 		if(StringUtils.isEmpty(imgFileName)) {
 			logger.error("No master image mapped for page index = " + pageIndex + " in the structmap!");
 		} else {
-			logger.info("Page " + image.getIndex() + " image: " + imgFileName);
+			logger.info("Page " + image.getPageNr() + " image: " + imgFileName);
 		}
 		image.setFileName(imgFileName);
 		image.setImgChecksum(imgChecksum);

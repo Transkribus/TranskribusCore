@@ -12,19 +12,19 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpDocStructure implements Serializable {
+public class DocumentUploadDescriptor implements Serializable {
 	private static final long serialVersionUID = 2778247824554250512L;
 
 	@XmlElement
 	protected TrpDocMetadata md;
 	
-	@XmlElementWrapper(name="imageList")
+	@XmlElementWrapper(name="pageList")
 	@XmlElement
-	protected List<TrpDocStructureImage> images;
+	protected List<PageUploadDescriptor> pages;
 	
-	public TrpDocStructure() {
+	public DocumentUploadDescriptor() {
 		md = null;
-		images = new LinkedList<>();
+		pages = new LinkedList<>();
 	}
 	
 	public TrpDocMetadata getMd() {
@@ -35,15 +35,17 @@ public class TrpDocStructure implements Serializable {
 		this.md = md;
 	}
 
-	public List<TrpDocStructureImage> getImages() {
-		return images;
+	public List<PageUploadDescriptor> getPages() {
+		return pages;
 	}
 
-	public void setImages(List<TrpDocStructureImage> images) {
-		this.images = images;
+	public void setPages(List<PageUploadDescriptor> pages) {
+		this.pages = pages;
 	}
 
-	public static class TrpDocStructureImage implements Comparable<TrpDocStructureImage> {
+	@XmlRootElement
+	@XmlAccessorType(XmlAccessType.FIELD)
+	public static class PageUploadDescriptor implements Comparable<PageUploadDescriptor> {
 		@XmlElement
 		String fileName = null;
 		@XmlElement
@@ -53,17 +55,17 @@ public class TrpDocStructure implements Serializable {
 		@XmlElement
 		boolean pageXmlUploaded = false;
 		@XmlElement
-		int index = -1;
+		int pageNr = -1;
 		@XmlElement
 		String imgChecksum = null;
 		@XmlElement
 		String pageXmlChecksum = null;
-		public TrpDocStructureImage() {
+		public PageUploadDescriptor() {
 			fileName = null;
 			pageXmlName = null;
 			imgUploaded = false;
 			pageXmlUploaded = false;
-			index = -1;
+			pageNr = -1;
 			imgChecksum = null;
 		}
 		public String getFileName() {
@@ -90,11 +92,11 @@ public class TrpDocStructure implements Serializable {
 		public void setPageXmlUploaded(boolean pageXmlUploaded) {
 			this.pageXmlUploaded = pageXmlUploaded;
 		}
-		public int getIndex() {
-			return index;
+		public int getPageNr() {
+			return pageNr;
 		}
-		public void setIndex(int index) {
-			this.index = index;
+		public void setPageNr(int pageNr) {
+			this.pageNr = pageNr;
 		}
 		public String getImgChecksum() {
 			return imgChecksum;
@@ -114,11 +116,11 @@ public class TrpDocStructure implements Serializable {
 		 * @see java.lang.Comparable#compareTo(java.lang.Object)
 		 */
 		@Override
-		public int compareTo(TrpDocStructureImage img) {
-			if (this.getIndex() > img.getIndex()) {
+		public int compareTo(PageUploadDescriptor img) {
+			if (this.getPageNr() > img.getPageNr()) {
 				return 1;
 			}
-			if (this.getIndex() < img.getIndex()) {
+			if (this.getPageNr() < img.getPageNr()) {
 				return -1;
 			}
 			return 0;

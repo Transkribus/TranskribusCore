@@ -1,5 +1,6 @@
 package eu.transkribus.core.model.beans;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
@@ -12,6 +13,7 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -21,7 +23,7 @@ import eu.transkribus.core.io.LocalDocConst;
 @Table(name = "UPLOADS")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpUpload extends TrpDocStructure implements Serializable {
+public class TrpUpload extends DocumentUploadDescriptor implements Serializable {
 	private static final long serialVersionUID = -7706054520211169041L;
 	/**
 	 * uploadId equals docId
@@ -55,21 +57,26 @@ public class TrpUpload extends TrpDocStructure implements Serializable {
 	private int colId;
 	
 	/**
-	 * isComplete stores the evaluation result of isComplete()
+	 * isComplete caches the evaluation result of isComplete()
 	 */
 	private boolean isComplete = false;
+	
+	@XmlTransient
+	private File uploadTmpDir = null;
+	@XmlTransient
+	private File uploadPageTmpDir = null;
 	
 	public TrpUpload(){
 		super();
 	}
 	
-	public TrpUpload(TrpDocStructure struct) {
+	public TrpUpload(DocumentUploadDescriptor struct) {
 		super();
 		this.md = struct.getMd();
-		this.images = struct.getImages();
+		this.pages = struct.getPages();
 		//sort by page index!
-		Collections.sort(this.images);
-		validateAndNormalize(this.images);
+		Collections.sort(this.pages);
+		validateAndNormalize(this.pages);
 		created = new Date();
 	}
 	
@@ -78,12 +85,12 @@ public class TrpUpload extends TrpDocStructure implements Serializable {
 	 * If XML filenames have the "page/" dir prefix, it will be removed.
 	 * @param images
 	 */
-	private void validateAndNormalize(List<TrpDocStructureImage> images) {
+	private void validateAndNormalize(List<PageUploadDescriptor> images) {
 		if(images.isEmpty()) {
 			throw new IllegalArgumentException("Image list is empty!");
 		}
 		//check page indices
-		int i = images.get(0).getIndex();
+		int i = images.get(0).getPageNr();
 		//check if it starts with 1 or 0
 		boolean pageCountFromZero = false;
 		if(i == 0) {
@@ -92,20 +99,20 @@ public class TrpUpload extends TrpDocStructure implements Serializable {
 		} else if (i < 0 || i > 1) {
 			throw new IllegalArgumentException("page indexes have to start with 1 or 0!");
 		}
-		for(TrpDocStructureImage img : this.images) {
+		for(PageUploadDescriptor img : this.pages) {
 			//check page indexes for continuity
-			if(img.getIndex() != i) {
+			if(img.getPageNr() != i) {
 				throw new IllegalArgumentException("Page indexes are inconsistent!");
 			} else {
 				i++;
 			}
 			//correct index if counting starts from zero as METS also includes counts starting from 1
 			if(pageCountFromZero) {
-				img.setIndex(img.getIndex() + 1);
+				img.setPageNr(img.getPageNr() + 1);
 			}
 			//ensure that at least the img filename is set
 			if(StringUtils.isEmpty(img.getFileName())) {
-				throw new IllegalArgumentException("Image filename is empty for page index: " + img.getIndex());
+				throw new IllegalArgumentException("Image filename is empty for page index: " + img.getPageNr());
 			}
 			if(!StringUtils.isEmpty(img.getPageXmlName()) 
 					&& img.getPageXmlName().startsWith(LocalDocConst.PAGE_FILE_SUB_FOLDER + "/")) {
@@ -196,7 +203,7 @@ public class TrpUpload extends TrpDocStructure implements Serializable {
 		if(isComplete) {
 			return true;
 		}
-		for(TrpDocStructureImage img : this.getImages()) {
+		for(PageUploadDescriptor img : this.getPages()) {
 			boolean pageComplete = img.isImgUploaded() 
 					&& (StringUtils.isEmpty(img.getPageXmlName()) || img.isPageXmlUploaded());
 			if (!pageComplete) {
@@ -207,9 +214,32 @@ public class TrpUpload extends TrpDocStructure implements Serializable {
 		return isComplete;
 	}
 
+	public File getUploadTmpDir() {
+		return uploadTmpDir;
+	}
+
+	public void setUploadTmpDir(File uploadTmpDir) {
+		this.uploadTmpDir = uploadTmpDir;
+	}
+
+	public File getUploadPageTmpDir() {
+		return uploadPageTmpDir;
+	}
+
+	public void setUploadPageTmpDir(File uploadPageTmpDir) {
+		this.uploadPageTmpDir = uploadPageTmpDir;
+	}
+
+	public boolean canReadDirectories() {
+		if(uploadPageTmpDir == null || uploadTmpDir == null) {
+			return false;
+		}
+		return uploadTmpDir.canRead() && uploadPageTmpDir.canRead();
+	}
+	
 	public enum UploadType {
 		NoStructure,
 		METS,
-		TrpDocStructure;
+		JSON;
 	}
 }
