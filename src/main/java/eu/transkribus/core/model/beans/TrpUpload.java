@@ -48,7 +48,7 @@ public class TrpUpload extends DocumentUploadDescriptor implements Serializable 
 	private Integer nrOfPagesTotal;
 	
 	@Column
-	private UploadType type;
+	private UploadType uploadType;
 	
 	@Column(name="JOB_ID")
 	private Integer jobId;
@@ -170,12 +170,12 @@ public class TrpUpload extends DocumentUploadDescriptor implements Serializable 
 		this.nrOfPagesTotal = nrOfPagesTotal;
 	}
 
-	public UploadType getType() {
-		return type;
+	public UploadType getUploadType() {
+		return uploadType;
 	}
 
-	public void setType(UploadType type) {
-		this.type = type;
+	public void setUploadType(UploadType uploadType) {
+		this.uploadType = uploadType;
 	}
 
 	public Integer getJobId() {
