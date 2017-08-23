@@ -47,7 +47,7 @@ public class TrpUpload extends DocumentUploadDescriptor implements Serializable 
 	@Column(name="NR_OF_PAGES")
 	private Integer nrOfPagesTotal;
 	
-	@Column
+	@Column(name="TYPE")
 	private UploadType uploadType;
 	
 	@Column(name="JOB_ID")
