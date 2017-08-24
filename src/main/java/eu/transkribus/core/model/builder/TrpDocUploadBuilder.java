@@ -1,11 +1,10 @@
 package eu.transkribus.core.model.builder;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.DocumentUploadDescriptor;
 import eu.transkribus.core.model.beans.DocumentUploadDescriptor.PageUploadDescriptor;
+import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 
