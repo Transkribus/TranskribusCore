@@ -33,7 +33,7 @@ public class TrpDocUploadBuilder {
 	private static PageUploadDescriptor buildStructureImage(TrpPage p) {
 		PageUploadDescriptor i = new PageUploadDescriptor();
 		i.setFileName(p.getImgFileName());
-		i.setPageNr(p.getPageNr()-1);
+		i.setPageNr(p.getPageNr());
 		if(!StringUtils.isEmpty(p.getMd5Sum())) {
 			i.setImgChecksum(p.getMd5Sum());
 		}
