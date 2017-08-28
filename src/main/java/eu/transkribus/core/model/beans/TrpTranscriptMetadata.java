@@ -402,7 +402,6 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 	 * <ul>
 	 * <li>key of transcript is null, but the URL protocol is not "file://"</li>
 	 * <li>key of transcript is null, but the file URL does not point to an existing file</li>
-	 * <li>a filekey is set, but it does not match the fimagestore key pattern</li>
 	 * </ul>
 	 */
 	public boolean isLocalTranscript() {
@@ -416,9 +415,9 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 			}
 			return true;
 		} else {
-			if(!FimgStoreUtils.isFimgStoreKey(key)) {
-				throw new IllegalStateException("Key of transcript is not a valid fimagestore key!");
-			}
+//			if(!FimgStoreUtils.isFimgStoreKey(key)) {
+//				throw new IllegalStateException("Key of transcript is not a valid fimagestore key!");
+//			}
 			return false;
 		}
 	}
