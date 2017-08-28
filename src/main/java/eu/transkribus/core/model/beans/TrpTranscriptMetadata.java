@@ -18,6 +18,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.dea.fimgstoreclient.utils.FimgStoreUtils;
 
@@ -408,14 +409,15 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 		if(key == null) {
 			final String prot = url.getProtocol();
 			if(!"file".equals(prot)) {
-				throw new IllegalStateException("Key of tanscript is null, but URL protocol is not file!");
+				throw new IllegalStateException("Key of transcript is null, but URL protocol is not \"file\"!");
 			}
-			if(!new File(url.getFile()).isFile()) {
-				throw new IllegalStateException("Key of tanscript is null, but file URL does not exis: " + url.getFile());			}
+			if(!FileUtils.toFile(url).isFile()) {
+				throw new IllegalStateException("Key of transcript is null, but file URL does not exist: " + url.getFile());			
+			}
 			return true;
 		} else {
 			if(!FimgStoreUtils.isFimgStoreKey(key)) {
-				throw new IllegalStateException("Key of tanscript is not a valid fimagestore key!");
+				throw new IllegalStateException("Key of transcript is not a valid fimagestore key!");
 			}
 			return false;
 		}
