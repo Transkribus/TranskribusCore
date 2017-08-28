@@ -19,8 +19,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.dea.fimgstoreclient.utils.FimgStoreUtils;
 
 import eu.transkribus.core.exceptions.NullValueException;
 import eu.transkribus.core.model.beans.adapters.EditStatusAdapter;
@@ -228,7 +226,7 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 	public String getXmlFileName() {
 		String name = null;
 		if(this.isLocalTranscript()) {
-			name = FilenameUtils.getName(this.getUrl().getPath());
+			name = this.getXmlFile().getName();
 		}
 		return name;
 	}
@@ -406,11 +404,7 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 	 */
 	public boolean isLocalTranscript() {
 		if(key == null) {
-			final String prot = url.getProtocol();
-			if(!"file".equals(prot)) {
-				throw new IllegalStateException("Key of transcript is null, but URL protocol is not \"file\"!");
-			}
-			if(!FileUtils.toFile(url).isFile()) {
+			if(!this.getXmlFile().isFile()) {
 				throw new IllegalStateException("Key of transcript is null, but file URL does not exist: " + url.getFile());			
 			}
 			return true;
@@ -422,6 +416,16 @@ public class TrpTranscriptMetadata implements ITrpFile, Serializable, Comparable
 		}
 	}
 	
+	private File getXmlFile() {
+		final String prot = url.getProtocol();
+		if(!"file".equals(prot)) {
+			throw new IllegalStateException("Key of transcript is null, but URL protocol is not \"file\"!");
+		}
+		return FileUtils.toFile(url);
+	}
+
+
+
 	@Override 
 	public boolean equals(Object o) {
 		// FIXME ?? (not tested)

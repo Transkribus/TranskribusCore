@@ -24,12 +24,12 @@ public class TrpDocUploadBuilder {
 		s.setMd(doc.getMd());
 		
 		for(TrpPage p : doc.getPages()) {
-			s.getPages().add(buildStructureImage(p));
+			s.getPages().add(buildPageUploadDescriptor(p));
 		}
 		return s;
 	}
 	
-	private static PageUploadDescriptor buildStructureImage(TrpPage p) {
+	private static PageUploadDescriptor buildPageUploadDescriptor(TrpPage p) {
 		PageUploadDescriptor i = new PageUploadDescriptor();
 		i.setFileName(p.getImgFileName());
 		i.setPageNr(p.getPageNr());
