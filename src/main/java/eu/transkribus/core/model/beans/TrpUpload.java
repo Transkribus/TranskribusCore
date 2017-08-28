@@ -10,6 +10,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -18,6 +19,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.apache.commons.lang3.StringUtils;
 
 import eu.transkribus.core.io.LocalDocConst;
+import eu.transkribus.core.util.JaxbUtils;
 
 @Entity
 @Table(name = "UPLOADS")
@@ -241,5 +243,9 @@ public class TrpUpload extends DocumentUploadDescriptor implements Serializable 
 		NoStructure,
 		METS,
 		JSON;
+	}
+	
+	public String toXmlStr() throws JAXBException {
+		return JaxbUtils.marshalToString(this, TrpDocMetadata.class, PageUploadDescriptor.class);
 	}
 }
