@@ -222,9 +222,8 @@ public class LocalDocReader {
 		int pageNr = 1;
 		List<TrpPage> pages = new ArrayList<TrpPage>(pageMap.entrySet().size());
 		
-		// TODO:FIXME Test, test, test!!!
 		// need a special variable to test whether we are in sync mode (only then do the following!!!!)
-		if (pages.size() == 0 && enableSyncWithoutImages ) {
+		if (pageMap.entrySet().size() == 0 && enableSyncWithoutImages ) {
 			pageMap = createDummyImgFilesForXmls(inputDir, pageInputDir);
 		}
 		
