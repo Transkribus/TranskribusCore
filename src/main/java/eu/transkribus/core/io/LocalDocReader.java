@@ -197,7 +197,7 @@ public class LocalDocReader {
 		//Construct the input dir with pageXml Files. 
 		File pageInputDir = new File(inputDir.getAbsolutePath() + File.separatorChar
 				+ LocalDocConst.PAGE_FILE_SUB_FOLDER);
-		if (!pageInputDir.isDirectory()) {
+		if (forceCreatePageXml && !pageInputDir.isDirectory()) {
 			pageInputDir.mkdir();
 		}
 		
@@ -254,8 +254,6 @@ public class LocalDocReader {
 			} 
 			
 			//if no page XML, then create one at this path
-			
-			
 			File pageOutFile = new File(pageInputDir.getAbsolutePath() + File.separatorChar + imgFileName
 					+ ".xml");
 			
@@ -570,7 +568,7 @@ public class LocalDocReader {
 		File xmlFile = new File(xmlInputDir.getAbsolutePath() + File.separatorChar + imgName
 				+ ".xml");
 
-		if (xmlFile.exists() && xmlFile.canRead()) {
+		if (xmlFile.canRead()) {
 			//			logger.debug("Found XML for page " + imgName + " in " + xmlFile.getAbsolutePath());
 			return xmlFile;
 		} else {
