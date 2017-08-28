@@ -2,6 +2,9 @@ package eu.transkribus.core.io.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+
+import org.apache.commons.io.FileUtils;
 
 import eu.transkribus.core.misc.APassthroughObservable;
 import eu.transkribus.core.model.beans.TrpDoc;
@@ -33,14 +36,19 @@ public class Md5SumComputer extends APassthroughObservable {
 		
 		updateStatus("Computing checksums...");
 		for (TrpPage p : doc.getPages()) {
-			updateStatus("Computing checksum: " + p.getUrl());
-			p.setMd5Sum(ChecksumUtils.getMd5SumHex((p.getUrl())));
+			updateStatus("Computing checksum: " + getFileNameFromUrl(p.getUrl()));
+			p.setMd5Sum(ChecksumUtils.getMd5SumHex(p.getUrl()));
 			for(TrpTranscriptMetadata t : p.getTranscripts()){
-				updateStatus("Computing checksum: " + t.getUrl());
-				t.setMd5Sum(ChecksumUtils.getMd5SumHex((t.getUrl())));
+				updateStatus("Computing checksum: " + getFileNameFromUrl(t.getUrl()));
+				t.setMd5Sum(ChecksumUtils.getMd5SumHex(t.getUrl()));
 			}
 		}
 		return doc;
+	}
+	
+	private String getFileNameFromUrl(URL url) {
+		if(url == null) return "";
+		return FileUtils.toFile(url).getName();
 	}
 	
 }
