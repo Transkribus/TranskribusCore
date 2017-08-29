@@ -240,4 +240,18 @@ public class TrpDoc implements Serializable, Comparable<TrpDoc> {
 		return true;
 	}
 
+	public boolean hasChecksumsSet() {
+		for(TrpPage p : this.getPages()) {
+			if(p.getMd5Sum() == null) {
+				return false;
+			}
+			for(TrpTranscriptMetadata t : p.getTranscripts()) {
+				if(t.getMd5Sum() == null) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 }

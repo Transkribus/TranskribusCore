@@ -206,9 +206,7 @@ public class TrpUpload extends DocumentUploadDescriptor implements Serializable 
 			return true;
 		}
 		for(PageUploadDescriptor img : this.getPages()) {
-			boolean pageComplete = img.isImgUploaded() 
-					&& (StringUtils.isEmpty(img.getPageXmlName()) || img.isPageXmlUploaded());
-			if (!pageComplete) {
+			if (!img.isPageUploaded()) {
 				return false;
 			}
 		}
@@ -247,5 +245,14 @@ public class TrpUpload extends DocumentUploadDescriptor implements Serializable 
 	
 	public String toXmlStr() throws JAXBException {
 		return JaxbUtils.marshalToString(this, TrpDocMetadata.class, PageUploadDescriptor.class);
+	}
+
+	public boolean hasChecksumsSet() {
+		for(PageUploadDescriptor p : this.pages) {
+			if(p.getImgChecksum() == null || p.getPageXmlChecksum() == null) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
