@@ -25,8 +25,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import eu.transkribus.core.io.LocalDocConst;
-import eu.transkribus.core.model.beans.TrpDocMetadata;
+import eu.transkribus.core.io.util.ImgFilenameFilter;
 import eu.transkribus.core.model.beans.DocumentUploadDescriptor.PageUploadDescriptor;
+import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.enums.EditStatus;
@@ -46,6 +47,8 @@ import eu.transkribus.core.util.ChecksumUtils;
 
 public class MetsUtil {
 	private static final Logger logger = LoggerFactory.getLogger(MetsUtil.class);
+	
+	private static final ImgFilenameFilter IMG_NAME_FILTER = new ImgFilenameFilter();
 
 	public static boolean isDfgMets(File metsFile)
 			throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
@@ -355,6 +358,9 @@ public class MetsUtil {
 			final Pair<String, String> fileNameAndChecksum = MetsUtil.getFileNameAndChecksum(type);
 			if(imgGrp.contains(type)){
 				imgFileName = fileNameAndChecksum.getLeft();
+				if(!IMG_NAME_FILTER.accept(null, imgFileName)){
+					throw new IllegalArgumentException("Image type is not supported: " + imgFileName);
+				}
 				imgChecksum = fileNameAndChecksum.getRight();
 			} else if (xmlGrp != null && xmlGrp.contains(type)){
 				xmlFileName = fileNameAndChecksum.getLeft();
