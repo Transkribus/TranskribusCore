@@ -50,6 +50,7 @@ import eu.transkribus.core.io.formats.XmlFormat;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata.TrpTranscriptStatistics;
 import eu.transkribus.core.model.beans.customtags.CustomTagUtil;
+import eu.transkribus.core.model.beans.enums.TranscriptionLevel;
 import eu.transkribus.core.model.beans.pagecontent.CoordsType;
 import eu.transkribus.core.model.beans.pagecontent.MetadataType;
 import eu.transkribus.core.model.beans.pagecontent.ObjectFactory;
@@ -398,6 +399,60 @@ public class PageXmlUtils {
 		pc.setMetadata(md);
 		pc.setPage(pt);
 		return pc;
+	}
+		
+	public static PcGtsType createPcGtsTypeFromText(File imgFile, String text, TranscriptionLevel level, boolean skipEmptyLines) throws IOException {
+		// create empty page
+		PcGtsType pcGtsType = createEmptyPcGtsType(imgFile);
+		TrpPageType page = (TrpPageType) pcGtsType.getPage();
+		
+		// create and add text region with size of image
+		Rectangle r = new Rectangle(0, 0, page.getImageWidth(), page.getImageHeight());
+		String defaultCoords = PointStrUtils.pointsToString(r);
+		TrpTextRegionType region = new TrpTextRegionType((TrpPageType) page);
+		region.setId("region_1");
+		region.setCoordinates(defaultCoords, null);
+		page.getTextRegionOrImageRegionOrLineDrawingRegion().add(region);
+		
+		if (level == null) {
+			level = TranscriptionLevel.LINE_BASED;
+		}
+		if (level != TranscriptionLevel.REGION_BASED && level != TranscriptionLevel.LINE_BASED && level != TranscriptionLevel.WORD_BASED) {
+			throw new IOException("Invalide TranscriptionLevel: "+level);
+		}
+		
+		if (level == TranscriptionLevel.REGION_BASED) {
+			region.setUnicodeText(text, null);
+		}
+		else {
+			String splitRegex = skipEmptyLines ? "[\\r\\n]+" : "\\r?\\n";
+			
+			String[] lines = text.split(splitRegex);
+			logger.debug("nr of lines = "+lines.length);
+			
+			int lc=1;
+			for (String lineText : lines) {
+				TrpTextLineType line = new TrpTextLineType(region);
+				line.setId("line_"+(lc++));
+				line.setCoordinates(defaultCoords, null);
+				region.getTextLine().add(line);
+				if (level == TranscriptionLevel.LINE_BASED) {
+					line.setUnicodeText(lineText, null);
+				}
+				else if (level == TranscriptionLevel.WORD_BASED) {
+					int wc=1;
+					for (String wordText : lineText.split(" ")) { // TODO: better word splitting??
+						TrpWordType word = new TrpWordType(line);
+						word.setId("word_"+(wc++));
+						word.setCoordinates(defaultCoords, null);
+						word.setUnicodeText(wordText, null);
+						line.getWord().add(word);
+					}
+				}
+			}
+		}		
+		
+		return pcGtsType;
 	}
 	
 	public static PcGtsType createPcGtsTypeFromAbbyy(File abbyyXml, final String imgFileName, 

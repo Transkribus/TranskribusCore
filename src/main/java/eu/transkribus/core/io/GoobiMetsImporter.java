@@ -348,7 +348,7 @@ public class GoobiMetsImporter
 		
 		File pageXml = null;
 		File pageOutFile = new File(pageDir + File.separatorChar + FilenameUtils.getBaseName(imgFile.getName()) + ".xml");
-		pageXml = LocalDocReader.createPageXmlIfNull(pageXml, true, pageOutFile, abbyyFile, altoFile, true, true, false, imgFile);
+		pageXml = LocalDocReader.createPageXmlIfNull(pageXml, true, pageOutFile, abbyyFile, altoFile, null, true, true, false, imgFile);
 		
 		if(imgFile == null) {
 			logger.error("No master image mapped for page " + nr + " in the structmap!");

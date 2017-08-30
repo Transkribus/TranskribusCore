@@ -320,7 +320,14 @@ public class TrpMetsBuilder extends Observable {
 			fLocat.setLOCTYPE("OTHER");
 			fLocat.setOTHERLOCTYPE("FILE");
 			//remove protocol and localfolder, i.e. get relative path to this file
-			loc = path.substring(localFolder.getAbsolutePath().length() + 1);
+//			loc = path.substring(localFolder.getAbsolutePath().length() + 1); // BUG: localFolder != path!!
+			
+			loc = FilenameUtils.getName(path);
+			if (id.startsWith(PAGE_GROUP_ID)) { // append relative folder for PAGE XML files
+				loc = "page/"+loc;
+			}
+			
+			logger.debug("loc = "+loc);
 			
 			if(o.getMd5Sum() != null){
 				fType.setCHECKSUMTYPE(ChecksumUtils.ChkSumAlg.MD5.toString());

@@ -16,6 +16,23 @@ import math.geom2d.line.Line2D;
 public class GeomUtils {
 	private static final Logger logger = LoggerFactory.getLogger(GeomUtils.class);
 	
+	public static List<Point> getRectPoints(java.awt.Rectangle rectangle, boolean clockwise) {
+		List<Point> pts = new ArrayList<>();
+		if (clockwise) {
+			pts.add(new Point(rectangle.x, rectangle.y));
+			pts.add(new Point(rectangle.x+rectangle.width, rectangle.y));
+			pts.add(new Point(rectangle.x+rectangle.width, rectangle.y+rectangle.height));
+			pts.add(new Point(rectangle.x, rectangle.y+rectangle.height));
+		} else {
+			pts.add(new Point(rectangle.x, rectangle.y));
+			pts.add(new Point(rectangle.x, rectangle.y+rectangle.height));
+			pts.add(new Point(rectangle.x+rectangle.width, rectangle.y+rectangle.width));
+			pts.add(new Point(rectangle.x+rectangle.width, rectangle.y));
+		}
+		
+		return pts;
+	}
+	
 	public static List<Point> getPoints(java.awt.Polygon polygon, boolean removeSucceedingEqualPts) {
 		List<java.awt.Point> pts = new ArrayList<java.awt.Point>();
 		

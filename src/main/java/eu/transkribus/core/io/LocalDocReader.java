@@ -18,6 +18,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dea.util.pdf.PageImageWriter;
@@ -43,6 +44,7 @@ import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.TrpUpload;
 import eu.transkribus.core.model.beans.enums.EditStatus;
+import eu.transkribus.core.model.beans.enums.TranscriptionLevel;
 import eu.transkribus.core.model.beans.mets.Mets;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.builder.mets.TrpMetsBuilder;
@@ -212,6 +214,10 @@ public class LocalDocReader {
 		File altoInputDir = new File(inputDir.getAbsolutePath() + File.separatorChar
 				+ LocalDocConst.ALTO_FILE_SUB_FOLDER);
 		
+		//alto XML search path
+		File txtInputDir = new File(inputDir.getAbsolutePath() + File.separatorChar
+				+ LocalDocConst.TXT_FILE_SUB_FOLDER);
+		
 		//backupfolder for outdated page format files, if any
 		final String backupFolderName = XmlFormat.PAGE_2010.toString().toLowerCase()
 				+ "_backup";
@@ -258,11 +264,10 @@ public class LocalDocReader {
 			
 			File abbyyXml = findXml(imgFileName, ocrInputDir);
 			File altoXml = findXml(imgFileName, altoInputDir);
+			File txtFile = findFile(imgFileName, txtInputDir, "txt");
 			
-			pageXml = createPageXmlIfNull(pageXml, forceCreatePageXml, pageOutFile, abbyyXml, altoXml, preserveOcrFontFamily, preserveOcrTxtStyles, replaceBadChars, imgFile);
-			
+			pageXml = createPageXmlIfNull(pageXml, forceCreatePageXml, pageOutFile, abbyyXml, altoXml, txtFile, preserveOcrFontFamily, preserveOcrTxtStyles, replaceBadChars, imgFile);
 
-			
 			TrpPage page = buildPage(inputDir, pageNr++, imgFile, pageXml, thumbFile);
 			pages.add(page);
 		}
@@ -278,7 +283,7 @@ public class LocalDocReader {
 		return doc;
 	}
 
-	public static File createPageXmlIfNull(File pageXml, boolean forceCreatePageXml, File pageOutFile, File abbyyXml, File altoXml, boolean preserveOcrFontFamily, boolean preserveOcrTxtStyles, boolean replaceBadChars, File imgFile) throws IOException {
+	public static File createPageXmlIfNull(File pageXml, boolean forceCreatePageXml, File pageOutFile, File abbyyXml, File altoXml, File txtFile, boolean preserveOcrFontFamily, boolean preserveOcrTxtStyles, boolean replaceBadChars, File imgFile) throws IOException {
 		if(pageXml == null && forceCreatePageXml){
 			//try find Abbyy XML
 			
@@ -332,6 +337,26 @@ public class LocalDocReader {
 				} catch (ParserConfigurationException | SAXException xmle) {
 					logger.error(xmle.getMessage(), xmle);
 					throw new IOException("Could not transform XML file!", xmle);
+				} catch (JAXBException je) {
+					/* TODO This exception is only thrown when the pageXML is unmarshalled 
+					 * for inserting the image filename which is not included in the abbyy xml! */
+					logger.error(je.getMessage(), je);
+					throw new IOException("Transformation output is not a valid page XML!", je);
+				}
+			}
+		}
+		
+		if(pageXml == null && forceCreatePageXml){
+			//try find TXT file
+			
+			if(txtFile != null){
+				try {
+					logger.debug("creating PAGE file from text file");
+					String text = FileUtils.readFileToString(txtFile, "utf-8");
+					logger.debug("text = "+text);
+					
+					PcGtsType pc = PageXmlUtils.createPcGtsTypeFromText(imgFile, text, TranscriptionLevel.LINE_BASED, false);
+					pageXml = JaxbUtils.marshalToFile(pc, pageOutFile);
 				} catch (JAXBException je) {
 					/* TODO This exception is only thrown when the pageXML is unmarshalled 
 					 * for inserting the image filename which is not included in the abbyy xml! */
@@ -551,6 +576,25 @@ public class LocalDocReader {
 		
 		return outFile.getAbsolutePath();
 	}
+	
+	public static File findFile(String imgName, File inputDir, String extension) {
+		File file = new File(inputDir.getAbsolutePath() + File.separatorChar + imgName
+				+ "."+extension.toLowerCase());
+
+		if (file.canRead()) {
+			return file;
+		} else {
+			// try uppercase extension
+			file = new File(inputDir.getAbsolutePath() + File.separatorChar + imgName
+					+ "."+extension.toUpperCase());
+			
+			if (file.canRead()) {
+				return file;
+			} else {
+				return null;
+			}
+		}
+	}
 
 	/**
 	 * Searches for a corresponding XML for an image file, i.e. an XML with the
@@ -563,17 +607,20 @@ public class LocalDocReader {
 	 * @return an existing and readable xml file or null if none is found
 	 */
 	public static File findXml(String imgName, File xmlInputDir) {
-		//assume XML file
-		File xmlFile = new File(xmlInputDir.getAbsolutePath() + File.separatorChar + imgName
-				+ ".xml");
-
-		if (xmlFile.canRead()) {
-			//			logger.debug("Found XML for page " + imgName + " in " + xmlFile.getAbsolutePath());
-			return xmlFile;
-		} else {
-			//			logger.debug("Found NO XML for page " + imgName + "!");
-			return null;
-		}
+		return findFile(imgName, xmlInputDir, "xml");
+		
+		// OLD CODE
+//		//assume XML file
+//		File xmlFile = new File(xmlInputDir.getAbsolutePath() + File.separatorChar + imgName
+//				+ ".xml");
+//
+//		if (xmlFile.canRead()) {
+//			//			logger.debug("Found XML for page " + imgName + " in " + xmlFile.getAbsolutePath());
+//			return xmlFile;
+//		} else {
+//			//			logger.debug("Found NO XML for page " + imgName + "!");
+//			return null;
+//		}
 	}
 	
 	/**
@@ -764,7 +811,7 @@ public class LocalDocReader {
 			if(StringUtils.isEmpty(p.getPageXmlName())) {
 				File pageOutFile = new File(xmlDir.getAbsolutePath() + File.separatorChar + imgBaseName
 						+ ".xml");
-				pageXml = createPageXmlIfNull(null, true, pageOutFile, null, null, false, false, false, img);
+				pageXml = createPageXmlIfNull(null, true, pageOutFile, null, null, null, false, false, false, img);
 			} else {
 				pageXml = new File(xmlDir.getAbsolutePath() + File.separator + p.getPageXmlName());
 				if(!pageXml.isFile()){

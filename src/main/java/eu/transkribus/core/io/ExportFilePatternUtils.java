@@ -67,11 +67,11 @@ public class ExportFilePatternUtils {
 	
 	public static String replacePatterns(String stringWithPatterns, String filename, String pageId, String docId, String filekey, String pageNr) {
 		String fileName = stringWithPatterns
-				.replace(FILENAME_PATTERN, filename)
-				.replace(PAGEID_PATTERN, pageId)
-				.replace(DOCID_PATTERN, docId)
-				.replace(FILEKEY_PATTERN, filekey)
-				.replace(PAGENR_PATTERN, pageNr);
+				.replace(FILENAME_PATTERN, filename==null ? "" : filename)
+				.replace(PAGEID_PATTERN, pageId==null ? "" : pageId)
+				.replace(DOCID_PATTERN, docId==null ? "" : docId)
+				.replace(FILEKEY_PATTERN, filekey==null ? "" : filekey)
+				.replace(PAGENR_PATTERN, pageNr==null ? "" : pageNr);
 		
 		return fileName;
 	}
