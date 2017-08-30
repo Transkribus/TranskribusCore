@@ -58,6 +58,7 @@ public class TrpUpload extends DocumentUploadDescriptor implements Serializable 
 	/**
 	 * isComplete caches the evaluation result of isComplete()
 	 */
+	@XmlTransient
 	private boolean isComplete = false;
 	
 	@XmlTransient
