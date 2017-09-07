@@ -33,16 +33,17 @@ public class UrlUtils {
 		huc.setRequestMethod("GET"); //OR  huc.setRequestMethod ("HEAD"); 
 		huc.connect(); 
 		final int code = huc.getResponseCode();
-		try (InputStream is = huc.getInputStream()){
-			//do check on URL and handle 404 etc.
-			if(code < 400) {
+		if(code < 400) {
+			try (InputStream is = huc.getInputStream()){
+				//do check on URL and handle 404 etc.
 				FileUtils.copyInputStreamToFile(is, dest);
 				logger.info("File loaded from URL: " + source);
-			} else {
-				logger.error("Could not download file at " + source + ": HTTP Status = " + code);
+				
+			} catch(IOException ioe) {
+				throw new IOException("Could not get connection to URL: " + source, ioe);
 			}
-		} catch(IOException ioe) {
-			throw new IOException("Could not get connection to URL: " + source, ioe);
+		} else {
+			logger.error("Could not download file at " + source + ": HTTP Status = " + code);
 		}
 		return code;
 	}
