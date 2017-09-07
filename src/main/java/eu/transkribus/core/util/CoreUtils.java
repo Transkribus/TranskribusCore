@@ -67,6 +67,23 @@ public class CoreUtils {
 //		
 //	}
 	
+	public static File createDirectory(String path, boolean overwrite) throws IOException {
+		File dir = new File(path);
+		if (dir.exists()) {
+			if (overwrite) {
+				FileUtils.forceDelete(dir);	
+			}
+			else {
+				throw new IOException("Output path already exists: "+path);
+			}
+		}
+		
+		if (!dir.mkdirs())
+			throw new IOException("Could not create directory: "+path);
+		
+		return dir;
+	}
+	
 	@SafeVarargs
 	public static <T> List<T> asList(T... array) {
 		if (array==null)

@@ -11,7 +11,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -30,23 +28,17 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.util.ValidationEventCollector;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 
 import org.apache.commons.io.FileUtils;
-import org.dea.fimgstoreclient.FimgStoreGetClient;
-import org.dea.fimgstoreclient.beans.FimgStoreFileMd;
 import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
-import org.dea.fimgstoreclient.utils.FimgStoreUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import eu.transkribus.core.io.FimgStoreReadConnection;
 import eu.transkribus.core.io.formats.XmlFormat;
+import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata.TrpTranscriptStatistics;
 import eu.transkribus.core.model.beans.customtags.CustomTagUtil;
@@ -151,7 +143,7 @@ public class PageXmlUtils {
 			return PageXmlUtils.unmarshal(url);
 		}
 		else if (returnEmptyPageIfUrlIsNull)
-			return createEmptyPcGtsType(md.getPagePageReferenceForLocalDocs().getUrl());
+			return createEmptyPcGtsType(md.getPagePageReferenceForLocalDocs());
 		
 		return null;
 	}
@@ -337,50 +329,48 @@ public class PageXmlUtils {
 		return new Polygon(xpoints, ypoints, npoints);
 	}
 	
-	
+	public static PcGtsType createEmptyPcGtsType(final TrpPage p) throws IOException {
+		final String fn = p.getImgFileName();
+		Dimension dim = new Dimension(p.getWidth(), p.getHeight());
+		return createEmptyPcGtsType(fn, dim);
+	}
 
-	public static PcGtsType createEmptyPcGtsType(final URL imgUrl) throws IOException {
+	public static PcGtsType createEmptyPcGtsType(final URL imgUrl, Dimension dim) throws IOException {
 		final String prot = imgUrl.getProtocol();
 		PcGtsType pcGts;
 		if (prot.startsWith("http")) {
 			//fimagestore file
-			pcGts = createEmptyPcGtsTypeForRemoteImg(imgUrl);
+			FimgStoreImgMd md = FimgStoreReadConnection.getImgMd(imgUrl);
+			pcGts = createEmptyPcGtsTypeForRemoteImg(imgUrl, md);
 		} else {
 			//try to deal with it as local file
 			final File imgFile = FileUtils.toFile(imgUrl);
-			pcGts = createEmptyPcGtsType(imgFile);
+			pcGts = createEmptyPcGtsType(imgFile, dim);
 		}
 		return pcGts;
 	}
 
-	private static PcGtsType createEmptyPcGtsTypeForRemoteImg(final URL url) throws IOException {
-		FimgStoreGetClient getter = new FimgStoreGetClient(url);
-		final String key;
-		try {
-			key = FimgStoreUtils.extractKey(url);
-		} catch (URISyntaxException e) {
-			throw new IOException("Could not extract key from url: " + url.toString(), e);
-		}
-
-		FimgStoreFileMd md = getter.getFileMd(key);
-
-		if (!(md instanceof FimgStoreImgMd)) {
-			throw new IOException("File with key " + key + " is not an image!");
-		}
-		FimgStoreImgMd imgMd = (FimgStoreImgMd) md;
+	private static PcGtsType createEmptyPcGtsTypeForRemoteImg(final URL url, FimgStoreImgMd imgMd) throws IOException {
 		int xDim = new Double(imgMd.getXResolution()).intValue();
 		int yDim = new Double(imgMd.getYResolution()).intValue();
 		return createEmptyPcGtsType(imgMd.getFileName(), xDim, yDim);
 	}
 
-	public static PcGtsType createEmptyPcGtsType(final File imgFile) throws IOException {
-		Dimension dim = ImgUtils.readImageDimensions(imgFile);
-		logger.debug("width = " + dim.width + " | height = " + dim.height);
+	public static PcGtsType createEmptyPcGtsType(final File imgFile, Dimension dim) {
 		return createEmptyPcGtsType(imgFile.getName(), dim.width, dim.height);
 	}
-
+	
+	public static PcGtsType createEmptyPcGtsType(final String imgFileName, Dimension dim) {
+		if(dim == null) {
+			logger.error("Dimension is null! The resulting PAGE XML will be created with (0,0).");
+			dim = new Dimension();
+		}
+		logger.debug("width = " + dim.width + " | height = " + dim.height);
+		return createEmptyPcGtsType(imgFileName, dim.width, dim.height);
+	}
+	
 	public static PcGtsType createEmptyPcGtsType(final String imgFileName, final int xDim,
-			final int yDim) throws IOException {
+			final int yDim) {
 		// create md
 		MetadataType md = new MetadataType();
 		md.setCreator("TRP");
@@ -401,9 +391,9 @@ public class PageXmlUtils {
 		return pc;
 	}
 		
-	public static PcGtsType createPcGtsTypeFromText(File imgFile, String text, TranscriptionLevel level, boolean skipEmptyLines) throws IOException {
+	public static PcGtsType createPcGtsTypeFromText(final String imgFileName, Dimension dim, String text, TranscriptionLevel level, boolean skipEmptyLines) throws IOException {
 		// create empty page
-		PcGtsType pcGtsType = createEmptyPcGtsType(imgFile);
+		PcGtsType pcGtsType = createEmptyPcGtsType(imgFileName, dim);
 		TrpPageType page = (TrpPageType) pcGtsType.getPage();
 		
 		// create and add text region with size of image

@@ -7,9 +7,11 @@ import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
+import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.io.FimgStoreReadConnection;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 
@@ -35,7 +37,9 @@ public class PageXmlUtilsTest {
 				};
 		
 		try {
-			PcGtsType t = PageXmlUtils.createEmptyPcGtsType(new URL("https://dbis-thure.uibk.ac.at/fimagestore/Get?fileType=metadata&id=YSUGXUUGAHYCUQVMEUJAYQGO"));
+			URL url = new URL("https://dbis-thure.uibk.ac.at/fimagestore/Get?fileType=metadata&id=YSUGXUUGAHYCUQVMEUJAYQGO");
+			FimgStoreImgMd md = FimgStoreReadConnection.getImgMd(url);
+			PcGtsType t = PageXmlUtils.createEmptyPcGtsType(url, md.getDimension());
 			JaxbUtils.marshalToSysOut(t);
 		} catch (IOException | JAXBException e) {
 			

@@ -18,21 +18,18 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.validation.Schema;
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import net.sf.saxon.dom.DOMNodeList;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.primaresearch.dla.page.layout.physical.shared.RegionType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -47,13 +44,15 @@ import eu.transkribus.core.model.beans.mets.AreaType;
 import eu.transkribus.core.model.beans.mets.DivType;
 import eu.transkribus.core.model.beans.mets.FileType;
 import eu.transkribus.core.model.beans.mets.Mets;
+import eu.transkribus.core.model.beans.mets.MetsType.FileSec.FileGrp;
 import eu.transkribus.core.model.beans.mets.ParType;
 import eu.transkribus.core.model.beans.mets.StructMapType;
-import eu.transkribus.core.model.beans.mets.MetsType.FileSec.FileGrp;
+import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.TextTypeSimpleType;
 import eu.transkribus.core.util.JaxbUtils;
 import eu.transkribus.core.util.ProgressUtils;
 import eu.transkribus.core.util.XmlUtils;
+import net.sf.saxon.dom.DOMNodeList;
 
 public class FEPLocalDocReader {
 	private final static Logger logger = LoggerFactory.getLogger(FEPLocalDocReader.class);
@@ -378,14 +377,17 @@ public class FEPLocalDocReader {
 			
 			if (files.containsKey(ALTO_GRP)) {
 				File altoFile = files.get(ALTO_GRP);
-				pageOutFile = LocalDocReader.createPageFromAlto2(imgFile, altoFile, pageOutFile, 
+				PcGtsType pc = LocalDocReader.createPageFromAlto2(imgFile.getName(), altoFile, 
 						preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars);
+				pageOutFile = JaxbUtils.marshalToFile(pc, pageOutFile);
 			} else {
 				throw new IOException("ALTO file for image "+pageNr+" could not be found!");
 				// TODO: create empty page file -> NO!
 			}
 						
-			TrpPage page = LocalDocReader.buildPage(inputDir, pageNr, imgFile, pageOutFile, thumbFile);
+			//TODO is is assumed that the image is not corrupt here! Try to read dimension to be sure
+			TrpPage page = LocalDocReader.buildPage(inputDir, pageNr, imgFile, 
+					pageOutFile, thumbFile, null);
 			
 			// exract logical structs for this page from mets and apply them to the page:
 			applyLogicalStructFromMetsToPageFile(mets, pageNr, pageOutFile);

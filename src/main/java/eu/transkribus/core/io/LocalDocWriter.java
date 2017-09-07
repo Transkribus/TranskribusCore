@@ -53,7 +53,7 @@ public class LocalDocWriter {
 			throw new Exception("No local folder specified!");
 	}
 	
-	public static void writeEditDeclFeatures(List<EdFeature> feats, File folder) throws FileNotFoundException, JAXBException {
+	public static void writeEditDeclFeatures(List<EdFeature> feats, File folder) throws JAXBException, FileNotFoundException {
 		JaxbList list = new JaxbList(feats);
 		JaxbUtils.marshalToFile(list, new File(folder + "/" + LocalDocConst.EDITORIAL_DECLARATION_FN), EdFeature.class, EdOption.class);
 	}

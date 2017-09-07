@@ -19,6 +19,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,8 +56,17 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	private URL thumbUrl;
 	
 	private String md5Sum;
+	
 	@Column(name="IMGFILENAME")
 	private String imgFileName = "";
+	
+	/**
+	 * This field is used to store information on problems with the given image for this page
+	 * LocalDocReader: message on corrupt image (dimension can not be read)
+	 * GoobiMetsImporter: message upon brokenUrl, no or corrupt image
+	 */
+	@Column(name="IMG_PROBLEM")
+	private String imgFileProblem = null;
 
 	//TODO SortedList from DB. comparator?
 	@XmlElementWrapper(name="tsList")
@@ -206,6 +216,22 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		this.imgFileName = imgFileName;
 	}
 
+	public String getImgFileProblem() {
+		return imgFileProblem;
+	}
+
+	public void setImgFileProblem(String imgFileProblem) {
+		this.imgFileProblem = imgFileProblem;
+	}
+
+	/**
+	 * Due to corrupt or missing input image during import
+	 * @return true if dummy image is linked to this page
+	 */
+	public boolean isImgMissing() {
+		return !StringUtils.isEmpty(imgFileProblem);
+	}
+	
 	public int getWidth() {
 		return width;
 	}
@@ -240,7 +266,10 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 
 	public TrpTranscriptMetadata getCurrentTranscript() {
 		List<TrpTranscriptMetadata> tList = getTranscripts();
-		
+		if(tList.isEmpty()) {
+			//might happen if image file is broken and no PAGE XML can be generated
+			return new TrpTranscriptMetadata();
+		}
 		Collections.sort(tList, Collections.reverseOrder());
 		return tList.get(0);
 	}
@@ -506,6 +535,10 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		}
 		
 		return str;
+	}
+
+	public boolean hasImgError() {
+		return !StringUtils.isEmpty(imgFileProblem);
 	}
 	
 }
