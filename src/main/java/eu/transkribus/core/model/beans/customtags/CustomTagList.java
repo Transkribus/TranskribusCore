@@ -535,6 +535,18 @@ public class CustomTagList {
 		}
 		return null;
 	}
+	
+	public boolean containsParagraphTag() {
+		for (CustomTag t : tags) {
+			if (!t.isIndexed() && t.getTagName().equals(StructureTag.TAG_NAME)){
+				StructureTag st = (StructureTag) t;
+				if (st.type.equals("paragraph")){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
 	public <T extends CustomTag> List<T> getIndexedTags(String tagName) {
 		List<T> it = new ArrayList<>();
