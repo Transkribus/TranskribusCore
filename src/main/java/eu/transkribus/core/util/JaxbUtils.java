@@ -122,12 +122,16 @@ public class JaxbUtils {
 	}
 	
 	public static <T> ValidationEvent[] marshalToStream(T object, OutputStream out, Class<?>... nestedClasses) throws JAXBException {
+		return marshalToStream(object, out, true, nestedClasses);
+	}
+	
+	public static <T> ValidationEvent[] marshalToStream(T object, OutputStream out, boolean doFormatting, Class<?>... nestedClasses) throws JAXBException {
 		ValidationEventCollector vec = new ValidationEventCollector();
 		Class<?>[] targetClasses = merge(object.getClass(), nestedClasses);
 		
 		JAXBContext jc = createJAXBContext(targetClasses);
 		Marshaller marshaller = jc.createMarshaller();
-		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, doFormatting);
 		marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
 		
 		XmlFormat format = XmlFormat.resolveFromClazz(object.getClass());
@@ -181,8 +185,12 @@ public class JaxbUtils {
 	}
 
 	public static <T> String marshalToString(T object, Class<?>... nestedClasses) throws JAXBException {		
+		return marshalToString(object, true, nestedClasses);
+	}
+	
+	public static <T> String marshalToString(T object, boolean doFormatting, Class<?>... nestedClasses) throws JAXBException {		
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		marshalToStream(object, baos, nestedClasses);
+		marshalToStream(object, baos, doFormatting, nestedClasses);
 		return baos.toString();		
 	}
 	
