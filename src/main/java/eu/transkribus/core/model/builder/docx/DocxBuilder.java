@@ -389,7 +389,7 @@ public class DocxBuilder {
 			
 			TrpPageType trpPage = tr.getPage();
 			
-			logger.debug("writing docx for page "+(i+1)+"/"+doc.getNPages());
+			logger.debug("writing docx for the page "+(i+1)+"/"+doc.getNPages());
 			
 
 			writeDocxForTranscriptWithTables(mdp, trpPage, wordBased, preserveLineBreaks);
@@ -675,6 +675,8 @@ public class DocxBuilder {
 					List<TextLineType> lines = tr.getTextLine();
 					for (int i=0; i<lines.size(); ++i) {
 						TrpTextLineType trpL = (TrpTextLineType) lines.get(i);
+												
+						String textOfCurrLine = trpL.getUnicodeText();
 						
 						try {
 							if (wordBased && trpL.getWord().size()>0){
@@ -690,11 +692,19 @@ public class DocxBuilder {
 							e.printStackTrace();
 						}
 						
+						/* with ¶ the user can mark a new paragraph inside a text region
+						 * unicode is \u00B6
+						 */
+						if (trpL.getCustomTagList().containsParagraphTag()){
+							//then new paragraph should be used;
+							p = factory.createP();
+							mdp.addObject(p);
+						}
 						/*add line break after each text line
 						 * or omit this if explicitely wished to have dense lines
 						 * No line break at end of paragraph
 						 */
-						if (preserveLineBreaks && !(i+1==lines.size()) ){
+						else if (preserveLineBreaks && !(i+1==lines.size()) ){
 							Br br = factory.createBr(); // this Br element is used break the current and go for next line
 							p.getContent().add(br);
 						}
