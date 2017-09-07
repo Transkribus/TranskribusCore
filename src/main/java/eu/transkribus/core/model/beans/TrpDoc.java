@@ -254,4 +254,19 @@ public class TrpDoc implements Serializable, Comparable<TrpDoc> {
 		return true;
 	}
 
+	/**
+	 * Iterates all pages and checks for known image file errors.
+	 * The returned String contains one line per faulty page with the respective error.
+	 * @return
+	 */
+	public String getImageErrors() {
+		StringBuffer sb = new StringBuffer();
+		for(TrpPage p : this.pages) {
+			if(p.isImgMissing()) {
+				sb.append("Page " + p.getPageNr() + ": " + p.getImgFileProblem() + "\n");
+			}
+		}
+		return sb.toString().trim();
+	}
+
 }

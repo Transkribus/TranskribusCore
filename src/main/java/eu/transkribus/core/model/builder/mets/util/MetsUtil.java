@@ -320,6 +320,8 @@ public class MetsUtil {
 		} else {
 			logger.info("Page " + page.getPageNr() + " image: " + imgFile.getAbsolutePath());
 		}
+		
+		//FIXME NullpointerException if imgFile == null!
 		page.setUrl(imgFile.toURI().toURL());
 		page.setKey(null);
 		page.setDocId(-1);
@@ -330,6 +332,7 @@ public class MetsUtil {
 		} else {
 			logger.info("Page " + page.getPageNr() + " xml: " + xmlFile.getAbsolutePath());
 		}
+		//FIXME NullpointerException if xmlFile == null!
 		TrpTranscriptMetadata tmd = new TrpTranscriptMetadata();
 		tmd.setPageReferenceForLocalDocs(page);
 		tmd.setPageId(page.getPageId());

@@ -1,5 +1,6 @@
 package eu.transkribus.core.io;
 
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -14,14 +15,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.validation.Schema;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.dea.fimgstoreclient.utils.MimeTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -29,13 +32,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import eu.transkribus.core.exceptions.CorruptImageException;
 import eu.transkribus.core.io.formats.XmlFormat;
+import eu.transkribus.core.io.util.ImgFilenameFilter;
 import eu.transkribus.core.io.util.ImgPriority;
+import eu.transkribus.core.misc.APassthroughObservable;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpPage;
-import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
-import eu.transkribus.core.model.beans.enums.EditStatus;
 import eu.transkribus.core.model.beans.mets.DivType;
 import eu.transkribus.core.model.beans.mets.DivType.Fptr;
 import eu.transkribus.core.model.beans.mets.FileGrpType;
@@ -45,14 +49,15 @@ import eu.transkribus.core.model.beans.mets.Mets;
 import eu.transkribus.core.model.beans.mets.MetsType.FileSec.FileGrp;
 import eu.transkribus.core.model.beans.mets.StructMapType;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
+import eu.transkribus.core.util.ImgUtils;
 import eu.transkribus.core.util.JaxbUtils;
 import eu.transkribus.core.util.PageXmlUtils;
-import eu.transkribus.core.util.ProxyUtils;
+import eu.transkribus.core.util.UrlUtils;
 import eu.transkribus.core.util.XmlUtils;
 
 /**
  * Reader class for loading a TRP Document from the local filesystem.<br>
- * The files (Images and optionally XML transcipts) get first fetched from URLs (they are read from Mets as well as the metadata)<br>
+ * The files (Images and optionally XML transcripts) get first fetched from URLs (they are read from Mets as well as the metadata)<br>
  * The given path/mets should contain:<br>
  * <ul>
  * <li>Image files of type JPG or TIFF (allowed types and priorities defined in
@@ -81,11 +86,15 @@ import eu.transkribus.core.util.XmlUtils;
  * @author giorgio
  * 
  */
-public class GoobiMetsImporter
+public class GoobiMetsImporter extends APassthroughObservable
 {
 
 	private final static Logger logger = LoggerFactory.getLogger(GoobiMetsImporter.class);
+	private final ImgFilenameFilter imgFilter;
 	
+	public GoobiMetsImporter() {
+		imgFilter = new ImgFilenameFilter();
+	}
 	
 	/**
 	 * Read the Mets created by Goobi, fetches all files with help of the contained URLs
@@ -97,7 +106,7 @@ public class GoobiMetsImporter
 	 * @throws SAXException 
 	 * @throws JAXBException 
 	 */
-	public static TrpDoc unmarshalMetsAndLoadDocFromGoobiMets(File metsFile) throws IOException, JAXBException, SAXException {
+	public TrpDoc unmarshalMetsAndLoadDocFromGoobiMets(File metsFile) throws IOException, JAXBException, SAXException {
 		
 		String localDirPath = metsFile.getParent();
 	
@@ -115,7 +124,7 @@ public class GoobiMetsImporter
 	 * @throws SAXException 
 	 * @throws JAXBException 
 	 */
-	public static TrpDoc loadDocFromGoobiMets(File metsFile, String localDirPath) throws IOException, JAXBException, SAXException {
+	public TrpDoc loadDocFromGoobiMets(File metsFile, String localDirPath) throws IOException, JAXBException, SAXException {
 		
 		TrpDocMetadata md;
 		
@@ -123,6 +132,7 @@ public class GoobiMetsImporter
 		
 		String metsPath = metsFile.getAbsolutePath();
 
+		updateStatus("Reading metadata...");
 		//unmarshal TrpDocMetadata
 		md = readModsMetadata(XmlUtils.getDocumentFromFileWOE(metsPath));
 		
@@ -151,10 +161,10 @@ public class GoobiMetsImporter
 
 	}
 	
-	static Mets unmarshalMets(File metsFile, boolean validate) throws IOException, JAXBException, SAXException {
+	private Mets unmarshalMets(File metsFile, boolean validate) throws IOException, JAXBException, SAXException {
 		Mets mets;
 //		try {
-			Unmarshaller u = JaxbUtils.createUnmarshaller(Mets.class);
+			Unmarshaller u = JaxbUtils.createUnmarshaller(Mets.class, TrpDocMetadata.class);
 			
 			long t = System.currentTimeMillis();
 			if (validate) {
@@ -180,7 +190,7 @@ public class GoobiMetsImporter
 	 * @return
 	 * @throws IOException
 	 */
-	public static List<TrpPage> fetchFiles(String dir, Mets mets) throws IOException {
+	public List<TrpPage> fetchFiles(String dir, Mets mets) throws IOException {
 
 		List<FileGrp> fileGrps = mets.getFileSec().getFileGrp();
 		List<FileType> xmlGrp = null;
@@ -242,144 +252,170 @@ public class GoobiMetsImporter
 
 		for(DivType div : pageDivs){
 			//fetch all files and store them locally
-			
-			//logger.debug("order " + div.getORDER());
-			pages.add(fetchFilesFromUrl(div, imgGrp, xmlGrp, dir));
-			//pages.add(page);
+			TrpPage p = fetchFilesFromUrl(div, imgGrp, xmlGrp, dir);
+			pages.add(p);
 		}
 		return pages;
 	}
 	
 	
-	private static TrpPage fetchFilesFromUrl(DivType div, List<FileType> imgGrp, List<FileType> xmlGrp, String dir) throws IOException {
-		TrpPage page = new TrpPage();
-		int nr = div.getORDER().intValue();
-		page.setPageNr(nr);
-		
+	
+	private TrpPage fetchFilesFromUrl(DivType div, List<FileType> imgGrp, List<FileType> xmlGrp, String dir) throws IOException {
+		final int pageNr = div.getORDER().intValue();
+		updateStatus("Downloading file for page nr. " + pageNr);
 		File imgFile = null;
 		File abbyyFile = null;
 		File altoFile = null;
 		
-		String imgDir = dir + File.separator + "img";
-		String xmlDir = dir + File.separator + "ocr";
-		String altoDir = dir + File.separator + "alto";
-		String pageDir = dir + File.separator + "page";
+		String imgDirPath = dir + File.separator + "img";
+		String abbyyDirPath = dir + File.separator + LocalDocConst.OCR_FILE_SUB_FOLDER;
+		String altoDirPath = dir + File.separator + LocalDocConst.ALTO_FILE_SUB_FOLDER;
+		String pageDirPath = dir + File.separator + LocalDocConst.PAGE_FILE_SUB_FOLDER;
 		
-		File pageDirFile = new File(pageDir);
+		File pageDirFile = new File(pageDirPath);
 		if(!pageDirFile.isDirectory() && !pageDirFile.mkdir()) {
-			throw new IOException("Could not create page dir at: " + pageDir);
+			throw new IOException("Could not create page dir at: " + pageDirPath);
 		}
 		
-		//FIXME this will only work for local files
+		/**
+		 * handle cases where no image can be retrieved/stored for this page:
+		 * -image URL is broken
+		 * -the image dimension can not be read from the downloaded file
+		 * -no image file is mapped in the structmap for this page
+		 * 
+		 * problemMsg is used to store info on that.
+		 */
+		String problemMsg = null;
+		
 		for(Fptr ptr : div.getFptr()){
 			FileType type = (FileType) ptr.getFILEID();
-			//logger.debug("tmp.getID().contains MAX " + tmp.getID().contains("MAX"));
-			//if(type.getID().contains("MAX") || type.getID().contains("DEFAULT")){
-				
-			String mimetype = type.getMIMETYPE();//MIMETYPE="image/jpeg"
+			FLocat fLocat = type.getFLocat().get(0);
 			
+			//FIXME at the moment only remote files are supported here!
+			final String locType = fLocat.getLOCTYPE();
+			if(!"URL".equals(locType)){
+				throw new IOException("Bad or no LOCTYPE in an FLocat element: " + locType);
+			}
+			
+			final String mimetype = type.getMIMETYPE();//MIMETYPE="image/jpeg"
+			final URL url = new URL(fLocat.getHref());
+			final String filename = determineFilename(url, type.getID(), mimetype);
 			logger.debug("mimetype " + mimetype);
 							
-			if(imgGrp.contains(type)){ 
-				FLocat fLocat = type.getFLocat().get(0);
-				if(fLocat.getLOCTYPE() != null && fLocat.getLOCTYPE().equals("URL")){
-					String href = fLocat.getHref();				
-					
-					String filename = type.getID();
-					String fileEnding = href.substring(href.lastIndexOf("."));
-					
-					//logger.debug("fileEnding " + fileEnding);
-					
-					if (mimetype.equals("image/jpeg")){
-						fileEnding = ".jpg";
-					}
-					else if(mimetype.equals("image/tiff")){
-						fileEnding = ".tif";
-					}
-					else if(mimetype.equals("image/png")){
-						fileEnding = ".png";
-					}
-					
-					imgFile = new File(imgDir + File.separator + filename + fileEnding);
-					
-					logger.debug("Downloading: " + href);
-					try {
-						//fetch file from this URL and store locally
-						FileUtils.copyURLToFile(new URL(href), imgFile);
-					} catch(IOException ioe) {
-						logger.error("Could not download file from: " + href, ioe);
-						throw ioe;
-					}
-				
-					logger.info("file loaded from URL: " + href);
-					//System.in.read();
-				}
-				//}
-			}
-			else if (type.getID().contains("AbbyyXml")){
-				logger.debug("fptr id equals: " + type.getID());
-				//TODO: implement
-				if (xmlGrp.contains(type)){
-					FLocat fLocat = type.getFLocat().get(0);
-					if(fLocat.getLOCTYPE() != null && fLocat.getLOCTYPE().equals("URL")){
-						String href = fLocat.getHref();
-						abbyyFile = new File(xmlDir + href.substring(href.lastIndexOf("/")));
-						//fetch file from this URL and store locally
-						FileUtils.copyURLToFile(new URL(href), abbyyFile);
-						logger.debug("file loaded from URL: " + href);
-					}
+			if(imgGrp.contains(type)){
+				imgFile = new File(imgDirPath + File.separator + filename);
+				logger.debug("Downloading: " + url);
+				//fetch file from this URL and store locally
+				int imgDownloadStatus = UrlUtils.copyUrlToFile(url, imgFile);
+				if(imgDownloadStatus >= 400) {
+					//the image URL connection attempt returns a response with code > 400
+					problemMsg = getBrokenUrlMsg(url, imgDownloadStatus);
 				}
 			}
-			else if (type.getID().contains("Alto")){
-				logger.debug("fptr id equals: " + type.getID());
-				//TODO: implement
-				if (xmlGrp.contains(type)){
-					FLocat fLocat = type.getFLocat().get(0);
-					if(fLocat.getLOCTYPE() != null && fLocat.getLOCTYPE().equals("URL")){
-						String href = fLocat.getHref();
-						altoFile = new File(altoDir + href.substring(href.lastIndexOf("/")));
-						//fetch file from this URL and store locally
-						FileUtils.copyURLToFile(new URL(href), altoFile);
-						logger.debug("file loaded from URL: " + href);
+			
+			if(xmlGrp != null && xmlGrp.contains(type)) {
+				//check for ALTO or Abbyy XML
+				String xmlId = type.getID();
+				//FIXME check on ID string might not be reliable
+				if(xmlId.contains("AbbyyXml")){
+					logger.debug("Found potential Abbyy XML: " + type.getID());
+					//TODO: implement
+					abbyyFile = new File(abbyyDirPath + File.separator + filename);
+					if(UrlUtils.copyUrlToFile(url, abbyyFile) >= 400) {
+						logger.error("Could not download Abbyy XML and it will be ignored!");
+						//don't fail if abbyy XML could not be retrieved
+						abbyyFile = null;
+					}
+				} else if (xmlId.contains("Alto")){
+					logger.debug("Found potential ALTO XML: " + type.getID());
+					//TODO: implement
+					altoFile = new File(altoDirPath + File.separator + filename);
+					if(UrlUtils.copyUrlToFile(url, altoFile) >= 400) {
+						logger.error("Could not download ALTO XML and it will be ignored!");
+						//don't fail if ALTO XML could not be retrieved
+						altoFile = null;
 					}
 				}
 			}
 		}
 		
 		File pageXml = null;
-		File pageOutFile = new File(pageDir + File.separatorChar + FilenameUtils.getBaseName(imgFile.getName()) + ".xml");
-		pageXml = LocalDocReader.createPageXmlIfNull(pageXml, true, pageOutFile, abbyyFile, altoFile, null, true, true, false, imgFile);
-		
+		File thumb = null;
+		File imgDir = new File(imgDirPath);
 		if(imgFile == null) {
-			logger.error("No master image mapped for page " + nr + " in the structmap!");
+			//the divType did not include an image pointer
+			logger.error("No image mapped for page " + pageNr + " in the structmap!");
+			problemMsg = getMissingImgMsg(pageNr);
 		} else {
-			logger.info("Page " + page.getPageNr() + " image: " + imgFile.getAbsolutePath());
+			logger.info("Page " + pageNr + " image: " + imgFile.getAbsolutePath());
+			
+			Dimension dim = null;
+			if(imgFile.isFile()) {
+				try {
+					dim = ImgUtils.readImageDimensions(imgFile);
+				} catch (CorruptImageException cie) {
+					logger.error("Image is corrupted!", cie);
+					//the image dimension can not be read from the downloaded file
+					problemMsg = LocalDocReader.getCorruptImgMsg(imgFile.getName());
+				}
+			}
+			
+			File pageOutFile = new File(pageDirPath + File.separatorChar + FilenameUtils.getBaseName(imgFile.getName()) + ".xml");
+			pageXml = LocalDocReader.createPageXml(pageOutFile, true, abbyyFile, altoFile, 
+					null, true, true, false, imgFile.getName(), dim);
+			thumb = LocalDocReader.getThumbFile(imgDir, imgFile.getName());
 		}
+		TrpPage page = LocalDocReader.buildPage(new File(dir), pageNr, imgFile, pageXml, thumb, 
+				problemMsg);
 		
-		//try to create TrpPage at this time instead of LocalDocReader
-		page.setUrl(imgFile.toURI().toURL());
-		page.setKey(null);
-		page.setDocId(-1);
-		page.setImgFileName(imgFile.getName());
-
-		if(pageXml == null) {
-			logger.error("No master xml mapped for page " + nr + " in the structmap!");
-		} else {
-			logger.info("Page " + page.getPageNr() + " xml: " + pageXml.getAbsolutePath());
-		}
-		TrpTranscriptMetadata tmd = new TrpTranscriptMetadata();
-		tmd.setPageReferenceForLocalDocs(page);
-		tmd.setPageId(page.getPageId());
-		tmd.setUrl(pageXml.toURI().toURL());
-		tmd.setKey(null);
-		tmd.setStatus(EditStatus.NEW);
-		tmd.setTimestamp(new Date().getTime());
-		tmd.setUserName("GoobiMetsImporter");
-
-		page.getTranscripts().add(tmd);
+//		//try to create TrpPage at this time instead of LocalDocReader
+//		TrpPage page = new TrpPage();
+//		page.setPageNr(pageNr);
+//		page.setUrl(imgFile.toURI().toURL());
+//		page.setKey(null);
+//		page.setDocId(-1);
+//		page.setImgFileName(imgFile.getName());
+//
+//		if(pageXml == null) {
+//			logger.error("No master xml mapped for page " + pageNr + " in the structmap!");
+//		} else {
+//			logger.info("Page " + page.getPageNr() + " xml: " + pageXml.getAbsolutePath());
+//		}
+//		TrpTranscriptMetadata tmd = new TrpTranscriptMetadata();
+//		tmd.setPageReferenceForLocalDocs(page);
+//		tmd.setPageId(page.getPageId());
+//		tmd.setUrl(pageXml.toURI().toURL());
+//		tmd.setKey(null);
+//		tmd.setStatus(EditStatus.NEW);
+//		tmd.setTimestamp(new Date().getTime());
+//		tmd.setUserName("GoobiMetsImporter");
+//		page.getTranscripts().add(tmd);
 		return page;
 	}
-	
+
+	private String determineFilename(URL url, String xmlId, String mimetype) throws IOException {
+		String ext = MimeTypes.lookupExtension(mimetype);
+		String filename = new File(url.getPath()).getName();
+		String extFromPath = FilenameUtils.getExtension(filename);
+		logger.debug("Extension according to mimetype: " + ext);
+		logger.debug("Filename from URL: " + filename);
+		logger.debug("Extension from filename: " + extFromPath);
+		//check if extracted filename from path is empty
+		if(StringUtils.isEmpty(filename)) {
+			filename = xmlId + "." + ext;
+			logger.debug("Inconsistency -> new filename: " + filename);
+		} else {
+			//if no extension is included in URL path
+			if(StringUtils.isEmpty(extFromPath)) {
+				filename += "." + ext;
+			}
+			logger.debug("Using orig filename: " + filename);
+		}
+		if(!imgFilter.accept(null, filename)) {
+			throw new IOException("Unsupported image type in METS: " + mimetype);
+		}
+		return filename;
+	}
 
 	/**
 	 *  create a page file from the given Alto file
@@ -397,7 +433,7 @@ public class GoobiMetsImporter
 	 * @throws ParserConfigurationException
 	 * @throws JAXBException
 	 */
-	public static File createPageFromAlto2(File imgFile, File altoXml, File pageOutFile, boolean preserveOcrTxtStyles, boolean preserveOcrFontFamily,
+	public File createPageFromAlto2(File imgFile, File altoXml, File pageOutFile, boolean preserveOcrTxtStyles, boolean preserveOcrFontFamily,
 			boolean replaceBadChars) throws IOException, TransformerException, SAXException, ParserConfigurationException, JAXBException {
 		XmlFormat xmlFormat = XmlUtils.getXmlFormat(altoXml);
 		if (xmlFormat.equals(XmlFormat.ALTO_2)) {
@@ -418,7 +454,7 @@ public class GoobiMetsImporter
 	 * @param mets
 	 * @return
 	 */
-	public static TrpDocMetadata readModsMetadata(Document mets) {
+	public TrpDocMetadata readModsMetadata(Document mets) {
 		TrpDocMetadata result = new TrpDocMetadata();
 			
 		Element modsSection = (Element) XmlUtils.selectNode(mets.getDocumentElement(), "(*[contains(@ID,'DMDLOG_0000')])[1]");
@@ -509,6 +545,24 @@ public class GoobiMetsImporter
 					}  
 				}
 			}
+			
+			/*
+			 * extract external ID
+			 * 
+			 * https://github.com/Transkribus/TranskribusCore/issues/16
+			 * 
+			 * TODO add possible type attribute values here
+			 */
+			actFields = modsSection.getElementsByTagName("mods:identifier");
+			for (int i = 0; i < actFields.getLength(); i++) {
+				Element act = (Element)actFields.item(i);
+				String typeAttribute = act.getAttribute("type");
+				//NAF uses type="CatalogueIdentifier"
+				if (typeAttribute!=null && typeAttribute.equals("CatalogueIdentifier")){
+					final String extId = act.getNodeValue();
+					result.setExternalId(extId);
+				}
+			}
 
 		}
 		else{
@@ -552,5 +606,17 @@ public class GoobiMetsImporter
 			throw new MalformedURLException("There seems to be no METS URL included: " + dfgViewerUrl);
 		}
 		return extractedUrl;
+	}
+	
+	public static String getMissingImgMsg(final int pageNr) {
+		return "No image file was mapped to page nr. " + pageNr + " in METS XML";
+	}
+	
+	public static String getBrokenUrlMsg(final URL url, final Integer statusCode) {
+		String msg = "Image could not be loaded from " + url.toString();
+		if(statusCode != null) {
+			msg += "(" + statusCode + " " + Status.fromStatusCode(statusCode).getReasonPhrase() + ")";
+		}
+		return msg;
 	}
 }
