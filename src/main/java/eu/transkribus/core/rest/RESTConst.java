@@ -129,8 +129,12 @@ public final class RESTConst {
 	public static final String INFO_PATH = "info";
 	public static final String CHECK_SESSION = "checkSession";
 	
+	@Deprecated
 	public static final String DOC_STAT_PATH = "docStat";
+	@Deprecated
 	public static final String COLL_STAT_PATH = "collStat";
+	//Just one stats endpoint name for all kinds of stats
+	public static final String STATS_PATH = "stats";
 	
 	public static final String SUBSCRIBE_PATH = "subscribe";
 	public static final String UNSUBSCRIBE_PATH = "unsubscribe";
