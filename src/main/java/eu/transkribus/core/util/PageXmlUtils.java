@@ -42,7 +42,7 @@ import org.xml.sax.SAXException;
 import eu.transkribus.core.io.formats.XmlFormat;
 import eu.transkribus.core.model.beans.TrpTag;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
-import eu.transkribus.core.model.beans.TrpTranscriptMetadata.TrpTranscriptStatistics;
+import eu.transkribus.core.model.beans.TrpTranscriptStatistics;
 import eu.transkribus.core.model.beans.customtags.CustomTagUtil;
 import eu.transkribus.core.model.beans.pagecontent.CoordsType;
 import eu.transkribus.core.model.beans.pagecontent.MetadataType;
@@ -773,7 +773,7 @@ public class PageXmlUtils {
 	}
 	
 	public static TrpTranscriptStatistics extractStats(PcGtsType page) {
-		TrpTranscriptStatistics s = (new TrpTranscriptMetadata()).new TrpTranscriptStatistics();
+		TrpTranscriptStatistics s = new TrpTranscriptStatistics();
 		
 		int nrOfRegions, nrOfTranscribedRegions, nrOfWordsInRegions, 
 		nrOfLines, nrOfTranscribedLines, nrOfWordsInLines, nrOfWords, nrOfTranscribedWords;
