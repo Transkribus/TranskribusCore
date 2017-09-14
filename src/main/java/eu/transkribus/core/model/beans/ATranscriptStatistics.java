@@ -6,7 +6,7 @@ package eu.transkribus.core.model.beans;
  * @author philip
  *
  */
-public abstract class ATranscribable {
+public abstract class ATranscriptStatistics {
 	
 	public TrpTranscriptStatistics getStats() {
 		TrpTranscriptStatistics s = new TrpTranscriptStatistics();
@@ -30,6 +30,17 @@ public abstract class ATranscribable {
 		this.setNrOfWords(s.getNrOfWords());
 		this.setNrOfWordsInLines(s.getNrOfWordsInLines());
 		this.setNrOfWordsInRegions(s.getNrOfWordsInRegions());
+	}
+	
+	public void add(TrpTranscriptStatistics s) {
+		this.setNrOfLines(this.getNrOfLines() + s.getNrOfLines());
+		this.setNrOfRegions(this.getNrOfRegions() + s.getNrOfRegions());
+		this.setNrOfTranscribedLines(this.getNrOfTranscribedLines() + s.getNrOfTranscribedLines());
+		this.setNrOfTranscribedRegions(this.getNrOfTranscribedRegions() + s.getNrOfTranscribedRegions());
+		this.setNrOfTranscribedWords(this.getNrOfTranscribedWords() + s.getNrOfTranscribedWords());
+		this.setNrOfWords(this.getNrOfWords() + s.getNrOfWords());
+		this.setNrOfWordsInLines(this.getNrOfWordsInLines() + s.getNrOfWordsInLines());
+		this.setNrOfWordsInRegions(this.getNrOfWordsInRegions() + s.getNrOfWordsInRegions());
 	}
 
 	public abstract int getNrOfRegions();

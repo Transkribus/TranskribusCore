@@ -1,14 +1,15 @@
 package eu.transkribus.core.model.beans;
 
-public class TrpTranscriptStatistics {
-	private int nrOfRegions;
-	private int nrOfTranscribedRegions;
-	private int nrOfWordsInRegions;
-	private int nrOfLines;
-	private int nrOfTranscribedLines;
-	private int nrOfWordsInLines;
-	private int nrOfWords;
-	private int nrOfTranscribedWords;
+public class TrpTranscriptStatistics extends ATranscriptStatistics {
+	private int nrOfRegions = 0;
+	private int nrOfTranscribedRegions = 0;
+	private int nrOfWordsInRegions = 0;
+	private int nrOfLines = 0;
+	private int nrOfTranscribedLines = 0;
+	private int nrOfWordsInLines = 0;
+	private int nrOfWords = 0;
+	private int nrOfTranscribedWords = 0;
+	
 	public int getNrOfRegions() {
 		return nrOfRegions;
 	}

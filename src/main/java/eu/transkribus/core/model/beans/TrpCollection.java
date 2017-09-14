@@ -10,7 +10,6 @@ import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -21,7 +20,7 @@ import eu.transkribus.core.model.beans.auth.TrpRole;
 @Table(name="COLLECTION")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpCollection implements Serializable {
+public class TrpCollection extends ATransientTranscriptStatistics implements Serializable {
 	private static final long serialVersionUID = -6247876122034400418L;
 	
 	private static final String IS_CROWDSOURCING_COLUMN_NAME = "IS_CROWDSOURCING";

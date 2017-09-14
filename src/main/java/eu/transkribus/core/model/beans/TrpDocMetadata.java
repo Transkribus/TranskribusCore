@@ -30,7 +30,7 @@ import eu.transkribus.core.model.beans.enums.ScriptType;
 @Table(name="DOC_MD")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpDocMetadata implements Serializable, Comparable<TrpDocMetadata> {
+public class TrpDocMetadata extends ATransientTranscriptStatistics implements Serializable, Comparable<TrpDocMetadata> {
 	private static final long serialVersionUID = 1L;
 
 	@Id

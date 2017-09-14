@@ -4,12 +4,12 @@ import javax.persistence.Column;
 import javax.persistence.Transient;
 
 /**
- * Extension of ATranscribable that defines Transient fields that are filled upon selects from the DB
+ * Extension of ATranscriptStatistics that defines Transient fields which are filled upon selects from the DB
  * 
  * @author philip
  *
  */
-public abstract class ATransientTranscribable extends ATranscribable {
+public abstract class ATransientTranscriptStatistics extends ATranscriptStatistics {
 	
 	@Transient
 	@Column(name="NR_OF_REGIONS")

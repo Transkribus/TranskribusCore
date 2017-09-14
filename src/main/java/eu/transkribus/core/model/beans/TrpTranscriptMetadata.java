@@ -31,7 +31,7 @@ import eu.transkribus.core.util.PageXmlUtils;
 @Table(name = "transcripts")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpTranscriptMetadata extends ATranscribable implements ITrpFile, Serializable, Comparable<TrpTranscriptMetadata>  {
+public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrpFile, Serializable, Comparable<TrpTranscriptMetadata>  {
 	private static final long serialVersionUID = 1L;
 	
 	static DateFormat timeFormatter = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
@@ -87,28 +87,28 @@ public class TrpTranscriptMetadata extends ATranscribable implements ITrpFile, S
 	private String md5Sum = "";
 
 	@Column(name="NR_OF_REGIONS")
-	private int nrOfRegions;
+	private int nrOfRegions = 0;
 
 	@Column(name="NR_OF_TRANSCRIBED_REGIONS")
-	private int nrOfTranscribedRegions;
+	private int nrOfTranscribedRegions = 0;
 
 	@Column(name="NR_OF_WORDS_IN_REGIONS")
-	private int nrOfWordsInRegions;
+	private int nrOfWordsInRegions = 0;
 	
 	@Column(name="NR_OF_LINES")
-	private int nrOfLines;
+	private int nrOfLines = 0;
 
 	@Column(name="NR_OF_TRANSCRIBED_LINES")
-	private int nrOfTranscribedLines;
+	private int nrOfTranscribedLines = 0;
 
 	@Column(name="NR_OF_WORDS_IN_LINES")
-	private int nrOfWordsInLines;
+	private int nrOfWordsInLines = 0;
 
 	@Column(name="NR_OF_WORDS")
-	private int nrOfWords;
+	private int nrOfWords = 0;
 
 	@Column(name="NR_OF_TRANSCRIBED_WORDS")
-	private int nrOfTranscribedWords;
+	private int nrOfTranscribedWords = 0;
 	
 	//TODO tags
 	//TODO annotations
@@ -149,14 +149,7 @@ public class TrpTranscriptMetadata extends ATranscribable implements ITrpFile, S
 		toolName = m.getToolName();
 		note = m.getNote();
 		md5Sum = m.getMd5Sum();
-		nrOfRegions = m.getNrOfRegions();
-		nrOfTranscribedRegions = m.getNrOfTranscribedRegions();
-		nrOfWordsInRegions = m.getNrOfWordsInRegions();
-		nrOfLines = m.getNrOfLines();
-		nrOfTranscribedLines = m.getNrOfTranscribedLines();
-		nrOfWordsInLines = m.getNrOfWordsInLines();
-		nrOfWords = m.getNrOfWords();
-		nrOfTranscribedWords = m.getNrOfTranscribedWords();
+		this.setStats(m.getStats());
 	}
 
 	public int getTsId() {
@@ -315,30 +308,6 @@ public class TrpTranscriptMetadata extends ATranscribable implements ITrpFile, S
 	
 	public void setPageReferenceForLocalDocs(TrpPage pageReferenceForLocalDocs) {
 		this.pageReferenceForLocalDocs = pageReferenceForLocalDocs;
-	}
-	
-	public TrpTranscriptStatistics getStats() {
-		TrpTranscriptStatistics s = new TrpTranscriptStatistics();
-		s.setNrOfLines(this.nrOfLines);
-		s.setNrOfRegions(this.nrOfRegions);
-		s.setNrOfTranscribedLines(this.nrOfTranscribedLines);
-		s.setNrOfTranscribedRegions(this.nrOfTranscribedRegions);
-		s.setNrOfTranscribedWords(this.nrOfTranscribedWords);
-		s.setNrOfWords(this.nrOfWords);
-		s.setNrOfWordsInLines(this.nrOfWordsInLines);
-		s.setNrOfWordsInRegions(this.nrOfWordsInRegions);
-		return s;
-	}
-	
-	public void setStats(TrpTranscriptStatistics s) {
-		this.nrOfLines = s.getNrOfLines();
-		this.nrOfRegions = s.getNrOfRegions();
-		this.nrOfTranscribedLines = s.getNrOfTranscribedLines();
-		this.nrOfTranscribedRegions = s.getNrOfTranscribedRegions();
-		this.nrOfTranscribedWords = s.getNrOfTranscribedWords();
-		this.nrOfWords = s.getNrOfWords();
-		this.nrOfWordsInLines = s.getNrOfWordsInLines();
-		this.nrOfWordsInRegions = s.getNrOfWordsInRegions();
 	}
 
 	public int getNrOfRegions() {

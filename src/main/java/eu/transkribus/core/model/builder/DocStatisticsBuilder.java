@@ -10,19 +10,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.model.beans.TrpDoc;
-import eu.transkribus.core.model.beans.TrpDocStatistic;
 import eu.transkribus.core.model.beans.TrpPage;
+import eu.transkribus.core.model.beans.TrpTranscriptStatistics;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
-import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.util.PageXmlUtils;
 
 public class DocStatisticsBuilder extends Observable {
 	private static final Logger logger = LoggerFactory.getLogger(DocStatisticsBuilder.class);
-	public TrpDocStatistic compute(TrpDoc doc) throws JAXBException{
+	
+	public TrpTranscriptStatistics compute(TrpDoc doc) throws JAXBException{
 		if(doc == null){
 			throw new IllegalArgumentException("TrpDoc is null!");
 		}
-		TrpDocStatistic stats = new TrpDocStatistic();
+		TrpTranscriptStatistics stats = new TrpTranscriptStatistics();
 		List<TrpPage> pages = doc.getPages();
 		for(TrpPage p : pages){
 			final String msg = "Computing stats: page " + p.getPageNr() + "/" + pages.size();
@@ -31,9 +31,8 @@ public class DocStatisticsBuilder extends Observable {
 			setChanged();
 			URL xmlUrl = p.getCurrentTranscript().getUrl();
 			PcGtsType pc = PageXmlUtils.unmarshal(xmlUrl);
-			TrpPageType page = (TrpPageType)pc.getPage();
-			stats.setNrOfTranscribedLines(stats.getNrOfTranscribedLines() + page.countLines());
-			stats.setNrOfWords(stats.getNrOfWords() + page.countWords());
+			TrpTranscriptStatistics pageStats = PageXmlUtils.extractStats(pc);
+			stats.add(pageStats);
 		}
 		
 		return stats;
