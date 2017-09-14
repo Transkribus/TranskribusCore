@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.XMLConstants;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -23,11 +24,16 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -313,6 +319,39 @@ public class XmlUtils {
 		}
 		return res;
 	}
+
+	public static boolean isValid(File xmlFile, File schemaFile) throws IOException {
+		if(xmlFile == null || schemaFile == null) {
+			throw new IllegalArgumentException("An argument is null.");
+		}
+		URL schemaUrl = schemaFile.toURI().toURL();
+		return isValid(xmlFile, schemaUrl);
+	}
 	
-	
+	public static boolean isValid(File xmlFile, URL schemaUrl) throws IOException {
+		if(xmlFile == null || schemaUrl == null) {
+			throw new IllegalArgumentException("An argument is null.");
+		}
+		SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+		Schema schema;
+		try {
+			schema = schemaFactory.newSchema(schemaUrl);
+		} catch (SAXException e) {
+			throw new IllegalArgumentException("Schema could not be parsed! " + schemaUrl.toExternalForm());
+		}
+		return isValid(xmlFile, schema);
+	}
+
+	private static boolean isValid(File xmlFile, Schema schema) throws IOException {
+		Source xmlSource = new StreamSource(xmlFile);
+		try {
+		  Validator validator = schema.newValidator();
+		  validator.validate(xmlSource);
+		  logger.debug(xmlSource.getSystemId() + " is valid");
+		  return true;
+		} catch (SAXException e) {
+		  logger.debug(xmlSource.getSystemId() + " is NOT valid reason:" + e);
+		  return false;
+		}
+	}
 }

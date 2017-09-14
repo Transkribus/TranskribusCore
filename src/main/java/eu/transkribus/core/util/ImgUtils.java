@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.concurrent.TimeoutException;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -27,6 +28,7 @@ import javax.imageio.stream.MemoryCacheImageInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.exceptions.CorruptImageException;
 import eu.transkribus.core.io.exec.util.ExiftoolUtil;
 
 public class ImgUtils {
@@ -81,46 +83,84 @@ public class ImgUtils {
 			return img;
 	}
 	
-	public static Dimension readImageDimensionsWithExiftool(File imgFile) throws Exception { 
+	public static Dimension readImageDimensionsWithExiftool(File imgFile) throws IOException, TimeoutException, InterruptedException { 
 		HashMap<String, String> tags = ExiftoolUtil.parseTags(imgFile.getAbsolutePath());
 		String widthStr = tags.get("ImageWidth");
 		String heightStr = tags.get("ImageHeight");
 		
-		if (widthStr==null || heightStr==null)
-			throw new Exception("Could not parse width or height");
-		
+		if (widthStr==null || heightStr==null) {
+			throw new IOException("Could not parse width or height");
+		}
 		logger.debug("success reading img dims with exiftool!");
 		return new Dimension(Integer.valueOf(widthStr), Integer.valueOf(heightStr));
 	}
 	
-	/** Reads image dimension for the specified image file. For multiimage tiff files, the dimensions of the first image are read. */
-	public static Dimension readImageDimensions(File imgFile) throws FileNotFoundException, IOException {
-		// new: try to read with exiftool first:
-		if (true) {
+	/** 
+	 * Reads image dimension for the specified image file.
+	 * This method uses exiftool and falls back to ImageIO if that fails. 
+	 * For multiimage tiff files, the dimensions of the first image are read. 
+	 * @param imgFile
+	 * @return java.awt.Dimension
+	 * @throws FileNotFoundException if imgFile does not exist or is not a file
+	 * @throws CorruptImageException if all attempts to read the Dimension failed, this may point to a broken image file.
+	 */
+	public static Dimension readImageDimensions(File imgFile) throws FileNotFoundException, CorruptImageException {
+		if(imgFile == null) {
+			throw new IllegalArgumentException("imgFile must not be null.");
+		}
+		if(!imgFile.isFile()) {
+			throw new FileNotFoundException("Could not find file: " + imgFile.getAbsolutePath());
+		}
+		//try to read with exiftool first:
+		Dimension dim = null;
+		try {
+			dim = readImageDimensionsWithExiftool(imgFile);			
+		} catch (Exception e1) {
+			logger.warn("Could not read image dimensions with exiftool: " + e1.getMessage());
+		}
+		
+		//if exiftool is not installed or failed try imageIO
+		if(dim == null) {
 			try {
-				return readImageDimensionsWithExiftool(imgFile);			
+				dim = readImageDimensionsWithImageIO(imgFile);
 			} catch (Exception e1) {
-				logger.warn("Could not read image dimensions with exiftool - now trying JAI!");
+				logger.warn(e1.getMessage());
 			}
 		}
 		
-		ImageInputStream iis = new FileImageInputStream(imgFile);
+		if(dim == null) {
+			throw new CorruptImageException("Could not read image dimension of file: " + imgFile.getAbsolutePath());
+		}
 		
+		return dim;
+	}
+	
+	public static Dimension readImageDimensionsWithImageIO(File imgFile) throws FileNotFoundException, IOException {
+		Dimension dim = null;
+		logger.debug("Loading file with imageIO...");
+		ImageInputStream iis = new FileImageInputStream(imgFile);
 		final Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
 		while (readers.hasNext()) {
 			ImageReader reader = readers.next();
 			try {
 				logger.debug("reader format = "+reader.getFormatName());
 				reader.setInput(iis);
-				return new Dimension(reader.getWidth(0), reader.getHeight(0));
+				dim = new Dimension(reader.getWidth(0), reader.getHeight(0));
 			} catch(Exception e) {
-				logger.warn("Could not read image dimensions with reader: "+reader.getFormatName()+" - trying next one!");
+				logger.warn("Could not read image dimensions with reader: "+reader.getFormatName()+": " + e.getMessage());
+				logger.debug("Cause: ",  e);
+				logger.debug("Reader impl: " + reader.getClass().getCanonicalName());
 			} finally {
 	            reader.dispose();
 	        }
+			if(dim != null){
+				break;
+			}
 		}
-		
-		throw new IOException("Could not read image dimensions for file: "+imgFile.getAbsolutePath());
+		if(dim == null) {
+			throw new IOException("Could not read image dimensions with ImageIO.");
+		}
+		return dim;
 	}
 	
 	/**

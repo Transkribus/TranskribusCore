@@ -5,7 +5,7 @@ import eu.transkribus.core.model.beans.auth.TrpRole;
 public class AuthUtils {
 	
 	public static boolean isOwner(TrpRole role) {
-		return role!=null && role.getValue()==TrpRole.Owner.getValue();
+		return role!=null && role.getValue()>=TrpRole.Owner.getValue();
 	}
 	
 	/**
@@ -28,6 +28,5 @@ public class AuthUtils {
 	
 	public static boolean canRead(TrpRole role){
 		return role != null && role.getValue() >= TrpRole.Reader.getValue();
-	}
-	
+	}	
 }

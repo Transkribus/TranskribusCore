@@ -16,6 +16,7 @@ public class TrpLocation {
 	public int collectionId = -1;
 	public File localFolder = null;
 	public int pageNr = 0;
+//	public int pageid;
 	public String shapeId = null;
 	
 	public TrpTextRegionType r = null;

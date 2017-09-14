@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Observable;
+import java.util.Set;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -19,28 +19,25 @@ import org.dea.fimgstoreclient.utils.MimeTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.transkribus.core.io.LocalDocConst;
 import eu.transkribus.core.model.beans.ITrpFile;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
-import eu.transkribus.core.model.beans.enums.EditStatus;
 import eu.transkribus.core.model.beans.mets.AmdSecType;
 import eu.transkribus.core.model.beans.mets.AreaType;
 import eu.transkribus.core.model.beans.mets.DivType;
+import eu.transkribus.core.model.beans.mets.DivType.Fptr;
 import eu.transkribus.core.model.beans.mets.FileGrpType;
 import eu.transkribus.core.model.beans.mets.FileType;
-import eu.transkribus.core.model.beans.mets.MdSecType;
-import eu.transkribus.core.model.beans.mets.Mets;
-import eu.transkribus.core.model.beans.mets.StructMapType;
-import eu.transkribus.core.model.beans.mets.DivType.Fptr;
 import eu.transkribus.core.model.beans.mets.FileType.FLocat;
+import eu.transkribus.core.model.beans.mets.MdSecType;
 import eu.transkribus.core.model.beans.mets.MdSecType.MdWrap;
-import eu.transkribus.core.model.beans.mets.MdSecType.MdWrap.XmlData;
+import eu.transkribus.core.model.beans.mets.Mets;
 import eu.transkribus.core.model.beans.mets.MetsType.FileSec;
-import eu.transkribus.core.model.beans.mets.MetsType.MetsHdr;
 import eu.transkribus.core.model.beans.mets.MetsType.FileSec.FileGrp;
+import eu.transkribus.core.model.beans.mets.MetsType.MetsHdr;
+import eu.transkribus.core.model.beans.mets.StructMapType;
 import eu.transkribus.core.util.ChecksumUtils;
 import eu.transkribus.core.util.JaxbUtils;
 
@@ -71,10 +68,12 @@ public class TrpMetsBuilder extends Observable {
 	 * 
 	 * @param doc
 	 * @param exportImages 
+	 * @param pageIndices 
 	 * @return
 	 * @throws IOException if image/xml files can't be accessed for reading the mimetype etc.
 	 */
-	public static Mets buildMets(TrpDoc doc, boolean exportPage, boolean exportAlto, boolean exportImages) throws IOException {
+	public static Mets buildMets(TrpDoc doc, boolean exportPage, boolean exportAlto, boolean exportImages, Set<Integer> pageIndices) throws IOException {
+		
 		Mets mets = new Mets();
 		TrpDocMetadata md = doc.getMd();
 		File localFolder = md.getLocalFolder();
@@ -131,7 +130,14 @@ public class TrpMetsBuilder extends Observable {
 		FileGrpType altoGrp = new FileGrpType();
 		altoGrp.setID(ALTO_GROUP_ID);
 		
+		int i = -1;
 		for(TrpPage p : pages){
+			
+			i++;
+			if (pageIndices!=null && !pageIndices.contains(i)){
+				continue;
+			}
+			
 			
 			//build a page div for the structmap
 			DivType pageDiv = new DivType();
@@ -159,7 +165,11 @@ public class TrpMetsBuilder extends Observable {
 			//TODO error handling.. if no transcript??
 			if (exportPage){
 				// xmlfiletype: just add the most recent transcript
-				TrpTranscriptMetadata tMd = p.getCurrentTranscript();
+				TrpTranscriptMetadata tMd; 
+				
+				//get the transcript chosen for export 
+				tMd = p.getCurrentTranscript();
+				
 				FileType xml = buildFileType(md.getLocalFolder(), xmlId, tMd, p.getPageNr(), client);
 				pageGrp.getFile().add(xml);
 				Fptr xmlPtr = buildFptr(xml);
@@ -188,7 +198,7 @@ public class TrpMetsBuilder extends Observable {
 				String absAltoPath = path.substring(0, path.lastIndexOf(File.separator));
 				absAltoPath = absAltoPath.concat("/alto/").concat(p.getImgFileName().substring(0, p.getImgFileName().lastIndexOf(".")).concat(".xml"));
 				//logger.info("alto path starts with: " + absAltoPath);
-				if (absAltoPath.startsWith("\\") || absAltoPath.startsWith("/")){
+				if (absAltoPath.startsWith("\\") /*|| absAltoPath.startsWith("/")*/){
 					//logger.info("alto path starts with \\ or /");
 					absAltoPath = absAltoPath.substring(1);
 				}
@@ -310,7 +320,14 @@ public class TrpMetsBuilder extends Observable {
 			fLocat.setLOCTYPE("OTHER");
 			fLocat.setOTHERLOCTYPE("FILE");
 			//remove protocol and localfolder, i.e. get relative path to this file
-			loc = path.substring(localFolder.getAbsolutePath().length() + 1);
+//			loc = path.substring(localFolder.getAbsolutePath().length() + 1); // BUG: localFolder != path!!
+			
+			loc = FilenameUtils.getName(path);
+			if (id.startsWith(PAGE_GROUP_ID)) { // append relative folder for PAGE XML files
+				loc = "page/"+loc;
+			}
+			
+			logger.debug("loc = "+loc);
 			
 			if(o.getMd5Sum() != null){
 				fType.setCHECKSUMTYPE(ChecksumUtils.ChkSumAlg.MD5.toString());
@@ -345,176 +362,5 @@ public class TrpMetsBuilder extends Observable {
 		area.setFILEID(img);
 		ptr.setArea(area);
 		return ptr;
-	}
-
-	public static List<FileGrpType> getMasterFileGrp(Mets mets) throws IOException {
-		List<FileGrp> fileGrps = mets.getFileSec().getFileGrp();
-		
-		FileGrp master = null;
-		for(FileGrp grp : fileGrps){
-			if(grp.getID().equals(TrpMetsBuilder.MASTER_FILE_GRP_ID)){
-				master = grp;
-				break;
-			}
-		}
-		if(master == null) throw new IOException("METS file has no MASTER fileGrp!");
-		
-		return master.getFileGrp();
-	}
-
-	public static TrpDocMetadata getTrpDocMd(Mets mets) {
-		TrpDocMetadata md = null;
-		List<AmdSecType> secList = mets.getAmdSec();
-		List<MdSecType> mdSecList = null;
-		for (AmdSecType sec : secList) {
-			if (sec.getID().equals(TrpMetsBuilder.SOURCE_MD_ID_CONST)) {
-				mdSecList = sec.getSourceMD();
-				break;
-			}
-		}
-		if (mdSecList == null)
-			logger.error("No SourceMd Section found!");
-		else {
-			XmlData xmlData = null;
-			for (MdSecType mdSec : mdSecList) {
-				if (mdSec.getID().equals(TrpMetsBuilder.SOURCE_DOC_MD_ID_CONST)
-						&& mdSec.getMdWrap().getID().equals(TrpMetsBuilder.TRP_DOC_MD_TYPE_CONST)) {
-					xmlData = mdSec.getMdWrap().getXmlData();
-					break;
-				}
-			}
-			if (xmlData != null && xmlData.getAny().size() > 0) {
-				Object o = xmlData.getAny().get(0);
-				if (o instanceof TrpDocMetadata) {
-					md = (TrpDocMetadata) o;
-					logger.info("Found metadata: " + md.toString());
-				} else {
-					logger.error("No doc MD found! ");
-				}
-			}
-		}
-		return md;
-	}
-
-	public static List<TrpPage> getTrpPages(Mets mets, File parentDir) throws IOException {
-		//check filesection. needs img group and xml group to distinguish them without going for mimetypes
-		List<FileGrpType> typeGrps = getMasterFileGrp(mets);
-		List<FileType> xmlGrp = null;
-		List<FileType> imgGrp = null;
-		for (FileGrpType type : typeGrps) {
-			switch (type.getID()) {
-			case TrpMetsBuilder.IMG_GROUP_ID:
-				imgGrp = type.getFile();
-				break;
-			case TrpMetsBuilder.PAGE_GROUP_ID:
-				xmlGrp = type.getFile();
-				break;
-			case "XML":
-				//workaround for old versions... FIXME remove this case
-				xmlGrp = type.getFile();
-				break;
-			default:
-				break;
-			}
-		}
-		if (imgGrp == null)
-			throw new IOException("METS file has no image file list!");
-		if (xmlGrp == null)
-			throw new IOException("METS file has no xml file list!");
-		
-		List<DivType> pageDivs = null;
-		for(StructMapType sMap : mets.getStructMap()){
-			if(sMap.getID().equals(TrpMetsBuilder.TRP_STRUCTMAP_ID) 
-					&& sMap.getDiv().getID().equals(TrpMetsBuilder.TRP_DOC_DIV_ID)){
-				pageDivs = sMap.getDiv().getDiv();
-				break;
-			}
-		}
-		if(pageDivs == null)
-			throw new IOException("No valid StructMap was found!");
-		
-		List<TrpPage> pages = new ArrayList<TrpPage>(pageDivs.size());
-		for(DivType div : pageDivs){
-			TrpPage page = buildPage(div, imgGrp, xmlGrp, parentDir);
-			pages.add(page);
-		}
-		return pages;
-	}
-	
-	private static TrpPage buildPage(DivType div, List<FileType> imgGrp, List<FileType> xmlGrp, File parentDir) throws IOException {
-		TrpPage page = new TrpPage();
-		int nr = div.getORDER().intValue();
-		page.setPageNr(nr);
-		
-		File imgFile = null;
-		File xmlFile = null;
-		
-		
-		//FIXME this will only work for local files
-		for(Fptr ptr : div.getFptr()){
-			FileType type = (FileType)ptr.getArea().getFILEID();				
-			if(imgGrp.contains(type)){
-				imgFile = getFile(type, parentDir);
-			} else if (xmlGrp.contains(type)){
-				xmlFile = getFile(type, parentDir);
-			}
-		}
-		
-		if(imgFile == null) {
-			logger.error("No master image mapped for page " + nr + " in the structmap!");
-		} else {
-			logger.info("Page " + page.getPageNr() + " image: " + imgFile.getAbsolutePath());
-		}
-		page.setUrl(imgFile.toURI().toURL());
-		page.setKey(null);
-		page.setDocId(-1);
-		page.setImgFileName(imgFile.getName());
-
-		if(xmlFile == null) {
-			logger.error("No master xml mapped for page " + nr + " in the structmap!");
-		} else {
-			logger.info("Page " + page.getPageNr() + " xml: " + xmlFile.getAbsolutePath());
-		}
-		TrpTranscriptMetadata tmd = new TrpTranscriptMetadata();
-		tmd.setPageReferenceForLocalDocs(page);
-		tmd.setPageId(page.getPageId());
-		tmd.setUrl(xmlFile.toURI().toURL());
-		tmd.setKey(null);
-		tmd.setStatus(EditStatus.NEW);
-		tmd.setTimestamp(new Date().getTime());
-		tmd.setUserName("LocalDocReader");
-
-		page.getTranscripts().add(tmd);
-		return page;
-	}
-
-	private static File getFile(FileType type, File parentDir) throws IOException{
-		File file = null;
-		FLocat fLocat = type.getFLocat().get(0);
-		if(fLocat.getOTHERLOCTYPE() != null && fLocat.getOTHERLOCTYPE().equals("FILE")){
-			//localdoc
-			file = new File(parentDir.getAbsolutePath() + File.separator + fLocat.getHref());
-			if(!file.exists()){
-				throw new IOException("File does not exist: " + file.getAbsolutePath());
-			}
-			
-			if(!type.isSetCHECKSUMTYPE()){
-				logger.error("No checksum set!");
-			} else if(!type.getCHECKSUMTYPE().equals(ChecksumUtils.ChkSumAlg.MD5.toString())){
-				logger.error("Unknown checksum algorithm: " + type.getCHECKSUMTYPE());
-			} else {
-				final String metsChkSum = type.getCHECKSUM();
-				final String chkSum = ChecksumUtils.getMd5SumHex(file);
-				if(!metsChkSum.equals(chkSum)){
-					throw new IOException("Checksum error: METS=" + metsChkSum + " <-> FILE=" + chkSum + " | " + file.getAbsolutePath());
-				}
-				logger.debug("Checksum is correct: " + file.getAbsolutePath());
-			}
-			
-		} else { 
-			//TODO implement for URL type
-			throw new IOException("METS file does not belong to a local document!");
-		}
-		return file;
 	}
 }

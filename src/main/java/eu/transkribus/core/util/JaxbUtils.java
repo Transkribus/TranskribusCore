@@ -32,7 +32,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.docx4j.model.datastorage.XPathEnhancerParser.main_return;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -123,12 +122,16 @@ public class JaxbUtils {
 	}
 	
 	public static <T> ValidationEvent[] marshalToStream(T object, OutputStream out, Class<?>... nestedClasses) throws JAXBException {
+		return marshalToStream(object, out, true, nestedClasses);
+	}
+	
+	public static <T> ValidationEvent[] marshalToStream(T object, OutputStream out, boolean doFormatting, Class<?>... nestedClasses) throws JAXBException {
 		ValidationEventCollector vec = new ValidationEventCollector();
 		Class<?>[] targetClasses = merge(object.getClass(), nestedClasses);
 		
 		JAXBContext jc = createJAXBContext(targetClasses);
 		Marshaller marshaller = jc.createMarshaller();
-		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, doFormatting);
 		marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
 		
 		XmlFormat format = XmlFormat.resolveFromClazz(object.getClass());
@@ -159,9 +162,12 @@ public class JaxbUtils {
 		try {
 			marshalToStream(object, out, nestedClasses);
 		} finally {
-			try{out.close();}catch(IOException e){}
+			try {
+				out.close();
+			} catch(IOException ioe) {
+				logger.error("Could not close output stream on file: " + fileOut.getAbsolutePath(), ioe);
+			}
 		}
-		
 		return fileOut;
 	}
 	
@@ -179,8 +185,12 @@ public class JaxbUtils {
 	}
 
 	public static <T> String marshalToString(T object, Class<?>... nestedClasses) throws JAXBException {		
+		return marshalToString(object, true, nestedClasses);
+	}
+	
+	public static <T> String marshalToString(T object, boolean doFormatting, Class<?>... nestedClasses) throws JAXBException {		
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		marshalToStream(object, baos, nestedClasses);
+		marshalToStream(object, baos, doFormatting, nestedClasses);
 		return baos.toString();		
 	}
 	

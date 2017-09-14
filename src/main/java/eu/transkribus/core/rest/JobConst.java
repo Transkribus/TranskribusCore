@@ -13,6 +13,7 @@ public class JobConst {
 	public static final String STATE_INGEST = "ingest";
 	
 	public static final String PROP_DOC_ID = "docId";
+	public static final String PROP_DOC_DESCS = "docDescs"; // property for list of DocumentSelectionDescriptor's
 	public static final String PROP_PAGE_NR = "pageNr";
 	public static final String PROP_JOB_ID = "jobId";
 	public static final String PROP_USER_ID = "userId";
@@ -22,9 +23,11 @@ public class JobConst {
 	public static final String PROP_TITLE = "title";
 	public static final String PROP_TRANSCRIPT_ID = "transcriptId";
 	public static final String PROP_REG_IDS = "regIds";
+	public static final String PROP_TRANSCRIPTS = "transcripts";
 	
 	public static final String PROP_STATE = "state";
 	public static final String PROP_MODELNAME = "modelName";
+	public static final String PROP_MODEL_ID = "modelId";
 	public static final String PROP_PAGES = "pages";
 	public static final String PROP_DOC_IDS = "docIds";
 	public static final String PROP_PATH = "path";
@@ -37,13 +40,19 @@ public class JobConst {
 	public static final String PROP_NOISE = "noise";
 	public static final String PROP_NR_OF_THREADS = "nrOfThreads";
 	public static final String PROP_TRAIN_SIZE_PER_EPOCH = "trainSizePerEpoch";
+	public static final String PROP_BASE_MODEL = "baseModel";
+	public static final String PROP_CONFIG = "config";
 	
 	public static final String PROP_DO_BLOCK_SEG = "doBlockSeg";
 	public static final String PROP_DO_LINE_SEG = "doLineSeg";
+	public static final String PROP_DO_WORD_SEG = "doWordSeg";
+	public static final String PROP_DO_POLYGON_TO_BASELINE = "doPolygonToBaseline";
+	public static final String PROP_DO_BASELINE_TO_POLYGON = "doBaselineToPolygon";
 
 	public static final String PROP_SOLR_URL = "solrUrl";
 
 	public static final String PROP_ADDITIONAL_COL_IDS = "additionalColIds";
 
+	public static final String PROP_EXPORT_OPTIONS = "options";
 
 }

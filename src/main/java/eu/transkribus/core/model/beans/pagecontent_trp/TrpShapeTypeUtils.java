@@ -8,11 +8,69 @@ import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpTextChangedEvent;
+import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.SebisStopWatch;
 
 public class TrpShapeTypeUtils {
 	private final static Logger logger = LoggerFactory.getLogger(TrpShapeTypeUtils.class);
+	
+	/**
+	 * Tries to get the (parent) text region of the specified shape; returns null if not found 
+	 */
+	public static TrpTextRegionType getTextRegion(ITrpShapeType st) {
+		if (RegionTypeUtil.isBaseline(st)) {
+			TrpBaselineType bl = (TrpBaselineType) st;
+			if (bl.getLine() != null) {
+				return bl.getLine().getRegion();
+			}
+		}
+		else if (RegionTypeUtil.isLine(st)) {
+			return ((TrpTextLineType) st).getRegion();
+		}
+		else if (RegionTypeUtil.isWord(st)) {
+			TrpWordType w = (TrpWordType) st;
+			if (w.getLine() != null) {
+				return w.getLine().getRegion();
+			}
+		}
+		
+		return null;
+	}
+		
+	public static TrpTextLineType getLine(ITrpShapeType st) {
+		if (RegionTypeUtil.isBaseline(st))
+			return ((TrpBaselineType) st).getLine();
+		else if (RegionTypeUtil.isLine(st)) {
+			return (TrpTextLineType) st;
+		}
+		else if (RegionTypeUtil.isWord(st)) {
+			return ((TrpWordType) st).getLine();
+		}
+		
+		return null;
+	}
+	
+	public static ITrpShapeType getParentShape(ITrpShapeType st) {
+		if (st != null && st.getParent() instanceof ITrpShapeType) {
+			return (ITrpShapeType) st.getParent();
+		} else {
+			return null;
+		}
+	}
 
+	public static TrpBaselineType getBaseline(ITrpShapeType st) {
+		if (RegionTypeUtil.isBaseline(st))
+			return (TrpBaselineType) st;
+		else if (RegionTypeUtil.isLine(st)) {
+			return (TrpBaselineType) ((TrpTextLineType) st).getBaseline();
+		}
+		else if (RegionTypeUtil.isWord(st)) {
+			return (TrpBaselineType) ((TrpWordType) st).getLine().getBaseline();
+		}
+		
+		return null;
+	}
+	
 	public static void setUnicodeText(ITrpShapeType shape, String unicode, Object who) {
 		logger.trace("setting unicode text in "+shape.getName()+", id: "+shape.getId()+", text: "+unicode);
 		int lBefore = shape.getUnicodeText().length();
@@ -46,29 +104,38 @@ public class TrpShapeTypeUtils {
 	}
 		
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static void applyReadingOrderFromCoordinates(List content, boolean fireEvents, boolean deleteReadingOrder) {
-		Collections.sort(content, new TrpElementCoordinatesComparator());
+	public static void applyReadingOrderFromCoordinates(List<? extends ITrpShapeType> shapes, boolean fireEvents, boolean deleteReadingOrder, boolean recursive) {
+		//sort with coordinates
+		Collections.sort(shapes, new TrpElementCoordinatesComparator());
 		
 		int i=0;
-		for (Object o : content) {
-			if (o instanceof ITrpShapeType) {
-				ITrpShapeType st = (ITrpShapeType) o;
-				if (!deleteReadingOrder)
-					logger.trace("setting reading order "+i+" to: "+st.getId());
-				else
-					logger.trace("deleting reading order from: "+st.getId());
-				
-				if (!fireEvents)
-					st.getObservable().setActive(false);
-				
-				if (deleteReadingOrder)
-					st.setReadingOrder(null, st);
-				else
-					st.setReadingOrder(i++, st);
-				
-				if (!fireEvents) 
-					st.getObservable().setActive(true);
+		for (ITrpShapeType st : shapes) {
+			
+			List<? extends ITrpShapeType> children = st.getChildren(false);
+			if (st instanceof TrpTextLineType) {
+				TrpTextLineType tl = (TrpTextLineType) st;
+				children = tl.getChildrenWithoutBaseline();
 			}
+			
+			if (!CoreUtils.isEmpty(children)) {
+				applyReadingOrderFromCoordinates(children, fireEvents, deleteReadingOrder, recursive);
+			}
+			
+			if (!deleteReadingOrder)
+				logger.trace("setting reading order "+i+" to: "+st.getId());
+			else
+				logger.trace("deleting reading order from: "+st.getId());
+			
+			if (!fireEvents)
+				st.getObservable().setActive(false);
+			
+			if (deleteReadingOrder)
+				st.setReadingOrder(null, st);
+			else
+				st.setReadingOrder(i++, st);
+			
+			if (!fireEvents) 
+				st.getObservable().setActive(true);
 		}
 	}
 	

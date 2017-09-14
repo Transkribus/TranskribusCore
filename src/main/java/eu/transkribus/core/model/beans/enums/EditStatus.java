@@ -23,11 +23,13 @@ public enum EditStatus {
 	public String getStr() { return str; }
 	
     public static EditStatus fromString(String v) {
-        for (EditStatus c: EditStatus.values()) {
-            if (c.str.equals(v)) {
-                return c;
-            }
-        }
+    	if (v != null) {
+	        for (EditStatus c: EditStatus.values()) {
+	            if (c.str.equals(v)) {
+	                return c;
+	            }
+	        }
+    	}
         throw new IllegalArgumentException(v);
     }	
 }

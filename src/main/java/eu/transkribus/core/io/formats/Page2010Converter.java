@@ -11,14 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import eu.transkribus.core.io.UnsupportedFormatException;
-import eu.transkribus.core.io.util.MdFileFilter;
-import eu.transkribus.core.util.PageXmlUtils;
-import eu.transkribus.core.util.XmlUtils;
-
 import org.primaresearch.dla.page.Page;
 import org.primaresearch.dla.page.converter.PageConverter;
 import org.primaresearch.dla.page.io.FileInput;
@@ -28,6 +20,13 @@ import org.primaresearch.dla.page.io.xml.XmlInputOutput;
 import org.primaresearch.dla.page.io.xml.XmlPageReader;
 import org.primaresearch.io.FormatVersion;
 import org.primaresearch.io.UnsupportedFormatVersionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import eu.transkribus.core.io.LocalDocConst;
+import eu.transkribus.core.io.UnsupportedFormatException;
+import eu.transkribus.core.util.PageXmlUtils;
+import eu.transkribus.core.util.XmlUtils;
 
 public class Page2010Converter {
 	private static final Logger logger = LoggerFactory.getLogger(Page2010Converter.class);
@@ -67,7 +66,7 @@ public class Page2010Converter {
 		File[] xmlFiles = inputDir.listFiles(new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
-				return name.endsWith(".xml") && !name.equals(MdFileFilter.MD_FILENAME);
+				return name.endsWith(".xml") && !name.equals(LocalDocConst.METADATA_FILENAME);
 			}
 		});
 

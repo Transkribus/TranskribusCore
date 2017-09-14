@@ -7,22 +7,27 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.model.beans.pagecontent.OrderedGroupIndexedType;
 import eu.transkribus.core.model.beans.pagecontent.OrderedGroupType;
+import eu.transkribus.core.model.beans.pagecontent.PageType;
+import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.ReadingOrderType;
 import eu.transkribus.core.model.beans.pagecontent.RegionRefIndexedType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
+import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextTypeSimpleType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
 import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
-import eu.transkribus.core.model.beans.pagecontent_trp.TrpBaselineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpReadingOrderChangedEvent;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpStructureChangedEvent;
 import eu.transkribus.core.util.CoreUtils;
+import eu.transkribus.core.util.PAGETypeFactory;
 
 public class CustomTagUtil {
 	private final static Logger logger = LoggerFactory.getLogger(CustomTagUtil.class);
@@ -150,23 +155,119 @@ public class CustomTagUtil {
 			return;
 		
 		for (Object o : ro.getOrderedGroup().getRegionRefIndexedOrOrderedGroupIndexedOrUnorderedGroupIndexed()) {
-			logger.debug("ref: "+o);
+			logger.trace("ref: "+o);
 			if (o instanceof RegionRefIndexedType) {
 				RegionRefIndexedType rr = (RegionRefIndexedType) o;
-				logger.debug("region ref: "+rr+" ref = "+rr.getRegionRef());
+				logger.trace("region ref: "+rr+" ref = "+rr.getRegionRef());
 				if (rr.getRegionRef() instanceof TrpTextRegionType) {
 					TrpTextRegionType region = (TrpTextRegionType) rr.getRegionRef();
-					logger.debug("region: "+region.getId()+" index: "+rr.getIndex());
+					logger.trace("region: "+region.getId()+" index: "+rr.getIndex());
 					region.setReadingOrder(rr.getIndex(), region);
 				}
 			}
 		}
 	}
 	
+	public static OrderedGroupType createReadingOrderOrderedGroup(List<? extends ITrpShapeType> shapes, String caption) {
+		OrderedGroupType group = new OrderedGroupType();
+		if (caption != null)
+			group.setCaption(caption);
+		
+		group.setId("ro_"+CoreUtils.uniqueCurrentTimeMS());
+		
+		for (ITrpShapeType s : shapes) {
+			if (s.getReadingOrder() != null) {
+				RegionRefIndexedType rr = new RegionRefIndexedType();
+				rr.setRegionRef(s);
+				rr.setIndex(s.getReadingOrder());
+				group.getRegionRefIndexedOrOrderedGroupIndexedOrUnorderedGroupIndexed().add(rr);
+			}
+		}
+		
+		return group;
+	}
+	
+//	public static void createReadingOrderOrderedGroupIndexed(TrpRegionType r, OrderedGroupIndexedType g) {
+//		
+//		
+//		
+//		
+//		if (s instanceof TrpRegionType) {
+//			s.getChildren(recursive)
+//			
+//			
+//			TrpRegionType r = (TrpRegionType) s;
+//			for (int i=0; i<r.getTextRegionOrImageRegionOrLineDrawingRegion().size(); ++i) {
+//				TrpRegionType cr = r.getTextRegionOrImageRegionOrLineDrawingRegion().get(i);
+//				
+//				if (cr.hasChildren()) {
+//					OrderedGroupIndexedType cg = PAGETypeFactory.createOrderedGroupIndexed(i, "r_"+CoreUtils.uniqueCurrentTimeMS(), null);
+//					
+//					
+//					
+//					RegionRefIndexedType rr = PAGETypeFactory.createRegionRefIndexed(index, refObject)
+//					
+//				}
+//				
+//				
+//			}
+//			
+//		}
+//		
+//		
+//		
+//	}
+//	
+//	public static void writeReadingOrderCustomTagsToPageFormat(TrpPageType page) {
+//		logger.trace("converting reading order from custom tags to page format... NEW");
+//		
+//		ReadingOrderType ro = new ReadingOrderType();
+//		
+//		// 1st: create parent group for all reading order elements
+//		OrderedGroupType group = PAGETypeFactory.createOrderedGroup("ro_"+CoreUtils.uniqueCurrentTimeMS(), "Reading order");
+//		
+//		// 2nd: create either a region ref
+//		for (TrpRegionType r : page.getTextRegionOrImageRegionOrLineDrawingRegion()) {
+//			xxx
+//			
+//			
+//			
+//			
+//		}
+//		
+//		OrderedGroupType group = createReadingOrderOrderedGroup(page.getTextRegionOrImageRegionOrLineDrawingRegion(), "Regions reading order");
+//		
+//		
+//		
+//		
+//		
+//		
+//		OrderedGroupType group = new OrderedGroupType();
+//		group.setCaption("Regions reading order");
+//		group.setId("ro_"+CoreUtils.uniqueCurrentTimeMS());		
+//		ro.setOrderedGroup(group);
+//		boolean readingOrderSet=false;
+//		
+//		for (TrpTextRegionType r : page.getTextRegions(false)) {
+//			if (r.getReadingOrder() != null) {
+//				readingOrderSet=true;
+//				RegionRefIndexedType rr = new RegionRefIndexedType();
+//				rr.setRegionRef(r);
+//				rr.setIndex(r.getReadingOrder());	
+//				group.getRegionRefIndexedOrOrderedGroupIndexedOrUnorderedGroupIndexed().add(rr);
+//				readingOrderSet = true;
+//			}
+//		}
+//		
+//		if (readingOrderSet)
+//			page.setReadingOrder(ro);
+//	}
+	
 	public static void writeReadingOrderCustomTagsToPageFormat(TrpPageType page) {
-		logger.debug("converting reading order from custom tags to page format...");
+		logger.trace("converting reading order from custom tags to page format...");
 		
 		ReadingOrderType ro = new ReadingOrderType();
+		
 		OrderedGroupType group = new OrderedGroupType();
 		group.setCaption("Regions reading order");
 		group.setId("ro_"+CoreUtils.uniqueCurrentTimeMS());		
@@ -201,7 +302,7 @@ public class CustomTagUtil {
 		if (shape == null)
 			return;
 		
-		logger.debug("setting structure: "+structureType+" id: "+shape.getId()+" type: "+shape.getClass().getSimpleName()+" recursive: "+recursive);
+		logger.trace("setting structure: "+structureType+" id: "+shape.getId()+" type: "+shape.getClass().getSimpleName()+" recursive: "+recursive);
 		
 		if (!isTextregionOrLineOrWord(shape))
 			return;
@@ -276,6 +377,41 @@ public class CustomTagUtil {
 		for (ITrpShapeType st : page.getAllShapes(true)) {
 			writeCustomTagListToCustomTag(st);
 		}
+	}
+	
+//	public static List<CustomTag> extractCustomTags(PageType p) {
+//		if (p instanceof TrpPageType)
+//			return extractCustomTagsTrp((TrpPageType) p);
+//		
+//		List<CustomTag> tags = new ArrayList<>();
+//				
+//		for (RegionType r : p.getTextRegionOrImageRegionOrLineDrawingRegion()) {
+//			tags.addAll(CustomTagUtil.getCustomTags(r.getCustom()));
+//			if (r instanceof TextRegionType) {
+//				for (TextLineType l : ((TextRegionType) r).getTextLine()) {
+//					tags.addAll(CustomTagUtil.getCustomTags(l.getCustom()));
+//					for (WordType w : l.getWord()) {
+//						tags.addAll(CustomTagUtil.getCustomTags(w.getCustom()));
+//					}	
+//				}
+//			}			
+//		}
+//		
+//		return tags;
+//	}
+	
+	public static List<CustomTag> extractCustomTags(TrpPageType p) {
+		List<CustomTag> tags = new ArrayList<>();
+		
+		for (ITrpShapeType s : p.getAllShapes(true)) {
+			CustomTagList cl = s.getCustomTagList();
+			if (cl==null)
+				continue;
+			
+			tags.addAll(cl.getTags());
+		}
+			
+		return tags;
 	}
 	
 	public static void main(String[] args) {

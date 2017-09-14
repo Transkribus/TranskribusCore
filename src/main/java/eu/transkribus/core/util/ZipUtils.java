@@ -3,6 +3,7 @@ package eu.transkribus.core.util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -22,10 +23,12 @@ import org.slf4j.LoggerFactory;
 public class ZipUtils {
 	private static final Logger logger = LoggerFactory.getLogger(ZipUtils.class);
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
 		//		List<String> fileList = generateFileList(new File(SOURCE_FOLDER));
 		//		zipIt(fileList, OUTPUT_ZIP_FILE);
+		
+		createZipFromFolder("/home/sebastian/Downloads/1312", "/home/sebastian/testZip.zip", true);
 	}
 
 	/**
@@ -44,7 +47,12 @@ public class ZipUtils {
 			basePath = path.getParent();
 		}
 
+		System.out.println(path+" / "+basePath);
+		
 		List<String> fileList = generateFileList(path, basePath);
+		
+		System.out.println(fileList);
+		
 		File zip = zip(fileList, basePath, zipFileName);
 		return zip;
 	}
@@ -119,6 +127,87 @@ public class ZipUtils {
 			}
 		}
 		return fileList;
+	}
+	
+	/*
+	 * create ZIP file for folders and files
+	 */
+	
+	public static File createZipFromFolder(String srcFolder, String destZipFile, boolean onlyContent) throws IOException {
+		ZipOutputStream zip = null;
+		FileOutputStream fileWriter = null;
+
+		try {
+			File srcFolderFile = new File(srcFolder);
+			if (!srcFolderFile.isDirectory()) {
+				throw new IOException("Not a directory: "+srcFolder);
+			}
+			
+			fileWriter = new FileOutputStream(destZipFile);
+
+			zip = new ZipOutputStream(fileWriter);
+
+			if (!onlyContent) {
+				addFolderToZip("", srcFolder, zip);	
+			} else {
+				File zipFile = new File(destZipFile);
+				
+				for (File f : srcFolderFile.listFiles()) {
+					if (zipFile.compareTo(f)==0) {
+						logger.debug("skipping output zip file that was created in input directory: "+f.getAbsolutePath());
+						continue;
+					}
+					
+					logger.trace("f = "+f.getAbsolutePath());
+					addFileToZip("", f.getAbsolutePath(), zip);
+				}
+			}
+
+			zip.flush();
+			zip.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			throw e;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			throw e;
+		} finally {
+			if (zip != null) {
+				zip.close();
+			}
+		}
+		return new File(destZipFile);
+	}
+
+	static private void addFileToZip(String path, String srcFile, ZipOutputStream zip) throws IOException {
+
+		File folder = new File(srcFile);
+		if (folder.isDirectory()) {
+			addFolderToZip(path, srcFile, zip);
+		} else {
+			logger.trace("adding file to zip: "+srcFile);
+			
+			byte[] buf = new byte[1024];
+			int len;
+			FileInputStream in = new FileInputStream(srcFile);
+			zip.putNextEntry(new ZipEntry(path + "/" + folder.getName()));
+			while ((len = in.read(buf)) > 0) {
+				zip.write(buf, 0, len);
+			}
+			in.close();
+		}
+	}
+	
+	static private void addFolderToZip(String path, String srcFolder, ZipOutputStream zip) throws IOException {
+		File folder = new File(srcFolder);
+
+		for (String fileName : folder.list()) {
+			if (path.equals("")) {
+				addFileToZip(folder.getName(), srcFolder+"/"+fileName, zip);
+			} else {
+				addFileToZip(path + "/" + folder.getName(), srcFolder+"/"+fileName, zip);
+			}
+		}
 	}
 
 	/**

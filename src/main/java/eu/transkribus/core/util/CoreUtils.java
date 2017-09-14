@@ -2,7 +2,9 @@ package eu.transkribus.core.util;
 
 import java.awt.Point;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -14,9 +16,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
@@ -62,6 +67,232 @@ public class CoreUtils {
 //		
 //	}
 	
+	public static File createDirectory(String path, boolean overwrite) throws IOException {
+		File dir = new File(path);
+		if (dir.exists()) {
+			if (overwrite) {
+				FileUtils.forceDelete(dir);	
+			}
+			else {
+				throw new IOException("Output path already exists: "+path);
+			}
+		}
+		
+		if (!dir.mkdirs())
+			throw new IOException("Could not create directory: "+path);
+		
+		return dir;
+	}
+	
+	@SafeVarargs
+	public static <T> List<T> asList(T... array) {
+		if (array==null)
+			return new ArrayList<>();
+		
+		return Arrays.asList(array);
+	}
+	
+	public static void loadTranskribusInterfacesLib() {
+		SebisStopWatch sw = new SebisStopWatch();
+		String libName = "TranskribusInterfacesWrapper";
+		try {
+			sw.start();
+			System.loadLibrary(libName);
+			sw.stop(true, "Loaded transkribus interfaces lib in ", logger);
+		} catch (UnsatisfiedLinkError e) {
+			throw new RuntimeException("Could not load "+libName+".so: " + e.getMessage(), e);
+		}
+	}
+	
+	public static File getFileFromPossiblePaths(String... paths) throws FileNotFoundException {
+		for (String path : paths) {
+			File f = new File(path);
+			if (f.isFile())
+				return f;
+		}
+		
+		throw new FileNotFoundException("File not found in paths: "+CoreUtils.join(Arrays.asList(paths)));
+	}
+		
+	public static String[] appendValue(String[] arr, String newObj) {
+		List<String> temp = new ArrayList<>();
+		if (arr != null) {
+			temp = new ArrayList<String>(Arrays.asList(arr));
+		}
+		
+		temp.add(newObj);
+		return temp.toArray(new String[0]);
+	}
+	
+	public static List<String> parseStringList(String str, boolean trimEntries) {
+		List<String> result = new ArrayList<>();
+		
+		if(str != null && !str.isEmpty()) {
+			String[] arr = str.split(",");
+			for(String s : arr) {
+				if (trimEntries) {
+					s = StringUtils.trim(s);
+				}
+				result.add(s);
+			}
+		}
+		
+		return result;
+	}
+	
+	public static List<Integer> parseIntList(String str) {
+		List<Integer> result = new ArrayList<>();
+		
+		if(str != null && !str.isEmpty()) {
+			String[] arr = str.split(",");
+			for(String s : arr) {
+				try {
+					result.add(Integer.parseInt(s));
+				} catch (Exception e) {
+					logger.error("Error parsing integer value: "+s+" - skipping!");
+				}
+			}
+		}
+		
+		return result;
+	}
+	
+	public static Properties copyProperties(Properties props) {
+		Properties propsCopy = new Properties();
+		if (props != null) {
+			propsCopy.putAll(props);
+		}
+		
+		return propsCopy;
+	}
+	
+	public static void print(List l) {
+		if (l != null) {
+			l.stream().forEach((j)-> {
+				if (j != null)
+					logger.info(j.toString());
+				else
+					logger.info("null");
+			});
+		}
+	}
+		
+	public static Properties loadProperties(String filename) throws IOException {
+		logger.debug("Loading properties file: " + filename);
+		
+		try (InputStream is = CoreUtils.class.getClassLoader().getResourceAsStream(filename)) {
+			Properties props = new Properties();
+			props.load(is);
+			return props;
+		} catch (Exception e) {
+			throw new IOException("Could not find properties file: " + filename, e);
+		}
+	}
+	
+	public static String join(Iterable<?> iterable) {
+		return join(iterable, ",", "", "");
+	}
+	
+	/**
+	 * Joins the objects of an iterable to a string using a delimiter and a prefix and/or suffix to append to each object
+	 */
+	public static String join(Iterable<?> iterable, String delimiter, String prefix, String suffix) {
+		if (iterable==null)
+			return "";
+		if (delimiter==null)
+			delimiter="";
+		if (prefix==null)
+			prefix="";
+		if (suffix==null)
+			suffix="";
+		
+		String joined="";
+		for (Object o : iterable) {
+			String str = o==null ? "null" : o.toString();
+			str = prefix + str + suffix;
+			
+			joined += str+delimiter;
+		}
+		joined = StringUtils.stripEnd(joined, delimiter);
+		
+		return joined;
+	}
+	
+	public static String neighborString(String str, int startIndex, int maxChars, boolean direction, boolean stopAtWs) {
+		if (str == null || startIndex < 0 || startIndex >= str.length())
+			return "";
+
+		String txt = "";
+		int i = startIndex;
+		boolean stop=false;
+		do {
+			char c = str.charAt(i);
+			
+			if (direction) {
+				txt = c+txt;
+				--i;
+			} else {
+				txt += c;
+				++i;
+			}
+			
+			stop = txt.length() >= maxChars;
+			if (stop && stopAtWs && !Character.isWhitespace(c)) {
+				stop = false;
+			}
+		} while (!stop && i>=0 && i<str.length());
+		
+		return txt;
+	}
+	
+	public static String appendIfNotEmpty(String s, String suffix) {
+		if (!StringUtils.isEmpty(s))
+			return s+suffix;
+		else
+			return s;
+	}
+	
+	public static <T> HashSet<T> createHashSet(Collection<T> c) {
+		if (c==null)
+			return null;
+		
+		HashSet<T> s = new HashSet<>();
+		for (T e : c) {
+			s.add(e);
+		}
+		return s;
+	}
+	
+	public static <T> Set<T> createSet(T... elements) {
+		Set<T> s = new HashSet<>();
+		for (T e : elements) {
+			s.add(e);
+		}
+		
+		return s;
+	}
+		
+	public static boolean isEmpty(Collection<?> c) {
+		return c==null || c.isEmpty();
+	}
+	
+	public static boolean isEmpty(Map<?, ?> m) {
+		return m==null || m.isEmpty();
+	}
+	
+	public static int toInt(Integer i) {
+		return i==null ? 0 : i.intValue();
+	}
+		
+	public static boolean containsIgnoreCase(Collection<String> l, String s) {
+		Iterator<String> it = l.iterator();
+		while (it.hasNext()) {
+			if (it.next().equalsIgnoreCase(s))
+				return true;
+		}
+		return false;
+	}
+	
 	public static String readStringFromTxtFile(String fn) throws IOException {
 		String content = new String(Files.readAllBytes(Paths.get(fn)));
 		return content;
@@ -83,14 +314,25 @@ public class CoreUtils {
 	 */
 	public static String urlToString(URL url) {
 		if (url != null) {
-			File imgFile = FileUtils.toFile(url);
-			if (imgFile!=null)
-				return imgFile.getAbsolutePath();
+			File file = FileUtils.toFile(url);
+			if (file!=null)
+				return file.getAbsolutePath();
 			else
 				return url.toString();
 		}
 		
 		return "";
+	}
+	
+	public static void deleteDir(File dir) {
+		if (dir != null) {
+			logger.debug("deleting dir: "+dir.getAbsolutePath());
+			try {
+				FileUtils.deleteDirectory(dir);
+			} catch (IOException e) {
+				logger.error("Error deleting directory: "+e.getMessage());
+			}
+		}
 	}
 	
 	public static <T> List<T> getFirstCommonSequence(List<T> base, List<T> search) {
@@ -186,7 +428,28 @@ public class CoreUtils {
 //		str += ")";
 //		return str;
 	}
+	
+	/**
+	 * Checks if the given pathToFile exists and generates an alternative filename, 
+	 * trying to add an increasing number suffix of size at most suffixSize
+	 */
+	public static String createNonExistingFilename(String pathToFile, int suffixSize) {
+		String uniquePathToFile = pathToFile;
 		
+		int i=1;
+		while (fileExists(uniquePathToFile)) {
+			uniquePathToFile = pathToFile + "_"+ StringUtils.leftPad((""+i), suffixSize, "0");
+			
+			++i;
+		}
+		
+		return uniquePathToFile;
+	}
+	
+	public static boolean fileExists(String path) {
+		return Files.exists(Paths.get(path));
+	}
+			
 	public static String removeFileTypeFromUrl(String urlStr) {
 		StringBuffer buf = new StringBuffer(urlStr);
 		int s = urlStr.indexOf("&fileType=");
@@ -298,6 +561,16 @@ public class CoreUtils {
 		FileUtils.copyFile(file, backup);
 		
 		return backup;
+	}
+	
+	public static <T> List<T> copyList(List<T> list) {
+		List<T> newList = new ArrayList<>();
+		if (list != null) {
+			for (T i : list) {
+				newList.add(i);
+			}
+		}
+		return newList;
 	}
 	
 	public static boolean equalsEps(float v1, float v2, float eps) {
@@ -414,7 +687,7 @@ public class CoreUtils {
 //		}
 //	}
 
-	public static String writePropertiesToString(Properties p) {
+	public static String propertiesToString(Properties p) {
 		if(p == null){
 			return "";
 		}
@@ -424,7 +697,7 @@ public class CoreUtils {
 			p.store(new PrintWriter(writer), null);
 			str = writer.getBuffer().toString();	
 		} catch (IOException e) {
-			logger.info("Could not serialize job data. Trying alternate serialization...");
+			logger.info("Could not serialize Properties data. Trying alternate serialization...");
 			boolean isFirst = true;
 			for(Entry<Object, Object> o : p.entrySet()){
 				if(isFirst){
@@ -438,11 +711,32 @@ public class CoreUtils {
 		return str;
 	}
 
-	public static Properties readPropertiesFromString(String jobDataStr) throws IOException {
+	public static Properties readPropertiesFromString(String fn) throws IOException {
 		final Properties p = new Properties();
-		if(jobDataStr == null) return p;
-	    p.load(new StringReader(jobDataStr));
+		if(fn == null) return p;
+	    p.load(new StringReader(fn));
 	    return p;
+	}
+	
+	/**
+	 * Same as readPropertiesFromString but an error message is logged when not able to read the file and a RuntimeException is thrown
+	 */
+	public static Properties readPropertiesFromString2(String fn) throws RuntimeException {
+		try {
+			return readPropertiesFromString(fn);
+		} catch (IOException e) {
+			logger.error("Could not read properties file: "+e.getMessage(), e);
+			throw new RuntimeException("Could not read properties file: "+e.getMessage(), e);
+		}
+	}
+	
+	public static boolean isValidRangeListStr(String text, int nrOfPages) {
+		try {
+			parseRangeListStr(text, nrOfPages);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 	
 	public static Set<Integer> parseRangeListStr(String text, int nrOfPages) throws IOException {
@@ -491,6 +785,55 @@ public class CoreUtils {
 		}
 		return pi;
 	}
+	
+
+	public static Set<Integer> invertPageIndices(Set<Integer> pageIndices, int nrOfPages) {
+		Set<Integer> out = new HashSet<>();
+		for(Integer i = 0; i < nrOfPages; i++) {
+			if(!pageIndices.contains(i)) {
+				out.add(i);
+			}
+		}
+		return out;
+	}
+	
+	public static String getRangeListStrFromSet(Set<Integer> set) {
+		if (set == null)
+			return "";
+		
+		List<Integer> list = new ArrayList<>();
+		list.addAll(set);
+		
+		return getRangeListStrFromList(list);
+	}
+	
+	public static String getRangeListStrFromList(List<Integer> l) {
+		if (l == null)
+			return "";
+		
+		Collections.sort(l);
+		
+		String str = "";
+		
+		Integer last=null;
+		for (Integer i : l) {
+			if (StringUtils.isEmpty(str)) {
+				str += (i+1);
+			}
+			else if (i==last+1) {
+				str = str.replaceAll("\\-\\d+$", "");
+				str += "-"+(i+1);
+			}
+			else {
+				str += ","+(i+1);
+			}
+			
+			last = i;
+		}
+
+		return str;
+	}
+
 			
 	/**
 	 * Returns a string of comma seperated ranges (starting from 1) indicating which values are true in the given list.
@@ -563,6 +906,37 @@ public class CoreUtils {
 //		}
 //	}	
 	
+	public static String createSqlStringQuery(String colName, String searchString, boolean exactMatch, boolean caseSensitive) {
+		String sql = caseSensitive ? "lower("+colName+")" : colName;
+		sql += " like ";
+		
+		if (!exactMatch) {
+			searchString = searchString.replaceAll("*", "%");
+			searchString = searchString.replaceAll("?", "_");
+		}
+		
+		if (!caseSensitive) {
+			searchString = searchString.toLowerCase();
+		}
+		
+		sql += searchString;
+		
+		return sql;
+	}
+	
+	public static String removeHtmlAtEnd(String msg) {
+		int is = msg.indexOf("<html>");
+		if (is > 0) {
+			return msg.substring(0, is);
+		}
+		
+		return msg;
+	}
+	
+//	public static String replaceNonPathCharacters(String str, String replace) {
+//		return str.replaceAll("[\\/:*?\"<>|]", replace);
+//	}
+	
 	public static void main(String[] args) {
 		List<Integer> base = Arrays.asList(1, 3, 4, 5, 7, 10);
 		List<Integer> search = Arrays.asList(111, 45, 3, 4, 6, 8, 12);
@@ -570,10 +944,6 @@ public class CoreUtils {
 		List<Integer> common = CoreUtils.getFirstCommonSequence(base, search);
 		
 		System.out.println("common = "+StringUtils.join(common));
-		
-		
-		
-		
-	}
 
+	}
 }

@@ -1,6 +1,5 @@
 package eu.transkribus.core.model.beans.job;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -19,22 +18,8 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.transkribus.core.model.beans.job.enums.JobImpl;
-import eu.transkribus.core.model.beans.job.enums.JobType;
+import eu.transkribus.core.io.util.TrpProperties;
 import eu.transkribus.core.util.CoreUtils;
-
-//public class TrpJob extends ATrpJob {
-//	private static final long serialVersionUID = -2312854543251222064L;
-//	
-//	public TrpJob(){
-//		super();
-//	}
-//	
-//	public TrpJob(final String jobId, final int docId, final String userId, final long startTime) {
-//		super(jobId, docId, userId, startTime);
-//	}
-//	
-//}
 
 @Entity
 @Table(name = "JOBS")
@@ -54,9 +39,11 @@ public class TrpJobStatus implements Serializable {
 	public static final String WAITING = "WAITING";
 	public static final String RUNNING = "RUNNING";
 	public static final String CANCELED = "CANCELED";
-	
 	public static final String UNFINISHED = "UNFINISHED"; // meta-status -> all but FINISHED
 
+	/**
+	 * TODO this is acutually int now!
+	 */
 	@Id
 	@Column
 	private String jobId = "-1";
@@ -97,7 +84,7 @@ public class TrpJobStatus implements Serializable {
 	@Column
 	private long endTime;
 	
-	@Column
+	@Column(name="JOBDATA_CLOB")
 	private String jobData;
 	
 	@Column
@@ -106,56 +93,122 @@ public class TrpJobStatus implements Serializable {
 	@Column 
 	private String className;
 	
-	//isPersistent specifies whether the job is to be stored in the DB. 
-	//This is always true if not stated otherwise in constructor call.
-//	private boolean isPersistent;
+	@Column
+	private String result;
 	
 	@XmlTransient
 	@Column
 	private Integer session_history_id;
 	
+//	@Column(name="JOB_IMPL")
+//	private JobImpl jobImpl;
+	
 	@Column(name="JOB_IMPL")
-	private JobImpl jobImpl;
+	private String jobImpl;	
 	
+	// NEW cols
+//	@XmlTransient
+	@Column(name="MODULE_URL")
+	private String moduleUrl;
 	
-
-//	private Future<?> future = null;
+//	@XmlTransient
+	@Column(name="MODULE_NAME")
+	private String moduleName;
+	
+//	@XmlTransient
+	@Column(name="MODULE_VERSION")
+	private String moduleVersion;
+	
+	@Column(name="STARTED")
+	private java.util.Date started;
+	@Column(name="ENDED")
+	private java.util.Date ended;
+	@Column(name="CREATED")
+	private java.util.Date created;
+	
+//	@XmlTransient
+	@Column(name="PID")
+	private String pid;
+	
+	@Column
+	private Integer batchId;
+	
+	@Column
+	private Integer pageid;
+	
+	@Column
+	private Integer tsid;
+	
+	@Column
+	private String regionids;
+	
+	@Column
+	private Integer parent_jobid;
+	
+	@Column
+	private Integer parent_batchid;
+	
+//	@XmlTransient
+	@Column(name="STACKTRACE")
+	private String stackTrace;
+	
+	@Column
+	private Integer colId;
+	
+	@Column
+	private Integer progress;
+	
+	@Column(name="TOTAL_WORK")
+	private Integer totalWork;
 
 	/**
 	 * Empty, public constructor for Jaxb and DbUtils
 	 */
 	public TrpJobStatus() {
-//		this.isPersistent = true;
 	}
 
-//	public TrpJobStatus(String jobId, int docId, int userId, String userName, String type) {
-//		this(jobId, docId, -1, userId, userName, type);
+//	public TrpJobStatus(String jobId, int docId, String pages, int userId, String userName, String type, String jobData, Integer session_history_id, JobImpl impl) {
+//		this(jobId, docId, pages, userId, userName, type, jobData, session_history_id, impl==null ? null : impl.toString());
 //	}
 	
-//	public TrpJobStatus(String jobId, int docId, int pageNr, int userId, String userName, String type) {
-//		this(jobId, docId, pageNr, userId, userName, type, null, null);
-//	}
-	
-	public TrpJobStatus(String jobId, int docId, String pages, int userId, String userName, String type, Integer session_history_id, JobImpl impl) {
-		this(jobId, docId, pages, userId, userName, type, null, session_history_id, impl);
+	public TrpJobStatus(String jobId, Integer batchId, Integer docId, Integer pageid, Integer tsid, String regionids, int userId, String userName, String type, String jobData, Integer session_history_id, String jobImpl) {
+		this.jobId = jobId;
+		this.batchId = batchId;
+		
+		this.docId = docId;
+		this.pageid = pageid;
+		this.tsid = tsid;
+		this.regionids = regionids;
+				
+		this.userId = userId;
+		this.userName = userName;
+		this.type = type;
+		
+		this.jobData = jobData;
+		this.session_history_id = session_history_id;
+		this.jobImpl = jobImpl;
+		
+		setCreatedNow();
 	}
 	
-	public TrpJobStatus(String jobId, int docId, String pages, int userId, String userName, String type, String jobData, Integer session_history_id, JobImpl impl) {
+	public TrpJobStatus(String jobId, Integer batchId, int docId, String pages, int userId, String userName, String type, String jobData, Integer session_history_id, String jobImpl) {
 		this.jobId = jobId;
+		this.batchId = batchId;
 		this.docId = docId;
 		this.userId = userId;
 		this.userName = userName;
 		this.type = type;
 		this.pages = pages;
-//		this.isPersistent = isPersistent;
-		this.createTime = System.currentTimeMillis();
 		this.jobData = jobData;
 		this.session_history_id = session_history_id;
-		this.jobImpl = impl;
+		this.jobImpl = jobImpl;
+		
+		setCreatedNow();
 	}
 	
 	public void copy(TrpJobStatus other) {
 	    this.jobId = other.jobId;
+	    this.colId = other.colId;
 	    this.docId = other.docId;
 	    this.pages = other.pages;
 	    this.type = other.type;
@@ -172,18 +225,41 @@ public class TrpJobStatus implements Serializable {
 	    this.className = other.className;
 	    this.session_history_id = other.session_history_id;
 	    this.jobImpl = other.jobImpl;
-//	    this.future = trpJobStatus.future;
+	    this.result = other.result;
+	    
+	    this.moduleName = other.moduleName;
+	    this.moduleUrl = other.moduleUrl;
+	    this.moduleVersion = other.moduleVersion;
+	    
+	    this.started = other.started;
+	    this.ended = other.ended;
+	    this.created = other.created;
+	    
+	    this.pid = other.pid;
+	    this.batchId = other.batchId;
+	    this.pageid = other.pageid;
+	    this.tsid = other.tsid;
+	    this.regionids = other.regionids;
+	    this.parent_jobid = other.parent_jobid;
+	    this.parent_batchid = other.parent_batchid;
+	    this.stackTrace = other.stackTrace;
 	}
 	
-//	public boolean hasState(String state) {
-//		if (state == null)
-//			return true;
-//		
-//		if (state.equals(UNFINISHED))
-//			return !isFinished();
-//		
-//		return this.state.equals(state);
-//	}
+	public int getJobIdAsInt() {
+		try {
+			return Integer.parseInt(jobId);
+		} catch (Exception e) {
+			return -1;
+		}
+	}
+	
+	public Integer getColId() {
+		return colId;
+	}
+
+	public void setColId(Integer colId) {
+		this.colId = colId;
+	}
 
 	public String getJobId() {
 		return jobId;
@@ -191,6 +267,18 @@ public class TrpJobStatus implements Serializable {
 	
 	public void setJobId(String jobId) {
 		this.jobId = jobId;
+	}
+	
+	public int getJobIdInt() {
+		try{
+			return Integer.parseInt(jobId);
+		} catch (NumberFormatException nfe){
+			throw new IllegalStateException("Job ID does not represent an int value: " + jobId);
+		}
+	}
+	
+	public void setJobId(int jobId) {
+		this.jobId = ""+jobId;
 	}
 
 	public int getDocId() {
@@ -305,11 +393,12 @@ public class TrpJobStatus implements Serializable {
 		return jobData;
 	}
 	
-	public Properties getJobDataProps(){
+	public TrpProperties getJobDataProps() {
 		try {
-			return CoreUtils.readPropertiesFromString(jobData);
-		} catch (IOException e) {
-			return new Properties();
+//			return CoreUtils.readPropertiesFromString(jobData);
+			return new TrpProperties(jobData, false);
+		} catch (Exception e) {
+			return new TrpProperties();
 		}
 	}
 	
@@ -318,7 +407,7 @@ public class TrpJobStatus implements Serializable {
 	}
 	
 	public void setJobData(Properties jobData) {
-		this.jobData = CoreUtils.writePropertiesToString(jobData);
+		this.jobData = CoreUtils.propertiesToString(jobData);
 	}
 
 	public boolean isResumable() {
@@ -337,6 +426,14 @@ public class TrpJobStatus implements Serializable {
 		this.className = className;
 	}
 
+	public String getResult() {
+		return result;
+	}
+
+	public void setResult(String result) {
+		this.result = result;
+	}
+
 	public boolean isFinished() {
 		return state.equals(FINISHED) || state.equals(FAILED) || state.equals(CANCELED);
 	}
@@ -349,11 +446,11 @@ public class TrpJobStatus implements Serializable {
 		this.session_history_id = session_history_id;
 	}
 
-	public JobImpl getJobImpl(){
+	public String getJobImpl(){
 		return this.jobImpl;
 	}
 	
-	public void setJobImpl(JobImpl jobImpl){
+	public void setJobImpl(String jobImpl){
 		this.jobImpl = jobImpl;
 	}
 	
@@ -390,14 +487,188 @@ public class TrpJobStatus implements Serializable {
 	public boolean isFailed() {
 		return this.getState().equals(TrpJobStatus.FAILED);
 	}
+
+	public String getModuleUrl() {
+		return moduleUrl;
+	}
+
+	public void setModuleUrl(String moduleUrl) {
+		this.moduleUrl = moduleUrl;
+	}
+
+	public String getModuleName() {
+		return moduleName;
+	}
+
+	public void setModuleName(String moduleName) {
+		this.moduleName = moduleName;
+	}
+
+	public String getModuleVersion() {
+		return moduleVersion;
+	}
+
+	public void setModuleVersion(String moduleVersion) {
+		this.moduleVersion = moduleVersion;
+	}
+
+//	public java.sql.Timestamp getStarted() {
+//		return started;
+//	}
+//
+//	public void setStarted(java.sql.Timestamp started) {
+//		this.started = started;
+//	}
+//
+//	public java.sql.Timestamp getEnded() {
+//		return ended;
+//	}
+//	
+//	public void setEnded(java.sql.Timestamp ended) {
+//		this.ended = ended;
+//	}
+//
+//	public java.sql.Timestamp getCreated() {
+//		return created;
+//	}
+//
+//	public void setCreated(java.sql.Timestamp created) {
+//		this.created = created;
+//	}
+		
+	public java.util.Date getStarted() {
+		return started;
+	}
+
+	public void setStarted(java.util.Date started) {
+		this.started = started;
+	}
+
+	public java.util.Date getEnded() {
+		return ended;
+	}
+
+	public void setEnded(java.util.Date ended) {
+		this.ended = ended;
+	}
+
+	public java.util.Date getCreated() {
+		return created;
+	}
+
+	public void setCreated(java.util.Date created) {
+		this.created = created;
+	}
 	
+	public void setEndedNow() {
+		this.endTime = System.currentTimeMillis();
+		this.ended = new Date(endTime);
+	}
+
+	public void setStartedNow() {
+		this.startTime = System.currentTimeMillis();
+		this.started = new Date(startTime);
+	}	
+	
+	public void setCreatedNow() {
+		this.createTime = System.currentTimeMillis();
+		this.created = new Date(this.createTime);
+	}
+
+	public String getPid() {
+		return pid;
+	}
+
+	public void setPid(String pid) {
+		this.pid = pid;
+	}
+
+	public Integer getBatchId() {
+		return batchId;
+	}
+
+	public void setBatchId(Integer batchId) {
+		this.batchId = batchId;
+	}
+
+	public Integer getPageid() {
+		return pageid;
+	}
+
+	public void setPageid(Integer pageid) {
+		this.pageid = pageid;
+	}
+
+	public Integer getTsid() {
+		return tsid;
+	}
+
+	public void setTsid(Integer tsid) {
+		this.tsid = tsid;
+	}
+
+	public String getRegionids() {
+		return regionids;
+	}
+
+	public void setRegionids(String regionids) {
+		this.regionids = regionids;
+	}
+
+	public Integer getParent_jobid() {
+		return parent_jobid;
+	}
+
+	public void setParent_jobid(Integer parent_jobid) {
+		this.parent_jobid = parent_jobid;
+	}
+
+	public Integer getParent_batchid() {
+		return parent_batchid;
+	}
+
+	public void setParent_batchid(Integer parent_batchid) {
+		this.parent_batchid = parent_batchid;
+	}
+	
+	public String getStackTrace() {
+		return stackTrace;
+	}
+
+	public void setStackTrace(String stackTrace) {
+		this.stackTrace = stackTrace;
+	}
+
+	public Integer getProgress() {
+		return progress;
+	}
+
+	public void setProgress(Integer progress) {
+		this.progress = progress;
+	}
+
+	public Integer getTotalWork() {
+		return totalWork;
+	}
+
+	public void setTotalWork(Integer totalWork) {
+		this.totalWork = totalWork;
+	}
+
 	@Override
 	public String toString() {
-		return "TrpJobStatus [jobId=" + jobId + ", docId=" + docId + ", pageNr=" + pageNr + ", pages=" + pages
+		return "TrpJobStatus [jobId=" + jobId + ", colId=" + colId+", docId=" + docId + ", pageNr=" + pageNr + ", pages=" + pages
 				+ ", type=" + type + ", state=" + state + ", success=" + success + ", description=" + description
 				+ ", userName=" + userName + ", userId=" + userId + ", createTime=" + createTime + ", startTime="
 				+ startTime + ", endTime=" + endTime + ", jobData=" + jobData + ", resumable=" + resumable
-				+ ", className=" + className + ", session_history_id=" + session_history_id + ", jobImpl=" + jobImpl
-				+ "]";
+				+ ", className=" + className + ", result=" + result + ", session_history_id=" + session_history_id
+				+ ", jobImpl=" + jobImpl + ", moduleUrl=" + moduleUrl + ", moduleName=" + moduleName
+				+ ", moduleVersion=" + moduleVersion + ", started=" + started + ", ended=" + ended + ", created="
+				+ created + ", pid=" + pid + ", batchId=" + batchId + ", pageid=" + pageid + ", tsid=" + tsid
+				+ ", regionids=" + regionids + ", parent_jobid=" + parent_jobid + ", parent_batchid=" + parent_batchid
+				+ ", stackTrace="+stackTrace+", progress="+progress+", totalWork="+totalWork+"]";
 	}
+
+	
+
 }

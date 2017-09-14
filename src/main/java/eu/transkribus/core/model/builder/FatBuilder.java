@@ -34,7 +34,7 @@ public class FatBuilder {
 	private static final Logger logger = LoggerFactory.getLogger(FatBuilder.class);
 	public static final String FAT_FILE_NAME = "FAT.xml";
 
-	public static File writeFatXml(File outputDir) throws UnsupportedFormatException, IOException {
+	public static File writeFatXml(File outputDir, final String languages, final String typeFace) throws UnsupportedFormatException, IOException {
 		
 		if(!new File(outputDir.getAbsolutePath() + File.separator + LocalDocConst.OCR_MASTER_DIR).isDirectory()){
 			throw new IllegalArgumentException("No directory '" + LocalDocConst.OCR_MASTER_DIR 
@@ -75,29 +75,25 @@ public class FatBuilder {
 		order.setServices("(OCR)");
 		OcrMetadata ocrM = new OcrMetadata();
 		
-		String lang = docMd.getLanguage();
-		if(lang == null || lang.isEmpty()){
+		if(languages != null && !languages.isEmpty()) {
+			ocrM.setLanguages(languages);
+		} else if(docMd.getLanguage() != null && !docMd.getLanguage().isEmpty()) {
+			ocrM.setLanguages(docMd.getLanguage());
+		} else {
 			missingMetadata = true;
-			lang = "";
+			ocrM.setLanguages("");
 		}
-		ocrM.setLanguages(lang);
 		
-		ScriptType scriptType = docMd.getScriptType();
-		//FIXME what if scriptType is not set
-		if (scriptType == null) {
-			scriptType = ScriptType.NORMAL;
+		if(typeFace != null && !typeFace.isEmpty()) {
+			ocrM.setTexttype(typeFace);
+		} else if(docMd.getScriptType() != null) {
+			ocrM.setTexttype(docMd.getScriptType().toString());
+		} else {
+			ocrM.setTexttype(ScriptType.NORMAL.toString());
 			missingMetadata = true;
 		}
-		final String textType = scriptType.toString();
-//		switch(scriptType){
-//		case GOTHIC:
-//			textType = "Gothic";
-//			break;
-//		default:
-//			textType = "Normal";
-//			break;
-//		}
-		ocrM.setTexttype(textType);
+
+	
 		ocrM.setOutput("(ABBYY-XML)");
 		
 		//check the following!

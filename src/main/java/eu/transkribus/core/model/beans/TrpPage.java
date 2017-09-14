@@ -17,8 +17,14 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.exceptions.NullValueException;
+import eu.transkribus.core.model.beans.adapters.SqlTimestampAdapter;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 
 @Entity
@@ -27,6 +33,7 @@ import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	private static final long serialVersionUID = 1L;
+	private static final Logger logger = LoggerFactory.getLogger(TrpPage.class);
 	//objid for parentDoc is ID in DB
 	@Id
 	@Column
@@ -36,6 +43,7 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	@Column
 	private int pageNr;
 	@Column(name = "imagekey")
+	@Transient
 	private String key = null; //The fimagestore key for getting the image file
 	//imageUrl represents a link to the local filesystem or the link to the fimagestore
 	@Column(name="IMAGE_ID")
@@ -48,13 +56,22 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	private URL thumbUrl;
 	
 	private String md5Sum;
+	
 	@Column(name="IMGFILENAME")
 	private String imgFileName = "";
+	
+	/**
+	 * This field is used to store information on problems with the given image for this page
+	 * LocalDocReader: message on corrupt image (dimension can not be read)
+	 * GoobiMetsImporter: message upon brokenUrl, no or corrupt image
+	 */
+	@Column(name="IMG_PROBLEM")
+	private String imgFileProblem = null;
 
 	//TODO SortedList from DB. comparator?
 	@XmlElementWrapper(name="tsList")
 	@XmlElement
-	private List<TrpTranscriptMetadata> transcripts;
+	private List<TrpTranscriptMetadata> transcripts = new LinkedList<>();
 	
 	@Column
 	@Transient
@@ -62,18 +79,50 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	@Column
 	@Transient
 	private int height;
+	
+	@XmlJavaTypeAdapter(SqlTimestampAdapter.class)
 	@Column
 	@Transient
 	private java.sql.Timestamp created;
 	
+	@Column(name="IS_INDEXED")
+	private boolean indexed = false;
+	
 	@XmlElementWrapper(name="imageVersions")
 	@XmlElement
-	private List<TrpPageImageVersion> imageVersions;
-
-	public TrpPage() {
-		transcripts = new LinkedList<>();
-	}
+	private List<TrpPageImageVersion> imageVersions = new LinkedList<>();
 	
+	@XmlJavaTypeAdapter(SqlTimestampAdapter.class)
+	@Column(name="TAGS_STORED")
+	private java.sql.Timestamp tagsStored;
+
+	public TrpPage() {}
+	
+	public TrpPage(TrpPage p) {
+		this();
+		pageId = p.getPageId();
+		docId = p.getDocId();
+		pageNr = p.getPageNr();
+		key = p.getKey();
+		imageId = p.getImageId();
+		url = p.getUrl();
+		thumbUrl = p.getThumbUrl();
+		md5Sum = p.getMd5Sum();
+		imgFileName = p.getImgFileName();
+		width = p.getWidth();
+		height = p.getHeight();
+		created = p.getCreated();
+		indexed = p.isIndexed();
+		tagsStored = p.tagsStored;
+		
+		for(TrpPageImageVersion v : p.getImageVersions()) {
+			imageVersions.add(new TrpPageImageVersion(v));
+		}
+		for(TrpTranscriptMetadata m : p.getTranscripts()) {
+			transcripts.add(new TrpTranscriptMetadata(m, this));
+		}
+	}
+
 	public int getPageId() {
 		return this.pageId;
 	}
@@ -167,6 +216,22 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		this.imgFileName = imgFileName;
 	}
 
+	public String getImgFileProblem() {
+		return imgFileProblem;
+	}
+
+	public void setImgFileProblem(String imgFileProblem) {
+		this.imgFileProblem = imgFileProblem;
+	}
+
+	/**
+	 * Due to corrupt or missing input image during import
+	 * @return true if dummy image is linked to this page
+	 */
+	public boolean isImgMissing() {
+		return !StringUtils.isEmpty(imgFileProblem);
+	}
+	
 	public int getWidth() {
 		return width;
 	}
@@ -191,9 +256,20 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		this.created = created;
 	}
 
+	public java.sql.Timestamp getTagsStored() {
+		return tagsStored;
+	}
+
+	public void setTagsStored(java.sql.Timestamp tagsStored) {
+		this.tagsStored = tagsStored;
+	}
+
 	public TrpTranscriptMetadata getCurrentTranscript() {
 		List<TrpTranscriptMetadata> tList = getTranscripts();
-		
+		if(tList.isEmpty()) {
+			//might happen if image file is broken and no PAGE XML can be generated
+			return new TrpTranscriptMetadata();
+		}
 		Collections.sort(tList, Collections.reverseOrder());
 		return tList.get(0);
 	}
@@ -220,27 +296,6 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		return getCurrentTranscript().unmarshallTranscript();	
 	}
 
-	/**
-	 * Uses the page number for comparison
-	 * 
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
-	@Override
-	public int compareTo(TrpPage p) {
-		if (this.getPageNr() > p.getPageNr()) {
-			return 1;
-		}
-		if (this.getPageNr() < p.getPageNr()) {
-			return -1;
-		}
-		return 0;
-	}
-	
-	@Override public String toString() {
-		return "TrpPage [pageId=" + pageId + ", docId=" + docId + ", pageNr=" + pageNr + ", key=" + key + ", url=" + url + ", thumbUrl=" + thumbUrl
-				+ ", md5Sum=" + md5Sum + ", imgFileName=" + imgFileName+", nTranscripts="+getNTranscripts()+"]";
-	}
-	
 	public String toString(boolean withTranscripts) {
 		String str = toString();
 		
@@ -280,19 +335,210 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		this.url = i.getUrl();
 	}
 
-//	@Override
-//	public String toString() {
-//		StringBuffer sb = new StringBuffer(this.getClass().getSimpleName() + " {" 
-//				+ this.getPageId() + " - "+ this.getDocId() + " - ");
-//		sb.append(this.getImgFileName() + " - ");
-//		sb.append(this.getKey() + " - ");
-//		sb.append(this.getPageNr() + " - ");
-//		sb.append(this.getTranscripts().size() + " - ");
-//		sb.append(this.getUrl() + " - ");
-//		sb.append(this.getThumbUrl() + "}");
-//		for (TrpTranscriptMetadata md : this.getTranscripts()) {
-//			sb.append("\n\t\t" + md.toString());
-//		}
-//		return sb.toString();
-//	}
+	public boolean isIndexed() {
+		return indexed;
+	}
+
+	public void setIndexed(boolean isIndexed) {
+		this.indexed = isIndexed;
+	}
+
+	/**
+	 * Uses the page number for comparison
+	 * 
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(TrpPage p) {
+		if (this.getPageNr() > p.getPageNr()) {
+			return 1;
+		}
+		if (this.getPageNr() < p.getPageNr()) {
+			return -1;
+		}
+		return 0;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TrpPage other = (TrpPage) obj;
+		if (created == null) {
+			if (other.created != null)
+				return false;
+		} else if (!created.equals(other.created))
+			return false;
+		if (docId != other.docId)
+			return false;
+		if (height != other.height)
+			return false;
+		if (imageId != other.imageId)
+			return false;
+		if (imageVersions == null) {
+			if (other.imageVersions != null)
+				return false;
+		} else if (!imageVersions.equals(other.imageVersions))
+			return false;
+		if (imgFileName == null) {
+			if (other.imgFileName != null)
+				return false;
+		} else if (!imgFileName.equals(other.imgFileName))
+			return false;
+		if (indexed != other.indexed)
+			return false;
+		if (key == null) {
+			if (other.key != null)
+				return false;
+		} else if (!key.equals(other.key))
+			return false;
+		if (md5Sum == null) {
+			if (other.md5Sum != null)
+				return false;
+		} else if (!md5Sum.equals(other.md5Sum))
+			return false;
+		if (pageId != other.pageId)
+			return false;
+		if (pageNr != other.pageNr)
+			return false;
+		if (tagsStored == null) {
+			if (other.tagsStored != null)
+				return false;
+		} else if (!tagsStored.equals(other.tagsStored))
+			return false;
+		if (thumbUrl == null) {
+			if (other.thumbUrl != null)
+				return false;
+		} else if (!thumbUrl.equals(other.thumbUrl))
+			return false;
+		if (transcripts == null) {
+			if (other.transcripts != null)
+				return false;
+		} else if (!transcripts.equals(other.transcripts))
+			return false;
+		if (url == null) {
+			if (other.url != null)
+				return false;
+		} else if (!url.equals(other.url))
+			return false;
+		if (width != other.width)
+			return false;
+		return true;
+	}
+	
+
+	/**
+	 * This method is just for testing equivalence of documents selected via different DocManager methods
+	 * Same as normal equals, but iterates transcripts and checks equivalence
+	 * @param obj
+	 * @return
+	 */
+	public boolean testEquals(TrpPage obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TrpPage other = (TrpPage) obj;
+		if (created == null) {
+			if (other.created != null)
+				return false;
+		} else if (!created.equals(other.created))
+			return false;
+		if (docId != other.docId)
+			return false;
+		if (height != other.height)
+			return false;
+		if (imageId != other.imageId)
+			return false;
+		if (imageVersions == null) {
+			if (other.imageVersions != null)
+				return false;
+		} else if (!imageVersions.equals(other.imageVersions))
+			return false;
+		if (imgFileName == null) {
+			if (other.imgFileName != null)
+				return false;
+		} else if (!imgFileName.equals(other.imgFileName))
+			return false;
+		if (indexed != other.indexed)
+			return false;
+		if (key == null) {
+			if (other.key != null)
+				return false;
+		} else if (!key.equals(other.key))
+			return false;
+		if (md5Sum == null) {
+			if (other.md5Sum != null)
+				return false;
+		} else if (!md5Sum.equals(other.md5Sum))
+			return false;
+		if (pageId != other.pageId)
+			return false;
+		if (pageNr != other.pageNr)
+			return false;
+		if (tagsStored == null) {
+			if (other.tagsStored != null)
+				return false;
+		} else if (!tagsStored.equals(other.tagsStored))
+			return false;
+		if (thumbUrl == null) {
+			if (other.thumbUrl != null)
+				return false;
+		} else if (!thumbUrl.equals(other.thumbUrl))
+			return false;
+		if (transcripts == null) {
+			if (other.transcripts != null)
+				return false;
+		}
+		if (url == null) {
+			if (other.url != null)
+				return false;
+		} else if (!url.equals(other.url))
+			return false;
+		if (width != other.width)
+			return false;
+		if(transcripts != null) {
+			if(other.transcripts == null) {
+				return false;
+			}
+			if(transcripts.size() != other.transcripts.size()) {
+				logger.info("Transcript list size is unequal on page nr. " + this.pageNr + ": " 
+						+ transcripts.size() + " != " + other.transcripts.size());
+				return false;
+			}
+			for(int i = 0; i < transcripts.size(); i++) {
+				if(!transcripts.get(i).testEquals(other.transcripts.get(i))) {
+					logger.info("Unequal transcript on page nr. " + this.pageNr
+							+ "\n" + transcripts.get(i).toString() 
+							+ "\n" + other.transcripts.get(i).toString());
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		String str = "TrpPage [pageId=" + pageId + ", docId=" + docId + ", pageNr=" + pageNr + ", key=" + key + ", imageId="
+				+ imageId + ", url=" + url + ", thumbUrl=" + thumbUrl + ", md5Sum=" + md5Sum + ", imgFileName="
+				+ imgFileName + ", transcripts=" + transcripts + ", width=" + width + ", height=" + height
+				+ ", created=" + created + ", indexed=" + indexed + ", imageVersions=" + imageVersions + ", tagsStored="+tagsStored+"]";
+		for(TrpTranscriptMetadata t : this.transcripts) {
+			str += "\n\t" + t.toString();
+		}
+		
+		return str;
+	}
+
+	public boolean hasImgError() {
+		return !StringUtils.isEmpty(imgFileProblem);
+	}
+	
 }

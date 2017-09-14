@@ -2,6 +2,7 @@ package eu.transkribus.core.model.beans;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -13,8 +14,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TrpAction {
-	
+	public static final int SAVE = 1;
+	public static final int LOGIN = 2;
+	public static final int STATUS_CHANGE = 3;
+	public static final int ACCESS_DOCUMENT = 4;
+
 	public TrpAction() {}
+	@Id
 	@Column(name="ACTION_ID")
 	private Integer actionId;
 	@Column(name="TYPE_ID")
@@ -31,6 +37,8 @@ public class TrpAction {
 	private Integer colId;
 	@Transient
 	private String colName;
+	@Transient
+	private String colDesc;
 	@Column(name="DOC_ID")
 	private Integer docId;
 	@Transient
@@ -129,6 +137,13 @@ public class TrpAction {
 		this.colName = colName;
 	}
 
+	public String getColDesc() {
+		return colDesc;
+	}
+	
+	public void setColDesc(String colDesc) {
+		this.colDesc = colDesc;
+	}
 
 	public Integer getDocId() {
 		return docId;
@@ -223,11 +238,10 @@ public class TrpAction {
 	@Override
 	public String toString() {
 		return "TrpAction [actionId=" + actionId + ", typeId=" + typeId + ", type=" + type + ", userId=" + userId
-				+ ", userName=" + userName + ", time=" + time + ", colId=" + colId + ", colName=" + colName + ", docId="
-				+ docId + ", docName=" + docName + ", pageId=" + pageId + ", pageNr=" + pageNr + ", clientId="
-				+ clientId + ", clientName=" + clientName + ", clientVersion=" + clientVersion + ", sessionHistoryId="
-				+ sessionHistoryId + ", userRole=" + userRole + "]";
+				+ ", userName=" + userName + ", time=" + time + ", colId=" + colId + ", colName=" + colName
+				+ ", colDesc=" + colDesc + ", docId=" + docId + ", docName=" + docName + ", pageId=" + pageId
+				+ ", pageNr=" + pageNr + ", clientId=" + clientId + ", clientName=" + clientName + ", clientVersion="
+				+ clientVersion + ", sessionHistoryId=" + sessionHistoryId + ", userRole=" + userRole + "]";
 	}
-	
 	
 }

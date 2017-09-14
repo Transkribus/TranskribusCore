@@ -18,6 +18,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.apache.commons.io.FileUtils;
+
 import eu.transkribus.core.exceptions.NullValueException;
 import eu.transkribus.core.model.beans.adapters.EditStatusAdapter;
 import eu.transkribus.core.model.beans.enums.EditStatus;
@@ -114,6 +116,8 @@ public class TrpTranscriptMetadata extends ATranscribable implements ITrpFile, S
 	public TrpTranscriptMetadata() {
 	}
 	
+	
+	
 	public TrpTranscriptMetadata(final int tsId, final String key, final int pageId, 
 			final long timestamp, final int userId, final String userName, final EditStatus status, final int parentId, final String note) {
 		this.tsId = tsId;
@@ -125,6 +129,34 @@ public class TrpTranscriptMetadata extends ATranscribable implements ITrpFile, S
 		this.status = status;
 		this.parentTsId = parentId;
 		this.note = note;
+	}
+
+	public TrpTranscriptMetadata(TrpTranscriptMetadata m, TrpPage pageReferenceForLocalDocs) {
+		this();
+		this.pageReferenceForLocalDocs = pageReferenceForLocalDocs;
+		tsId = m.getTsId();
+		parentTsId = m.getParentTsId();
+		key = m.getKey();
+		pageId = m.getPageId();
+		docId = m.getDocId();
+		pageNr = m.getPageNr();
+		localFolder = m.getLocalFolder();
+		url = m.getUrl();
+		status = m.getStatus();
+		userName = m.getUserName();
+		userId = m.getUserId();
+		timestamp = m.getTimestamp();
+		toolName = m.getToolName();
+		note = m.getNote();
+		md5Sum = m.getMd5Sum();
+		nrOfRegions = m.getNrOfRegions();
+		nrOfTranscribedRegions = m.getNrOfTranscribedRegions();
+		nrOfWordsInRegions = m.getNrOfWordsInRegions();
+		nrOfLines = m.getNrOfLines();
+		nrOfTranscribedLines = m.getNrOfTranscribedLines();
+		nrOfWordsInLines = m.getNrOfWordsInLines();
+		nrOfWords = m.getNrOfWords();
+		nrOfTranscribedWords = m.getNrOfTranscribedWords();
 	}
 
 	public int getTsId() {
@@ -191,6 +223,14 @@ public class TrpTranscriptMetadata extends ATranscribable implements ITrpFile, S
 		this.url = xmlUrl;
 	}
 
+	public String getXmlFileName() {
+		String name = null;
+		if(this.isLocalTranscript()) {
+			name = this.getXmlFile().getName();
+		}
+		return name;
+	}
+	
 	public EditStatus getStatus() {
 		return status;
 	}
@@ -350,7 +390,44 @@ public class TrpTranscriptMetadata extends ATranscribable implements ITrpFile, S
 		this.nrOfTranscribedWords = nrOfTranscribedWords;
 	}	
 	
-	@Override public boolean equals(Object o) {
+	/**
+	 * Check key and URL protocol.<br/>
+	 * This method returns false, if there is a filekey set which matches the pattern defined in FimagestoreClient.<br/>
+	 * It returns true, if there is no filekey and the URL points to an existing file.<br/>
+	 * 
+	 * @return
+	 * @throws IllegalStateException in case there are inconsistencies:
+	 * <ul>
+	 * <li>key of transcript is null, but the URL protocol is not "file://"</li>
+	 * <li>key of transcript is null, but the file URL does not point to an existing file</li>
+	 * </ul>
+	 */
+	public boolean isLocalTranscript() {
+		if(key == null) {
+			if(!this.getXmlFile().isFile()) {
+				throw new IllegalStateException("Key of transcript is null, but file URL does not exist: " + url.getFile());			
+			}
+			return true;
+		} else {
+//			if(!FimgStoreUtils.isFimgStoreKey(key)) {
+//				throw new IllegalStateException("Key of transcript is not a valid fimagestore key!");
+//			}
+			return false;
+		}
+	}
+	
+	private File getXmlFile() {
+		final String prot = url.getProtocol();
+		if(!"file".equals(prot)) {
+			throw new IllegalStateException("Key of transcript is null, but URL protocol is not \"file\"!");
+		}
+		return FileUtils.toFile(url);
+	}
+
+
+
+	@Override 
+	public boolean equals(Object o) {
 		// FIXME ?? (not tested)
 		
 		if (o==null || !(o instanceof TrpTranscriptMetadata))
@@ -385,7 +462,97 @@ public class TrpTranscriptMetadata extends ATranscribable implements ITrpFile, S
 		}
 		return result;
 	}
+
+	/**
+	 * This method is just for testing equivalence of documents selected via different DocManager methods
+	 * @param obj
+	 * @return
+	 */
+	public boolean testEquals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TrpTranscriptMetadata other = (TrpTranscriptMetadata) obj;
+		if (docId != other.docId)
+			return false;
+		if (key == null) {
+			if (other.key != null)
+				return false;
+		} else if (!key.equals(other.key))
+			return false;
+		if (localFolder == null) {
+			if (other.localFolder != null)
+				return false;
+		} else if (!localFolder.equals(other.localFolder))
+			return false;
+		if (md5Sum == null) {
+			if (other.md5Sum != null)
+				return false;
+		} else if (!md5Sum.equals(other.md5Sum))
+			return false;
+		if (note == null) {
+			if (other.note != null)
+				return false;
+		} else if (!note.equals(other.note))
+			return false;
+		if (nrOfLines != other.nrOfLines)
+			return false;
+		if (nrOfRegions != other.nrOfRegions)
+			return false;
+		if (nrOfTranscribedLines != other.nrOfTranscribedLines)
+			return false;
+		if (nrOfTranscribedRegions != other.nrOfTranscribedRegions)
+			return false;
+		if (nrOfTranscribedWords != other.nrOfTranscribedWords)
+			return false;
+		if (nrOfWords != other.nrOfWords)
+			return false;
+		if (nrOfWordsInLines != other.nrOfWordsInLines)
+			return false;
+		if (nrOfWordsInRegions != other.nrOfWordsInRegions)
+			return false;
+		if (pageId != other.pageId)
+			return false;
+		if (pageNr != other.pageNr)
+			return false;
+		if (pageReferenceForLocalDocs == null) {
+			if (other.pageReferenceForLocalDocs != null)
+				return false;
+		} else if (!pageReferenceForLocalDocs.equals(other.pageReferenceForLocalDocs))
+			return false;
+		if (parentTsId != other.parentTsId)
+			return false;
+		if (status != other.status)
+			return false;
+		if (timestamp != other.timestamp)
+			return false;
+		if (toolName == null) {
+			if (other.toolName != null)
+				return false;
+		} else if (!toolName.equals(other.toolName))
+			return false;
+		if (tsId != other.tsId)
+			return false;
+		if (url == null) {
+			if (other.url != null)
+				return false;
+		} else if (!url.equals(other.url))
+			return false;
+		if (userId != other.userId)
+			return false;
+		if (userName == null) {
+			if (other.userName != null)
+				return false;
+		} else if (!userName.equals(other.userName))
+			return false;
+		return true;
+	}
+
 	
+
 	public PcGtsType unmarshallTranscript() throws NullValueException, JAXBException {
 		if (getUrl()==null)
 			throw new NullValueException("URL of transcript is null!");
@@ -424,7 +591,7 @@ public class TrpTranscriptMetadata extends ATranscribable implements ITrpFile, S
 
 	@Override
 	public String toString() {
-		return "TrpTranscriptMetadata [pageReferenceForLocalDocs=" + pageReferenceForLocalDocs + ", tsId=" + tsId
+		return "TrpTranscriptMetadata [tsId=" + tsId
 				+ ", parentTsId=" + parentTsId + ", key=" + key + ", pageId=" + pageId + ", docId=" + docId
 				+ ", pageNr=" + pageNr + ", localFolder=" + localFolder + ", url=" + url + ", status=" + status
 				+ ", userName=" + userName + ", userId=" + userId + ", timestamp=" + timestamp + ", toolName="

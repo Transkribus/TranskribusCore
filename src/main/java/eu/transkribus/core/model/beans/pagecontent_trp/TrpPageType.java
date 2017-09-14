@@ -33,7 +33,7 @@ public class TrpPageType extends PageType {
 	
 	boolean edited=false;
 	
-	Set<String> tagNames=new HashSet<>();	
+//	Set<String> tagNames=new HashSet<>();	
 	TrpTranscriptMetadata md;
 	
 	Map<String, Object> idRegistry = new HashMap<>(); // TEST
@@ -83,16 +83,16 @@ public class TrpPageType extends PageType {
 	}
 	
 	public void printIdRegistry() {
-		logger.debug("nr of elements with id: "+idRegistry.size());
+		logger.trace("nr of elements with id: "+idRegistry.size());
 		for (String id : idRegistry.keySet()) {
-			logger.debug("id: "+id+" element: "+idRegistry.get(id));
+			logger.trace("id: "+id+" element: "+idRegistry.get(id));
 		}
 		
-		SebisStopWatch.SW.start();
+//		SebisStopWatch.SW.start();
 		for (int i=0; i<10000; ++i) {
 			idRegistry.containsKey("tc_"+i);
 		}
-		SebisStopWatch.SW.stop(true);
+//		SebisStopWatch.SW.stop(true);
 	}
 	
 //	public void replaceLinkId(String idOld, String idNew) {
@@ -125,13 +125,13 @@ public class TrpPageType extends PageType {
 		this.md = md;
 	}
 
-	public Set<String> getTagNames() {
-		return tagNames;
-	}
-
-	public void setTagNames(Set<String> tagNames) {
-		this.tagNames = tagNames;
-	}
+//	public Set<String> getTagNames() {
+//		return tagNames;
+//	}
+//
+//	public void setTagNames(Set<String> tagNames) {
+//		this.tagNames = tagNames;
+//	}
 	
 	public int removeDeadLinks() {
 		if (relations==null) {
@@ -426,6 +426,14 @@ public class TrpPageType extends PageType {
 		return shapes;
 	}
 	
+	public ITrpShapeType getShape(String id) {
+		for (ITrpShapeType t : getAllShapes(true)) {
+			if (t.getId().equals(id))
+				return t;
+		}
+		return null;		
+	}
+	
 	public void writeCustomTagsToPage() {
 		CustomTagUtil.writeCustomTagsToPage(this);
 	}
@@ -466,6 +474,14 @@ public class TrpPageType extends PageType {
 		}
 		
 		return lines;
+	}
+	
+	public TrpTextLineType getLineWithId(String id) {
+		for (TrpTextLineType l : getLines()) {
+			if (l.getId().equals(id))
+				return l;
+		}
+		return null;
 	}
 	
 	/** Returns all words of all lines in the current order. */
@@ -590,10 +606,4 @@ public class TrpPageType extends PageType {
 		return textRegionOrImageRegionOrLineDrawingRegion.size();
 	}
 	
-	
-	
-	
-	
-	
-
 }

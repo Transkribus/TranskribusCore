@@ -33,7 +33,8 @@ import eu.transkribus.core.util.XslTransformer;
 public class AltoExporter extends Observable {
 	private static final Logger logger = LoggerFactory.getLogger(AltoExporter.class);
 	
-	private static final String PAGE_TO_ALTO_XSLT = "xslt/PageToAltoWordLevel.xsl";
+	private static final String PAGE_TO_ALTO_WORD_LEVEL_XSLT = "xslt/PageToAltoWordLevel.xsl";
+	private static final String PAGE_TO_ALTO_XSLT = "xslt/PageToAlto.xsl";
 	
 	public AltoExporter(){}
 	
@@ -50,13 +51,19 @@ public class AltoExporter extends Observable {
 		
 		File altoOutputDir = new File(outputDir.getAbsolutePath() + File.separatorChar
 					+ LocalDocConst.ALTO_FILE_SUB_FOLDER);
-		altoOutputDir.mkdir();
 		
+		if (altoOutputDir.mkdir()){
+			logger.debug("altoOutputDir created successfully ");
+		}
+		else{
+			logger.debug("altoOutputDir could not be created!");
+		}
+
 		return altoOutputDir;
 		
 	}
 	
-	public File exportAltoFile(TrpPage p, File altoOutputDir) throws JAXBException, FileNotFoundException, TransformerException {
+	public File exportAltoFile(TrpPage p, File altoOutputDir, boolean splitIntoWords) throws JAXBException, FileNotFoundException, TransformerException {
 		if(p == null){
 			throw new IllegalArgumentException("TrpPage is null!");
 		}
@@ -66,10 +73,10 @@ public class AltoExporter extends Observable {
 			lastIndex = imgName.length();
 		}
 		
-		return exportAltoFile(p, imgName.substring(0,lastIndex)+".xml", altoOutputDir);
+		return exportAltoFile(p, imgName.substring(0,lastIndex)+".xml", altoOutputDir, splitIntoWords);
 	}
 	
-	public File exportAltoFile(TrpPage p, final String fileName, File altoOutputDir) throws JAXBException, FileNotFoundException, TransformerException {
+	public File exportAltoFile(TrpPage p, final String fileName, File altoOutputDir, boolean splitIntoWords) throws JAXBException, FileNotFoundException, TransformerException {
 		if(p == null || fileName == null){
 			throw new IllegalArgumentException("An argument is null!");
 		}
@@ -80,7 +87,13 @@ public class AltoExporter extends Observable {
 		StreamSource mySrc = new StreamSource();
 		mySrc.setInputStream(new ByteArrayInputStream(PageXmlUtils.marshalToBytes(pc)));
 		
-		InputStream is = XslTransformer.class.getClassLoader().getResourceAsStream(PAGE_TO_ALTO_XSLT);
+		InputStream is;
+		if (splitIntoWords){
+			is = XslTransformer.class.getClassLoader().getResourceAsStream(PAGE_TO_ALTO_WORD_LEVEL_XSLT);
+		}
+		else{
+			is = XslTransformer.class.getClassLoader().getResourceAsStream(PAGE_TO_ALTO_XSLT);
+		}
 //		InputStream xslIS = new BufferedInputStream(new FileInputStream(xslID));
 		InputStream xslIS = new BufferedInputStream(is);
 		StreamSource xslSource = new StreamSource(xslIS);
@@ -120,7 +133,8 @@ public class AltoExporter extends Observable {
 			setChanged();
 			TrpPage p = doc.getPages().get(i);
 			
-			File altoFile = exportAltoFile(p, altoOutputDir);						
+			//3rd parameter says 'splitLineIntoWords'
+			File altoFile = exportAltoFile(p, altoOutputDir, false);						
 			//XslTransformer.transform(pc, PAGE_TO_ALTO_XSLT, pdfFile);
 		}
 

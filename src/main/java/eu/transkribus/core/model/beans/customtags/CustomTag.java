@@ -1,6 +1,7 @@
 package eu.transkribus.core.model.beans.customtags;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.bcel.generic.INSTANCEOF;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
@@ -16,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.exceptions.InitializationFailedException;
 import eu.transkribus.core.model.beans.pagecontent.ColourSimpleType;
+import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.IntRange;
 import eu.transkribus.core.util.OverlapType;
@@ -27,8 +31,12 @@ import eu.transkribus.core.util.RegexPattern;
  * as e.g. {@link TextStyleTag} or {@link StructureTag} have to inherit from
  * this class.
  */
-public class CustomTag implements Comparable<CustomTag> {
+public class CustomTag implements Comparable<CustomTag>, Serializable {
+	private static final long serialVersionUID = -3038639425632100689L;
+
 	final static Logger logger = LoggerFactory.getLogger(CustomTag.class);
+	
+//	public String shapeId; // only used for DB storage
 
 	protected String tagName = null;
 
@@ -56,14 +64,14 @@ public class CustomTag implements Comparable<CustomTag> {
 	protected static HashSet<CustomTagAttribute> ATTRIBUTES = new HashSet<CustomTagAttribute>();
 	
 	public static String OFFSET_PROPERTY_NAME = "offset";
-	public static CustomTagAttribute OFFSET_PROPERTY = new CustomTagAttribute(OFFSET_PROPERTY_NAME, false, null, "The character offset of the tag, relative to the line or word it is set");
+	public static CustomTagAttribute OFFSET_PROPERTY = new CustomTagAttribute(OFFSET_PROPERTY_NAME, false, null, "The character offset of the tag, relative to the line or word it is set", int.class);
 	
 	public static String LENGTH_PROPERTY_NAME = "length";
-	public static CustomTagAttribute LENGTH_PROPETY = new CustomTagAttribute(LENGTH_PROPERTY_NAME, false, null, "The length in characters of the tag");
+	public static CustomTagAttribute LENGTH_PROPETY = new CustomTagAttribute(LENGTH_PROPERTY_NAME, false, null, "The length in characters of the tag", int.class);
 	
 	public static String CONTINUED_PROPERTY_NAME = "continued";
 	public static CustomTagAttribute CONTINUED_PROPERTY = new CustomTagAttribute(CONTINUED_PROPERTY_NAME, false, null,
-			"Determines if this tag is a continuation from a tag of the previous line or word");
+			"Determines if this tag is a continuation from a tag of the previous line or word", boolean.class);
 		
 //	public static 
 	// TODO: insert color tag
@@ -135,7 +143,51 @@ public class CustomTag implements Comparable<CustomTag> {
 		
 		return customTagList.getShape().getUnicodeText();
 	}
-	
+
+	public String getNeighborText(boolean before, int N) {
+		if (customTagList == null)
+			return "";
+		
+		String txtOfShape = customTagList.getShape().getUnicodeText();
+		
+		// first get neighboring text of same shape
+		String txt = "";
+		try {
+			if (before) {
+				txt = txtOfShape.substring(0, getOffset());
+			} else {
+				txt = txtOfShape.substring(getEnd());
+			}
+		} catch (IndexOutOfBoundsException e) {
+			txt = "";
+		}
+				
+		// if this is not enough (i.e. length < N), try to get some text from neighboring shapes
+		ITrpShapeType n = customTagList.getShape().getSiblingShape(before);
+		String del =  " ";
+		while (n!=null && txt.length() < N) {
+			if (before) {
+				txt = n.getUnicodeText()+del+txt;
+			} else {
+				txt += del+n.getUnicodeText();
+			}
+			
+			n = n.getSiblingShape(before);
+		}
+		
+		// cut text if too long, respecting word boundaries
+		try {
+			if (txt.length() > N) {
+				int startIndex = before ? txt.length()-1 : 0;
+				txt = CoreUtils.neighborString(txt, startIndex, N, before, true);
+//				txt = before ? txt.substring(txt.length()-N) : txt.substring(0, N);
+			}
+			return txt;
+		} catch (IndexOutOfBoundsException ex) { // should not happen...
+			return "i am error";
+		}
+	}
+
 	public String getContainedText() {
 		if (customTagList == null)
 			return "";
@@ -145,19 +197,11 @@ public class CustomTag implements Comparable<CustomTag> {
 		int o = CoreUtils.bound(offset, 0, txt.length());
 		int e = CoreUtils.bound(offset+length, 0, txt.length());
 		
-		/**
-		 * FIXME Prod Server doc 331 on page 22 has illegal tags (outside of string bounds with no length)
-		 * Then o = 21 and e = 20 which leads to a StringIndexOutOfBoundsException. Code below fixes that for now.
-		 * philip
-		 */
-		
-		final String containedText;
-		if(o > e) {
-			containedText = "";
-		} else {
-			containedText = txt.substring(o, e);
+		try {
+			return txt.substring(o, e);
+		} catch(StringIndexOutOfBoundsException ex) { // illegal tag bounds
+			return "";
 		}
-		return containedText;
 	}
 	
 	public boolean isDeleteable() {

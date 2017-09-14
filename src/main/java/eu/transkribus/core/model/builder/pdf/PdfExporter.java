@@ -33,19 +33,15 @@ public class PdfExporter extends Observable {
 	
 	public PdfExporter(){}
 	
-	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, boolean extraTextPages, Set<String> selectedTags, boolean highlightTags, boolean wordBased, boolean doBlackening, boolean createTitle) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
-		return export(doc, path, pageIndices, false, false, true, null, true, false, false);
+	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, boolean extraTextPages, boolean highlightTags, boolean wordBased, boolean doBlackening, boolean createTitle) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
+		return export(doc, path, pageIndices, false, false, true, true, false, false);
 	}
 	
-	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, Set<String> selectedTags) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
-		return export(doc, path, pageIndices, false, true, false, selectedTags, true, true, true);
+	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
+		return export(doc, path, pageIndices, false, true, false, true, true, true);
 	}
-	
-	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean addTextPages, final boolean imagesOnly, Set<String> selectedTags, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, boolean createTitle) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
-		return export(doc, path, pageIndices, wordBased, addTextPages, imagesOnly, selectedTags, highlightTags, doBlackening, createTitle);
-	}
-	
-	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean useWordLevel, final boolean addTextPages, final boolean imagesOnly, Set<String> selectedTags, final boolean highlightTags, final boolean doBlackening, boolean createTitle) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
+		
+	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean useWordLevel, final boolean addTextPages, final boolean imagesOnly, final boolean highlightTags, final boolean doBlackening, boolean createTitle) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
 		if(doc == null){
 			throw new IllegalArgumentException("TrpDoc is null!");
 		}
@@ -76,8 +72,8 @@ public class PdfExporter extends Observable {
 
 			logger.info("Processing page " + (i+1));			
 			TrpPage p = doc.getPages().get(i);
-			URL imgUrl = p.getUrl();
-			
+			URL imgUrl = p.getUrl();	
+
 			/*
 			 * md is only needed for getting resolution because in the image it may be missing
 			 * But if it is a local doc we have to try to get from img because md is null
@@ -90,7 +86,7 @@ public class PdfExporter extends Observable {
 		
 			URL xmlUrl = p.getCurrentTranscript().getUrl();
 			
-			//logger.debug("xmlUrl " + xmlUrl);
+			logger.debug("output with tags " + highlightTags);
 			//PcGtsType pc = PageXmlUtils.unmarshal(xmlUrl);
 			
 			//should be the same as above
@@ -105,11 +101,11 @@ public class PdfExporter extends Observable {
 
 			if (!onePagePrinted){
 				//add first page and previously add a title page with doc metadata and editorial declarations (if this option is set)
-				pdf.addPage(imgUrl, doc, pc, addTextPages, imagesOnly, selectedTags, md, doBlackening);
+				pdf.addPage(imgUrl, doc, pc, addTextPages, imagesOnly, md, doBlackening);
 				onePagePrinted = true;
 			}
 			else{
-				pdf.addPage(imgUrl, null, pc, addTextPages, imagesOnly, selectedTags, md, doBlackening);
+				pdf.addPage(imgUrl, null, pc, addTextPages, imagesOnly, md, doBlackening);
 			}
 			
 			setChanged();
@@ -125,7 +121,7 @@ public class PdfExporter extends Observable {
 			}
 		}
 		if (highlightTags){
-			pdf.addTags(doc, pageIndices, useWordLevel, selectedTags);
+			pdf.addTags(doc, pageIndices, useWordLevel);
 		}
 		pdf.close();
 		

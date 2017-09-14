@@ -2,7 +2,7 @@
 // Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
 // Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
 // Änderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2016.08.31 um 10:07:11 AM CEST 
+// Generiert: 2017.07.21 um 11:17:10 AM CEST 
 //
 
 
@@ -30,6 +30,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *         &lt;element name="Created" type="{http://www.w3.org/2001/XMLSchema}dateTime"/>
  *         &lt;element name="LastChange" type="{http://www.w3.org/2001/XMLSchema}dateTime"/>
  *         &lt;element name="Comments" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="TranskribusMetadata" type="{http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15}TranskribusMetadataType" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -43,7 +44,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "creator",
     "created",
     "lastChange",
-    "comments"
+    "comments",
+    "transkribusMetadata"
 })
 public class MetadataType {
 
@@ -57,6 +59,8 @@ public class MetadataType {
     protected XMLGregorianCalendar lastChange;
     @XmlElement(name = "Comments")
     protected String comments;
+    @XmlElement(name = "TranskribusMetadata")
+    protected TranskribusMetadataType transkribusMetadata;
 
     /**
      * Ruft den Wert der creator-Eigenschaft ab.
@@ -152,6 +156,30 @@ public class MetadataType {
      */
     public void setComments(String value) {
         this.comments = value;
+    }
+
+    /**
+     * Ruft den Wert der transkribusMetadata-Eigenschaft ab.
+     * 
+     * @return
+     *     possible object is
+     *     {@link TranskribusMetadataType }
+     *     
+     */
+    public TranskribusMetadataType getTranskribusMetadata() {
+        return transkribusMetadata;
+    }
+
+    /**
+     * Legt den Wert der transkribusMetadata-Eigenschaft fest.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link TranskribusMetadataType }
+     *     
+     */
+    public void setTranskribusMetadata(TranskribusMetadataType value) {
+        this.transkribusMetadata = value;
     }
 
 }

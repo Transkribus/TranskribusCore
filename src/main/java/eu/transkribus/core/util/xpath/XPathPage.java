@@ -25,7 +25,7 @@ import eu.transkribus.core.util.SebisStopWatch;
 
 /**
  * Utility class to parse a PAGE file using XPath
- *
+ * @deprecated not used or tested
  */
 public class XPathPage {
 	

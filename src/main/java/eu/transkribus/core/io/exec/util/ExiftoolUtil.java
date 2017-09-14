@@ -10,9 +10,11 @@
  ******************************************************************************/
 package eu.transkribus.core.io.exec.util;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 public class ExiftoolUtil {	
 	public static boolean isWin = System.getProperty("os.name").indexOf("win")>=0;
@@ -29,13 +31,13 @@ public class ExiftoolUtil {
 		else return fn;
 	}
 
-	public static List<String> runExiftool(String filename) throws Exception {
+	public static List<String> runExiftool(String filename) throws IOException, TimeoutException, InterruptedException {
 		LinkedList<String> stdOut=new LinkedList<String>(), stdErr=new LinkedList<String>();
 //		CommandLine.runProcess(exiftool+" -s "+Util.addApostrophe(filename), 0, stdOut, stdErr);
 		
 		try {
 			CommandLine.runProcess(0, stdOut, stdErr, exiftool, "-s", addApostrophe(filename));
-		} catch (Exception e) {
+		} catch (IOException | TimeoutException | InterruptedException e) {
 			HashMap<String, String> tags = parseTags(stdOut);
 			String error = tags.get(ERROR_TAG_NAME);
 			if (error != null && error.equals(UNKNOWN_FILE_TYPE_ERROR_MESSAGE)) {
@@ -49,13 +51,13 @@ public class ExiftoolUtil {
 		return stdOut;
 	}
 	
-	public static HashMap<String, String> parseTags(String filename) throws Exception {
+	public static HashMap<String, String> parseTags(String filename) throws IOException, TimeoutException, InterruptedException {
 		
 		List<String> stdOut = runExiftool(filename);
 		return parseTags(stdOut);
 	}
 	
-	public static HashMap<String, String> parseTags(List<String> exifStdOut) throws Exception {
+	public static HashMap<String, String> parseTags(List<String> exifStdOut) {
 		HashMap<String, String> tags = new HashMap<String, String>();
 		
 		for (int i=0; i<exifStdOut.size(); ++i) {

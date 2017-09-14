@@ -15,6 +15,7 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 public class PageHit {
 	private long docId;
 	private long pageNr;
+	private String docTitle;
 	private String pageUrl;	
 	@XmlElementWrapper(name="collectionIds")
 	@XmlElement(name="collectionId")
@@ -76,6 +77,14 @@ public class PageHit {
 	public String toString() {
 		return "PageHit [docId=" + docId + ", pageNr=" + pageNr + ", pageUrl=" + pageUrl + ", highlights=" + highlights
 				+ ", wordCoords=" + wordCoords + "]";
+	}
+
+	public String getDocTitle() {
+		return docTitle;
+	}
+
+	public void setDocTitle(String docTitle) {
+		this.docTitle = docTitle;
 	}
 
 }

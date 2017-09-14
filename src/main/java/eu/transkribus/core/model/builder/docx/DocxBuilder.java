@@ -31,6 +31,8 @@ import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.docx4j.openpackaging.parts.WordprocessingML.StyleDefinitionsPart;
 import org.docx4j.openpackaging.parts.relationships.Namespaces;
 import org.docx4j.wml.CTSettings;
+import org.docx4j.wml.CTTblOverlap;
+import org.docx4j.wml.CTTblPPr;
 import org.docx4j.wml.P.Hyperlink;
 import org.docx4j.wml.R;
 import org.docx4j.wml.CTFootnotes;
@@ -41,12 +43,15 @@ import org.docx4j.wml.CTSettings;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.JAXBElement;
@@ -54,8 +59,11 @@ import javax.xml.bind.JAXBElement;
 import org.docx4j.wml.BooleanDefaultTrue;
 import org.docx4j.wml.Br;
 import org.docx4j.wml.CTBookmark;
+import org.docx4j.wml.CTColumn;
 import org.docx4j.wml.CTLanguage;
 import org.docx4j.wml.CTMarkupRange;
+import org.docx4j.wml.CTOdsoFieldMapData.Column;
+import org.docx4j.wml.CTTblPrBase.TblStyle;
 import org.docx4j.wml.CommentRangeEnd;
 import org.docx4j.wml.CommentRangeStart;
 import org.docx4j.wml.Comments;
@@ -75,10 +83,20 @@ import org.docx4j.wml.STVerticalAlignRun;
 import org.docx4j.wml.Style;
 import org.docx4j.wml.Text;
 import org.docx4j.wml.TextDirection;
+import org.docx4j.wml.Tr;
 import org.docx4j.wml.U;
 import org.docx4j.wml.Tbl;
+import org.docx4j.wml.TblGrid;
+import org.docx4j.wml.TblGridCol;
+import org.docx4j.wml.TblPr;
+import org.docx4j.wml.TblWidth;
+import org.docx4j.wml.Tc;
+import org.docx4j.wml.TcPr;
+import org.docx4j.wml.TcPrInner.GridSpan;
+import org.docx4j.wml.TcPrInner.VMerge;
 import org.docx4j.wml.UnderlineEnumeration;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTextAlignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,20 +115,30 @@ import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.customtags.AbbrevTag;
 import eu.transkribus.core.model.beans.customtags.CommentTag;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
+import eu.transkribus.core.model.beans.customtags.CustomTagAttribute;
+import eu.transkribus.core.model.beans.customtags.CustomTagFactory;
 import eu.transkribus.core.model.beans.customtags.CustomTagList;
+import eu.transkribus.core.model.beans.customtags.GapTag;
+import eu.transkribus.core.model.beans.customtags.SuppliedTag;
 import eu.transkribus.core.model.beans.customtags.TextStyleTag;
 import eu.transkribus.core.model.beans.customtags.UnclearTag;
+import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextStyleType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
 import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
 import eu.transkribus.core.model.beans.pagecontent_trp.RegionTypeUtil;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementReadingOrderComparator;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableCellType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.builder.ExportUtils;
 import eu.transkribus.core.model.builder.rtf.TrpRtfBuilder;
 import eu.transkribus.core.util.CoreUtils;
+import eu.transkribus.core.util.PageXmlUtils;
 import net.sf.saxon.om.AllElementsSpaceStrippingRule;
 
 public class DocxBuilder {
@@ -119,12 +147,14 @@ public class DocxBuilder {
 
 	
 	TrpDoc doc;
-	static boolean exportTags = true;
-	static boolean doBlackening = true;
+	static boolean exportTags = false;
+	static boolean doBlackening = false;
 	static boolean markUnclearWords = false;
 	static boolean expandAbbrevs = false;
 	static boolean substituteAbbrevs = false;
 	static boolean preserveLineBreaks = false;
+	static boolean showSuppliedWithBrackets = false;
+	static boolean ignoreSupplied = false;
 	
 	//static Map<CustomTag, String> tags = new HashMap<CustomTag, String>();
 	static Set<String> tagnames = new HashSet<String>();
@@ -139,8 +169,8 @@ public class DocxBuilder {
 	/*
 	 * all lists necessary to export the tags in the right way
 	 */
-	//contains all gap offsets
-	static ArrayList<Integer> gapList = new ArrayList<Integer>();
+	//contains all gap offsets and the gap tag
+	static LinkedHashMap<Integer, GapTag> gapList = new LinkedHashMap<Integer, GapTag>();
 	static LinkedHashMap<Integer, String> commentList = new LinkedHashMap<Integer, String>();
 	//unclear list contains unclear begin as key and unclear end as value
 	static HashMap<Integer, Integer> unclearList = new HashMap<Integer, Integer>();
@@ -150,9 +180,12 @@ public class DocxBuilder {
 	//index: tags get stored as index in word and pressing F9 in word gives than this index list
 	static HashMap<Integer, ArrayList<CustomTag>> idxList = new HashMap<Integer, ArrayList<CustomTag>>();
 	
+	static LinkedHashMap<Integer, String> showSuppliedList = new LinkedHashMap<Integer, String>();
+	static LinkedHashMap<Integer, String> ignoreSuppliedList = new LinkedHashMap<Integer, String>();
+	
+
 	public static void main(String[] args) throws Exception {
-		
-		
+
 		WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.createPackage();
 		MainDocumentPart mdp = wordMLPackage.getMainDocumentPart();
 		
@@ -279,17 +312,20 @@ public class DocxBuilder {
 //		System.out.println("Done.");
 	}
 	
-	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackening, File file, Set<Integer> pageIndices, IProgressMonitor monitor, Set<String> selectedTags, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean replaceAbbrevs, boolean keepLineBreaks) throws JAXBException, IOException, Docx4JException, InterruptedException {
+	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackeningSensibleData, File file, Set<Integer> pageIndices, IProgressMonitor monitor, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean replaceAbbrevs, boolean keepLineBreaks, boolean showSuppliedInBrackets, boolean ignoreSuppliedTags) throws JAXBException, IOException, Docx4JException, InterruptedException {
 		
 	    //ch.qos.logback.classic.Logger root = logger.getClass().get(ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
 	    ((ch.qos.logback.classic.Logger) logger).setLevel(ch.qos.logback.classic.Level.DEBUG);
 	    
 		exportTags = writeTags;
-		tagnames = selectedTags;
+		doBlackening = doBlackeningSensibleData;
+		tagnames = ExportUtils.getOnlySelectedTagnames(ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames()));
 		markUnclearWords = markUnclear;
 		expandAbbrevs = expandAbbreviations;
 		preserveLineBreaks = keepLineBreaks;
 		substituteAbbrevs = replaceAbbrevs;
+		showSuppliedWithBrackets = showSuppliedInBrackets;
+		ignoreSupplied = ignoreSuppliedTags;
 		
 		/*
 		 * get all names of tags
@@ -297,11 +333,9 @@ public class DocxBuilder {
 		//tagnames = CustomTagFactory.getRegisteredTagNames();
 		
 		//main document part
-		WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.createPackage();
+		wordMLPackage = WordprocessingMLPackage.createPackage();
 		MainDocumentPart mdp = wordMLPackage.getMainDocumentPart();
-		
 
-		
 		org.docx4j.wml.ObjectFactory factory = Context.getWmlObjectFactory();
 		
 		List<TrpPage> pages = doc.getPages();
@@ -355,10 +389,10 @@ public class DocxBuilder {
 			
 			TrpPageType trpPage = tr.getPage();
 			
-			logger.debug("writing docx for page "+(i+1)+"/"+doc.getNPages());
+			logger.debug("writing docx for the page "+(i+1)+"/"+doc.getNPages());
 			
 
-			writeDocxForTranscript(mdp, trpPage, wordBased, preserveLineBreaks);
+			writeDocxForTranscriptWithTables(mdp, trpPage, wordBased, preserveLineBreaks);
 			atLeastOnePageWritten = true;
 			++c;
 			
@@ -511,11 +545,11 @@ public class DocxBuilder {
 		
 		/*
 		 * 	static boolean exportTags = true;
-	static boolean doBlackening = true;
-	static boolean markUnclearWords = false;
-	static boolean expandAbbrevs = false;
-	static boolean substituteAbbrevs = false;
-	static boolean preserveLineBreaks = false;
+			static boolean doBlackening = true;
+			static boolean markUnclearWords = false;
+			static boolean expandAbbrevs = false;
+			static boolean substituteAbbrevs = false;
+			static boolean preserveLineBreaks = false;
 		 */
 		addParagraph("", "Export Settings", mdp, "Title");
 		String tagSettings = (exportTags ? "Custom tags are indexed" : "Custom tags are not exported");
@@ -523,10 +557,10 @@ public class DocxBuilder {
 		String abbrevsSettings = (expandAbbrevs ? "Abbreviations are expanded (abbrev [expansion])" : (substituteAbbrevs ? "Abbreviations are subsituted by there expansion": "Abbreviations as they are (diplomatic text)"));
 		String unclearSettings = (markUnclearWords ? "Unclear words are marked" : "");
 		String lineBreakSettings = (preserveLineBreaks ? "Keep the line breaks as in the original document" : "Line breaks does not conform to the original text");
+		String suppliedSettings = (showSuppliedWithBrackets ? "Supplied tags are shown in brackets" : (ignoreSupplied ? "Supplied tags get ignored" : "Supplied tags are not marked specifically"));
 		
-		addParagraph("", blackeningSetting + " / " + tagSettings + " / " + abbrevsSettings + " / " + unclearSettings + " / " + lineBreakSettings, mdp, "Subtitle");
+		addParagraph("", blackeningSetting + " / " + tagSettings + " / " + abbrevsSettings + " / " + unclearSettings + " / " + lineBreakSettings + " / " + suppliedSettings, mdp, "Subtitle");
 
-		
 		addParagraph("", "Editorial Declaration: ", mdp, "Title");
 		for (EdFeature edfeat : doc.getEdDeclList()){
 			addParagraph("", edfeat.getTitle() + ": " + edfeat.getDescription() +"\n" + edfeat.getSelectedOption().toString(), mdp, "Subtitle");
@@ -557,124 +591,366 @@ public class DocxBuilder {
 		}
 		
 	}
-
-	private static void writeDocxForTranscript(MainDocumentPart mdp, TrpPageType trpPage,
+	
+	private static void writeDocxForTranscriptWithTables(MainDocumentPart mdp, TrpPageType trpPage,
 			boolean wordBased, boolean preserveLineBreaks) {
 		boolean rtl = false;
-		List<TrpTextRegionType> textRegions = trpPage.getTextRegions(true);
-
-		for (int j=0; j<textRegions.size(); ++j) {
-			TrpTextRegionType r = textRegions.get(j);
+		
+		//TrpTableRegionType is contained in the regions too
+		List<TrpRegionType> regions = trpPage.getRegions();
+		Collections.sort(regions, new TrpElementReadingOrderComparator<RegionType>(true));
+		
+		for (int j=0; j<regions.size(); ++j) {
+			TrpRegionType r = regions.get(j);
 			
-			
-//			if (exportTags){
-//				getTagsForShapeElement(r);
-//			}
-			
-			/*
-			 * create one paragraph for each text region
-			 * but only if there is some text in it
-			 */
-			String helper = r.getUnicodeText().replaceAll("\n", "");
-			
-			//logger.debug("region unicode text " + helper);
-			
-			if (!helper.equals("")){
+			if (r instanceof TrpTableRegionType){
+				logger.debug("is table");
+				TrpTableRegionType table = (TrpTableRegionType) r;
 				
-
+				int cols = table.getNCols();
+				int rows = table.getNRows();
 				
+	        	double maxX = PageXmlUtils.buildPolygon(table.getCoords().getPoints()).getBounds().getMaxX();
+	        	double minX = PageXmlUtils.buildPolygon(table.getCoords().getPoints()).getBounds().getMinX();
+	        	int tablesize = (int) (maxX - minX);
+				
+				List<List<TrpTableCellType>> allRowCells = new ArrayList<List<TrpTableCellType>>();
+				for (int k = 0; k<rows; k++){
+					allRowCells.add(table.getRowCells(k));
+				}
+				
+	            List<HashMap<Integer, TrpTableCellType>> allRows = new ArrayList<HashMap<Integer, TrpTableCellType>>();
+	            
+	            HashMap<Integer, TrpTableCellType> nextRowMap = new HashMap<Integer, TrpTableCellType>();
+	           
+	            for (List<TrpTableCellType> rowCells : allRowCells){
+	          
+	            	HashMap<Integer, TrpTableCellType> currRowMap = new HashMap<Integer, TrpTableCellType>();
+	            	
+	            	/*
+	            	 * fill up all cells which are not set in TRP (needed for vertical cell merge)
+	            	 * the nextRowMap contains already all cells which span vertically with the cells above - means they got merged 
+	            	 * in the table but have to be considered here 
+	            	 */
+    				currRowMap.putAll(nextRowMap);
+    				nextRowMap.clear();
+	            	
+	            	for (TrpTableCellType cell : rowCells){
+		            	//logger.debug("table cell text " + cell.getUnicodeTextFromLines());
+		            	currRowMap.put(cell.getCol(), cell);
+		            	if (cell.getRowSpan() > 1){
+		            		nextRowMap.put(cell.getCol(), null);
+		            	}
+	            	}
+	            	allRows.add(currRowMap);
+	            }
+
+	      		Tbl thisTable = getDocxTable(wordMLPackage, rows, cols, allRows, tablesize);
+	      			      		
+				mdp.addObject(thisTable);   
+				
+				Br br = factory.createBr(); // this Br element is used break the current and go for next line
 				org.docx4j.wml.P  p = factory.createP();
 				mdp.addObject(p);
-			
-			
+				p.getContent().add(br);
 
-				List<TextLineType> lines = r.getTextLine();
-				for (int i=0; i<lines.size(); ++i) {
-					TrpTextLineType trpL = (TrpTextLineType) lines.get(i);
+			}
+			else if (r instanceof TrpTextRegionType){
+				
+				TrpTextRegionType tr = (TrpTextRegionType) r;
+			
+				/*
+				 * create one paragraph for each text region
+				 * but only if there is some text in it
+				 */
+				String helper = tr.getUnicodeText().replaceAll("\n", "");
+				
+				//logger.debug("region unicode text " + helper);
+				
+				if (!helper.equals("")){
 					
-					try {
-						if (wordBased && trpL.getWord().size()>0){
-							getFormattedTextForLineElement(trpL.getWord(), p, mdp);
-						}
-						else {
-							getFormattedTextForShapeElement(trpL, p, mdp);
-							
-						}
+					org.docx4j.wml.P  p = factory.createP();
+					mdp.addObject(p);
 	
-	
-					
-	//				org.docx4j.wml.Text  t = factory.createText();
-	//				//create for each textline a run and add the text to it and than to the paragraph
-	//				t.setValue(trpL.getUnicodeText());
-					//org.docx4j.wml.R  run = factory.createR();
-					//run.getContent().add(t);		
-					
-	//					for (R run : runs){
-	//						p.getContent().add(run);
-	//					}
+					List<TextLineType> lines = tr.getTextLine();
+					for (int i=0; i<lines.size(); ++i) {
+						TrpTextLineType trpL = (TrpTextLineType) lines.get(i);
+												
+						String textOfCurrLine = trpL.getUnicodeText();
 						
-						
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					
-					/*add line break after each text line
-					 * or omit this if explicitely wished to have dense lines
-					 * No line break at end of paragraph
-					 */
-					if (preserveLineBreaks && !(i+1==lines.size()) ){
-						Br br = factory.createBr(); // this Br element is used break the current and go for next line
-						p.getContent().add(br);
-					}
-
+						try {
+							if (wordBased && trpL.getWord().size()>0){
+								getFormattedTextForLineElement(trpL.getWord(), p, mdp);
+							}
+							else {
+								getFormattedTextForShapeElement(trpL, p, mdp);
+								
+							}
 	
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						
+						/* with ¶ the user can mark a new paragraph inside a text region
+						 * unicode is \u00B6
+						 */
+						if (trpL.getCustomTagList().containsParagraphTag()){
+							//then new paragraph should be used;
+							p = factory.createP();
+							mdp.addObject(p);
+						}
+						/*add line break after each text line
+						 * or omit this if explicitely wished to have dense lines
+						 * No line break at end of paragraph
+						 */
+						else if (preserveLineBreaks && !(i+1==lines.size()) ){
+							Br br = factory.createBr(); // this Br element is used break the current and go for next line
+							p.getContent().add(br);
+						}
+	
+		
+					}
+	//								
+	//				linesTexts[i] = ((trpL.getUnicodeText().equals("") || wordBased) && trpL.getWord().size()>0) ? getRtfTextForLineFromWords(trpL) : getRtfTextForShapeElement(trpL);
+	//				linesTexts[i] = RtfText.text(linesTexts[i], "\n");
 				}
-//								
-//				linesTexts[i] = ((trpL.getUnicodeText().equals("") || wordBased) && trpL.getWord().size()>0) ? getRtfTextForLineFromWords(trpL) : getRtfTextForShapeElement(trpL);
-//				linesTexts[i] = RtfText.text(linesTexts[i], "\n");
-			}
-			
-			
-			
-
-			
-
-			/*
-			 * 
-			 * add comment test
-			 * 
-			 */
-//		      // Create a package
-//		      WordprocessingMLPackage wmlPack = new WordprocessingMLPackage();
-//		      // Create main document part content
-//		      org.docx4j.wml.Body  body = factory.createBody();      
-//		      org.docx4j.wml.Document wmlDocumentEl = factory.createDocument();
-//		      
-//		      wmlDocumentEl.setBody(body);
-//		      mdp.setJaxbElement(wmlDocumentEl);
-//		      wmlPack.addTargetPart(mdp);
-//		      
-//		      CommentsPart cp = new CommentsPart();
-//		      // Part must have minimal contents
-//		      Comments comments = factory.createComments();
-//		      cp.setJaxbElement(comments);
-//		      
-//		      mdp.addTargetPart(cp);
-						
-			//read from right to left -> alignment is right
-			if (rtl){
-				//paras[j] = RtfPara.p(linesTexts).footnote("Test").alignRight();
-			}
-			else{
-				String test = "test";
-				//paras[j] = RtfPara.p(linesTexts);
-				//paras[j] = RtfPara.p(linesTexts, RtfText.footnote("Test")).alignLeft();
 			}
 			
 		}
 				
 	}
+	
+	private static Tbl getDocxTable(WordprocessingMLPackage wPMLpackage, int rows, int cols, List<HashMap<Integer, TrpTableCellType>> allRows, int tablesize) {
+
+	    int writableWidthTwips = wPMLpackage.getDocumentModel().getSections()
+	                                        .get(0).getPageDimensions()
+	                                        .getWritableWidthTwips();
+
+	    int cellWidthTwips = new Double(
+	            Math.floor((writableWidthTwips / cols))
+	        ).intValue();
+
+	    Tbl table = TblFactory.createTable(0 , 0, cellWidthTwips);
+	    
+//	    TblPr tProps = factory.createTblPr();
+//	    table.setTblPr(tProps);
+//	    TblStyle tblStyle = factory.createCTTblPrBaseTblStyle();
+//	    tblStyle.setVal("TableGrid");
+//	    tProps.setTblStyle(tblStyle);
+//	    
+//	    
+//  		CTTblPPr _cttblpr = factory.createCTTblPPr();
+//  		tProps.setTblpPr(_cttblpr);
+//
+//  		_cttblpr.setLeftFromText( BigInteger.valueOf( 187) ); 
+//  		_cttblpr.setRightFromText( BigInteger.valueOf( 187) ); 
+//  		_cttblpr.setBottomFromText( BigInteger.valueOf( 4320) ); 
+//  		_cttblpr.setVertAnchor(org.docx4j.wml.STVAnchor.TEXT);
+//  		_cttblpr.setTblpY( BigInteger.valueOf( 1) ); 
+//  		
+//  	        // Create object for tblOverlap
+//        CTTblOverlap tbloverlap = factory.createCTTblOverlap(); 
+//        tProps.setTblOverlap(tbloverlap); 
+//        tbloverlap.setVal(org.docx4j.wml.STTblOverlap.NEVER);
+	    
+	    //this way table must not have a predefined size
+	   // Tbl table = factory.createTbl();
+	    
+//	    TblPr tblPr = factory.createTblPr();
+//        
+//        TblWidth tblW = factory.createTblWidth();
+//        tblW.setW( BigInteger.valueOf( writableWidthTwips ));
+//        tblW.setType( "dxa" );
+//        tblPr.setTblW( tblW );
+        
+        TblGrid tblGrid = factory.createTblGrid();
+        
+        for( int i = 0; i < cols; i++) {
+            TblGridCol col = factory.createTblGridCol();
+            col.setW( BigInteger.valueOf( cellWidthTwips ) );
+            tblGrid.getGridCol().add( col );
+        }
+       
+        table.setTblGrid( tblGrid );
+
+	    //Tr headerRow = (Tr) table.getContent().get(0);
+
+	    int i = 0;
+
+	    for (HashMap<Integer, TrpTableCellType> entry : allRows) {
+	        //Tr row = (Tr) table.getContent().get(i);
+	        
+	        Tr row = factory.createTr();
+	        table.getContent().add(row);
+
+	        i++;
+	        int d = 0;
+	        
+	        if (entry.keySet().size() != cols){
+	        	logger.debug("size of entries does not match columns ");
+	        }
+	        
+	        for (Integer key : entry.keySet()) {
+	        	Tc cell = factory.createTc();
+	           // Tc column = (Tc) row.getContent().get(key);
+	        	
+	        	row.getContent().add(cell);
+	        	
+	        	String rowSpan = null;
+	        	int colSpan = 1;
+	        	boolean mergedVertical = false;
+	        	
+	        	int colsize = cellWidthTwips;
+	        	
+	        	if (entry.get(key) != null){
+		        	if (entry.get(key).getRowSpan() > 1){
+		        		mergedVertical = true;
+		        		rowSpan = "restart";
+		        	}
+		        	
+		        	double maxX = PageXmlUtils.buildPolygon(entry.get(key).getCoords().getPoints()).getBounds().getMaxX();
+		        	double minX = PageXmlUtils.buildPolygon(entry.get(key).getCoords().getPoints()).getBounds().getMinX();
+		        	double colsizeRel = maxX - minX;
+		        	
+//		        	logger.debug("maxX " + maxX);
+//		        	logger.debug("minX " + minX);
+//		        	logger.debug("colsizeRel " + colsizeRel);
+//		        	logger.debug("tablesize " + tablesize);
+//		        	logger.debug("writableWidthTwips " + writableWidthTwips);
+		        	
+		        	double colsizetmp = colsizeRel/ (double) tablesize;
+//		        	logger.debug("colsizetmp " + colsizetmp);
+		        	colsize=(int) (writableWidthTwips*colsizetmp);
+		        	
+		        	colSpan = entry.get(key).getColSpan();
+		        	
+//		        	logger.debug("colsize " + colsize);
+//		        	logger.debug("text in this cell is " + entry.get(key).getUnicodeTextFromLines());
+		        	
+		        	int colID = entry.get(key).getCol();
+		        	int rowID = entry.get(key).getRow();
+	        	}
+	        	else{
+	        		//logger.debug("no cell for this column ");
+	        		mergedVertical = true;
+	        	}
+	        		        	
+	        	applyGridSpan(cell, colSpan, rowSpan, colsize, mergedVertical);
+	             
+	            P columnPara = factory.createP();
+	            //P columnPara = (P) column.getContent().get(0);
+	            
+	            cell.getContent().add(columnPara);
+	            d++;
+	            Text tx = factory.createText();
+	            R run = factory.createR();
+	            if (entry.get(key) != null){
+	            	tx.setValue(entry.get(key).getUnicodeTextFromLines());
+	            	//logger.debug(" text " + tx.getValue() + " colSpan " + entry.get(key).getColSpan() + " rowSpan " + entry.get(key).getRowSpan());
+	            }
+	            run.getContent().add(tx);
+	            columnPara.getContent().add(run);
+	            
+	        }
+	    }
+	    return table;
+	}
+	
+    private static void applyGridSpan( final Tc cell, final int colSpan, final String rowSpan, int w, boolean mergedVertical ) {
+    	
+        TcPr tcPr = factory.createTcPr();
+        TblWidth tblWidth = factory.createTblWidth();
+        tblWidth.setType( "dxa" );
+        tblWidth.setW( BigInteger.valueOf( w*colSpan ) );
+        tcPr.setTcW( tblWidth  );
+        
+        if ( colSpan > 1) {
+            GridSpan gridSpan = factory.createTcPrInnerGridSpan();
+            gridSpan.setVal(BigInteger.valueOf(colSpan));
+            tcPr.setGridSpan(gridSpan);
+        }
+        
+        if ( mergedVertical ) {
+        	//logger.debug(" this is vertical span");
+        	VMerge gridVSpan = factory.createTcPrInnerVMerge();
+        	if (rowSpan != null)
+        		gridVSpan.setVal(rowSpan);
+            tcPr.setVMerge(gridVSpan);
+                        
+        }
+       
+        cell.setTcPr(tcPr);
+    }
+   
+    
+/*
+ * was version before we esported tables too
+ */
+//	private static void writeDocxForTranscript(MainDocumentPart mdp, TrpPageType trpPage,
+//			boolean wordBased, boolean preserveLineBreaks) {
+//		boolean rtl = false;
+//		
+//		List<TrpTextRegionType> textRegions = trpPage.getTextRegions(true);
+//
+//		for (int j=0; j<textRegions.size(); ++j) {
+//			TrpTextRegionType r = textRegions.get(j);
+//			
+//			
+////			if (exportTags){
+////				getTagsForShapeElement(r);
+////			}
+//			
+//			/*
+//			 * create one paragraph for each text region
+//			 * but only if there is some text in it
+//			 */
+//			String helper = r.getUnicodeText().replaceAll("\n", "");
+//			
+//			//logger.debug("region unicode text " + helper);
+//			
+//			if (!helper.equals("")){
+//				
+//				org.docx4j.wml.P  p = factory.createP();
+//				mdp.addObject(p);
+//
+//				List<TextLineType> lines = r.getTextLine();
+//				for (int i=0; i<lines.size(); ++i) {
+//					TrpTextLineType trpL = (TrpTextLineType) lines.get(i);
+//					
+//					try {
+//						if (wordBased && trpL.getWord().size()>0){
+//							getFormattedTextForLineElement(trpL.getWord(), p, mdp);
+//						}
+//						else {
+//							getFormattedTextForShapeElement(trpL, p, mdp);
+//							
+//						}
+//
+//					} catch (Exception e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//					
+//					/*add line break after each text line
+//					 * or omit this if explicitely wished to have dense lines
+//					 * No line break at end of paragraph
+//					 */
+//					if (preserveLineBreaks && !(i+1==lines.size()) ){
+//						Br br = factory.createBr(); // this Br element is used break the current and go for next line
+//						p.getContent().add(br);
+//					}
+//
+//	
+//				}
+////								
+////				linesTexts[i] = ((trpL.getUnicodeText().equals("") || wordBased) && trpL.getWord().size()>0) ? getRtfTextForLineFromWords(trpL) : getRtfTextForShapeElement(trpL);
+////				linesTexts[i] = RtfText.text(linesTexts[i], "\n");
+//			}
+//			
+//		}
+//				
+//	}
 	
 	private static void getFormattedTextForLineElement(List<WordType> lines, P p, MainDocumentPart mdp) throws Exception{
 		
@@ -695,9 +971,7 @@ public class DocxBuilder {
 			}
 			wordCount++;
 		}
-		
-		
-		
+
 	}
 
 	private static void getFormattedTextForShapeElement(ITrpShapeType element, P p, MainDocumentPart mdp) throws Exception {
@@ -722,7 +996,8 @@ public class DocxBuilder {
 			    || Character.getDirectionality(textStr.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING
 			    || Character.getDirectionality(textStr.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_OVERRIDE
 			    ) {
-			//logger.debug("&&&&&&&& STRING IS RTL : ");
+			logger.debug("&&&&&&&& STRING IS RTL : ");
+			deleteCharAtIndex(0, textStr);
 			rtl = true;
 		}
 
@@ -764,7 +1039,8 @@ public class DocxBuilder {
 			 * 
 			 */
 			if (nonIndexedTag.getTagName().equals("gap")){
-				gapList.add(nonIndexedTag.getOffset());
+				GapTag gap = (GapTag) nonIndexedTag;
+				gapList.put(nonIndexedTag.getOffset(), gap);
 			}
 			
 			//unclear and comments can not be non-indexed
@@ -791,7 +1067,8 @@ public class DocxBuilder {
 			 * find all gaps and store the offset
 			 */
 			if (indexedTag.getTagName().equals("gap")){
-				gapList.add(indexedTag.getOffset());
+				GapTag gap = (GapTag) indexedTag;
+				gapList.put(indexedTag.getOffset(), gap);
 			}
 			
 			if (indexedTag.getTagName().equals("comment")){
@@ -828,8 +1105,28 @@ public class DocxBuilder {
 				}
 			}
 			
+			if (showSuppliedWithBrackets && indexedTag.getTagName().equals("supplied")){
+				//logger.debug("supplied tag found ");
+				SuppliedTag at = (SuppliedTag) indexedTag;
+				String text = at.getContainedText();
+				//only add if an expansion was typed
+				if (!text.equals("")){
+					showSuppliedList.put(indexedTag.getOffset(), text);
+				}
+			}
+			
+			if (ignoreSupplied && indexedTag.getTagName().equals("supplied")){
+				//logger.debug("supplied tag found ");
+				SuppliedTag at = (SuppliedTag) indexedTag;
+				String text = at.getContainedText();
+				//only add if an expansion was typed
+				if (!text.equals("")){
+					ignoreSuppliedList.put(indexedTag.getOffset(), text);
+				}
+			}
+			
 			//create index for all choosen tagnames
-			if (exportTags && tagnames.contains(indexedTag.getTagName())){
+			if (exportTags && tagnames.contains(indexedTag.getTagName()) && !indexedTag.getTagName().equals("gap")){
 				//logger.debug("export tag as idx entry " + indexedTag.getOffset());
 				addValuesToIdxList(idxList, indexedTag.getEnd(), indexedTag);
 			}
@@ -843,14 +1140,13 @@ public class DocxBuilder {
 		//ArrayList<R> runs = new ArrayList<R>();
 		
 		boolean shapeEnded = false;
-		int abbrevIdx = 0;
 		
-		for (int i=0; i<textStr.length(); ++i) {
+		for (int i=0; i<=textStr.length(); ++i) {
 			
 			//use of abbrevIdx: this is necessary for the appearance at the end of a textline
 			//otherwise the abbrev expansion would not appear at the end of a line because then the index i would be too small
-			abbrevIdx = i;
-			shapeEnded = (i+1 == textStr.length() ? true : false);
+
+			shapeEnded = (i+1 >= textStr.length() ? true : false);
 			
 			/*
 			 * is this case the abbrev gets totally replaced by its expansion
@@ -895,25 +1191,83 @@ public class DocxBuilder {
 				
 				listOfallRuns.add(abbrevRun);
 			}
-
+			
+			/*
+			 * in this case the supplied tag is expanded either with or without brackets
+			 * 
+			 */
+			if(showSuppliedList.containsKey(i)){
+				String exp = showSuppliedList.get(i);
+				if(rtl){
+					exp = reverseString(exp);
+				}
+				
+				org.docx4j.wml.Text suppliedText = factory.createText();
+				suppliedText.setValue("["+exp+"]");
+				
+				org.docx4j.wml.R  suppliedRun = factory.createR();
+				suppliedRun.getContent().add(suppliedText);
+				
+				listOfallRuns.add(suppliedRun);
+				
+				//supplied is handled now - so set i to the end of supplied
+				i += showSuppliedList.get(i).length();
+				shapeEnded = (i == textStr.length() ? true : false);
+			}
+			
+			/*
+			 * in this case the supplied tag gets ignored
+			 * this means that index i must be incremented by the length of this supplied tag text
+			 */
+			if(ignoreSuppliedList.containsKey(i)){
+				
+				i += ignoreSuppliedList.get(i).length();
+				shapeEnded = (i == textStr.length() ? true : false);
+				
+			}
+			
 			/*
 			 * gap is at this position
 			 * hence create extra run with [...] as value and then go on
+			 * of if suppied attribute is set handle supplied as set in the export settings
 			 */
-			if (gapList.contains(i)){
+			if (gapList.containsKey(i)){
 				org.docx4j.wml.Text  t = factory.createText();
-				if (!rtl)
-					t.setValue("[...] ");
-				else
-					t.setValue(" [...]");
+//				if (!rtl)
+//					t.setValue("[...] ");
+//				else
+//					t.setValue(" [...]");
 				
-				t.setSpace("preserve");
+				GapTag gt = gapList.get(i);
+				String cta = (String) gt.getAttributeValue("supplied");
+
+				//attribute supplied is set in the gap tag -> handle supplied as wanted
+				if (cta != null && !cta.equals("")){
+					//logger.debug("attribute: " + cta);
+					
+					//may the gap with supplied attribute gets ignored 
+					if(!ignoreSupplied){
+						if (showSuppliedWithBrackets){
+							t.setValue("["+cta+"]");
+						}
+						//do not show supplied attribute by default!?
+//						else{
+//							t.setValue(cta);
+//						}
+					}
+				}
+				//nothing supplied, so show [...] for the gap tag 
+				else{
+					t.setValue("[...]");
+					t.setSpace("preserve");
+				}
 				
 				org.docx4j.wml.R  run = factory.createR();
 				//p.getContent().add(run);
 				run.getContent().add(t);
-				
+
 				listOfallRuns.add(run);
+					
 			}
 			
 			//begin of unclear word should be marked with [ and end with ]
@@ -945,19 +1299,24 @@ public class DocxBuilder {
 				//logger.debug("&&&&&&&& current single char : " + currText);
 			}
 			
-			//soft break
-			if (currText.equals("¬") && !preserveLineBreaks){
+			/*
+			 * 2nd is (should be) soft hyphen with Unicode U+00AD
+			 * First arg is not sign and was initially used for soft hyphen by Diggitexx
+			 * need to be at the line end - otherwise 
+			 * 
+			 */
+			if ( (currText.equals("¬") || currText.equals("­") || currText.equals("-") ) && !preserveLineBreaks && shapeEnded){
 				break;
-			}		
+			}				
 			
 			org.docx4j.wml.Text  t = factory.createText();
 			t.setValue(currText);
 			t.setSpace("preserve");
-			
+
 			org.docx4j.wml.R  run = factory.createR();
 			//p.getContent().add(run);
 			run.getContent().add(t);
-			
+
 			listOfallRuns.add(run);
 			
 			//end of unclear tag
@@ -1051,30 +1410,30 @@ public class DocxBuilder {
 			/*
 			 * abbrev at end of shape (= line) -> means use (index + 1)
 			 */
-			if (shapeEnded){
-				if(expandAbbrevList.containsKey(i+1)){
-					logger.debug("abbrev is at end of shape!");
-					String exp = expandAbbrevList.get(i+1);
-					
-					if (!exp.equals("")){
-					
-						org.docx4j.wml.Text  abbrevText = factory.createText();
-						abbrevText.setValue("["+exp+"]");
-						
-						org.docx4j.wml.R  abbrevRun = factory.createR();
-						//p.getContent().add(abbrevRun);
-						abbrevRun.getContent().add(abbrevText);
-						
-						listOfallRuns.add(abbrevRun);
-					}
-				}
-				
-				if (idxList.containsKey(i+1)){
-
-					addIndexEntry(i+1, p, textStr, rtl);
-					
-				}
-			}
+//			if (shapeEnded){
+//				if(expandAbbrevList.containsKey(i+1)){
+//					logger.debug("abbrev is at end of shape!");
+//					String exp = expandAbbrevList.get(i+1);
+//					
+//					if (!exp.equals("")){
+//					
+//						org.docx4j.wml.Text  abbrevText = factory.createText();
+//						abbrevText.setValue("["+exp+"]");
+//						
+//						org.docx4j.wml.R  abbrevRun = factory.createR();
+//						//p.getContent().add(abbrevRun);
+//						abbrevRun.getContent().add(abbrevText);
+//						
+//						listOfallRuns.add(abbrevRun);
+//					}
+//				}
+//				
+//				if (idxList.containsKey(i+1)){
+//
+//					addIndexEntry(i+1, p, textStr, rtl);
+//					
+//				}
+//			}
 			
 			//find position of footnote/comment
 			if (commentList.containsKey(i)){
@@ -1178,6 +1537,12 @@ public class DocxBuilder {
 		sb.reverse();
 		return (sb.toString());
 	}
+	
+	private static String deleteCharAtIndex(int index, String text) {
+		StringBuilder sb = new StringBuilder(text);
+		sb.deleteCharAt(index);
+		return (sb.toString());
+	}
 
 	/*
 	 * 	static ArrayList<Integer> gapList = new ArrayList<Integer>();
@@ -1197,6 +1562,8 @@ public class DocxBuilder {
 		expandAbbrevList.clear();
 		substituteAbbrevList.clear();
 		idxList.clear();
+		showSuppliedList.clear();
+		ignoreSuppliedList.clear();
 		
 	}
 

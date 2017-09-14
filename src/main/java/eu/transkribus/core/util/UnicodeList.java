@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -15,42 +16,53 @@ import org.slf4j.LoggerFactory;
 public class UnicodeList implements Comparable<UnicodeList> {
 	private final static Logger logger = LoggerFactory.getLogger(UnicodeList.class);
 	
-	public final static String FOUR_DIGIT_HEX_VALUE_REGEX = "[0-9A-Fa-f]{4}";
+	public final static int minStringSize = 4;
+	public final static int maxStringSize = 5;
+	
+	private static int currentUnicodeStart = 0;
+	private static int currentUnicodeEnd = 0;
+	
+	//Astronomie (U+263D-2653) und Alchemie (U+1F700-1F77F)
+	public final static String FOUR_DIGIT_HEX_VALUE_REGEX = "[0-9A-Fa-f]{4,5}";
 	public final static String UNICODE_VALUE_REGEX = "U\\+"+FOUR_DIGIT_HEX_VALUE_REGEX;
 	public final static String UNICODE_VALUE_OPTIONAL_START_REGEX = "(U\\+)?"+FOUR_DIGIT_HEX_VALUE_REGEX;
 	public final static String UNICODE_RANGE_REGEX=UNICODE_VALUE_OPTIONAL_START_REGEX+"-"+UNICODE_VALUE_OPTIONAL_START_REGEX;
 	
 	String name;
-	List<Character> chars;
+	/*
+	 * unicode represented as Integer and as String (not as char because Supplementary Character (5 digits long) 
+	 * needs two chars
+	 */
+	List<Pair<Integer, String>> unicodes;
 	
 	public UnicodeList(String name, String unicodeString) {
 		this.name = name;
-		this.chars = parseUnicodeChars(unicodeString);
+		this.unicodes = parseUnicodeChars(unicodeString);
 	}
 	
-	public UnicodeList(String name, List<Character> chars) {
+	public UnicodeList(String name, List<Pair<Integer,String>> unicodes) {
 		this.name = name;
-		this.chars = chars;
+		this.unicodes = unicodes;
 	}
 
 	public UnicodeList(String name, char unicodeStart, char unicodeEnd) {
 		this.name = name;
 		
-        this.chars = new ArrayList<>();
+        this.unicodes = new ArrayList<>();
         for (Character c=unicodeStart; c<=unicodeEnd; ++c)
-        	chars.add(c);
+        	unicodes.add(Pair.of((int) c, Character.toString(c)));
 	}
 	
 	public void initChars(String unicodeString) {
-		this.chars = parseUnicodeChars(unicodeString);
+		this.unicodes = parseUnicodeChars(unicodeString);
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public List<Character> getChars() {
-		return chars;
+	public List<Pair<Integer,String>> getUnicodes() {
+		return unicodes;
 	}
 	
 //	public boolean addChar(Character c) {
@@ -78,6 +90,10 @@ public class UnicodeList implements Comparable<UnicodeList> {
 	}
 	
 	public static String toUnicodeString(int c) {
+//		logger.debug("int c " + c);
+//		logger.debug("Long.toHexString(c) " + Long.toHexString(c));
+//		logger.debug("StringUtils.leftPad(Long.toString(c,16), currLength, 1) " + StringUtils.leftPad(Long.toHexString(c), 4, "0"));
+		//return "U+"+StringUtils.leftPad(Integer.toHexString(c), currLength, "0");
 		return "U+"+StringUtils.leftPad(Integer.toHexString(c), 4, "0");
 	}
 	
@@ -98,39 +114,44 @@ public class UnicodeList implements Comparable<UnicodeList> {
 	}
 	
 	public String getUnicodeHexRange() {
-		List<Character> chars = new ArrayList<>(this.chars);
-		
-		Collections.sort(chars);
+		List<Pair<Integer,String>> strings = new ArrayList<>(this.unicodes);
+				
+		Collections.sort(strings);
 		
 	    StringBuilder sb = new StringBuilder();
-	    if (chars.size() == 0) return sb.toString();
-	    int begin = chars.get(0), end = chars.get(0);
-	    for (int cur : chars)
-	        if (cur - end <= 1)
+	    if (strings.size() == 0) return sb.toString();
+	    int begin = strings.get(0).getLeft(), end = strings.get(strings.size()-1).getLeft();
+	    ListIterator li = strings.listIterator();
+	    while (li.hasNext()){
+	    	Pair<Integer,String> pair = (Pair<Integer, String>) li.next();
+	    	int cur = pair.getLeft();	       
+	    	if (cur - end <= 1)
 	            end = cur;
 	        else {
 	            appendHexRange(sb, begin, end);
 	            begin = end = cur;
 	        }
+	    }
 	    appendHexRange(sb, begin, end);
 	    return sb.substring(1);
 	}
 	
 	
 
-	private static List<Character> parseUnicodeChars(String value) {
-		List<Character> chars = new ArrayList<>();
+	private static List<Pair<Integer, String>> parseUnicodeChars(String value) {
+		List<Pair<Integer,String>> unicodes = new ArrayList<>();
 		for (String split : value.split(" ")) {
-			logger.trace("split = "+split);
 			if (split.matches(UNICODE_RANGE_REGEX)) {
 				logger.trace("h1");
-				Pair<Character, Character> range;
+				Pair<String, String> range;
 				try {
-					range = parseRange(split);
-					for (Character c = range.getLeft(); c <= range.getRight(); ++c) {
-						logger.trace("adding char: "+c);
-						if (!chars.contains(c))
-							chars.add(c);
+					range = parseRange(split);				
+					for (int c = currentUnicodeStart; c <= currentUnicodeEnd; ++c) {
+						char[] codeUnits = Character.toChars(c);
+						String result = new String(codeUnits, 0, codeUnits.length);
+						logger.trace("adding string: "+result);
+						if (!unicodes.contains(result))
+							unicodes.add(Pair.of(c,result));
 					}					
 				} catch (IOException e) {
 					logger.error("Could not parse a unicode range: "+e.getMessage()+" - skipping values!");
@@ -139,13 +160,17 @@ public class UnicodeList implements Comparable<UnicodeList> {
 			else if (split.matches(UNICODE_VALUE_REGEX)) {
 				logger.trace("h2");
 				try {
-					Character c = parseUnicodeString(split);
+					Pair<Integer, String> c = parseUnicodeString(split);
+
 					logger.trace("adding char: "+c);
-					logger.trace("size before: "+chars.size());
-					if (!chars.contains(c))
-							chars.add(c);
+					logger.trace("size before: "+unicodes.size());
 					
-					logger.trace("size after: "+chars.size());
+					if (!unicodes.contains(c)){
+						unicodes.add(c);
+					}
+
+					logger.trace("size after: "+unicodes.size());
+					 
 				} catch (IOException e) {
 					logger.error("Could not parse a unicode value: "+e.getMessage()+" - skipping value!");
 				}
@@ -153,33 +178,38 @@ public class UnicodeList implements Comparable<UnicodeList> {
 			else {
 				logger.trace("h3, value length = "+value.length());
 				for (int j = 0; j < split.length(); ++j) {
-					Character c = new Character(split.charAt(j));
+					char c = split.charAt(j);
 					if (!Character.isWhitespace(c))
-						if (!chars.contains(c))
-							chars.add(c);
+						if (!unicodes.contains(c))
+							unicodes.add(Pair.of((int) c, Character.toString(c)));
 				}
 			}
 		}
-		logger.debug("returning chars: "+chars.size()+" as str: "+StringUtils.join(chars, ","));
-		return chars;
+		logger.debug("returning chars: "+unicodes.size()+" as str: "+StringUtils.join(unicodes, ","));
+		return unicodes;
 	}
 	
-	private static Character parseUnicodeString(String str) throws IOException {
+	private static Pair<Integer,String> parseUnicodeString(String str) throws IOException {
 		if (str == null)
 			throw new IOException("Given string is null");
 		
 		str = StringUtils.removeStart(str, "U+");
-		if (str.length() != 4)
-			throw new IOException("Given string must have size 4: "+str);
+		if (str.length() < minStringSize || str.length() > maxStringSize)
+			throw new IOException("Given string must have size from: " + minStringSize + " to " + maxStringSize + " "+str);
 		
 		try {
-			return (char) Integer.parseInt(str, 16);
+			//this way we got from an Unicode String its String representation
+			int tmp = Integer.parseInt(str, 16);
+			char[] codeUnits = Character.toChars(tmp);
+			String result = new String(codeUnits, 0, codeUnits.length);
+			//logger.debug("char as string " + result);
+			return Pair.of(tmp, result);
 		} catch (NumberFormatException e) {
 			throw new IOException("Error parsing unicode value: "+e.getMessage()+" str = "+str, e);
 		}
 	}
 	
-	private static Pair<Character, Character> parseRange(String value) throws IOException {
+	private static Pair<String, String> parseRange(String value) throws IOException {
 		if (!value.contains("-"))
 			throw new IOException("Range does not contain a dash: "+value);
 		
@@ -187,14 +217,27 @@ public class UnicodeList implements Comparable<UnicodeList> {
 		if (splits.length!=2)
 			throw new IOException("Range does not have two values: "+value);
 		
-		Character start = parseUnicodeString(splits[0]);
-		Character end = parseUnicodeString(splits[1]);
+		Pair<Integer, String> start = parseUnicodeString(splits[0]);
+		Pair<Integer, String> end = parseUnicodeString(splits[1]);
 		
-		return Pair.of(start, end);
+		currentUnicodeStart = start.getLeft();
+		currentUnicodeEnd = end.getLeft();
+		
+		return Pair.of(start.getRight(), end.getRight());
 	}
 
 	@Override public int compareTo(UnicodeList o) {
 		return name.compareTo(o.name);
+	}
+
+	public List<String> getUnicodesAsStrings() {
+		// TODO Auto-generated method stub
+		List<String> strings = new ArrayList<String>();
+		List<Pair<Integer, String>> list = getUnicodes();
+		for (Pair<Integer, String> pair : list){
+			strings.add(pair.getRight());
+		}
+		return strings;
 	}	
 	
 

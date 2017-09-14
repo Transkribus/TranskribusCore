@@ -4,8 +4,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import org.apache.commons.io.FileUtils;
+
+import eu.transkribus.core.model.beans.TrpDoc;
+import eu.transkribus.core.model.beans.TrpPage;
+import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 
 public class ChecksumUtils {
 	
@@ -37,6 +44,16 @@ public class ChecksumUtils {
 		// }
 		// md.digest();
 
+	}
+	
+	public static String getMd5SumHex(URL url) throws IOException{
+		if(!url.getProtocol().contains("file")){
+			throw new IllegalArgumentException(url + " is not a local file!");
+		}
+		final String chkSum;
+		File f = FileUtils.toFile(url);
+		chkSum = ChecksumUtils.getMd5SumHex(f);
+		return chkSum;
 	}
 
 	public static String getMd5SumHex(File f) throws IOException {

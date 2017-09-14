@@ -1,37 +1,118 @@
 package eu.transkribus.core.model.builder.tei;
 
-import eu.transkribus.core.model.builder.ExportPars;
-
-
-
 /**
  * TEI specific extension of ExportPars
  */
-public class TeiExportPars extends ExportPars {
-	public enum TeiExportMode {
-		SIMPLE(1),
-		ZONE_PER_PAR(2),
-		ZONE_PER_LINE(3),
-		ZONE_PER_WORD(4);
+public class TeiExportPars {
+	public static final String PARAMETER_KEY = "teiPars";
+	
+	public static final String LINE_BREAK_TYPE_LINE_TAG = "LINE_TAG";
+	public static final String LINE_BREAK_TYPE_LINE_BREAKS = "LINE_BREAKS";
+	
+//	CommonExportPars commonPars = new CommonExportPars();
 		
-		int val;
-		private TeiExportMode(int val) {
-			this.val = val;
-		}
+	boolean regionZones=true;
+	boolean lineZones=true;
+	boolean wordZones=false;
+	boolean boundingBoxCoords=false;
+	String linebreakType = LINE_BREAK_TYPE_LINE_TAG;
+	
+	boolean lineBreakAtBeginningOfLine=true;
+	boolean pbImageNameAsXmlId=true;
+	
+	boolean lineXmlIds=false; // FIXME
+		
+	public TeiExportPars() {
+	}
+
+	public TeiExportPars(boolean regionZones, boolean lineZones, boolean wordZones, boolean boundingBoxCoords,
+			String linebreakType) {
+		super();
+		this.regionZones = regionZones;
+		this.lineZones = lineZones;
+		this.wordZones = wordZones;
+		this.boundingBoxCoords = boundingBoxCoords;
+		this.linebreakType = linebreakType;
+	}
+
+	public boolean isRegionZones() {
+		return regionZones;
+	}
+
+	public void setRegionZones(boolean regionZones) {
+		this.regionZones = regionZones;
+	}
+
+	public boolean isLineZones() {
+		return lineZones;
+	}
+
+	public void setLineZones(boolean lineZones) {
+		this.lineZones = lineZones;
+	}
+
+	public boolean isWordZones() {
+		return wordZones;
+	}
+
+	public void setWordZones(boolean wordZones) {
+		this.wordZones = wordZones;
+	}
+
+	public boolean isBoundingBoxCoords() {
+		return boundingBoxCoords;
+	}
+
+	public void setBoundingBoxCoords(boolean boundingBoxCoords) {
+		this.boundingBoxCoords = boundingBoxCoords;
+	}
+
+	public String getLinebreakType() {
+		return linebreakType;
+	}
+
+	public void setLinebreakType(String linebreakType) {
+		this.linebreakType = linebreakType;
+	}
+
+	// utility methods:
+	public boolean hasZones() {
+		return regionZones == true || lineZones == true || wordZones == true;
 	}
 	
-	public enum TeiLinebreakMode {
-		LINE_TAG, // lines are covered with <l> ... </l>
-		LINE_BREAKS; // lines are ended by linebreak tag <lb>
+	public boolean isLineBreakType() {
+		return linebreakType == TeiExportPars.LINE_BREAK_TYPE_LINE_BREAKS;
 	}
 	
-	
-	public TeiExportMode mode = TeiExportMode.ZONE_PER_LINE;
-	public TeiLinebreakMode linebreakMode = TeiLinebreakMode.LINE_TAG;
-	
-	@Override public String toString() {
-		return "TeiExportPars [mode=" + mode + ", linebreakMode=" + linebreakMode + ", writeTextOnWordLevel=" + writeTextOnWordLevel + ", doBlackening="
-				+ doBlackening + ", pageIndices=" + pageIndices + ", selectedTags=" + selectedTags + "]";
+	public boolean isLineTagType() {
+		return linebreakType == TeiExportPars.LINE_BREAK_TYPE_LINE_TAG;
 	}
+
+	public boolean isLineBreakAtBeginningOfLine() {
+		return lineBreakAtBeginningOfLine;
+	}
+
+	public void setLineBreakAtBeginningOfLine(boolean lineBreakAtBeginningOfLine) {
+		this.lineBreakAtBeginningOfLine = lineBreakAtBeginningOfLine;
+	}
+
+	public boolean isPbImageNameAsXmlId() {
+		return pbImageNameAsXmlId;
+	}
+
+	public void setPbImageNameAsXmlId(boolean pbImageNameAsXmlId) {
+		this.pbImageNameAsXmlId = pbImageNameAsXmlId;
+	}
+
+	@Override
+	public String toString() {
+		return "TeiExportPars [regionZones=" + regionZones + ", lineZones=" + lineZones + ", wordZones=" + wordZones
+				+ ", boundingBoxCoords=" + boundingBoxCoords + ", linebreakType=" + linebreakType
+				+ ", lineBreakAtBeginningOfLine=" + lineBreakAtBeginningOfLine + ", pbImageNameAsXmlId="
+				+ pbImageNameAsXmlId + "]";
+	}
+
+
+	
 
 }

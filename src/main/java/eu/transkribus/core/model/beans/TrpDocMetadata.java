@@ -2,6 +2,7 @@ package eu.transkribus.core.model.beans;
 
 import java.io.File;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -67,6 +68,15 @@ public class TrpDocMetadata implements Serializable, Comparable<TrpDocMetadata> 
 	@Transient
 	private int nrOfPages;
 	
+	@Column(name="IMG_ID")
+	private Integer imageId;
+	@Column
+	@Transient
+	private URL url;
+	@Column
+	@Transient
+	private URL thumbUrl;
+	
 	@Column(name="EXTID")
 	private String externalId;
 	
@@ -102,6 +112,36 @@ public class TrpDocMetadata implements Serializable, Comparable<TrpDocMetadata> 
 	
 	public TrpDocMetadata() {}
 	
+	public TrpDocMetadata(TrpDocMetadata md) {
+		this();
+		docId = md.getDocId();
+		title = md.getTitle();
+		author = md.getAuthor();
+		uploadTimestamp = md.getUploadTimestamp();
+		genre = md.getGenre();
+		writer = md.getWriter();
+		scriptType = md.getScriptType();
+		uploader = md.getUploader();
+		uploaderId = md.getUploaderId();
+		nrOfPages = md.getNrOfPages();
+		externalId = md.getExternalId();
+		desc = md.getDesc();
+		type = md.getType();
+		language = md.getLanguage();
+		status = md.getStatus();
+		fimgStoreColl = md.getFimgStoreColl();
+		localFolder = md.getLocalFolder();
+		createdFromTimestamp = md.getCreatedFromTimestamp();
+		createdToTimestamp = md.getCreatedToTimestamp();
+		origDocId = md.getOrigDocId();
+		imageId = md.getImageId();
+		url = md.getUrl();
+		thumbUrl = md.getThumbUrl();
+		for(TrpCollection c : md.getColList()) {
+			colList.add(new TrpCollection(c));
+		}
+	}
+
 	public int getDocId() {
 		return docId;
 	}
@@ -302,6 +342,30 @@ public class TrpDocMetadata implements Serializable, Comparable<TrpDocMetadata> 
 		this.origDocId = origDocId;
 	}
 	
+	public Integer getImageId() {
+		return imageId;
+	}
+
+	public void setImageId(Integer imageId) {
+		this.imageId = imageId;
+	}
+
+	public URL getUrl() {
+		return url;
+	}
+
+	public void setUrl(URL url) {
+		this.url = url;
+	}
+
+	public URL getThumbUrl() {
+		return thumbUrl;
+	}
+
+	public void setThumbUrl(URL thumbUrl) {
+		this.thumbUrl = thumbUrl;
+	}
+
 	public String getColString() {
 		String colsStr = "";
 		if (getColList() != null) {
@@ -322,7 +386,7 @@ public class TrpDocMetadata implements Serializable, Comparable<TrpDocMetadata> 
 		if (this.getDocId() > md.getDocId()) {
 			return 1;
 		}
-		if (md.getDocId() < md.getDocId()) {
+		if (this.getDocId() < md.getDocId()) {
 			return -1;
 		}
 		return 0;
@@ -370,5 +434,146 @@ public class TrpDocMetadata implements Serializable, Comparable<TrpDocMetadata> 
 			throw new AssertionError(); //can't happen
 		}
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((author == null) ? 0 : author.hashCode());
+		result = prime * result + ((colList == null) ? 0 : colList.hashCode());
+		result = prime * result + ((createdFromTimestamp == null) ? 0 : createdFromTimestamp.hashCode());
+		result = prime * result + ((createdToTimestamp == null) ? 0 : createdToTimestamp.hashCode());
+		result = prime * result + ((desc == null) ? 0 : desc.hashCode());
+		result = prime * result + docId;
+		result = prime * result + ((externalId == null) ? 0 : externalId.hashCode());
+		result = prime * result + ((fimgStoreColl == null) ? 0 : fimgStoreColl.hashCode());
+		result = prime * result + ((genre == null) ? 0 : genre.hashCode());
+		result = prime * result + ((language == null) ? 0 : language.hashCode());
+		result = prime * result + ((localFolder == null) ? 0 : localFolder.hashCode());
+		result = prime * result + nrOfPages;
+		result = prime * result + ((origDocId == null) ? 0 : origDocId.hashCode());
+		result = prime * result + ((scriptType == null) ? 0 : scriptType.hashCode());
+		result = prime * result + ((status == null) ? 0 : status.hashCode());
+		result = prime * result + ((title == null) ? 0 : title.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + (int) (uploadTimestamp ^ (uploadTimestamp >>> 32));
+		result = prime * result + ((uploader == null) ? 0 : uploader.hashCode());
+		result = prime * result + uploaderId;
+		result = prime * result + ((writer == null) ? 0 : writer.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TrpDocMetadata other = (TrpDocMetadata) obj;
+		if (author == null) {
+			if (other.author != null)
+				return false;
+		} else if (!author.equals(other.author))
+			return false;
+		if (colList == null) {
+			if (other.colList != null)
+				return false;
+		} else if (!colList.equals(other.colList))
+			return false;
+		if (createdFromTimestamp == null) {
+			if (other.createdFromTimestamp != null)
+				return false;
+		} else if (!createdFromTimestamp.equals(other.createdFromTimestamp))
+			return false;
+		if (createdToTimestamp == null) {
+			if (other.createdToTimestamp != null)
+				return false;
+		} else if (!createdToTimestamp.equals(other.createdToTimestamp))
+			return false;
+		if (desc == null) {
+			if (other.desc != null)
+				return false;
+		} else if (!desc.equals(other.desc))
+			return false;
+		if (docId != other.docId)
+			return false;
+		if (externalId == null) {
+			if (other.externalId != null)
+				return false;
+		} else if (!externalId.equals(other.externalId))
+			return false;
+		if (fimgStoreColl == null) {
+			if (other.fimgStoreColl != null)
+				return false;
+		} else if (!fimgStoreColl.equals(other.fimgStoreColl))
+			return false;
+		if (genre == null) {
+			if (other.genre != null)
+				return false;
+		} else if (!genre.equals(other.genre))
+			return false;
+		if (language == null) {
+			if (other.language != null)
+				return false;
+		} else if (!language.equals(other.language))
+			return false;
+		if (localFolder == null) {
+			if (other.localFolder != null)
+				return false;
+		} else if (!localFolder.equals(other.localFolder))
+			return false;
+		if (nrOfPages != other.nrOfPages)
+			return false;
+		if (origDocId == null) {
+			if (other.origDocId != null)
+				return false;
+		} else if (!origDocId.equals(other.origDocId))
+			return false;
+		if (scriptType != other.scriptType)
+			return false;
+		if (status == null) {
+			if (other.status != null)
+				return false;
+		} else if (!status.equals(other.status))
+			return false;
+		if (title == null) {
+			if (other.title != null)
+				return false;
+		} else if (!title.equals(other.title))
+			return false;
+		if (type != other.type)
+			return false;
+		if (uploadTimestamp != other.uploadTimestamp)
+			return false;
+		if (uploader == null) {
+			if (other.uploader != null)
+				return false;
+		} else if (!uploader.equals(other.uploader))
+			return false;
+		if (uploaderId != other.uploaderId)
+			return false;
+		if (writer == null) {
+			if (other.writer != null)
+				return false;
+		} else if (!writer.equals(other.writer))
+			return false;
+		if (imageId != other.imageId)
+			return false;
+		if (thumbUrl == null) {
+			if (other.thumbUrl != null)
+				return false;
+		} else if (!thumbUrl.equals(other.thumbUrl))
+			return false;
+		if (url == null) {
+			if (other.url != null)
+				return false;
+		} else if (!url.equals(other.url))
+			return false;
+		return true;
+	}
+	
+	
 
 }

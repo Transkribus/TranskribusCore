@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.junit.Assert;
 import org.slf4j.Logger;
@@ -24,8 +24,9 @@ import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
+import eu.transkribus.core.model.builder.CommonExportPars;
 import eu.transkribus.core.model.builder.ExportUtils;
-import eu.transkribus.core.model.builder.tei.TeiExportPars.TeiExportMode;
+import eu.transkribus.core.util.CoreUtils;
 
 public abstract class ATeiBuilder {
 	@SuppressWarnings("unused")
@@ -45,38 +46,48 @@ public abstract class ATeiBuilder {
 	
 	IProgressMonitor monitor;
 	
-//	Set<Integer> pageIndices;
+	Set<Integer> pageIndices;
+	
 //	Set<String> selectedTags;
 	
+	CommonExportPars commonPars;
 	TeiExportPars pars;
 	
-	public ATeiBuilder(TrpDoc doc, TeiExportMode mode, IProgressMonitor monitor, Set<Integer> pageIndices, Set<String> selectedTags) {
-		this.trpDoc = doc;
-		this.transcrBuffer = new HashMap<>();
-		
-		this.pars = new TeiExportPars();
-		pars.mode = mode;
-		pars.pageIndices = pageIndices;
-		pars.selectedTags = selectedTags;
-		
-//		this.mode = mode;
-		this.monitor = monitor;
-//		this.pageIndices = pageIndices;
-//		this.selectedTags = selectedTags;
-		
-		Assert.assertNotNull("tei pars is null!", this.pars);
-	}
+//	public ATeiBuilder(TrpDoc doc, TeiExportMode mode, IProgressMonitor monitor, Set<Integer> pageIndices, Set<String> selectedTags) {
+//		this.trpDoc = doc;
+//		this.transcrBuffer = new HashMap<>();
+//		
+//		this.pars = new TeiExportPars();
+//		pars.mode = mode;
+//		pars.pageIndices = pageIndices;
+//		pars.selectedTags = selectedTags;
+//		
+////		this.mode = mode;
+//		this.monitor = monitor;
+////		this.pageIndices = pageIndices;
+////		this.selectedTags = selectedTags;
+//		
+//		Assert.assertNotNull("tei pars is null!", this.pars);
+//	}
 	
-	public ATeiBuilder(TrpDoc doc, TeiExportPars pars, IProgressMonitor monitor) {
+	public ATeiBuilder(TrpDoc doc, CommonExportPars commonPars, TeiExportPars pars, IProgressMonitor monitor) {
 		this.trpDoc = doc;
 		this.transcrBuffer = new HashMap<>();
 		this.monitor = monitor;
 		
-		if (pars != null)
-			this.pars = pars;
-		else
-			this.pars = new TeiExportPars();
+		this.commonPars = commonPars==null ? new CommonExportPars() : commonPars;
+		this.pars = pars==null ? new TeiExportPars() : pars;
 		
+		this.pageIndices = null; // null means every page
+		if (!StringUtils.isEmpty(commonPars.getPages())) { // no pages string in job means parse every page
+			try {
+				pageIndices = CoreUtils.parseRangeListStr(commonPars.getPages(), doc.getNPages());
+			} catch (IOException e) {
+				pageIndices = null;
+				logger.error("Could not parse pages string: "+commonPars.getPages()+" - exporting all pages!");
+			}
+		}
+
 		Assert.assertNotNull("tei pars is null!", this.pars);
 	}
 	
@@ -88,9 +99,9 @@ public abstract class ATeiBuilder {
 		this.monitor = monitor;
 	}
 
-	public void setMode(final TeiExportMode mode) throws JAXBException, ParserConfigurationException{
-		this.pars.mode = mode;
-	}
+//	public void setMode(final TeiExportMode mode) throws JAXBException, ParserConfigurationException{
+//		this.pars.mode = mode;
+//	}
 	
 	public abstract String getTeiAsString();
 	

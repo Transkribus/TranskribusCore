@@ -132,6 +132,7 @@ public class CustomTagFactory {
 			CustomTagFactory.addToRegistry(new WorkTag());
 			CustomTagFactory.addToRegistry(new SicTag());
 			CustomTagFactory.addToRegistry(new GapTag());
+			CustomTagFactory.addToRegistry(new DivTag());
 			CustomTagFactory.addToRegistry(new UnclearTag());
 			CustomTagFactory.addToRegistry(new BlackeningTag());
 			CustomTagFactory.addToRegistry(new SuppliedTag());
@@ -279,7 +280,7 @@ public class CustomTagFactory {
 			// register the class for this custom tag: 
 			registry.put( ct.getTagName(), ctCopy.getClass() );
 			// register the object for this custom tag:		
-			logger.debug("adding prototype tag object to registry: "+ctCopy);
+			logger.trace("adding prototype tag object to registry: "+ctCopy);
 			objectRegistry.put(ct.getTagName(), ctCopy);
 			
 			if (color == null) // color not given -> get default color
@@ -365,6 +366,28 @@ public class CustomTagFactory {
 	
 	public static Collection<CustomTag> getRegisteredTagObjects() { return objectRegistry.values(); }
 //	public static Map<String, CustomTag> getRegisteredObjects() { return objectRegistry; } 
+	
+	public static Set<CustomTagAttribute> getTagAttributes(String tagName) {
+		CustomTag t = getTagObjectFromRegistry(tagName);
+		if (t == null)
+			return null;
+		
+		return t.getAttributes();
+	}
+	
+	public static CustomTagAttribute getAttribute(String tagName, String attributeName) {
+		Set<CustomTagAttribute> atts = getTagAttributes(tagName);
+		if (atts == null)
+			return null;
+		
+		for (CustomTagAttribute a : atts) {
+			if (a.getName().equals(attributeName)) {
+				return a;
+			}
+		}
+	
+		return null;
+	}
 	
 	public static CustomTag create(String tagName) throws Exception {
 		return create(tagName, new HashMap<String, Object>());

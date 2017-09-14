@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -188,10 +189,13 @@ public class CssSyntaxTag {
 	}
 	
 	public static HashMap<String, Object> parseCssAttributes(String attributeString) throws ParseException {
+		HashMap<String, Object> attrs = new HashMap<String, Object>();
+		if (StringUtils.isEmpty(attributeString))
+			return attrs;
+		
 //		logger.debug("attribute string: "+attributeString);
 		Matcher matcher = CSS_ATTRIBUTE_PATTERN.matcher(attributeString);
 		
-		HashMap<String, Object> attrs = new HashMap<String, Object>();
 		while (matcher.find()) {
 			String attrStr = matcher.group();
 			attrStr = attrStr.replaceAll(";", "");

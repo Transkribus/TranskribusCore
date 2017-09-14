@@ -135,6 +135,15 @@ public class TrpTableRegionType extends TableRegionType implements ITrpShapeType
 		OVERLAP;
 	}
 	
+	public TrpTableCellType getCell(int row, int col) {
+		for (TrpTableCellType c : getTrpTableCell()) {
+			if (c.getRowRange().isInside(row) && c.getColRange().isInside(col)) {
+				return c;
+			}
+		}
+		return null;
+	}
+	
 	public List<TrpTableCellType> getCells(boolean rowCells, GetCellsType type, int index) {
 		return getCells(rowCells, type, index, 1);
 	}

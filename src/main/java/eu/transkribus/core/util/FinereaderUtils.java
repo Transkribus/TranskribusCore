@@ -58,10 +58,51 @@ public class FinereaderUtils {
 		regexRepl = buildRegexReplMap(repl, eolRepl);
 	}
 	
+	/*
+	 * EU languages:
+	 *  	
+    Bulgarian
+    Croatian
+    Czech
+    Danish
+    Dutch
+    English
+    Estonian
+    Finnish
+    French
+    German
+    Greek
+    Hungarian
+    Irish
+    Italian
+    Latvian
+    Lithuanian
+    Maltese
+    Polish
+    Portuguese
+    Romanian
+    Slovak
+    Slovenian
+    Spanish
+    Swedish
+    
+    semi official:
+    Basque
+    Catalan
+    Galician
+    Scottish Gaelic
+    Welsh
+
+
+	 */
 	public final static String[] FINEREADER_LANGUAGES = new String[] {
 		//because we have no license for Arabic
+	
 		//"Arabic",
+		"Bulgarian",
+		"Croatian",
 		"Czech",
+		"Danish",
 		"Dutch",
 		"English",
 		"Estonian",
@@ -69,24 +110,38 @@ public class FinereaderUtils {
 		"French",
 		"German",
 		"Greek",
+		"Hungarian",
+		"Irish",
 		"Italian",
-		"Spanish",
 		"Latvian",
+	    "Lithuanian",
+	    "Maltese",
 		"Polish",
+		"PortugueseBrazilian",
+		"PortugueseStandard",
+		"Romanian",
 		"Russian",
 		"SerbianCyrillic",
 		"SerbianLatin",
+	    "Slovak",
+	    "Slovenian",
+		"Spanish",
+		"Swedish",
 		"Turkish",
-		"OldGerman",
 		"OldEnglish",
 		"OldFrench",
+		"OldGerman",
+		"OldItalian",
 		"LatvianGothic",
 		"RussianOldSpelling",
 		"Ukrainian",
 		"Yiddish",
-		"Swedish",
-		"Latin",
-		"OldItalian",
+		"Latin",	
+		"Basque",
+		"Catalan",
+		"GaelicScottish",
+		"Galician",
+		"Welsh",
 	};
 	
 	public static boolean isFinreaderLanguage(String l) {

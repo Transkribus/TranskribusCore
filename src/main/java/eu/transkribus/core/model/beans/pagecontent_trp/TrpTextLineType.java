@@ -39,13 +39,11 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	TrpObservable observable = new TrpObservable(this);
 	TrpTextRegionType region;
 	Object data;
-	List<TaggedWord> taggedWords = new ArrayList<>();
 	CustomTagList customTagList;
 	
 	public TrpTextLineType() {
 		super();
 		customTagList = new CustomTagList(this);
-		updateTaggedWords();
 	}
 	
 	public TrpTextLineType(TrpTextRegionType region) {
@@ -90,7 +88,7 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	    textStyle = BeanCopyUtils.copyTextStyleType(src.textStyle);
 	    primaryLanguage = src.primaryLanguage;
 	    production = src.production;
-	    
+	    	    
 	    src.getCustomTagList().writeToCustomTag();
 	    if (src.custom != null)
 	    	custom = new String(src.custom);
@@ -100,7 +98,6 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	    // copy new fields:
 		region = src.region;
 		data = src.data;
-		taggedWords = new ArrayList<>(src.taggedWords);
 		
 		customTagList = new CustomTagList(this);
 	}	
@@ -128,21 +125,12 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	
 	public int getIndex() { return region.getLineIndex(this); }
 		
-	@Deprecated
-	public List<TaggedWord> getTaggedWords() {
-		return taggedWords;
-	}
-	
 	public void clearTextForAllWords(Object who) {
 		for (WordType w : getWord()) {
 			TrpWordType tw = (TrpWordType) w;
 			tw.setUnicodeText("", who);
 		}
 //		applyTextFromWords();
-	}
-		
-	public void updateTaggedWords() {
-		taggedWords = LineTags.getTaggedWords(this);
 	}
 		
 	public TrpPageType getPage() {
@@ -233,15 +221,15 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	@Override
 	public void swap(int direction){
 		int i = this.getIndex();
-		
+		//UP
 		if (direction == 0){
 			if (i>0){
 					
 				Collections.swap(getRegion().getTextLine(), i, i-1);
 				
-				setReadingOrder(getReadingOrder()-1, TrpTextLineType.class);
-				//getRegion().getChildren(false).get(i-1).setReadingOrder(getReadingOrder()+1, TrpTextLineType.class);
-				//getRegion().sortLines();
+				//setReadingOrder(getReadingOrder()-1, TrpTextLineType.class);
+				getRegion().getChildren(false).get(i-1).setReadingOrder(getReadingOrder()-1, TrpTextLineType.class);
+				getRegion().sortLines();
 				observable.setChangedAndNotifyObservers(new TrpReadingOrderChangedEvent(this));
 				
 			}
@@ -252,9 +240,9 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 			if (i<(getRegion().getTextLine().size()-1)){
 				
 				Collections.swap(getRegion().getTextLine(), i, i+1);
-				//getRegion().getChildren(false).get(i+1).setReadingOrder(getReadingOrder()+1, TrpTextLineType.class);
-				setReadingOrder(getReadingOrder()+1, TrpTextLineType.class);
-//				getRegion().sortLines();
+				getRegion().getChildren(false).get(i).setReadingOrder(getReadingOrder()-1, TrpTextLineType.class);
+				//setReadingOrder(getReadingOrder()+1, TrpTextLineType.class);
+				getRegion().sortLines();
 				observable.setChangedAndNotifyObservers(new TrpReadingOrderChangedEvent(this));
 				
 			}
@@ -525,6 +513,10 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	@SuppressWarnings("unchecked")
 	public List<TrpWordType> getTrpWord() {
 		return (List<TrpWordType>)(Object) getWord();
+	}
+	
+	public TrpBaselineType getTrpBaseline() {
+		return ((TrpBaselineType) getBaseline());
 	}
 
 }

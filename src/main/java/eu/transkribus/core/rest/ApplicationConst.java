@@ -11,6 +11,7 @@ public class ApplicationConst {
 	public static final String ALL_APPS = "ALL";
 	public static final String TRP_APP = "TRP";
 	public static final String TSX_APP = "TSX";
+	public static final String WEB_UI_APP = "WEB_UI";
 	
 //	public static final String TRP_HOMEPAGE = "https://dbis-faxe.uibk.ac.at/Transkribus";
 	public static final String TRP_HOMEPAGE = "https://transkribus.eu";

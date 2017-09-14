@@ -9,13 +9,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
-import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,31 +31,29 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.io.FileUtils;
-import org.dea.fimgstoreclient.FimgStoreGetClient;
-import org.dea.fimgstoreclient.beans.FimgStoreFileMd;
 import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
-import org.dea.fimgstoreclient.utils.FimgStoreUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import eu.transkribus.core.io.FimgStoreReadConnection;
 import eu.transkribus.core.io.formats.XmlFormat;
-import eu.transkribus.core.model.beans.TrpTag;
+import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.TrpTranscriptStatistics;
 import eu.transkribus.core.model.beans.customtags.CustomTagUtil;
+import eu.transkribus.core.model.beans.enums.TranscriptionLevel;
 import eu.transkribus.core.model.beans.pagecontent.CoordsType;
 import eu.transkribus.core.model.beans.pagecontent.MetadataType;
 import eu.transkribus.core.model.beans.pagecontent.ObjectFactory;
-import eu.transkribus.core.model.beans.pagecontent.PageType;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.PrintSpaceType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
+import eu.transkribus.core.model.beans.pagecontent.TableRegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
-import eu.transkribus.core.model.beans.pagecontent_trp.TaggedWord;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementCoordinatesComparator;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpObjectFactory;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
@@ -80,6 +78,9 @@ public class PageXmlUtils {
 	
 	public static final boolean USE_TEXT_STYLE_CUSTOM_TAGS=true;
 
+	private static final String NO_EVENTS_MSG = "No events occured during marshalling xml file!";
+	
+
 	//	private final static SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 	//	private static Schema schema=null;
 	//	static {
@@ -91,11 +92,11 @@ public class PageXmlUtils {
 	//	}
 	//	public static Schema getSchema() { return schema; }
 
-	private static JAXBContext createPageJAXBContext() throws JAXBException {
+	public static JAXBContext createPageJAXBContext() throws JAXBException {
 		return JAXBContext.newInstance("eu.transkribus.core.model.beans.pagecontent");
 	}
 	
-	private static Unmarshaller createUnmarshaller() throws JAXBException {
+	public static Unmarshaller createUnmarshaller() throws JAXBException {
 		JAXBContext jc = createPageJAXBContext();
 
 		Unmarshaller u = jc.createUnmarshaller();
@@ -132,6 +133,20 @@ public class PageXmlUtils {
 			((TrpPageType) pageData.getPage()).sortContent();
 		}
 	}
+	
+	public static PcGtsType unmarshal(TrpTranscriptMetadata md, boolean returnEmptyPageIfUrlIsNull) throws IOException, JAXBException {
+		if (md == null)
+			throw new IOException("Metadata is null!");
+		
+		URL url = md.getUrl();
+		if (url != null) {
+			return PageXmlUtils.unmarshal(url);
+		}
+		else if (returnEmptyPageIfUrlIsNull)
+			return createEmptyPcGtsType(md.getPagePageReferenceForLocalDocs());
+		
+		return null;
+	}
 
 	public static PcGtsType unmarshal(File file) throws JAXBException {	
 		Unmarshaller u = createUnmarshaller();
@@ -147,6 +162,16 @@ public class PageXmlUtils {
 		
 		@SuppressWarnings("unchecked")
 		PcGtsType pageData = ((JAXBElement<PcGtsType>) u.unmarshal(fis)).getValue();
+		onPostConstruct(pageData);
+		
+		return pageData;
+	}
+	
+	public static PcGtsType unmarshal(InputStream is) throws JAXBException {
+		Unmarshaller u = createUnmarshaller();
+
+		@SuppressWarnings("unchecked")
+		PcGtsType pageData = ((JAXBElement<PcGtsType>) u.unmarshal(is)).getValue();
 		onPostConstruct(pageData);
 		
 		return pageData;
@@ -182,7 +207,10 @@ public class PageXmlUtils {
 		
 		return pageData;
 	}
-
+	
+//	public static File marshalToFile(PcGtsType page, File fileOut) throws JAXBException, IOException {
+//		return marshalToFile(page, fileOut, true);
+//	}
 	public static File marshalToFile(PcGtsType page, File fileOut) throws JAXBException, IOException {
 		ValidationEventCollector vec = new ValidationEventCollector();
 		Marshaller marshaller = createMarshaller(vec);
@@ -211,8 +239,10 @@ public class PageXmlUtils {
 			if (backup!=null)
 				backup.delete();
 		}
+		String msg=buildMsg(vec, page);
+		if (!msg.startsWith(NO_EVENTS_MSG))
+			logger.info(msg);
 		
-		logger.info(buildMsg(vec, page));
 		return fileOut;
 	}
 
@@ -234,7 +264,11 @@ public class PageXmlUtils {
 		} catch (Exception e) {
 			throw new MarshalException(e);
 		}
-		logger.info(buildMsg(vec, page));
+		
+		String msg=buildMsg(vec, page);
+		if (!msg.startsWith(NO_EVENTS_MSG))
+			logger.info(msg);
+		
 		return data;
 	}
 
@@ -248,29 +282,10 @@ public class PageXmlUtils {
 		if (vec.hasEvents()) {
 			msg="Events occured while marshalling xml file: " + vec.getEvents().length;
 		} else {
-			msg="No events occured during marshalling xml file!";
+			msg=NO_EVENTS_MSG;
 		}
 		if (!imgFn.isEmpty()) msg += " (img: "+imgFn+")";
 		return msg;
-	}
-
-	public static List<TrpTag> extractTags(TrpPageType trpPage, final String xmlKey) {
-		List<TrpTag> tagList = new LinkedList<>();
-//		logger.debug("Extracting tags...");
-		List<TrpTextLineType> lineList = trpPage.getLines();
-//		logger.debug(lineList.size() + " lines");
-		for (TrpTextLineType l : lineList) {
-			List<TaggedWord> wordList = l.getTaggedWords();
-//			logger.debug(l.getId() + ": " + wordList.size() + " tagged words");
-			for (TaggedWord w : wordList) {
-				final String daWord = w.getWordItself();
-				final String parentRegId = w.getParentRegionId();
-				final TrpTag tag = new TrpTag(xmlKey, parentRegId, daWord);
-//				logger.debug("Found tag: " + tag.toString());
-				tagList.add(tag);
-			}
-		}
-		return tagList;
 	}
 	
 	public static Polygon buildPolygon(final CoordsType coords) {
@@ -314,50 +329,48 @@ public class PageXmlUtils {
 		return new Polygon(xpoints, ypoints, npoints);
 	}
 	
-	
+	public static PcGtsType createEmptyPcGtsType(final TrpPage p) throws IOException {
+		final String fn = p.getImgFileName();
+		Dimension dim = new Dimension(p.getWidth(), p.getHeight());
+		return createEmptyPcGtsType(fn, dim);
+	}
 
-	public static PcGtsType createEmptyPcGtsType(final URL imgUrl) throws IOException {
+	public static PcGtsType createEmptyPcGtsType(final URL imgUrl, Dimension dim) throws IOException {
 		final String prot = imgUrl.getProtocol();
 		PcGtsType pcGts;
 		if (prot.startsWith("http")) {
 			//fimagestore file
-			pcGts = createEmptyPcGtsTypeForRemoteImg(imgUrl);
+			FimgStoreImgMd md = FimgStoreReadConnection.getImgMd(imgUrl);
+			pcGts = createEmptyPcGtsTypeForRemoteImg(imgUrl, md);
 		} else {
 			//try to deal with it as local file
 			final File imgFile = FileUtils.toFile(imgUrl);
-			pcGts = createEmptyPcGtsType(imgFile);
+			pcGts = createEmptyPcGtsType(imgFile, dim);
 		}
 		return pcGts;
 	}
 
-	private static PcGtsType createEmptyPcGtsTypeForRemoteImg(final URL url) throws IOException {
-		FimgStoreGetClient getter = new FimgStoreGetClient(url);
-		final String key;
-		try {
-			key = FimgStoreUtils.extractKey(url);
-		} catch (URISyntaxException e) {
-			throw new IOException("Could not extract key from url: " + url.toString(), e);
-		}
-
-		FimgStoreFileMd md = getter.getFileMd(key);
-
-		if (!(md instanceof FimgStoreImgMd)) {
-			throw new IOException("File with key " + key + " is not an image!");
-		}
-		FimgStoreImgMd imgMd = (FimgStoreImgMd) md;
+	private static PcGtsType createEmptyPcGtsTypeForRemoteImg(final URL url, FimgStoreImgMd imgMd) throws IOException {
 		int xDim = new Double(imgMd.getXResolution()).intValue();
 		int yDim = new Double(imgMd.getYResolution()).intValue();
 		return createEmptyPcGtsType(imgMd.getFileName(), xDim, yDim);
 	}
 
-	public static PcGtsType createEmptyPcGtsType(final File imgFile) throws IOException {
-		Dimension dim = ImgUtils.readImageDimensions(imgFile);
-		logger.debug("width = " + dim.width + " | height = " + dim.height);
+	public static PcGtsType createEmptyPcGtsType(final File imgFile, Dimension dim) {
 		return createEmptyPcGtsType(imgFile.getName(), dim.width, dim.height);
 	}
-
+	
+	public static PcGtsType createEmptyPcGtsType(final String imgFileName, Dimension dim) {
+		if(dim == null) {
+			logger.error("Dimension is null! The resulting PAGE XML will be created with (0,0).");
+			dim = new Dimension();
+		}
+		logger.debug("width = " + dim.width + " | height = " + dim.height);
+		return createEmptyPcGtsType(imgFileName, dim.width, dim.height);
+	}
+	
 	public static PcGtsType createEmptyPcGtsType(final String imgFileName, final int xDim,
-			final int yDim) throws IOException {
+			final int yDim) {
 		// create md
 		MetadataType md = new MetadataType();
 		md.setCreator("TRP");
@@ -376,6 +389,60 @@ public class PageXmlUtils {
 		pc.setMetadata(md);
 		pc.setPage(pt);
 		return pc;
+	}
+		
+	public static PcGtsType createPcGtsTypeFromText(final String imgFileName, Dimension dim, String text, TranscriptionLevel level, boolean skipEmptyLines) throws IOException {
+		// create empty page
+		PcGtsType pcGtsType = createEmptyPcGtsType(imgFileName, dim);
+		TrpPageType page = (TrpPageType) pcGtsType.getPage();
+		
+		// create and add text region with size of image
+		Rectangle r = new Rectangle(0, 0, page.getImageWidth(), page.getImageHeight());
+		String defaultCoords = PointStrUtils.pointsToString(r);
+		TrpTextRegionType region = new TrpTextRegionType((TrpPageType) page);
+		region.setId("region_1");
+		region.setCoordinates(defaultCoords, null);
+		page.getTextRegionOrImageRegionOrLineDrawingRegion().add(region);
+		
+		if (level == null) {
+			level = TranscriptionLevel.LINE_BASED;
+		}
+		if (level != TranscriptionLevel.REGION_BASED && level != TranscriptionLevel.LINE_BASED && level != TranscriptionLevel.WORD_BASED) {
+			throw new IOException("Invalide TranscriptionLevel: "+level);
+		}
+		
+		if (level == TranscriptionLevel.REGION_BASED) {
+			region.setUnicodeText(text, null);
+		}
+		else {
+			String splitRegex = skipEmptyLines ? "[\\r\\n]+" : "\\r?\\n";
+			
+			String[] lines = text.split(splitRegex);
+			logger.debug("nr of lines = "+lines.length);
+			
+			int lc=1;
+			for (String lineText : lines) {
+				TrpTextLineType line = new TrpTextLineType(region);
+				line.setId("line_"+(lc++));
+				line.setCoordinates(defaultCoords, null);
+				region.getTextLine().add(line);
+				if (level == TranscriptionLevel.LINE_BASED) {
+					line.setUnicodeText(lineText, null);
+				}
+				else if (level == TranscriptionLevel.WORD_BASED) {
+					int wc=1;
+					for (String wordText : lineText.split(" ")) { // TODO: better word splitting??
+						TrpWordType word = new TrpWordType(line);
+						word.setId("word_"+(wc++));
+						word.setCoordinates(defaultCoords, null);
+						word.setUnicodeText(wordText, null);
+						line.getWord().add(word);
+					}
+				}
+			}
+		}		
+		
+		return pcGtsType;
 	}
 	
 	public static PcGtsType createPcGtsTypeFromAbbyy(File abbyyXml, final String imgFileName, 
@@ -436,18 +503,17 @@ public class PageXmlUtils {
 	}
 
 	public static List<TextLineType> getLinesInRegion(PcGtsType pc, final String regId) {
-		List<TextLineType> lines = null;
 		if (!hasRegions(pc)){
-			return lines;
+			return new ArrayList<>();
 		}
-		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
-		for (RegionType r : regions) {
-			if (r.getId().equals(regId) && r instanceof TextRegionType) {
-				TextRegionType tr = (TextRegionType) r;
-				lines = tr.getTextLine();
+		
+		List<TextRegionType> regions = PageXmlUtils.getTextRegions(pc);
+		for (TextRegionType r : regions) {
+			if (r.getId().equals(regId)) {
+				return r.getTextLine();
 			}
 		}
-		return lines;
+		return new ArrayList<>();
 	}
 	
 	public static void copyTextContent(PcGtsType origPc, PcGtsType newPc) {
@@ -644,16 +710,26 @@ public class PageXmlUtils {
 		}
 		return buildPolygon(psType.getCoords());
 	}
-
+	
 	public static List<TextRegionType> getTextRegions(PcGtsType pc) {
 		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
-		List<TextRegionType> tRegions = new LinkedList<>();
-		if (regions == null || regions.isEmpty()){
+		
+		List<TextRegionType> tRegions = new ArrayList<>();
+		if (regions == null || regions.isEmpty()) {
 			return tRegions;
 		}
-		for(RegionType r : regions){
-			if(r != null && r instanceof TextRegionType){
-				tRegions.add((TextRegionType)r);
+		
+		for(RegionType r : regions) {
+			if (r == null)
+				continue;
+			
+			if (TextRegionType.class.isAssignableFrom(r.getClass())) {
+				tRegions.add((TextRegionType) r);
+			}
+			
+			if (TableRegionType.class.isAssignableFrom(r.getClass())) {
+				TableRegionType table = (TableRegionType) r;
+				tRegions.addAll(table.getTableCell());				
 			}
 		}
 		return tRegions;
@@ -820,5 +896,25 @@ public class PageXmlUtils {
 		s.setNrOfWordsInRegions(nrOfWordsInRegions);
 		
 		return s;
+	}
+	
+	public static boolean isValid(File xmlFile) throws IOException {
+		if(xmlFile == null || !xmlFile.isFile()) {
+			throw new IllegalArgumentException("Bad argument: " + xmlFile);
+		}
+		//FIXME TranskribusCore issue #20: Schema location should be set in XmlFormat.java!
+//		URL schemaFile = new URL("http://host:port/filename.xsd");
+		URL schemaUrl = PageXmlUtils.class.getClassLoader().getResource("xsd/pagecontent_extension.xsd");
+		return XmlUtils.isValid(xmlFile, schemaUrl);
+	}
+	
+	public static void main(String[] args) {
+		final String path = "/mnt/dea_scratch/TRP/Bentham_box_002/page/002_080_001.xml";
+		try {
+			logger.info(""+PageXmlUtils.isValid(new File(path)));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

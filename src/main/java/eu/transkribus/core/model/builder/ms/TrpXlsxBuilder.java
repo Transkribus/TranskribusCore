@@ -28,6 +28,7 @@ import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
+import eu.transkribus.core.model.beans.customtags.CustomTagFactory;
 import eu.transkribus.core.model.beans.customtags.CustomTagList;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
@@ -37,6 +38,7 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.model.builder.ExportUtils;
+import eu.transkribus.core.model.builder.NoTagsException;
 import eu.transkribus.core.model.builder.rtf.TrpRtfBuilder;
 
 
@@ -231,11 +233,17 @@ public class TrpXlsxBuilder {
 		
 	}
 
-	public static void writeXlsxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor, Set<String> selectedTags) throws Exception {
-			
+	public static void writeXlsxForDoc(TrpDoc doc, boolean wordBased, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor) throws NoTagsException, Exception {
+		
+		if (ExportUtils.getCustomTagMapForDoc().isEmpty()) {
+			logger.info("No tags to store -> Xlsx export cancelled");
+			throw new NoTagsException("No tags available to store into Xlsx");
+		}
 
 		List<TrpPage> pages = doc.getPages();
 		String exportPath = exportFile.getPath();
+		
+		Set<String> selectedTags = ExportUtils.getOnlySelectedTagnames(ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames()));
 		
 		int totalPages = pageIndices==null ? pages.size() : pageIndices.size();
 		if (monitor!=null) {
@@ -275,7 +283,6 @@ public class TrpXlsxBuilder {
 			
 			TrpPageType trpPage = tr.getPage();
 				
-			
 			logger.debug("writing xlsx for page "+(i+1)+"/"+doc.getNPages());
 			
 			List<TrpTextRegionType> textRegions = trpPage.getTextRegions(true);
@@ -412,7 +419,7 @@ public class TrpXlsxBuilder {
 		
 		TrpDoc doc = LocalDocReader.load("C:/Users/Administrator/OCR_Sample_Document_-_Gothic_letter/");
 		TrpXlsxBuilder txslx = new TrpXlsxBuilder();
-		writeXlsxForDoc(doc, true, false, new File("C:/Users/Administrator/test.xlsx"), null, null, null);
+		writeXlsxForDoc(doc, true, new File("C:/Users/Administrator/test.xlsx"), null, null);
 		//ExcelTest("C:/Users/Administrator/test.xlsx");
 		System.out.println("finished");
 	}

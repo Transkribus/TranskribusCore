@@ -277,7 +277,9 @@ public class TrpRegionType extends RegionType implements ITrpShapeType {
 		
 			if (i>0){
 				Collections.swap(getPage().getTextRegionOrImageRegionOrLineDrawingRegion(), i, i-1);
-				setReadingOrder(getReadingOrder()-1, RegionType.class);
+				//setReadingOrder(getReadingOrder()-1, RegionType.class);
+				getPage().getTextRegionOrImageRegionOrLineDrawingRegion().get(i-1).setReadingOrder(getReadingOrder()-1, RegionType.class);
+				getPage().sortRegions();
 				observable.setChangedAndNotifyObservers(new TrpReadingOrderChangedEvent(this));
 				
 			}
@@ -286,7 +288,9 @@ public class TrpRegionType extends RegionType implements ITrpShapeType {
 			
 			if (i >= 0 && i<(getPage().getTextRegionOrImageRegionOrLineDrawingRegion().size()-1)){
 				Collections.swap(getPage().getTextRegionOrImageRegionOrLineDrawingRegion(), i, i+1);
-				setReadingOrder(getReadingOrder()+1, RegionType.class);
+				//setReadingOrder(getReadingOrder()+1, RegionType.class);
+				getPage().getTextRegionOrImageRegionOrLineDrawingRegion().get(i).setReadingOrder(getReadingOrder()-1, RegionType.class);
+				getPage().sortRegions();
 				observable.setChangedAndNotifyObservers(new TrpReadingOrderChangedEvent(this));
 				
 			}

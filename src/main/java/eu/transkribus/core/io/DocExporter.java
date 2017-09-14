@@ -2,9 +2,10 @@ package eu.transkribus.core.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
+import java.net.URL;
 import java.util.List;
 import java.util.Observable;
 import java.util.Set;
@@ -13,180 +14,292 @@ import javax.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.fop.afp.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dea.fimgstoreclient.FimgStoreGetClient;
+import org.dea.fimgstoreclient.beans.ImgType;
 import org.dea.fimgstoreclient.utils.FimgStoreUriBuilder;
+import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+import com.itextpdf.text.DocumentException;
+
+import eu.transkribus.core.misc.APassthroughObservable;
+import eu.transkribus.core.model.beans.JAXBPageTranscript;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.mets.Mets;
-import eu.transkribus.core.model.builder.FatBuilder;
+import eu.transkribus.core.model.beans.pagecontent.MetadataType;
+import eu.transkribus.core.model.beans.pagecontent.TranskribusMetadataType;
+import eu.transkribus.core.model.builder.CommonExportPars;
+import eu.transkribus.core.model.builder.ExportUtils;
 import eu.transkribus.core.model.builder.alto.AltoExporter;
+import eu.transkribus.core.model.builder.docx.DocxBuilder;
 import eu.transkribus.core.model.builder.mets.TrpMetsBuilder;
+import eu.transkribus.core.model.builder.ms.TrpXlsxBuilder;
+import eu.transkribus.core.model.builder.ms.TrpXlsxTableBuilder;
+import eu.transkribus.core.model.builder.pdf.PdfExporter;
+import eu.transkribus.core.model.builder.tei.ATeiBuilder;
+import eu.transkribus.core.model.builder.tei.TeiExportPars;
+import eu.transkribus.core.model.builder.tei.TrpTeiStringBuilder;
+import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.JaxbUtils;
 
-public class DocExporter extends Observable {
+public class DocExporter extends APassthroughObservable {
 	private static final Logger logger = LoggerFactory.getLogger(DocExporter.class);
-	
-	public static class ExportOptions {
-		public String dir=null;
-		public Set<Integer> pageIndices=null; // can be set to null to include all pages!
-		public boolean doOverwrite=true;
-		public boolean writeMets=true;
-		public boolean useOcrMasterDir=true;
-		public boolean doWriteImages=true;
-		public boolean exportPageXml=true;
-		public String pageDirName = LocalDocConst.PAGE_FILE_SUB_FOLDER;
-		public boolean exportAltoXml=true;
-		public boolean exportFatXml=false;
-		public String fileNamePattern = "${filename}";
-		public boolean useHttps=true;
-	}
 
-	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, boolean exportImg, boolean exportPage, boolean exportAlto) throws IOException,
-	IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
-		return writeRawDoc(doc, dir, doOverwrite, pageIndices, exportImg, exportPage, exportAlto, null);
-	}
-	
+	/**
+	 * Export raw document to local directory according to set parameters
+	 * @param doc raw document to export
+	 * @param dir target directory on local machine
+	 * @param doOverwrite 
+	 * @param pageIndices indices of pages to export
+	 * @param exportImg if set images will be exported
+	 * @param exportPage if set transcripts will be exported
+	 * @param exportAlto if set alto format will be exported
+	 * @param splitIntoWordsInAlto
+	 * @param fileNamePattern
+	 * @param imgType the image type to export for remote documents
+	 * @return
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws URISyntaxException
+	 * @throws JAXBException
+	 * @throws TransformerException
+	 */
 	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, 
-			boolean exportImg, boolean exportPage, boolean exportAlto, String fileNamePattern) throws IOException,
+			boolean exportImg, boolean exportPage, boolean exportAlto, boolean splitIntoWordsInAlto, 
+			String fileNamePattern, ImgType imgType) throws IOException,
 			IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
-		ExportOptions opts = new ExportOptions();
-		opts.dir = dir;
-		opts.doOverwrite = doOverwrite;
-		opts.writeMets = true;
-		opts.useOcrMasterDir = false;
-		opts.doWriteImages = exportImg;
-		opts.exportPageXml = exportPage;
-		opts.exportAltoXml = exportAlto;
-		opts.pageIndices = pageIndices;
-		if(fileNamePattern != null){
-			opts.fileNamePattern = fileNamePattern;
+		CommonExportPars pars = new CommonExportPars();
+		pars.setDoWriteMets(true);
+		pars.setDoExportPageXml(exportPage);
+		pars.setDoExportAltoXml(exportAlto);
+		pars.setDoWriteImages(exportImg);
+		pars.setUseOcrMasterDir(false);
+		pars.setSplitIntoWordsInAltoXml(splitIntoWordsInAlto);
+		pars.setPages(CoreUtils.getRangeListStrFromSet(pageIndices));
+		pars.setDir(dir);
+		pars.setDoOverwrite(doOverwrite);
+		pars.setRemoteImgQuality(imgType);
+		
+		if(fileNamePattern != null) {
+			pars.setFileNamePattern(fileNamePattern);
 		}
 		
-		return exportDoc(doc, opts);
-	}
-
-	public File writeFatDoc(TrpDoc doc, final String dir, boolean doOverwrite) throws IOException,
-			IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
-		return writeFatDoc(doc, null, dir, doOverwrite, "${pageNr}_${filekey}");
+		return exportDoc(doc, pars);
 	}
 	
-	public File writeFatDoc(TrpDoc doc, final Set<Integer> pages, final String dir, boolean doOverwrite, final String fileNamePattern) throws IOException,
-	IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
-
-		ExportOptions opts = new ExportOptions();
-		opts.dir = dir;
-		opts.doOverwrite = doOverwrite;
-		opts.writeMets = false;
-		opts.useOcrMasterDir = true;
-		opts.doWriteImages = true;
-		opts.exportPageXml = false;
-		opts.exportAltoXml = false;
-		opts.pageIndices = pages;
-		opts.exportFatXml = true;
-		opts.fileNamePattern = fileNamePattern;
-		
-		final File outputDir = exportDoc(doc, opts);
-		return outputDir;
+	public void writePDF(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean addTextPages, final boolean imagesOnly, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, boolean createTitle) throws MalformedURLException, DocumentException, IOException, JAXBException, URISyntaxException, InterruptedException{
+		PdfExporter pdfWriter = new PdfExporter();
+		pdfWriter.export(doc, path, pageIndices, wordBased, addTextPages, imagesOnly, highlightTags, doBlackening, createTitle);
+	}
+	
+	public void writeTEI(final TrpDoc doc, final String path, CommonExportPars commonPars, final TeiExportPars pars) throws Exception{
+		ATeiBuilder builder = new TrpTeiStringBuilder(doc, commonPars, pars, null);
+		builder.buildTei();
+		builder.writeTeiXml(new File(path));
+	}
+	
+	public void writeDocx(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, final boolean createTitle, boolean doDocxMarkUnclear, boolean doDocxExpandAbbrevs, boolean doDocxSubstituteAbbrevs, boolean doDocxPreserveLineBreaks) throws MalformedURLException, DocumentException, IOException, JAXBException, URISyntaxException, InterruptedException, Docx4JException{
+		//last two params are for supplied handling, needs to be added to server esport as well. In the meanwhile args are false by default
+		DocxBuilder.writeDocxForDoc(doc, wordBased, highlightTags, doBlackening, new File(path), pageIndices, null, createTitle, doDocxMarkUnclear, doDocxExpandAbbrevs, doDocxSubstituteAbbrevs, doDocxPreserveLineBreaks, false, false);
+	}
+	
+	public void writeTagExcel(final TrpDoc doc, final String path, Set<Integer> pageIndices, boolean wordBased) throws Exception{
+		TrpXlsxBuilder.writeXlsxForDoc(doc, wordBased, new File(path), pageIndices, null);
+	}
+	
+	public void writeTableExcel(final TrpDoc doc, final String path, Set<Integer> pageIndices) throws Exception{
+		TrpXlsxTableBuilder.writeXlsxForTables(doc, new File(path), pageIndices, null);
 	}
 
-	public File exportDoc(TrpDoc doc, final ExportOptions opts) throws IOException, IllegalArgumentException,
+	/**
+	 * Export current document with the provided parameters.
+	 * @param doc current document
+	 * @param pars export settings 
+	 * @return directory to which the export files were written 
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws URISyntaxException
+	 * @throws JAXBException
+	 * @throws TransformerException
+	 */
+	public File exportDoc(TrpDoc doc, CommonExportPars pars) throws IOException, IllegalArgumentException,
 			URISyntaxException, JAXBException, TransformerException {
+
 		FimgStoreGetClient getter = null;
 		FimgStoreUriBuilder uriBuilder = null;
+		ImgType imgType = pars.getRemoteImgQuality() == null ? ImgType.orig : pars.getRemoteImgQuality();
+
 		if (doc.isRemoteDoc()) {
 			//FIXME fimagestore path should be read from docMd!
 			getter = new FimgStoreGetClient("dbis-thure.uibk.ac.at", "f");
-			final String scheme = opts.useHttps ? "https" : "http";
-			final int port = opts.useHttps ? 443 : 80;
+			final String scheme = pars.isUseHttps() ? "https" : "http";
+			final int port = pars.isUseHttps() ? 443 : 80;
 			uriBuilder = new FimgStoreUriBuilder(scheme, getter.getHost(), port,
 					getter.getServerContext());
 		}
-
-		File outputDir = new File(opts.dir);
-		if (!opts.doOverwrite && outputDir.exists()) {
+		
+		//create copy of object, as we alter it here while exporting
+		TrpDoc doc2;
+		doc2 = new TrpDoc(doc);
+		
+		// check and create output directory
+		File outputDir = new File(pars.getDir());
+		if (!pars.isDoOverwrite() && outputDir.exists()) {
 			throw new IOException("File path already exists.");
 		}
 		outputDir.mkdir();
 		
-		File pageOutputDir = null, altoOutputDir = null;
-				
-		if(opts.exportPageXml){
-			pageOutputDir = new File(outputDir.getAbsolutePath() + File.separatorChar
-					+ opts.pageDirName);
-			pageOutputDir.mkdir();
-		}
-		
-		AltoExporter altoEx = new AltoExporter();
-		if (opts.exportAltoXml){
-			altoOutputDir = altoEx.createAltoOuputDir(doc, outputDir.getAbsolutePath());
-			
-//			try {
-//
-//				altoEx.export(doc, outputDir.getAbsolutePath());
-//			} catch (DocumentException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-		}
-
-		if (doc.getMd() != null) {
-			File fileOut = new File(outputDir.getAbsolutePath() + File.separatorChar
-					+ "metadata.xml");
-			try {
-				JaxbUtils.marshalToFile(doc.getMd(), fileOut);
-			} catch (JAXBException e) {
-				throw new IOException("Could not marshal metadata to file.", e);
-			}
-		}
-		
 		//decide where to put the images
 		final File imgOutputDir;
-		if (opts.useOcrMasterDir) {
+		if (pars.isUseOcrMasterDir()) {
 			imgOutputDir = new File(outputDir.getAbsolutePath() + File.separatorChar
 					+ LocalDocConst.OCR_MASTER_DIR);
 			imgOutputDir.mkdir();
 		} else {
 			imgOutputDir = outputDir;
 		}
+		
+		File pageOutputDir = null, altoOutputDir = null;
+		
+		// check PAGE export settings and create output directory
+		String pageDirName = pars.getPageDirName();
+		if (pars.isDoExportPageXml() && !StringUtils.isEmpty(pageDirName)) {
+			pageOutputDir = new File(outputDir.getAbsolutePath() + File.separatorChar + pageDirName);
+			if (pageOutputDir.mkdir()){
+				logger.debug("pageOutputDir created successfully ");
+			}
+			else{
+				logger.debug("pageOutputDir could not be created!");
+			}
+		} else {
+			//if pageDirName is not set, export the PAGE XMLs to imgOutputDir
+			pageOutputDir = imgOutputDir;
+		}
+		
+		// check Alto export settings and create output directory
+		AltoExporter altoEx = new AltoExporter();
+		if (pars.isDoExportAltoXml()){
+			altoOutputDir = altoEx.createAltoOuputDir(doc2, outputDir.getAbsolutePath());
+		}
 
-		List<TrpPage> pages = doc.getPages();
+		// check and write metadata
+		if (doc2.getMd() != null) {
+			File fileOut = new File(outputDir.getAbsolutePath() + File.separatorChar
+					+ LocalDocConst.METADATA_FILENAME);
+			try {
+				JaxbUtils.marshalToFile(doc2.getMd(), fileOut);
+			} catch (JAXBException e) {
+				throw new IOException("Could not marshal metadata to file.", e);
+			}
+		}
+
+		List<TrpPage> pages = doc2.getPages();
+		Set<Integer> pageIndices = pars.getPageIndices(doc.getNPages());
 		
+		// do export for all defined pages
 		for (int i=0; i<pages.size(); ++i) {
-//			for (TrpPage p : pages) {
-			if (opts.pageIndices!=null && !opts.pageIndices.contains(i))
+			if (pageIndices!=null && !pageIndices.contains(i)) {
 				continue;
-		
+			}
+			
 			TrpPage p = pages.get(i);
 			File imgFile = null, xmlFile = null, altoFile = null;
 			
-			final String baseFileName = buildFileName(opts.fileNamePattern, p);
+			URL imgUrl = p.getUrl(); 
+			
+			final String baseFileName = ExportFilePatternUtils.buildBaseFileName(pars.getFileNamePattern(), p);
 			final String imgExt = "." + FilenameUtils.getExtension(p.getImgFileName());
 			final String xmlExt = ".xml";
 			
-			if (doc.isRemoteDoc()) {
-				final URI imgUri = uriBuilder.getFileUri(p.getKey());
-				if (opts.doWriteImages)
+			// gather remote files and export document
+			if (doc2.isRemoteDoc()) {				
+				if (pars.isDoWriteImages()) {
+					final String msg = "Downloading " + imgType.toString() + " image for page nr. " + p.getPageNr();
+					logger.debug(msg);
+					updateStatus(msg);
+					final URI imgUri = uriBuilder.getImgUri(p.getKey(), imgType);
 					imgFile = getter.saveFile(imgUri, imgOutputDir.getAbsolutePath(), baseFileName + imgExt);
-				if(opts.exportPageXml) {
-					TrpTranscriptMetadata t = p.getCurrentTranscript();
-					xmlFile = getter.saveFile(t.getUrl().toURI(), pageOutputDir.getAbsolutePath(), baseFileName + xmlExt);
+					p.setUrl(imgFile.toURI().toURL());
+					p.setKey(null);
+				}
+				if(pars.isDoExportPageXml()) {
+					//old
+					//TrpTranscriptMetadata t = p.getCurrentTranscript();
+					/*
+					 * new: to get the previously stored choosen version
+					 */
+					TrpTranscriptMetadata transcriptMd;
+					JAXBPageTranscript transcript = ExportUtils.getPageTranscriptAtIndex(i);
+					
+					// set up transcript metadata
+					if(transcript == null) {
+						transcriptMd = p.getCurrentTranscript();
+						logger.warn("Have to unmarshall transcript in DocExporter for transcript "+transcriptMd+" - should have been built before using ExportUtils::storePageTranscripts4Export!");
+						transcript = new JAXBPageTranscript(transcriptMd);
+						transcript.build();
+					} else {
+						transcriptMd = transcript.getMd();
+					}
+					
+					URL xmlUrl = transcriptMd.getUrl();
+					
+					if (pars.isExportTranscriptMetadata()) {
+						MetadataType md = transcript.getPage().getPcGtsType().getMetadata();
+						if (md == null) {
+							throw new JAXBException("Transcript does not contain a metadata element: "+transcriptMd);
+						}
+						
+						String imgUrlStr = CoreUtils.urlToString(imgUrl);
+						String xmlUrlStr = CoreUtils.urlToString(xmlUrl);
+						String status = transcriptMd.getStatus() == null ? null : transcriptMd.getStatus().toString();
+
+						TranskribusMetadataType tmd = new TranskribusMetadataType();
+						tmd.setDocId(doc.getId());
+						tmd.setPageId(p.getPageId());
+						tmd.setPageNr(p.getPageNr());
+						tmd.setTsid(transcriptMd.getTsId());
+						tmd.setStatus(status);
+						tmd.setUserId(transcriptMd.getUserId());
+						tmd.setImgUrl(imgUrlStr);
+						tmd.setXmlUrl(xmlUrlStr);
+						tmd.setImageId(p.getImageId());
+						md.setTranskribusMetadata(tmd);
+					}
+					
+					// write transcript to file
+					xmlFile = new File(FilenameUtils.normalizeNoEndSeparator(pageOutputDir.getAbsolutePath())+File.separator+baseFileName + xmlExt);
+					logger.debug("PAGE XMl output file: "+xmlFile.getAbsolutePath());
+					transcript.write(xmlFile);
+
+					// old code: save file by just downloading to disk
+//					xmlFile = getter.saveFile(transcriptMd.getUrl().toURI(), pageOutputDir.getAbsolutePath(), baseFileName + xmlExt);
+					
+					// make sure (for other exports) that the transcript that is exported is the only one set in the transcripts list of TrpPage
+					p.getTranscripts().clear();
+					TrpTranscriptMetadata tCopy = new TrpTranscriptMetadata(transcriptMd, p);
+					tCopy.setUrl(xmlFile.toURI().toURL());
+					p.getTranscripts().add(tCopy);
 				}
 			} else {
-				if (opts.doWriteImages)
+				updateStatus("Copying local files for page nr. " + p.getPageNr());
+				// copy local files during export
+				if (pars.isDoWriteImages()) {
 					imgFile = LocalDocWriter.copyImgFile(p, p.getUrl(), imgOutputDir.getAbsolutePath(), baseFileName + imgExt);
-				if(opts.exportPageXml) {
+				}
+				if(pars.isDoExportPageXml()) {
 					xmlFile = LocalDocWriter.copyTranscriptFile(p, pageOutputDir.getAbsolutePath(), baseFileName + xmlExt);
 				}
 			}
 			// export alto:
-			if (opts.exportAltoXml) {
-				altoFile = altoEx.exportAltoFile(p, baseFileName + xmlExt, altoOutputDir);
+			if (pars.isDoExportAltoXml()) {
+				altoFile = altoEx.exportAltoFile(p, baseFileName + xmlExt, altoOutputDir, pars.isSplitIntoWordsInAltoXml());
 			}
 			
 			if (imgFile != null)
@@ -195,21 +308,27 @@ public class DocExporter extends Observable {
 			if (xmlFile != null) {
 				logger.debug("Written transcript xml file " + xmlFile.getAbsolutePath());
 			} else {
-//				logger.warn("No transcript was exported for page " + p.getPageNr());
+				logger.warn("No transcript was exported for page ");
 			}
 			if (altoFile != null) {
 				logger.debug("Written ALTO xml file " + altoFile.getAbsolutePath());
+			} else {
+				logger.warn("No alto was exported for page ");
 			}
 			
 			notifyObservers(Integer.valueOf(p.getPageNr()));
 			setChanged();
 		}
 		
-		if (opts.writeMets) {
+		if (pars.isDoWriteMets()) {
 			//load the exported doc from its new location
-			final TrpDoc localDoc = LocalDocReader.load(outputDir.getAbsolutePath(), false);
+			//FIXME this does not work for export of PAGE XMLs only!
+//			final TrpDoc localDoc = LocalDocReader.load(outputDir.getAbsolutePath(), false);
+			
+			//set local folder or else TrpMetsBuilder will treat this as remote doc!
+			doc2.getMd().setLocalFolder(outputDir);
 			//write mets with file pointers to local files
-			Mets mets = TrpMetsBuilder.buildMets(localDoc, opts.exportPageXml, opts.exportAltoXml, opts.doWriteImages);
+			Mets mets = TrpMetsBuilder.buildMets(doc2, pars.isDoExportPageXml(), pars.isDoExportAltoXml(), pars.isDoWriteImages(), pageIndices);
 			File metsFile = new File(outputDir.getAbsolutePath() + File.separator
 					+ TrpMetsBuilder.METS_FILE_NAME);
 	
@@ -220,70 +339,109 @@ public class DocExporter extends Observable {
 			}
 		}
 		
-		if(opts.exportFatXml) {
-			//doc root of fat xml is named RootFolder and so is the Bean
-			FatBuilder.writeFatXml(outputDir);
+		return outputDir;
+	}
+	
+	public File exportDocForText2ImageTool(TrpDoc doc, String path, boolean overwrite, Set<Integer> pageIndices, boolean removeLineBreaks) throws IOException, JAXBException {
+		FimgStoreGetClient getter = null;
+		FimgStoreUriBuilder uriBuilder = null;
+		ImgType imgType = ImgType.orig;
+
+		if (doc.isRemoteDoc()) {
+			getter = new FimgStoreGetClient("dbis-thure.uibk.ac.at", "f");
+			boolean useHttps = true;
+			final String scheme = useHttps ? "https" : "http";
+			final int port = useHttps ? 443 : 80;
+			uriBuilder = new FimgStoreUriBuilder(scheme, getter.getHost(), port,
+					getter.getServerContext());
 		}
+
+		// check and create output directory
+		File outputDir = CoreUtils.createDirectory(path, overwrite);
+		String outputPath = FilenameUtils.normalizeNoEndSeparator(outputDir.getAbsolutePath());
+			
+		for (int i=0; i<doc.getPages().size(); ++i) {			
+			String folderName = StringUtils.leftPad(""+(i+1), 5, '0');
+			
+//			for (TrpPage p : pages) {
+			if (pageIndices!=null && !pageIndices.contains(i))
+				continue;
+			
+			File imgDir = new File(outputPath + File.separator + folderName);
+			logger.debug("imgDir: "+imgDir.getAbsolutePath());
+			if (!imgDir.mkdir()) {
+				throw new IOException("Could not create image directory: "+imgDir.getAbsolutePath());
+			}
+			
+			File pageDir = new File(FilenameUtils.normalizeNoEndSeparator(imgDir.getAbsolutePath()) + File.separator + "page");
+			if (!pageDir.mkdir()) {
+				throw new IOException("Could not create PAGE directory: "+pageDir.getAbsolutePath());
+			}
+			logger.debug("pageDir: "+pageDir.getAbsolutePath());
+		
+			TrpPage p = doc.getPages().get(i);
+			File imgFile = null, xmlFile = null;
+						
+//			final String baseFileName = ExportFilePatternUtils.buildBaseFileName(pars.getFileNamePattern(), p);
+			final String baseFileName = folderName;
+			final String imgExt = "." + FilenameUtils.getExtension(p.getImgFileName());
+			final String xmlExt = ".xml";
+			
+			// write image:
+			if (doc.isRemoteDoc()) {
+				URI imgUri = uriBuilder.getImgUri(p.getKey(), imgType);
+				imgFile = getter.saveFile(imgUri, imgDir.getAbsolutePath(), baseFileName + imgExt);
+			} else {
+				imgFile = LocalDocWriter.copyImgFile(p, p.getUrl(), imgDir.getAbsolutePath(), baseFileName + imgExt);
+			}
+			
+			// write PAGE XML:
+			TrpTranscriptMetadata transcriptMd;
+			JAXBPageTranscript transcript = ExportUtils.getPageTranscriptAtIndex(i);
+			// set up transcript metadata
+			if(transcript == null) {
+				transcriptMd = p.getCurrentTranscript();
+				transcript = new JAXBPageTranscript(transcriptMd);
+				transcript.build();
+			} else {
+				transcriptMd = transcript.getMd();
+			}
+			// write transcript to file
+			xmlFile = new File(FilenameUtils.normalizeNoEndSeparator(pageDir.getAbsolutePath()) + File.separator + baseFileName + xmlExt);
+			transcript.write(xmlFile);
+			
+			
+			// write TXT file:
+			String txt = transcript.getPage().getUnicodeText();
+			if (removeLineBreaks) {
+				txt = txt.replaceAll("\n", "");
+			}
+			logger.debug("txt = "+txt);
+			File txtFile = new File(imgDir.getAbsolutePath()+File.separator+baseFileName+".txt");
+			Files.write(txt, txtFile, Charsets.UTF_8);
+			
+			if (imgFile != null)
+				logger.debug("Written image file " + imgFile.getAbsolutePath());
+			
+			if (xmlFile != null) {
+				logger.debug("Written transcript xml file " + xmlFile.getAbsolutePath());
+			}
+			
+			if (txtFile != null) {
+				logger.debug("Written txt file "+txtFile.getAbsolutePath());
+			}
+			
+			notifyObservers(Integer.valueOf(p.getPageNr()));
+			setChanged();
+		}
+		
 		return outputDir;
 	}
 
-	private String buildFileName(String fileNamePattern, TrpPage p) {
-		if(fileNamePattern == null || fileNamePattern.equals("${filename}")) {
-			return FilenameUtils.getBaseName(p.getImgFileName());
-		} else {
-			String fileName = buildFileName(fileNamePattern, p.getImgFileName(), p.getPageId(), 
-					p.getDocId(), p.getKey(), p.getPageNr());
-			return fileName;
-		}
-	}
-
-	private static String buildFileName(String fileNamePattern, String imgFileName, int pageId, int docId,
-			String key, int pageNr) {
-		
-		if(!isFileNamePatternValid(fileNamePattern)){
-			throw new IllegalArgumentException("Filename pattern is invalid: " + fileNamePattern);
-		}
-		
-		final String pageNrStr = StringUtils.lpad(""+pageNr, '0', 4);
-		final String docIdStr = StringUtils.lpad(""+docId, '0', 6);
-		
-		String fileName = fileNamePattern
-		.replaceAll("\\$\\{filename\\}", FilenameUtils.getBaseName(imgFileName))
-		.replaceAll("\\$\\{pageId\\}", ""+pageId)
-		.replaceAll("\\$\\{docId\\}", ""+docIdStr)
-		.replaceAll("\\$\\{filekey\\}", key)
-		.replaceAll("\\$\\{pageNr\\}", pageNrStr);
-		
-		return fileName;
-	}
-
-	public static boolean isFileNamePatternValid(final String fnp) {
-		//filename must have a unique component with respect to document
-		boolean isValid = fnp.contains("${filename}") || fnp.contains("${filekey}") 
-				|| fnp.contains("${pageId}") || fnp.contains("${pageNr}");
-		if(!isValid){
-			return false;
-		}
-		//remove all valid placeholders
-		String fnpRemainder = fnp
-				.replaceAll("\\$\\{filename\\}", "")
-				.replaceAll("\\$\\{pageId\\}", "")
-				.replaceAll("\\$\\{docId\\}", "")
-				.replaceAll("\\$\\{filekey\\}", "")
-				.replaceAll("\\$\\{pageNr\\}", "");	
-		//check for occurence of illegal chars
-		final String[] illegalChars = {"\\", "/", ":", "*", "?", "\"", "<", ">", "|", "~", "{", "}"};
-		for(String s : illegalChars){
-			if(fnpRemainder.contains(s)){
-				return false;
-			}
-		}
-		return true;
-	}
 	
 	public static void main(String[] args){
 		final String p = "${filename}_${${pageId}_${pageNr}";
-		System.out.println(isFileNamePatternValid(p));
-		System.out.println(buildFileName(p, "test.jpg", 123, 456, "AAAAA", 7));
+		System.out.println(ExportFilePatternUtils.isFileNamePatternValid(p));
+		System.out.println(ExportFilePatternUtils.buildBaseFileName(p, "test.jpg", 123, 456, "AAAAA", 7));
 	}
 }

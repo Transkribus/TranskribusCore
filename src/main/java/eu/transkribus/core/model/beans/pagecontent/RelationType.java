@@ -2,7 +2,7 @@
 // Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.2.8-b130911.1802 generiert 
 // Siehe <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
 // Änderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2016.08.31 um 10:07:11 AM CEST 
+// Generiert: 2017.07.21 um 11:17:10 AM CEST 
 //
 
 
@@ -45,7 +45,7 @@ import javax.xml.bind.annotation.XmlType;
  * &lt;complexType name="RelationType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence maxOccurs="2" minOccurs="2">
+ *       &lt;sequence maxOccurs="unbounded" minOccurs="2">
  *         &lt;element name="RegionRef" type="{http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15}RegionRefType"/>
  *       &lt;/sequence>
  *       &lt;attribute name="type" use="required">

@@ -1,6 +1,7 @@
 package eu.transkribus.core.util;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,10 +83,54 @@ public class PointStrUtils {
 		return awtPoly;
 	}
 	
+	public static Rectangle getBoundingBox(String pts) {		
+		int ulx=Integer.MAX_VALUE, uly=Integer.MAX_VALUE, lrx=0, lry=0;
+		
+		logger.trace("parsing bounding box: "+pts);
+		for (String pt : pts.trim().split("\\s+")) {
+			try {		
+				if (pt.isEmpty())
+					continue;
+				
+				logger.trace("pt = "+pt);
+				String [] tmp = pt.split(",");
+				int x = Integer.valueOf(tmp[0].trim());
+				int y = Integer.valueOf(tmp[1].trim());
+				
+				if (x < ulx)
+					ulx = x;
+				if (y < uly)
+					uly = y;
+				
+				if (x > lrx)
+					lrx = x;
+				if (y > lry)
+					lry = y;
+			}
+			catch (Exception e) {
+				logger.warn("Could not parse point: '"+pt+"' ptsStr = "+pts, e);
+			}
+		}
+
+		if (ulx == Integer.MAX_VALUE)
+			ulx = 0;
+		if (uly == Integer.MAX_VALUE)
+			uly = 0;
+		
+		int w = lrx - ulx;
+		if (w < 0)
+			w = 0;
+		int h = lry - uly;
+		if (h < 0)
+			h = 0;
+		
+		return new Rectangle(ulx, uly, w, h);
+	}
+	
 	/**
 	 * Parse points from String and do not throw an exception if some point could not be parsed
 	 */
-	public static List<Point> parsePoints2(String pts) {
+	public static List<Point> parsePoints2(String pts) {		
 		logger.trace("parsing points2: "+pts);
 		List<Point> ptsList = new ArrayList<Point>();
 		for (String pt : pts.trim().split("\\s+")) {

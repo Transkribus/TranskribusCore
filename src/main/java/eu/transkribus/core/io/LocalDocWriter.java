@@ -53,7 +53,7 @@ public class LocalDocWriter {
 			throw new Exception("No local folder specified!");
 	}
 	
-	public static void writeEditDeclFeatures(List<EdFeature> feats, File folder) throws FileNotFoundException, JAXBException {
+	public static void writeEditDeclFeatures(List<EdFeature> feats, File folder) throws JAXBException, FileNotFoundException {
 		JaxbList list = new JaxbList(feats);
 		JaxbUtils.marshalToFile(list, new File(folder + "/" + LocalDocConst.EDITORIAL_DECLARATION_FN), EdFeature.class, EdOption.class);
 	}
@@ -173,7 +173,7 @@ public class LocalDocWriter {
 		FileUtils.forceMkdir(dir);
 		
 		// write metadata:
-		File mF = new File(FilenameUtils.normalize(path)+"/"+MdFileFilter.MD_FILENAME);
+		File mF = new File(FilenameUtils.normalize(path)+ "/" + LocalDocConst.METADATA_FILENAME);
 		JaxbUtils.marshalToFile(doc.getMd(), mF);
 //		doc.getMd().writeXml(mF);
 		logger.debug("Written metadata file "+mF.getAbsolutePath());

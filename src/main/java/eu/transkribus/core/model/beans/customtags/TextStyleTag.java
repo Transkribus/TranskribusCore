@@ -10,6 +10,7 @@ import eu.transkribus.core.model.beans.pagecontent.ColourSimpleType;
 import eu.transkribus.core.model.beans.pagecontent.TextStyleType;
 import eu.transkribus.core.util.BeanCopyUtils;
 import eu.transkribus.core.util.TextStyleTypeUtils;
+import net.sf.saxon.om.SelectedElementsSpaceStrippingRule;
 
 /**
  * A custom tag that wraps the fields of a {@link TextSyleType} object and is used for indexed styles.
@@ -21,21 +22,21 @@ public class TextStyleTag extends CustomTag {
 	
 	public final CustomTagAttribute[] ATTRIBUTES = { 
 		new CustomTagAttribute("fontFamily", true, "Font family", "Font family"),
-		new CustomTagAttribute("serif", true, "Serif", "Is this a serif font?"),
-		new CustomTagAttribute("monospace",true, "Monospace", "Is this a monospace (i.e. equals width characters) font?"),
+		new CustomTagAttribute("serif", true, "Serif", "Is this a serif font?", Boolean.class),
+		new CustomTagAttribute("monospace",true, "Monospace", "Is this a monospace (i.e. equals width characters) font?", Boolean.class),
 		new CustomTagAttribute("fontSize", true, "Font size", "The size of the font in points"),
 		new CustomTagAttribute("kerning", true, "Kerning", "The kerning of the font, see: http://en.wikipedia.org/wiki/Kerning"),
 		new CustomTagAttribute("textColour", true, "Text colour", "The foreground colour of the text"),
 		new CustomTagAttribute("bgColour", true, "Background colour", "The background colour of the text"),
-		new CustomTagAttribute("reverseVideo", true, "Reverse video", "http://en.wikipedia.org/wiki/Reverse_video"),
-		new CustomTagAttribute("bold", true, "Bold", "Bold font"),
-		new CustomTagAttribute("italic", true, "Italic", "Italic font"),
-		new CustomTagAttribute("underlined", true, "Underlined", "Underlined"),
-		new CustomTagAttribute("subscript", true, "Subscript", "Subscript"),
-		new CustomTagAttribute("superscript", true, "Superscript", "Superscript"),
-		new CustomTagAttribute("strikethrough", true, "Strikethrough", "Strikethrough"),
-		new CustomTagAttribute("smallCaps", true, "Small caps", "Small capital letters at the height as lowercase letters, see: http://en.wikipedia.org/wiki/Small_caps"),
-		new CustomTagAttribute("letterSpaced", true, "Letter spaced", "Equals distance between characters, see: http://en.wikipedia.org/wiki/Letter-spacing"),
+		new CustomTagAttribute("reverseVideo", true, "Reverse video", "http://en.wikipedia.org/wiki/Reverse_video", Boolean.class),
+		new CustomTagAttribute("bold", true, "Bold", "Bold font", Boolean.class),
+		new CustomTagAttribute("italic", true, "Italic", "Italic font", Boolean.class),
+		new CustomTagAttribute("underlined", true, "Underlined", "Underlined", Boolean.class),
+		new CustomTagAttribute("subscript", true, "Subscript", "Subscript", Boolean.class),
+		new CustomTagAttribute("superscript", true, "Superscript", "Superscript", Boolean.class),
+		new CustomTagAttribute("strikethrough", true, "Strikethrough", "Strikethrough", Boolean.class),
+		new CustomTagAttribute("smallCaps", true, "Small caps", "Small capital letters at the height as lowercase letters, see: http://en.wikipedia.org/wiki/Small_caps", Boolean.class),
+		new CustomTagAttribute("letterSpaced", true, "Letter spaced", "Equals distance between characters, see: http://en.wikipedia.org/wiki/Letter-spacing", Boolean.class),
 	};
 	
 //	public static String DEFAULT_COLOR = "#000000";
@@ -204,6 +205,10 @@ public class TextStyleTag extends CustomTag {
 
 	public void setSubscript(Boolean subscript) {
 		ts.setSubscript(subscript);
+		// set superscript to false if subscript was set:
+		if (subscript!=null && subscript) {
+			ts.setSuperscript(false);
+		}		
 	}
 
 
@@ -214,6 +219,10 @@ public class TextStyleTag extends CustomTag {
 
 	public void setSuperscript(Boolean superscript) {
 		ts.setSuperscript(superscript);
+		// set subscript to false if superscript was set:
+		if (superscript!=null && superscript) {
+			ts.setSubscript(false);	
+		}
 	}
 
 
@@ -378,6 +387,83 @@ public class TextStyleTag extends CustomTag {
 		}
 		
 		return atts;
+	}
+	
+	public static TextStyleTag getBoldTag() {
+		TextStyleTag t = new TextStyleTag();
+		t.setBold(true);
+		return t;
+	}
+	
+	public static TextStyleTag getItalicTag() {
+		TextStyleTag t = new TextStyleTag();
+		t.setItalic(true);
+		return t;
+	}
+	
+	public static TextStyleTag getSuperscriptTag() {
+		TextStyleTag t = new TextStyleTag();
+		t.setSuperscript(true);
+		return t;
+	}
+	
+	public static TextStyleTag getSubscriptTag() {
+		TextStyleTag t = new TextStyleTag();
+		t.setSubscript(true);
+		return t;
+	}
+	
+	public static TextStyleTag getUnderlinedTag() {
+		TextStyleTag t = new TextStyleTag();
+		t.setUnderlined(true);
+		return t;
+	}
+	
+	public static TextStyleTag getStrikethroughTag() {
+		TextStyleTag t = new TextStyleTag();
+		t.setStrikethrough(true);
+		return t;
+	}
+	
+	/**
+	 * Helper function to apply all boolean fields from tag t to this tag if they are true
+	 */
+	public void applyTrueValues(TextStyleTag t) {
+		// FIXME...
+		
+		
+		if (t.ts.isBold())
+			ts.setBold(true);
+		
+		if (t.ts.isItalic())
+			ts.setItalic(true);
+		
+		if (t.ts.isLetterSpaced())
+			ts.setLetterSpaced(true);
+		
+		if (t.ts.isMonospace())
+			ts.setMonospace(true);
+		
+		if (t.ts.isReverseVideo())
+			ts.setReverseVideo(true);
+		
+		if (t.ts.isSerif())
+			ts.setSerif(true);
+		
+		if (t.ts.isSmallCaps())
+			ts.setSmallCaps(true);
+		
+		if (t.ts.isStrikethrough())
+			ts.setStrikethrough(true);
+		
+		if (t.ts.isSubscript())
+			ts.setSubscript(true);
+		
+		if (t.ts.isSuperscript())
+			ts.setSuperscript(true);
+		
+		if (t.ts.isUnderlined())
+			ts.setUnderlined(true);
 	}
 	
 //	@Override public String getDisplayName() {

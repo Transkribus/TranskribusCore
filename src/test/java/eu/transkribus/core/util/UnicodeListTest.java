@@ -8,10 +8,11 @@ public class UnicodeListTest {
 
 	@Test public void testRegexes() {
 		assertTrue("3456".matches(UnicodeList.FOUR_DIGIT_HEX_VALUE_REGEX));
+		assertTrue("34567".matches(UnicodeList.FOUR_DIGIT_HEX_VALUE_REGEX));
 		assertFalse("asdfasdf".matches(UnicodeList.FOUR_DIGIT_HEX_VALUE_REGEX));
 		assertTrue("0fD1".matches(UnicodeList.FOUR_DIGIT_HEX_VALUE_REGEX));
 		
-		assertTrue("U+3456".matches(UnicodeList.UNICODE_VALUE_REGEX));
+		assertTrue("U+34567".matches(UnicodeList.UNICODE_VALUE_REGEX));
 		assertFalse("+3456".matches(UnicodeList.UNICODE_VALUE_REGEX));
 	}
 	

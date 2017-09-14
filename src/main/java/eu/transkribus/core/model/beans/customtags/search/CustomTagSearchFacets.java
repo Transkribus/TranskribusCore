@@ -5,21 +5,27 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import eu.transkribus.core.model.beans.customtags.search.SearchFacets.SearchType;
 import eu.transkribus.core.util.CoreUtils;
 
-public class CustomTagSearchFacets extends SearchFacets {
+public class CustomTagSearchFacets {
 	private String tagNameRegex;
 	private String tagValueRegex;
 	private Map<String, Object> props;
 	
+	private boolean exactMatch = false;
+	private boolean caseSensitive = false;
+	
+	private String regionType = "Line";
+	
 	public CustomTagSearchFacets(String tagNameRegex, String tagValueRegex, Map<String, Object> props
-			, boolean wholeWord, boolean caseSensitive) {
-		super(wholeWord, caseSensitive);
+			, boolean exactMatch, boolean caseSensitive, String regionType) {
+		this.exactMatch = exactMatch;
+		this.caseSensitive = caseSensitive;
 		
 		this.tagNameRegex = tagNameRegex == null || tagNameRegex.isEmpty() ? "" : tagNameRegex;
 		this.tagValueRegex = tagValueRegex == null || tagValueRegex.isEmpty() ? "" : tagValueRegex;
 		this.props = props==null ? new HashMap<String, Object>() : props;
+		this.regionType = regionType;
 	}
 	
 	public String getTagName(boolean withRegex) {
@@ -29,6 +35,8 @@ public class CustomTagSearchFacets extends SearchFacets {
 	public String getTagValue(boolean withRegex) {
 		return withRegex ? CoreUtils.createRegexFromSearchString(tagValueRegex, true, false, isCaseSensitive()) :tagValueRegex;
 	}
+	
+	public Map<String, Object> getProps() { return props; }
 	
 	public Set<String> getProperties(boolean withRegex) {
 		if (props == null)
@@ -53,6 +61,30 @@ public class CustomTagSearchFacets extends SearchFacets {
 			return null;
 	}	
 	
-	public SearchType getType() { return SearchType.Tags; }
+	public boolean isExactMatch() {
+		return exactMatch;
+	}
+
+	public void setExactMatch(boolean exactMatch) {
+		this.exactMatch = exactMatch;
+	}
+
+	public boolean isCaseSensitive() {
+		return caseSensitive;
+	}
+
+	public void setCaseSensitive(boolean caseSensitive) {
+		this.caseSensitive = caseSensitive;
+	}
+
+	public String getRegionType() {
+		return regionType;
+	}
+
+	public void setRegionType(String regionType) {
+		this.regionType = regionType;
+	}
+	
+	
 	
 }

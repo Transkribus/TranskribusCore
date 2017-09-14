@@ -31,7 +31,7 @@ final public class TrpPageUnmarshalListener extends Unmarshaller.Listener {
 	TrpPageType page=null;
 	
 	Logger logger = LoggerFactory.getLogger(TrpPageUnmarshalListener.class);
-	Set<String> allTagNames = new HashSet<String>(); // all tag-names are gathered here
+//	Set<String> allTagNames = new HashSet<String>(); // all tag-names are gathered here
 //	Map<String, CustomTag> allTagNamesWithSample = new HashMap<>(); // all tag-names are gathered here
 //	List<CustomTag> allTags = new ArrayList<>();
 	
@@ -61,9 +61,9 @@ final public class TrpPageUnmarshalListener extends Unmarshaller.Listener {
 			page.registerObjectId(target);
 		}
 		
-		if (target instanceof PcGtsType) {
-			page.printIdRegistry();
-		}
+//		if (target instanceof PcGtsType) {
+//			page.printIdRegistry();
+//		}
 		
 	}
 	
@@ -72,10 +72,12 @@ final public class TrpPageUnmarshalListener extends Unmarshaller.Listener {
 		if (PageXmlUtils.USE_TEXT_STYLE_CUSTOM_TAGS && target instanceof ITrpShapeType) {
 			ITrpShapeType st = (ITrpShapeType) target;
 			st.setCustom(st.getCustom()); // manually call setter method for custom tag as JAXB does not call setters!
-			TextStyleTypeUtils.applyTextStyleToCustomTag(st);
+			
+//			TextStyleTypeUtils.applyTextStyleToCustomTag(st);
 			
 			if (st.getCustomTagList()!=null) {
 				// try registering (possibly new) tags:
+				
 				for (CustomTag t : st.getCustomTagList().getTags()) {
 					try {
 						CustomTagFactory.addToRegistry(t);
@@ -84,7 +86,7 @@ final public class TrpPageUnmarshalListener extends Unmarshaller.Listener {
 					}
 				}
 
-				allTagNames.addAll(st.getCustomTagList().getIndexedTagNames());
+//				allTagNames.addAll(st.getCustomTagList().getIndexedTagNames());
 				
 				
 //				List<CustomTag> tags = st.getCustomTagList().getIndexedTagsAtRange(0, st.getUnicodeText().length());
@@ -103,7 +105,7 @@ final public class TrpPageUnmarshalListener extends Unmarshaller.Listener {
 		if (target instanceof TrpPageType) {
 			((TrpPageType) target).sortContent();
 			((TrpPageType) target).setPcGtsType((PcGtsType) parent);
-			((TrpPageType) target).setTagNames(allTagNames);
+//			((TrpPageType) target).setTagNames(allTagNames);
 		}
 		else if (target instanceof ITrpShapeType) {
 			ITrpShapeType st = (ITrpShapeType) target;
@@ -118,7 +120,7 @@ final public class TrpPageUnmarshalListener extends Unmarshaller.Listener {
 			}
 			else if (target instanceof TrpTextLineType) {
 //				((TrpTextLineType)target).setRegion((TrpTextRegionType)parent);
-				((TrpTextLineType)target).updateTaggedWords();
+//				((TrpTextLineType)target).updateTaggedWords();
 				((TrpTextLineType)target).sortWords();
 			}
 			else if (target instanceof TrpBaselineType) {

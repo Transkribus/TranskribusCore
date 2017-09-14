@@ -6,7 +6,7 @@
 
     <xsl:output method="xml" encoding="UTF-8" version="1.0"/>
 
-    <xsl:key name="allStyles" match="TextStyle"
+	<xsl:key name="allStyles" match="TextStyle"
         use="concat(translate(@fontFamily, ' ', '_'), '_', @fontSize, '_', @serif, '_', @bold, '_', @italic,'_', @subscript, '_', @superscript,'_', @underlined, '_', @textColour)"/>
 
     <xsl:template name="languageTable">
@@ -119,12 +119,52 @@
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
+                <xsl:variable name="foundMinY">
+	        <xsl:choose>
+	                <xsl:when test="$minYFromPrintspace=9999999">
+	                    <xsl:value-of select="0"/>
+	                </xsl:when>
+	                <xsl:otherwise>
+	                    <xsl:value-of select="$minYFromPrintspace"/>
+	                </xsl:otherwise>
+	        </xsl:choose>
+         </xsl:variable>
+         <xsl:variable name="foundMinX">
+	        <xsl:choose>
+	                <xsl:when test="$minXFromPrintspace=9999999">
+	                    <xsl:value-of select="0"/>
+	                </xsl:when>
+	                <xsl:otherwise>
+	                    <xsl:value-of select="$minXFromPrintspace"/>
+	                </xsl:otherwise>
+	        </xsl:choose>
+         </xsl:variable>
+         <xsl:variable name="foundMaxY">
+	        <xsl:choose>
+	                <xsl:when test="$maxYFromPrintspace=0">
+	                    <xsl:value-of select="$h"/>
+	                </xsl:when>
+	                <xsl:otherwise>
+	                    <xsl:value-of select="$maxYFromPrintspace"/>
+	                </xsl:otherwise>
+	        </xsl:choose>
+         </xsl:variable>
+         <xsl:variable name="foundMaxX">
+	        <xsl:choose>
+	                <xsl:when test="$maxXFromPrintspace=0">
+	                    <xsl:value-of select="$w"/>
+	                </xsl:when>
+	                <xsl:otherwise>
+	                    <xsl:value-of select="$maxXFromPrintspace"/>
+	                </xsl:otherwise>
+	        </xsl:choose>
+         </xsl:variable>
         <xsl:call-template name="description"/>
-        <xsl:call-template name="styleTable"/>
+<!--         <xsl:call-template name="styleTable"/> -->
         <Layout>
             <Page ID="Page{$actIdInt}" PHYSICAL_IMG_NR="{$actIdInt}" HEIGHT="{$h}" WIDTH="{$w}">
                 <!--   TODO: at the moment the margins are all 0,0,0,0 and printspace is the whole page; maybe better to calculate is but first check how this is handled in TRP  -->
-                <TopMargin>
+<!--                 <TopMargin>
                     <xsl:attribute name="HEIGHT" select="$minYFromPrintspace"></xsl:attribute> 
                     <xsl:attribute name="WIDTH" select="$w"></xsl:attribute> 
                     <xsl:attribute name="VPOS" select="0"></xsl:attribute> 
@@ -156,6 +196,39 @@
                     <xsl:apply-templates select="//page:GraphicRegion"/>
                     <xsl:apply-templates select="//page:ImageRegion"/>
                     <xsl:apply-templates select="//page:TableRegion"/>
+                </PrintSpace> -->
+               	<TopMargin>
+                    <xsl:attribute name="HEIGHT" select="$foundMinY"></xsl:attribute> 
+                    <xsl:attribute name="WIDTH" select="$w"></xsl:attribute> 
+                    <xsl:attribute name="VPOS" select="0"></xsl:attribute> 
+                    <xsl:attribute name="HPOS" select="0"></xsl:attribute> 
+                </TopMargin>
+                <LeftMargin>
+                    <xsl:attribute name="HEIGHT" select="$foundMaxY - $foundMinY"></xsl:attribute> 
+                    <xsl:attribute name="WIDTH" select="$foundMinX"></xsl:attribute> 
+                    <xsl:attribute name="VPOS" select="$foundMinY"></xsl:attribute> 
+                    <xsl:attribute name="HPOS" select="0"></xsl:attribute> 
+                </LeftMargin>
+                <RightMargin>
+                    <xsl:attribute name="HEIGHT" select="$foundMaxY - $foundMinY"></xsl:attribute> 
+                    <xsl:attribute name="WIDTH" select="$w - $foundMaxX"></xsl:attribute> 
+                    <xsl:attribute name="VPOS" select="$foundMinY"></xsl:attribute> 
+                    <xsl:attribute name="HPOS" select="$foundMaxX"></xsl:attribute> </RightMargin>
+                <BottomMargin>
+                    <xsl:attribute name="HEIGHT" select="$h - $foundMaxY"></xsl:attribute> 
+                    <xsl:attribute name="WIDTH" select="$w"></xsl:attribute> 
+                    <xsl:attribute name="VPOS" select="$foundMaxY"></xsl:attribute> 
+                    <xsl:attribute name="HPOS" select="0"></xsl:attribute> </BottomMargin>
+                <PrintSpace>
+                    <xsl:attribute name="HEIGHT" select="$foundMaxY - $foundMinY"></xsl:attribute>
+                    <xsl:attribute name="WIDTH" select="$foundMaxX - $foundMinX"></xsl:attribute>
+                    <xsl:attribute name="VPOS" select="$foundMinY"></xsl:attribute>
+                    <xsl:attribute name="HPOS" select="$foundMinX"></xsl:attribute>
+                    <xsl:apply-templates select="//page:TextRegion"/>
+                    <xsl:apply-templates select="//page:SeparatorRegion"/>
+                    <xsl:apply-templates select="//page:GraphicRegion"/>
+                    <xsl:apply-templates select="//page:ImageRegion"/>
+                    <xsl:apply-templates select="//page:TableRegion"/>
                 </PrintSpace>
             </Page>
         </Layout>
@@ -176,7 +249,7 @@
 
         <TextBlock ID="{@id}">
             <xsl:call-template name="applyCoordinates"/>
-            <xsl:attribute name="language" select="$language"></xsl:attribute>
+<!--             <xsl:attribute name="language" select="$language"></xsl:attribute> -->
             <Shape>  
                 <Polygon>
                     <xsl:attribute name="POINTS" select="./page:Coords/@points"></xsl:attribute>

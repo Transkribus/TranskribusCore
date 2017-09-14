@@ -1,5 +1,6 @@
 package eu.transkribus.core.io;
 
+import java.awt.Dimension;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
@@ -11,7 +12,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
@@ -19,6 +19,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dea.util.pdf.PageImageWriter;
@@ -29,11 +30,13 @@ import org.xml.sax.SAXException;
 
 import com.itextpdf.text.DocumentException;
 
+import eu.transkribus.core.exceptions.CorruptImageException;
 import eu.transkribus.core.io.formats.Page2010Converter;
 import eu.transkribus.core.io.formats.XmlFormat;
 import eu.transkribus.core.io.util.ImgFileFilter;
 import eu.transkribus.core.io.util.ImgPriority;
 import eu.transkribus.core.io.util.MdFileFilter;
+import eu.transkribus.core.model.beans.DocumentUploadDescriptor.PageUploadDescriptor;
 import eu.transkribus.core.model.beans.EdFeature;
 import eu.transkribus.core.model.beans.EdOption;
 import eu.transkribus.core.model.beans.TrpDoc;
@@ -41,10 +44,14 @@ import eu.transkribus.core.model.beans.TrpDocDir;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
+import eu.transkribus.core.model.beans.TrpUpload;
 import eu.transkribus.core.model.beans.enums.EditStatus;
+import eu.transkribus.core.model.beans.enums.TranscriptionLevel;
 import eu.transkribus.core.model.beans.mets.Mets;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.builder.mets.TrpMetsBuilder;
+import eu.transkribus.core.model.builder.mets.util.MetsUtil;
+import eu.transkribus.core.util.ImgUtils;
 import eu.transkribus.core.util.JaxbList;
 import eu.transkribus.core.util.JaxbUtils;
 import eu.transkribus.core.util.NaturalOrderComparator;
@@ -55,7 +62,7 @@ import eu.transkribus.core.util.XmlUtils;
  * Reader class for loading a TRP Document from the local filesystem.<br>
  * The given path should contain:<br>
  * <ul>
- * <li>Image files of type JPG or TIFF (allowed types and priorities defined in
+ * <li>Image files of type JPG, PNG or TIFF (allowed types and priorities defined in
  * {@link ImgPriority})</li>
  * <li>Optional: PAGE XML files (corresponding images and XMLs must have the
  * same name)</li>
@@ -86,9 +93,8 @@ public class LocalDocReader {
 
 	private final static Logger logger = LoggerFactory.getLogger(LocalDocReader.class);
 
-
 	public static TrpDoc load(final String path) throws IOException {
-		return load(path, true, true, false, true);
+		return load(path, true, true, false, true, false);
 	}
 
 	/**
@@ -117,7 +123,19 @@ public class LocalDocReader {
 	 * @throws IOException if the path can't be read or is malformed or an invalid XML format is found
 	 */
 	public static TrpDoc load(final String path, boolean forceCreatePageXml) throws IOException {
-		return load(path, true, true, false, forceCreatePageXml);
+		return load(path, true, true, false, forceCreatePageXml, false);
+	}
+	
+	/**
+	 * Load document given extra parameter for syncing
+	 * @param path the path where the document is stored
+	 * @param forceCreatePageXml if true, then a Page XML skeleton is created for pages where none exists
+	 * @param enableSyncWithoutImages if true, a document is created even if there are no images (only relevant for syncing) 
+	 * @return the constructed document
+	 * @throws IOException if the path can't be read or is malformed or an invalid XML format is found
+	 */
+	public static TrpDoc load(final String path, boolean forceCreatePageXml, boolean enableSyncWithoutImages) throws IOException {
+		return load(path, true, true, false, forceCreatePageXml, enableSyncWithoutImages);
 	}
 	
 	/**
@@ -141,12 +159,19 @@ public class LocalDocReader {
 	 * @param preserveOcrFontFamily when creating the pageXML from alto/finereader XMLs, preserve the font information
 	 * @param replaceBadChars TODO when creating the pageXML from alto/finereader XMLs, specific characters are replaced. see FinereaderUtils
 	 * @param forceCreatePageXml if true, then a Page XML skeleton is created for pages where none exists
+	 * @param enableSyncWithoutImages if true, document will be created from XMLs only even if no images exist
 	 * @return the constructed document
 	 * @throws IOException if the path can't be read or is malformed
 	 */
-	public static TrpDoc load(final String path, boolean preserveOcrTxtStyles, boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml) throws IOException {
+	public static TrpDoc load(final String path, boolean preserveOcrTxtStyles, 
+			boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml,
+			boolean enableSyncWithoutImages) throws IOException {
 		//check OS and adjust URL protocol
 		final String os = System.getProperty("os.name");
+		
+		/*
+		 * FIXME use SysUtils.isWin() here?
+		 */
 		if (os.toLowerCase().contains("win")) {
 			LocalDocConst.URL_PROT_CONST = "file:///";
 		} //else: keep default
@@ -181,12 +206,9 @@ public class LocalDocReader {
 		//Construct the input dir with pageXml Files. 
 		File pageInputDir = new File(inputDir.getAbsolutePath() + File.separatorChar
 				+ LocalDocConst.PAGE_FILE_SUB_FOLDER);
-		if (!pageInputDir.isDirectory()) {
+		if (forceCreatePageXml && !pageInputDir.isDirectory()) {
 			pageInputDir.mkdir();
 		}
-		
-		//Construct thumb dir name. Its creation is handled by the GUI App
-		File thumbDir = new File(inputDir.getAbsolutePath() + File.separatorChar + LocalDocConst.THUMBS_FILE_SUB_FOLDER);
 		
 		//abbyy XML search path
 		File ocrInputDir = new File(inputDir.getAbsolutePath() + File.separatorChar
@@ -195,6 +217,10 @@ public class LocalDocReader {
 		//alto XML search path
 		File altoInputDir = new File(inputDir.getAbsolutePath() + File.separatorChar
 				+ LocalDocConst.ALTO_FILE_SUB_FOLDER);
+		
+		//alto XML search path
+		File txtInputDir = new File(inputDir.getAbsolutePath() + File.separatorChar
+				+ LocalDocConst.TXT_FILE_SUB_FOLDER);
 		
 		//backupfolder for outdated page format files, if any
 		final String backupFolderName = XmlFormat.PAGE_2010.toString().toLowerCase()
@@ -205,6 +231,12 @@ public class LocalDocReader {
 		// iterate imgList, search for corresponding XML files and build TrpPages
 		int pageNr = 1;
 		List<TrpPage> pages = new ArrayList<TrpPage>(pageMap.entrySet().size());
+		
+		// need a special variable to test whether we are in sync mode (only then do the following!!!!)
+		if (pageMap.entrySet().size() == 0 && enableSyncWithoutImages ) {
+			pageMap = createDummyImgFilesForXmls(inputDir, pageInputDir);
+		}
+		
 		for (Entry<String, File> e : pageMap.entrySet()) {
 			
 			File imgFile = e.getValue();
@@ -215,7 +247,7 @@ public class LocalDocReader {
 			File pageXml = findXml(imgFileName, pageInputDir);
 			
 			//TODO thumbURL dir + imgFile.getName())+".jpg"
-			File thumbFile = getThumbFile(thumbDir, imgFileName);
+			File thumbFile = getThumbFile(inputDir, imgFileName);
 					
 			if(pageXml != null) {
 				XmlFormat xmlFormat = XmlUtils.getXmlFormat(pageXml);
@@ -230,86 +262,29 @@ public class LocalDocReader {
 				}
 			} 
 			
-			//if no page XML, then create one at this path
-			File pageOutFile = new File(pageInputDir.getAbsolutePath() + File.separatorChar + imgFileName
-					+ ".xml");
+			//try to read image dimension in any case to detect corrupt files immediately!
+			Dimension dim = null;
+			String imageRemark = null;
+			try {
+				dim = ImgUtils.readImageDimensions(imgFile);
+			} catch(CorruptImageException cie) {
+				logger.error("Image is corrupt: " + imgFile.getAbsolutePath(), cie);
+				imageRemark = getCorruptImgMsg(imgFile.getName());
+			}
 			
-			if(pageXml == null && forceCreatePageXml){
-				//try find Abbyy XML
+			if(pageXml == null && forceCreatePageXml) {
+				//if no page XML, then create one at this path
+				File pageOutFile = new File(pageInputDir.getAbsolutePath() + File.separatorChar 
+						+ imgFileName + ".xml");
 				File abbyyXml = findXml(imgFileName, ocrInputDir);
-				if(abbyyXml != null){
-					try{
-						XmlFormat xmlFormat = XmlUtils.getXmlFormat(abbyyXml);
-						if(xmlFormat.equals(XmlFormat.ABBYY_10)){
-							logger.info(abbyyXml.getAbsolutePath() + ": Transforming Finereader10/11 XML to PAGE XML.");
-							PcGtsType pc = PageXmlUtils.createPcGtsTypeFromAbbyy(
-									abbyyXml, imgFile.getName(), 
-									preserveOcrTxtStyles, preserveOcrFontFamily, 
-									replaceBadChars
-									);
-							pageXml = JaxbUtils.marshalToFile(pc, pageOutFile);
-						}
-					} catch(IOException | TransformerException ioe){
-						logger.error(ioe.getMessage(), ioe);
-						throw new IOException("Could not migrate file: " + abbyyXml.getAbsolutePath(), ioe);
-					} catch (ParserConfigurationException | SAXException xmle) {
-						logger.error(xmle.getMessage(), xmle);
-						throw new IOException("Could not transform XML file!", xmle);
-					} catch (JAXBException je) {
-						/* TODO This exception is only thrown when the pageXML is unmarshalled 
-						 * for inserting the image filename which is not included in the abbyy xml! */
-						logger.error(je.getMessage(), je);
-						throw new IOException("Transformation output is not a valid page XML!", je);
-					}
-				}
-			}
-			
-			if(pageXml == null && forceCreatePageXml){
-				//try find ALTO XML
 				File altoXml = findXml(imgFileName, altoInputDir);
-				if(altoXml != null){
-					try {
-						pageXml = createPageFromAlto2(imgFile, altoXml, pageOutFile, preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars);
-						
-//						XmlFormat xmlFormat = XmlUtils.getXmlFormat(altoXml);
-//						if(xmlFormat.equals(XmlFormat.ALTO_2)) {
-//							logger.info(altoXml.getAbsolutePath() + ": Transforming ALTO v2 XMLs to PAGE XML.");
-//							PcGtsType pc = PageXmlUtils.createPcGtsTypeFromAlto(
-//									altoXml, e.getValue().getName(), 
-//									preserveOcrTxtStyles, preserveOcrFontFamily, 
-//									replaceBadChars
-//									);
-//							pageXml = JaxbUtils.marshalToFile(pc, pageOutFile);
-//						}
-					} catch(IOException | TransformerException ioe){
-						logger.error(ioe.getMessage(), ioe);
-						throw new IOException("Could not migrate file: " + altoXml.getAbsolutePath(), ioe);
-					} catch (ParserConfigurationException | SAXException xmle) {
-						logger.error(xmle.getMessage(), xmle);
-						throw new IOException("Could not transform XML file!", xmle);
-					} catch (JAXBException je) {
-						/* TODO This exception is only thrown when the pageXML is unmarshalled 
-						 * for inserting the image filename which is not included in the abbyy xml! */
-						logger.error(je.getMessage(), je);
-						throw new IOException("Transformation output is not a valid page XML!", je);
-					}
-				}
+				File txtFile = findFile(imgFileName, txtInputDir, "txt");
+				
+				pageXml = createPageXml(pageOutFile, false, abbyyXml, altoXml, txtFile, preserveOcrFontFamily, 
+						preserveOcrTxtStyles, replaceBadChars, imgFile.getName(), dim);
 			}
 			
-			//if still null, there is no suitable file for this page
-			if (pageXml == null && forceCreatePageXml) {
-				logger.warn("No Transcript XML found for img: " + imgFileName);
-				try{
-					logger.info("Creating empty PageXml.");
-					PcGtsType pc = PageXmlUtils.createEmptyPcGtsType(imgFile);
-					pageXml = JaxbUtils.marshalToFile(pc, pageOutFile);
-				} catch (JAXBException je) {
-					logger.error(je.getMessage(), je);
-					throw new IOException("Could not create empty PageXml!", je);
-				}
-			}
-			
-			TrpPage page = buildPage(inputDir, pageNr++, imgFile, pageXml, thumbFile);
+			TrpPage page = buildPage(inputDir, pageNr++, imgFile, pageXml, thumbFile, imageRemark);
 			pages.add(page);
 		}
 
@@ -322,6 +297,81 @@ public class LocalDocReader {
 
 		logger.debug(doc.toString());
 		return doc;
+	}
+
+	/**
+	 * Method will create a PAGE XML from the given source files at pageOutFile.
+	 * if no supported source file exists (abbyy/alto/txt), then a skeleton will be created if possible.
+	 * <br/><br/>
+	 * This method must NEVER return null. Many mechanisms in Transkribus
+	 * depend on this method reliably creating a file.
+	 * 
+	 * @param pageOutFile
+	 * @param doOverwrite
+	 * @param abbyyXml
+	 * @param altoXml
+	 * @param txtFile
+	 * @param preserveOcrFontFamily
+	 * @param preserveOcrTxtStyles
+	 * @param replaceBadChars
+	 * @param imgFile
+	 * @param dim
+	 * @return
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	protected static File createPageXml(File pageOutFile, boolean doOverwrite, File abbyyXml, 
+			File altoXml, File txtFile, boolean preserveOcrFontFamily, boolean preserveOcrTxtStyles, 
+			boolean replaceBadChars, final String imgFileName, Dimension dim) 
+					throws FileNotFoundException, IOException {
+		if(pageOutFile == null) {
+			throw new IllegalArgumentException("PAGE XML output File is null.");
+		}
+		if(pageOutFile.exists() && !doOverwrite) {
+			throw new IOException("PAGE XML already exists at: " + pageOutFile.getAbsolutePath());
+		}
+		if(StringUtils.isEmpty(imgFileName)) {
+			throw new IllegalArgumentException("Image filename must not be empty");
+		}
+		
+		PcGtsType pc = null;
+		
+		if(abbyyXml != null){
+			//try find Abbyy XML
+			pc = createPageFromAbbyy(imgFileName, altoXml, preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars);
+		}
+		
+		if(pc == null && altoXml != null){
+			//try find ALTO XML
+			pc = createPageFromAlto2(imgFileName, altoXml, preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars);
+		}
+		
+		//from here we need the dimension of the image
+		if(dim == null) {
+			//set (0,0) here in order to make the following work
+			dim = new Dimension();
+		}
+		
+		if(pc == null && txtFile != null){
+			//try find TXT file
+			pc = createPageFromTxt(imgFileName, dim, txtFile);
+		}
+		
+		//if still null, there is no suitable file for this page yet => create one
+		if (pc == null) {
+			logger.warn("No Transcript XML found for img: " + FilenameUtils.getBaseName(imgFileName));
+			logger.info("Creating empty PageXml.");
+			pc = PageXmlUtils.createEmptyPcGtsType(imgFileName, dim);
+		}
+		
+		//create the file
+		try{
+			JaxbUtils.marshalToFile(pc, pageOutFile);
+		} catch (JAXBException je) {
+			throw new IOException("Could not create PageXml on disk!", je);
+		}
+		
+		return pageOutFile;
 	}
 
 	public static List<EdFeature> readEditDeclFeatures(File folder) {
@@ -356,9 +406,9 @@ public class LocalDocReader {
 //		FIXME set TRP_METS_VERSION to PROFILE, not TYPE
 		if (mets.getPROFILE().equals(TrpMetsBuilder.TRP_METS_PROFILE)) {
 			//unmarshal TrpDocMetadata
-			md = TrpMetsBuilder.getTrpDocMd(mets);
+			md = MetsUtil.getTrpDocMd(mets);
 			//collect files
-			pages = TrpMetsBuilder.getTrpPages(mets, parentDir);
+			pages = MetsUtil.getTrpPages(mets, parentDir);
 //		} else if (mets.getPROFILE().equals(EnmapMetsBuilder.ENMAP_METS_PROFILE)){
 //			md = EnmapMetsBuilder.getTrpDocMd(mets);			
 //			pages = EnmapMetsBuilder.getTrpPages(mets, parentDir);
@@ -398,24 +448,24 @@ public class LocalDocReader {
 		List<TrpDocDir> result = new LinkedList<>();
 		
 		for(File d : docDirs){
-			Map<String, File> imgs;
-			try {
-				imgs = findImgFiles(d);
-			} catch(IOException e){
-				logger.debug("Dir does not contain image files: " + d.getAbsolutePath());
-				continue;
-			}
+//			Map<String, File> imgs;
+//			try {
+//				imgs = findImgFiles(d);
+//			} catch(IOException e){
+//				logger.debug("Dir does not contain image files: " + d.getAbsolutePath());
+//				continue;
+//			}
 			final String name = d.getName();
 //			final long size = FileUtils.sizeOf(d);
-			final long size = -1; // too slow...
+//			final long size = -1; // too slow...
 			final Date date = new Date(d.lastModified());
 			TrpDocDir docDir = new TrpDocDir();
 			docDir.setName(name);
-			docDir.setNrOfImgs(imgs.size());
+			docDir.setNrOfFiles(d.list().length);
 			docDir.setCreateDate(date);
-			TrpDocMetadata md = findOrCreateDocMd(d);
-			md.setLocalFolder(null); // delete local folder s.t. server dir is not visible for clients!
-			docDir.setMetadata(findOrCreateDocMd(d));
+//			TrpDocMetadata md = findOrCreateDocMd(d);
+//			md.setLocalFolder(null); // delete local folder s.t. server dir is not visible for clients!
+//			docDir.setMetadata(md);
 			
 			result.add(docDir);
 			if(monitor != null){
@@ -428,24 +478,86 @@ public class LocalDocReader {
 		return result;
 	}
 	
-	public static File createPageFromAlto2(File imgFile, File altoXml, File pageOutFile, boolean preserveOcrTxtStyles, boolean preserveOcrFontFamily,
-			boolean replaceBadChars) throws IOException, TransformerException, SAXException, ParserConfigurationException, JAXBException {
-		XmlFormat xmlFormat = XmlUtils.getXmlFormat(altoXml);
-		if (xmlFormat.equals(XmlFormat.ALTO_2)) {
-			logger.info(altoXml.getAbsolutePath() + ": Transforming ALTO v2 XMLs to PAGE XML.");
-			PcGtsType pc = PageXmlUtils.createPcGtsTypeFromAlto(altoXml, imgFile.getName(), preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars);
-			return JaxbUtils.marshalToFile(pc, pageOutFile);
+	public static PcGtsType createPageFromAlto2(final String imgFileName, File altoXml, boolean preserveOcrTxtStyles, boolean preserveOcrFontFamily,
+			boolean replaceBadChars) throws IOException {
+		try {
+			XmlFormat xmlFormat = XmlUtils.getXmlFormat(altoXml);
+			if (xmlFormat.equals(XmlFormat.ALTO_2)) {
+				logger.info(altoXml.getAbsolutePath() + ": Transforming ALTO v2 XMLs to PAGE XML.");
+				return PageXmlUtils.createPcGtsTypeFromAlto(altoXml, imgFileName, preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars);
+			}
+			throw new IOException("Not a valid ALTO v2 file.");
+		} catch(IOException | TransformerException ioe){
+			logger.error(ioe.getMessage(), ioe);
+			throw new IOException("Could not migrate file: " + altoXml.getAbsolutePath(), ioe);
+		} catch (ParserConfigurationException | SAXException xmle) {
+			logger.error(xmle.getMessage(), xmle);
+			throw new IOException("Could not transform XML file!", xmle);
+		} catch (JAXBException je) {
+			/* TODO This exception is only thrown when the pageXML is unmarshalled 
+			 * for inserting the image filename which is not included in the abbyy xml! */
+			logger.error(je.getMessage(), je);
+			throw new IOException("Transformation output is not a valid page XML!", je);
 		}
-		throw new IOException("Could not determine xml file as valid alto2: " + altoXml.getAbsolutePath());
 	}
 
-	public static File getThumbFile(File thumbDir, String imgFileName) {
-		final String path = thumbDir.getAbsolutePath() + File.separatorChar 
+	private static PcGtsType createPageFromTxt(final String imgFileName, Dimension dim, File txtFile) throws IOException {
+		logger.debug("creating PAGE file from text file");
+		String text = FileUtils.readFileToString(txtFile, "utf-8");
+		logger.debug("text = "+text);
+		
+		return PageXmlUtils.createPcGtsTypeFromText(imgFileName, dim, text, TranscriptionLevel.LINE_BASED, false);
+	}
+
+	private static PcGtsType createPageFromAbbyy(final String imgFileName, File abbyyXml, boolean preserveOcrTxtStyles,
+			boolean preserveOcrFontFamily, boolean replaceBadChars) throws IOException {
+		try{
+			XmlFormat xmlFormat = XmlUtils.getXmlFormat(abbyyXml);
+			if(xmlFormat.equals(XmlFormat.ABBYY_10)){
+				logger.info(abbyyXml.getAbsolutePath() + ": Transforming Finereader10/11 XML to PAGE XML.");
+				PcGtsType pc = PageXmlUtils.createPcGtsTypeFromAbbyy(
+						abbyyXml, imgFileName, 
+						preserveOcrTxtStyles, preserveOcrFontFamily, 
+						replaceBadChars
+						);
+				return pc;
+			}
+			throw new IOException("Not a valid Finereader10/11 XML file.");
+		} catch(IOException | TransformerException ioe){
+			logger.error(ioe.getMessage(), ioe);
+			throw new IOException("Could not migrate file: " + abbyyXml.getAbsolutePath(), ioe);
+		} catch (ParserConfigurationException | SAXException xmle) {
+			logger.error(xmle.getMessage(), xmle);
+			throw new IOException("Could not transform XML file!", xmle);
+		} catch (JAXBException je) {
+			/* TODO This exception is only thrown when the pageXML is unmarshalled 
+			 * for inserting the image filename which is not included in the abbyy xml! */
+			logger.error(je.getMessage(), je);
+			throw new IOException("Transformation output is not a valid page XML!", je);
+		}
+	}
+	
+	public static File getThumbFile(File inputDir, String imgFileName) {
+		//Construct thumb dir name. Its creation is handled by the GUI App
+		final String path = getThumbDir(inputDir).getAbsolutePath() + File.separatorChar 
 				+ imgFileName + LocalDocConst.THUMB_FILE_EXT;
 		return new File(path);
 	}
 
-
+	public static String getThumbFileName(TrpPage page) throws IOException {
+		File imgFile = FileUtils.toFile(page.getUrl());
+		if (imgFile == null)
+			throw new IOException("Cannot retrieve image url from: "+page.getUrl());
+				
+		File inputDir = new File(FilenameUtils.getFullPath(imgFile.getAbsolutePath()));
+		File thumbDir = getThumbDir(inputDir);
+		File outFile = new File(thumbDir.getAbsolutePath()+"/"+FilenameUtils.getBaseName(imgFile.getName())+".jpg");
+		
+		return outFile.getAbsolutePath();
+	}
+	public static File getThumbDir(File inputDir) {
+		return new File(inputDir.getAbsolutePath() + File.separatorChar + LocalDocConst.THUMBS_FILE_SUB_FOLDER);
+	}
 //	private static void startThumbCreationThread(final TrpDoc doc) {
 //		Runnable thumbCreator = new Runnable(){
 //			@Override
@@ -473,24 +585,43 @@ public class LocalDocReader {
 	 *            the corresponding PAGE XML
 	 * @param thumb
 	 * 			  the thumbnail file for this image
+	 * @param useDummyImage
+	 * 			  treat the image file as corrupt/missing. 
+	 * 			XML may then be null as none could be created due to missing Dimension.
 	 * @return a TrpPage object with Transcript. The Transcript is null, if
 	 *         pageXml is null.
 	 * @throws MalformedURLException if an URL can't be constructed from parentDir
 	 */
-	public static TrpPage buildPage(File inputDir, int pageNr, File img, File pageXml, File thumb) throws IOException {
+	protected static TrpPage buildPage(File inputDir, int pageNr, File img, 
+			File pageXml, File thumb, final String missingImageRemark) throws IOException {
 		logger.debug(pageNr + ": XML = " + (pageXml == null ? "null" : pageXml.getName())
-				+ " - IMG = " + img.getName());
+				+ " - IMG = " + (img == null ? "null" : img.getName()));
 
+		//FIXME handle broken images
+		
 		TrpPage page = new TrpPage();
 		page.setPageNr(pageNr);
 		page.setKey(null);
-		page.setImgFileName(img.getName());
 		page.setDocId(-1);
-		final URL imgUrl = img.toURI().toURL();
-		page.setUrl(imgUrl);
-//		page.setThumbUrl(new File(LocalDocWriter.getThumbFileName(page)).toURI().toURL());
-		final URL thumbUrl = thumb.toURI().toURL();
-		page.setThumbUrl(thumbUrl);
+		
+		if(img != null) {
+			page.setImgFileName(img.getName());
+			final URL imgUrl = img.toURI().toURL();
+			page.setUrl(imgUrl);
+		} else {
+			page.setImgFileName(LocalDocConst.NO_IMAGE_FILENAME);
+		}
+		
+		if(!StringUtils.isEmpty(missingImageRemark)) {
+			URL dummyUrl = LocalDocConst.getDummyImageUrl();
+			page.setUrl(dummyUrl);
+			page.setImgFileProblem(missingImageRemark);
+		}
+		
+		if(thumb != null) {
+			final URL thumbUrl = thumb.toURI().toURL();
+			page.setThumbUrl(thumbUrl);
+		}
 		
 		if(pageXml != null){
 			final URL xmlUrl = pageXml.toURI().toURL();	
@@ -509,15 +640,23 @@ public class LocalDocReader {
 		return page;
 	}
 	
-	public static String getThumbFileName(TrpPage page) throws IOException {
-		File imgFile = org.apache.commons.io.FileUtils.toFile(page.getUrl());
-		if (imgFile == null)
-			throw new IOException("Cannot retrieve image url from: "+page.getUrl());
-				
-		File thmbsDir = new File(FilenameUtils.getFullPath(imgFile.getAbsolutePath())+"/"+LocalDocConst.THUMBS_FILE_SUB_FOLDER);
-		File outFile = new File(thmbsDir.getAbsolutePath()+"/"+FilenameUtils.getBaseName(imgFile.getName())+".jpg");
-		
-		return outFile.getAbsolutePath();
+	public static File findFile(String imgName, File inputDir, String extension) {
+		File file = new File(inputDir.getAbsolutePath() + File.separatorChar + imgName
+				+ "."+extension.toLowerCase());
+
+		if (file.canRead()) {
+			return file;
+		} else {
+			// try uppercase extension
+			file = new File(inputDir.getAbsolutePath() + File.separatorChar + imgName
+					+ "."+extension.toUpperCase());
+			
+			if (file.canRead()) {
+				return file;
+			} else {
+				return null;
+			}
+		}
 	}
 
 	/**
@@ -531,17 +670,54 @@ public class LocalDocReader {
 	 * @return an existing and readable xml file or null if none is found
 	 */
 	public static File findXml(String imgName, File xmlInputDir) {
-		//assume XML file
-		File xmlFile = new File(xmlInputDir.getAbsolutePath() + File.separatorChar + imgName
-				+ ".xml");
+		return findFile(imgName, xmlInputDir, "xml");
+		
+		// OLD CODE
+//		//assume XML file
+//		File xmlFile = new File(xmlInputDir.getAbsolutePath() + File.separatorChar + imgName
+//				+ ".xml");
+//
+//		if (xmlFile.canRead()) {
+//			//			logger.debug("Found XML for page " + imgName + " in " + xmlFile.getAbsolutePath());
+//			return xmlFile;
+//		} else {
+//			//			logger.debug("Found NO XML for page " + imgName + "!");
+//			return null;
+//		}
+	}
+	
+	/**
+	 * Check existence of PAGE XML files and return tree map of (fake) image filenames and files
+	 * @param baseDir folder in which images should be found
+	 * @param xmlDir folder holding all existing xml files - by default named "page"
+	 * @return
+	 * @throws IOException
+	 */
+	public static TreeMap<String, File> createDummyImgFilesForXmls(File baseDir, File xmlDir) throws IOException {
+		File[] xmlArr = xmlDir.listFiles();
+		
+		//Use number sensitive ordering so that:		
+		//img1 -> img2 -> ... -> img9 -> img10 -> etc.
+		//try Java 8: http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html#naturalOrder--
+		Comparator<String> naturalOrderComp = new NaturalOrderComparator();
+		TreeMap<String, File> pageMap = new TreeMap<>(naturalOrderComp);
 
-		if (xmlFile.exists() && xmlFile.canRead()) {
-			//			logger.debug("Found XML for page " + imgName + " in " + xmlFile.getAbsolutePath());
-			return xmlFile;
-		} else {
-			//			logger.debug("Found NO XML for page " + imgName + "!");
-			return null;
+		if (xmlArr == null || xmlArr.length == 0){
+			logger.debug("Folder " + xmlDir.getAbsolutePath() + " does not contain any XML files!");
+			logger.debug("No PAGE XML files found - returning empty TreeMap");
+			return pageMap;
 		}
+		
+		for (File xml : xmlArr) {
+			final String pageName = FilenameUtils.getBaseName(xml.getName());
+			if (!pageMap.containsKey(pageName)) {
+				//new page. add this xml
+				File img = new File(baseDir, pageName+".png");
+				pageMap.put(pageName, img);
+				logger.debug(pageName + ": created fake image for: " + img.getName());
+			} 
+		}
+		return pageMap;
 	}
 	
 	/**
@@ -573,9 +749,6 @@ public class LocalDocReader {
 			imgArr = fepImgDir.listFiles(new ImgFileFilter());
 		}
 		
-		if(imgArr == null || imgArr.length == 0){
-			throw new IOException("Folder " + inputDir.getAbsolutePath() + " does not contain any image files!");
-		}
 		
 		//Use number sensitive ordering so that:		
 		//img1 -> img2 -> ... -> img9 -> img10 -> etc.
@@ -583,6 +756,12 @@ public class LocalDocReader {
 		Comparator<String> naturalOrderComp = new NaturalOrderComparator();
 		TreeMap<String, File> pageMap = new TreeMap<>(naturalOrderComp);
 
+		if (imgArr == null || imgArr.length == 0){
+			logger.debug("Folder " + inputDir.getAbsolutePath() + " does not contain any image files!");
+			logger.debug("No images found - returning empty TreeMap");
+			return pageMap;
+		}
+		
 		for (File img : imgArr) {
 //			logger.debug("img = " + img.getName());
 			final String pageName = FilenameUtils.getBaseName(img.getName());
@@ -660,5 +839,75 @@ public class LocalDocReader {
 		}
 		
 		return docMd;
+	}
+
+	public static TrpDoc load(TrpUpload upload) throws IOException {
+		//validate most necessary things
+		if(upload == null) {
+			throw new IllegalArgumentException("Upload is null.");
+		}
+		if(upload.getUploadId() < 1) {
+			throw new IllegalArgumentException("Invalid upload ID: " + upload.getUploadId());
+		}
+		if(!upload.canReadDirectories()) {
+			throw new IllegalArgumentException("Directories are not readable: " + upload.getUploadTmpDir().getAbsolutePath());
+		}
+		//transform the upload object into a TRP document
+		TrpDoc doc = new TrpDoc();
+		TrpDocMetadata md = upload.getMd();
+		md.setLocalFolder(upload.getUploadTmpDir());
+		doc.setMd(md);
+		
+		File baseDir = upload.getUploadTmpDir();
+		File xmlDir = upload.getUploadPageTmpDir();
+		File thumbDir = new File(baseDir.getAbsolutePath() + File.separatorChar + LocalDocConst.THUMBS_FILE_SUB_FOLDER);
+		for(PageUploadDescriptor p : upload.getPages()) {
+			final int pageNr = p.getPageNr();
+			File img = new File(baseDir.getAbsolutePath() + File.separator + p.getFileName());
+			if(!img.isFile()){
+				throw new FileNotFoundException("Image for page " + pageNr + " does not exist: " + img.getAbsolutePath());
+			}
+			
+			//try to read image dimension in any case to detect corrupt files immediately!
+			Dimension dim = null;
+			String imageRemark = null;
+			try {
+				dim = ImgUtils.readImageDimensions(img);
+			} catch(CorruptImageException cie) {
+				logger.error("Image is corrupt: " + img.getAbsolutePath(), cie);
+				imageRemark = getCorruptImgMsg(img.getName());
+			}
+			
+			final String imgBaseName = FilenameUtils.getBaseName(img.getName());
+			File thumb = getThumbFile(thumbDir, imgBaseName);
+			
+			File pageXml = null;
+			if(!StringUtils.isEmpty(p.getPageXmlName())) {
+				pageXml = new File(xmlDir.getAbsolutePath() + File.separator + p.getPageXmlName());
+				if(!pageXml.isFile()){
+					throw new FileNotFoundException("PAGE XML for page " + pageNr + " does not exist: " + img.getAbsolutePath());
+				}
+			} else if (StringUtils.isEmpty(imageRemark)) {
+				//if a problem occured when reading the image
+				File pageOutFile = new File(xmlDir.getAbsolutePath() + File.separatorChar + imgBaseName
+						+ ".xml");
+				
+				PcGtsType pc = PageXmlUtils.createEmptyPcGtsType(img, dim);
+				try{
+					pageXml = JaxbUtils.marshalToFile(pc, pageOutFile);
+				} catch (JAXBException je) {
+					logger.error(je.getMessage(), je);
+					throw new IOException("Could not create empty PageXml on disk!", je);
+				}
+			} 
+			TrpPage page = buildPage(baseDir, pageNr, img, pageXml, thumb, imageRemark);
+			doc.getPages().add(page);
+		}
+								
+		return doc;
+	}
+	
+	public static String getCorruptImgMsg(final String imgFileName) {
+		return "Image file is corrupt: " + imgFileName;
 	}
 }

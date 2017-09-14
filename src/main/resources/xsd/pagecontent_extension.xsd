@@ -22,8 +22,29 @@
 				<annotation>
 					<documentation>The timestamp has to be in UTC (Coordinated Universal Time) and not local time.</documentation></annotation></element>
 			<element name="Comments" type="string" minOccurs="0" maxOccurs="1"/>
+									
+			<element name="TranskribusMetadata" type="pc:TranskribusMetadataType" minOccurs="0" maxOccurs="1">
+				<annotation>
+					<documentation>Transkribus specific metadata for this transcript</documentation>
+				</annotation>
+			</element>
 		</sequence>
 	</complexType>
+	
+	<complexType name="TranskribusMetadataType">
+		<attribute name="docId" type="int" use="required"/>
+		<attribute name="pageId" type="int" use="required"/>
+		<attribute name="pageNr" type="int" use="required"/>
+		<attribute name="tsid" type="int" use="optional"/>
+		
+		<attribute name="status" type="string" use="optional"/>
+		<attribute name="userId" type="int" use="optional"/>
+		<attribute name="imgUrl" type="string" use="optional"/>
+		<attribute name="xmlUrl" type="string" use="optional"/>
+		<attribute name="imageId" type="int" use="optional"/>
+	</complexType>
+	
+	
 	<complexType name="PageType">
 		<sequence>
 			<element name="Tag" type="pc:TagType" minOccurs="0" maxOccurs="unbounded"/>
@@ -210,7 +231,6 @@ Range: -179.999,180</documentation>
             </annotation>
 		</attribute>
 	</complexType>
-		
 	<complexType name="TextLineType">
 		<sequence>
 			<element name="Tag" type="pc:TagType" minOccurs="0" maxOccurs="unbounded"/>
@@ -480,7 +500,6 @@ Range: -179.999,180</documentation>
 			</extension>
 		</complexContent>
 	</complexType>
-	
 	<complexType name="TableRegionType">
 		<annotation>
 			<documentation>
@@ -496,7 +515,7 @@ Range: -179.999,180</documentation>
 				<attribute name="orientation" type="float" use="optional">
 					<annotation>
 						<documentation>The angle the rectangle encapsulating a region has to be rotated in clockwise direction in order to correct the present skew (negative values indicate anti-clockwise rotation).
-							Range: -179.999,180</documentation>
+Range: -179.999,180</documentation>
 					</annotation>
 				</attribute>
 				<attribute name="rows" type="int" use="optional">
@@ -527,63 +546,24 @@ Range: -179.999,180</documentation>
 						</documentation>
 					</annotation>
 				</attribute>
-<!--				<attribute name="lineSeparators" type="boolean" use="optional">
+				<attribute name="lineSeparators" type="boolean" use="optional">
 					<annotation>
 						<documentation>
 							Specifies the presence of line separators
 						</documentation>
 					</annotation>
-				</attribute>-->
-<!--				<attribute name="embText" type="boolean" use="optional">
+				</attribute>
+				<attribute name="embText" type="boolean" use="optional">
 					<annotation>
 						<documentation>
 							Specifies whether the region also contains
 							text
 						</documentation>
 					</annotation>
-				</attribute>-->
-			</extension>
-		</complexContent>
-	</complexType>
-	
-	<!-- Table cell type:	-->
-<!--	<complexType name="CellCoordsType">
-		<attribute name="points0" use="required" type="pc:PointsType">
-			<annotation>
-				<documentation>Points from upper left corner (included) to lower left corner (excluded)"</documentation>
-			</annotation>
-		</attribute>
-		<attribute name="points1" use="required" type="pc:PointsType">
-			<annotation>
-				<documentation>Points from lower left corner (included) to lower right corner (excluded)"</documentation>
-			</annotation>
-		</attribute>
-		<attribute name="points2" use="required" type="pc:PointsType">
-			<annotation>
-				<documentation>Points from lower right corner (included) to upper right corner (excluded)"</documentation>
-			</annotation>
-		</attribute>
-		<attribute name="points3" use="required" type="pc:PointsType">
-			<annotation>
-				<documentation>Points from upper right corner (included) to upper left corner (excluded)"</documentation>
-			</annotation>
-		</attribute>	
-	</complexType>-->
-	
-	<!--
-	<complexType name="CellCoordsType">
-		<complexContent>
-			<extension base="pc:CoordsType">
-				<attribute name="cornerPts" use="optional" default="0 1 2 3" type="pc:CornerPointsType">
-					<annotation>
-						<documentation>List of indexes to the upper left, lower left, lower right and upper right corner point</documentation>
-					</annotation>
 				</attribute>
 			</extension>
 		</complexContent>
 	</complexType>
--->	
-	
 	<complexType name="TableCellType">
 		<annotation>
 			<documentation>A single cell of a table</documentation>
@@ -1461,7 +1441,7 @@ It does not contain pagenumber (if not part of running title), marginals, signat
     			paragraph)
     		</documentation>
     	</annotation>
-    	<sequence minOccurs="2" maxOccurs="2">
+    	<sequence minOccurs="2" maxOccurs="unbounded">
     		<element name="RegionRef" type="pc:RegionRefType"/>
     	</sequence>
     	<attribute name="type" use="required">

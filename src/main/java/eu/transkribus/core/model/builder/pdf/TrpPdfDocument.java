@@ -7,6 +7,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -50,6 +51,8 @@ import eu.transkribus.core.model.beans.customtags.BlackeningTag;
 import eu.transkribus.core.model.beans.customtags.CommentTag;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
 import eu.transkribus.core.model.beans.customtags.CustomTagFactory;
+import eu.transkribus.core.model.beans.customtags.GapTag;
+import eu.transkribus.core.model.beans.customtags.SuppliedTag;
 import eu.transkribus.core.model.beans.customtags.TextStyleTag;
 import eu.transkribus.core.model.beans.pagecontent.BaselineType;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
@@ -61,7 +64,6 @@ import eu.transkribus.core.model.beans.pagecontent.WordType;
 import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
 import eu.transkribus.core.model.beans.pagecontent_trp.RegionTypeUtil;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpBaselineType;
-import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementCoordinatesComparator;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementReadingOrderComparator;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
@@ -144,7 +146,7 @@ public class TrpPdfDocument extends APdfDocument {
 	
 
 	@SuppressWarnings("unused")
-	public void addPage(URL imgUrl, TrpDoc doc, PcGtsType pc, boolean addAdditionalPlainTextPage, boolean imageOnly, Set<String> selectedTags, FimgStoreImgMd md, boolean doBlackening) throws MalformedURLException, IOException, DocumentException, JAXBException, URISyntaxException {
+	public void addPage(URL imgUrl, TrpDoc doc, PcGtsType pc, boolean addAdditionalPlainTextPage, boolean imageOnly, FimgStoreImgMd md, boolean doBlackening) throws MalformedURLException, IOException, DocumentException, JAXBException, URISyntaxException {
 		
 		imgOnly = imageOnly;
 		extraTextPage = addAdditionalPlainTextPage;
@@ -156,8 +158,21 @@ public class TrpPdfDocument extends APdfDocument {
 //		}
 		
 		BufferedImage imgBuffer = null;
-		InputStream input = imgUrl.openStream();
-		imgBuffer = ImageIO.read(input);
+		InputStream input;
+		try {
+			input = imgUrl.openStream();
+			
+			imgBuffer = ImageIO.read(input);
+		} catch (FileNotFoundException e) {
+	
+			logger.error("File was not found at url " + imgUrl);
+			URL origUrl = new URL(imgUrl.getProtocol(), imgUrl.getHost(), imgUrl.getFile().replace("view", "orig"));			
+			logger.debug("try orig file location " + origUrl);
+			input = origUrl.openStream();
+			imgBuffer = ImageIO.read(input);
+			
+		}
+		
 	    Graphics2D graph = imgBuffer.createGraphics();
 	    graph.setColor(Color.BLACK);
 	    
@@ -293,7 +308,7 @@ public class TrpPdfDocument extends APdfDocument {
 		if(doc != null && createTitle){
 			addTitlePage(doc);
 			//logger.debug("page number " + getPageNumber());
-			if (getPageNumber()%2 != 0){
+			if (getPageNumber()%1 != 0){
 				logger.debug("odd page number -> add one new page");
 				document.newPage();
 				//necessary that an empty page can be created
@@ -307,6 +322,7 @@ public class TrpPdfDocument extends APdfDocument {
 		if(addAdditionalPlainTextPage){
 
 			if (nrOfTextRegions > 0){
+				logger.debug("add uniform text");
 				document.newPage();			
 				addUniformText(pc ,cutoffLeft,cutoffTop);
 			}
@@ -328,7 +344,12 @@ public class TrpPdfDocument extends APdfDocument {
 			cb.setFontAndSize(bfArial, 32);
 					
 			List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
-			Collections.sort(regions, new TrpElementCoordinatesComparator<RegionType>());
+			
+			/*
+			 * use reding order comparator for sorting since at this time reading order is more trustable
+			 * other sorting is not transitive and seldomly produces "Comparison violates its general contract" exception
+			 */
+			Collections.sort(regions, new TrpElementReadingOrderComparator<RegionType>(true));
 	
 			for(RegionType r : regions){
 				//TODO add paths for tables etc.
@@ -378,7 +399,13 @@ public class TrpPdfDocument extends APdfDocument {
 		cb.setFontAndSize(bfArial, 10);
 				
 		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
-		Collections.sort(regions, new TrpElementCoordinatesComparator<RegionType>());
+		
+		/*
+		 * use reding order comparator for sorting since at this time reading order is more trustable
+		 * other sorting is not transitive and seldomly produces "Comparison violates its general contract" exception
+		 */
+		Collections.sort(regions, new TrpElementReadingOrderComparator<RegionType>(true));
+		//Collections.sort(regions, new TrpElementCoordinatesComparator<RegionType>());
 		
 		float textBlockXStart = 0;
 
@@ -763,7 +790,7 @@ public class TrpPdfDocument extends APdfDocument {
 				
 				boolean rtl = false;
 				//from right to left
-				logger.debug("&&&&&&&& shapeText : " + shapeText);
+				//logger.debug("&&&&&&&& shapeText : " + shapeText);
 				if (!shapeText.isEmpty()){
 					if (Character.getDirectionality(shapeText.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT
 						    || Character.getDirectionality(shapeText.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC
@@ -773,9 +800,9 @@ public class TrpPdfDocument extends APdfDocument {
 						logger.debug("&&&&&&&& STRING IS RTL : ");
 						rtl = true;
 					}
-					else{
-						logger.debug("&&&&&&&& STRING IS NOT RTL : ");
-					}
+//					else{
+//						logger.debug("&&&&&&&& STRING IS NOT RTL : ");
+//					}
 				}
 				
 				/*
@@ -1043,7 +1070,8 @@ public class TrpPdfDocument extends APdfDocument {
 			
 			for (Map.Entry<CustomTag, String> currEntry : entrySet){
 				
-				Set<String> wantedTags = ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames());
+				//Set<String> wantedTags = ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames());
+				Set<String> wantedTags = ExportUtils.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
 				
 				if (wantedTags.contains(currEntry.getKey().getTagName())){
 
@@ -1181,7 +1209,7 @@ public class TrpPdfDocument extends APdfDocument {
 		if(lines != null && !lines.isEmpty()){
 			//sort according to reading order
 
-			Collections.sort(lines, new TrpElementCoordinatesComparator<TextLineType>());
+			Collections.sort(lines, new TrpElementReadingOrderComparator<TextLineType>(true));
 			
 			double baseLineMeanY = 0;
 			double baseLineMeanYPrev = 0;
@@ -1277,7 +1305,6 @@ public class TrpPdfDocument extends APdfDocument {
 				}
 				
 				
-				
 				if (highlightTags){
 					
 					if ((l.getUnicodeText().isEmpty() || useWordLevel) && !l.getWord().isEmpty()){
@@ -1315,7 +1342,10 @@ public class TrpPdfDocument extends APdfDocument {
 		int k = 1;
 		Set<Entry<CustomTag, String>> entrySet = ExportUtils.getAllTagsForShapeElement(shape).entrySet();
 		
-		Set<String> wantedTags = ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames());
+		//Set<String> wantedTags = ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames());
+		Set<String> wantedTags = ExportUtils.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
+		
+		//logger.debug("wanted tags in TRPPDFDOC " + wantedTags.size());
 
 		int [] prevLength = new int[entrySet.size()];
 		int [] prevOffset = new int[entrySet.size()];
@@ -1588,7 +1618,7 @@ public class TrpPdfDocument extends APdfDocument {
 
 	}
 
-	public void addTags(TrpDoc doc, Set<Integer> pageIndices, boolean useWordLevel2, Set<String> selectedTags) throws DocumentException, IOException {
+	public void addTags(TrpDoc doc, Set<Integer> pageIndices, boolean useWordLevel2) throws DocumentException, IOException {
 		PdfContentByte cb = writer.getDirectContentUnder();
 		document.newPage();
 				
@@ -1596,8 +1626,10 @@ public class TrpPdfDocument extends APdfDocument {
 		float posY;
 		//BaseFont bf = BaseFont.createFont(BaseFont.TIMES_ROMAN, "UTF-8", BaseFont.NOT_EMBEDDED, true, null, null);
 		
+		Set<String> wantedTags = ExportUtils.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
+		
 		//logger.debug("selectedTags Size " + selectedTags.size());
-		for (String currTagname : selectedTags){
+		for (String currTagname : wantedTags){
 			double lineHeight = 12/scaleFactorY;
 			double lineGap = 4/scaleFactorY;
 			//logger.debug("currTagname " + currTagname);
@@ -1617,7 +1649,7 @@ public class TrpPdfDocument extends APdfDocument {
 				String color = CustomTagFactory.getTagColor(currTagname);
 				
 
-				addUniformTagList(lineHeight, twelfthPoints[1][0], posY, currTagname + " Tags:", "", cb, 0, 0, bfArial, twelfthPoints[1][0], false, color, 0, false);
+				addUniformTagList(lineHeight, twelfthPoints[1][0], posY, "", currTagname + " Tags:", "", cb, 0, 0, bfArial, twelfthPoints[1][0], false, color, 0, false);
 				//addUniformStringTest(lineMeanHeight, twelfthPoints[1][0], posY, currTagname + " Tags:", cb, 0, 0, bfArial, twelfthPoints[1][0], false, color, 0);
 				
 				Collection<String> valueSet = allTagsOfThisTagname.values();
@@ -1632,11 +1664,16 @@ public class TrpPdfDocument extends APdfDocument {
 					CustomTag currEntry = it.next();
 					
 					String currValue = allTagsOfThisTagname.get(currEntry);
+					
+					//case for gap tag
+					if(currValue == null){
+						currValue="";
+					}
 					String expansion = "";
 					
 //					logger.debug("curr tag entry " + currEntry);
 //					logger.debug("curr tag value " + currValue);
-					
+										
 					//handles continued tags over several lines
 					while (currEntry.isContinued() && it.hasNext()){
 						currEntry = it.next();
@@ -1657,6 +1694,8 @@ public class TrpPdfDocument extends APdfDocument {
 					}
 					
 					boolean rtl = false;
+					String searchText = "";
+					
 					if (!currValue.isEmpty() && textIsRTL(currValue)){
 						rtl = true;
 						//logger.debug("rtl tag found " + currValue);
@@ -1688,7 +1727,31 @@ public class TrpPdfDocument extends APdfDocument {
 							
 					}
 					
+					else if (currTagname.equals(GapTag.TAG_NAME)){
+						
+						GapTag at = (GapTag) currEntry;
+						currValue = currEntry.getTextOfShape();
+						searchText = currValue;
+						int offset = Math.max(at.getOffset(), currValue.length()-1);
+						String sub1 = currValue.substring(0, offset);
+						String sub2 = currValue.substring(offset);
+						String exp = (String) at.getAttributeValue("supplied");
+						if ( exp != null && exp != ""){
+							currValue = sub1.concat("["+exp+"]").concat(sub2);
+							//expansion = "[" + (String) at.getAttributeValue("supplied") + "]";
+						}
+						//no supplied attribute - gap must not be in the tag list
+						else{
+							continue;
+						}
+							
+					}
 					
+					else if (currTagname.equals(SuppliedTag.TAG_NAME)){
+						
+							
+					}
+										
 					//make sure that similar tags are only exported once
 					if (!uniqueValues.contains(currValue)){
 						uniqueValues.add(currValue);
@@ -1700,8 +1763,8 @@ public class TrpPdfDocument extends APdfDocument {
 							l = 1;
 						}
 
-						addUniformTagList(lineHeight, twelfthPoints[1][0], posY, currValue, expansion, cb, 0, 0, bfArial, twelfthPoints[1][0], true, null, 0, rtl);
-						logger.debug("tag value is " + currValue);
+						addUniformTagList(lineHeight, twelfthPoints[1][0], posY, searchText, currValue, expansion, cb, 0, 0, bfArial, twelfthPoints[1][0], true, null, 0, rtl);
+						//logger.debug("tag value is " + currValue);
 						l++;
 					}
 
@@ -1757,7 +1820,7 @@ public class TrpPdfDocument extends APdfDocument {
 		}
 		
 		if (docMd.getScriptType() != null){
-			if (writeDocMd("Sripttype: ", docMd.getScriptType().toString(), posY, 0, lineHeight, cb, bfArialItalic)){
+			if (writeDocMd("Scripttype: ", docMd.getScriptType().toString(), posY, 0, lineHeight, cb, bfArialItalic)){
 				posY += lineHeight*1.2;
 			}
 		}
