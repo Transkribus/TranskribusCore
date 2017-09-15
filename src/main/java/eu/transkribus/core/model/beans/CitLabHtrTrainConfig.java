@@ -29,6 +29,10 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 	public final static String BASE_MODEL_ID_KEY = "HTR Base Model ID";
 	public final static String BASE_MODEL_NAME_KEY = "HTR Base Model Name";
 	
+//	private int threads=4;
+//	private int subSampling = 4; // how many subsets are the pages divided into to reduce overfitting 
+//								// max is the number of input pages, elsewise a RuntimeException is thrown during training!
+	
 	public Integer getNumEpochs() {
 		return numEpochs;
 	}

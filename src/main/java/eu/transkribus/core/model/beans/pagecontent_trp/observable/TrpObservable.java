@@ -30,6 +30,10 @@ public class TrpObservable extends Observable {
 	
 	private boolean active=true;
 	
+	public TrpObservable() {
+		this(null);
+	}
+	
 	public TrpObservable(ITrpShapeType source) {
 		this(source, EventQueueOrderType.FIRST_IN_FIRST_OUT);
 	}
@@ -188,14 +192,18 @@ public class TrpObservable extends Observable {
 	public void setActive(boolean active) { this.active = active; }
 	public boolean isActive() { return active; }
 	
-	public void setChangedAndNotifyObservers(TrpObserveEvent arg) {
-		if (!active){
+//	public void setChangedAndNotifyObservers(TrpObserveEvent arg) {
+//		this.setChangedAndNotifyObservers((Object) arg);
+//	}
+	
+	public void setChangedAndNotifyObservers(Object arg) {
+		if (!active) {
 			return;
 		}
 		
 		setChanged();
 //		logger.debug("setChangedAndNotifyObservers, who = "+arg.who+" "+arg.description);
-		if (source.getPage() != null)
+		if (source!=null && source.getPage() != null)
 			source.getPage().setEdited(true);
 		
 		notifyObservers(arg);

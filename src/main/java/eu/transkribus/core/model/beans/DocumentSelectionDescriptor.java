@@ -64,7 +64,7 @@ public class DocumentSelectionDescriptor implements Serializable {
 		pages.add(pd);
 		return pd;
 	}
-	
+		
 	@XmlRootElement
 	@XmlAccessorType(XmlAccessType.FIELD)
 	public static class PageDescriptor implements Serializable  {

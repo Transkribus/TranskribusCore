@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Set;
@@ -335,7 +336,19 @@ public class DocExporter extends Observable {
 		return outputDir;
 	}
 	
-	public File exportDocForText2ImageTool(TrpDoc doc, String path, boolean overwrite, Set<Integer> pageIndices, boolean removeLineBreaks) throws IOException, JAXBException {
+	public static class Text2ImgInput {
+		public File imgFile;
+		public File pageXmlFile;
+		public File txtFile;
+		public Text2ImgInput(File imgFile, File pageXmlFile, File txtFile) {
+			super();
+			this.imgFile = imgFile;
+			this.pageXmlFile = pageXmlFile;
+			this.txtFile = txtFile;
+		}
+	}
+	
+	public List<Text2ImgInput> exportDocForText2ImageTool(TrpDoc doc, String path, boolean overwrite, Set<Integer> pageIndices, boolean removeLineBreaks, boolean skipPagesWithNoText) throws IOException, JAXBException {
 		FimgStoreGetClient getter = null;
 		FimgStoreUriBuilder uriBuilder = null;
 		ImgType imgType = ImgType.orig;
@@ -353,13 +366,48 @@ public class DocExporter extends Observable {
 		File outputDir = CoreUtils.createDirectory(path, overwrite);
 		String outputPath = FilenameUtils.normalizeNoEndSeparator(outputDir.getAbsolutePath());
 			
+		List<Text2ImgInput> textToImageInput = new ArrayList<>();
+		
 		for (int i=0; i<doc.getPages().size(); ++i) {			
 			String folderName = StringUtils.leftPad(""+(i+1), 5, '0');
 			
 //			for (TrpPage p : pages) {
 			if (pageIndices!=null && !pageIndices.contains(i))
 				continue;
+					
+			TrpPage p = doc.getPages().get(i);
+			File imgFile = null, xmlFile = null;
+						
+//			final String baseFileName = ExportFilePatternUtils.buildBaseFileName(pars.getFileNamePattern(), p);
+			final String baseFileName = folderName;
+			final String imgExt = "." + FilenameUtils.getExtension(p.getImgFileName());
+			final String xmlExt = ".xml";
 			
+			// load transcript:
+			TrpTranscriptMetadata transcriptMd;
+			JAXBPageTranscript transcript = ExportUtils.getPageTranscriptAtIndex(i);
+			// set up transcript metadata
+			if(transcript == null) {
+				transcriptMd = p.getCurrentTranscript();
+				transcript = new JAXBPageTranscript(transcriptMd);
+				transcript.build();
+			} else {
+				transcriptMd = transcript.getMd();
+			}
+			
+			// extract text from transcript:
+			String txt = transcript.getPage().getUnicodeText();
+			if (removeLineBreaks) {
+				txt = txt.replaceAll("\n", "");
+			}
+			logger.debug("txt = "+txt);
+			
+			if (skipPagesWithNoText && StringUtils.isEmpty(txt)) {
+				logger.info("skipping page with no text: "+(i+1));
+				continue;
+			}
+			
+			// now that it is clear whether to save the page, create dirs and store files:
 			File imgDir = new File(outputPath + File.separator + folderName);
 			logger.debug("imgDir: "+imgDir.getAbsolutePath());
 			if (!imgDir.mkdir()) {
@@ -371,14 +419,6 @@ public class DocExporter extends Observable {
 				throw new IOException("Could not create PAGE directory: "+pageDir.getAbsolutePath());
 			}
 			logger.debug("pageDir: "+pageDir.getAbsolutePath());
-		
-			TrpPage p = doc.getPages().get(i);
-			File imgFile = null, xmlFile = null;
-						
-//			final String baseFileName = ExportFilePatternUtils.buildBaseFileName(pars.getFileNamePattern(), p);
-			final String baseFileName = folderName;
-			final String imgExt = "." + FilenameUtils.getExtension(p.getImgFileName());
-			final String xmlExt = ".xml";
 			
 			// write image:
 			if (doc.isRemoteDoc()) {
@@ -389,30 +429,13 @@ public class DocExporter extends Observable {
 			}
 			
 			// write PAGE XML:
-			TrpTranscriptMetadata transcriptMd;
-			JAXBPageTranscript transcript = ExportUtils.getPageTranscriptAtIndex(i);
-			// set up transcript metadata
-			if(transcript == null) {
-				transcriptMd = p.getCurrentTranscript();
-				transcript = new JAXBPageTranscript(transcriptMd);
-				transcript.build();
-			} else {
-				transcriptMd = transcript.getMd();
-			}
-			// write transcript to file
 			xmlFile = new File(FilenameUtils.normalizeNoEndSeparator(pageDir.getAbsolutePath()) + File.separator + baseFileName + xmlExt);
 			transcript.write(xmlFile);
 			
-			
 			// write TXT file:
-			String txt = transcript.getPage().getUnicodeText();
-			if (removeLineBreaks) {
-				txt = txt.replaceAll("\n", "");
-			}
-			logger.debug("txt = "+txt);
 			File txtFile = new File(imgDir.getAbsolutePath()+File.separator+baseFileName+".txt");
 			Files.write(txt, txtFile, Charsets.UTF_8);
-			
+						
 			if (imgFile != null)
 				logger.debug("Written image file " + imgFile.getAbsolutePath());
 			
@@ -424,11 +447,13 @@ public class DocExporter extends Observable {
 				logger.debug("Written txt file "+txtFile.getAbsolutePath());
 			}
 			
+			textToImageInput.add(new Text2ImgInput(imgFile, xmlFile, txtFile));
+			
 			notifyObservers(Integer.valueOf(p.getPageNr()));
 			setChanged();
 		}
 		
-		return outputDir;
+		return textToImageInput;
 	}
 
 	

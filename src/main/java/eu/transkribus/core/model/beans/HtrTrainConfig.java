@@ -65,7 +65,11 @@ public abstract class HtrTrainConfig implements Serializable {
 	}
 
 	public void setTrain(List<DocumentSelectionDescriptor> train) {
-		this.train = train;
+		if (train == null) {
+			train = new LinkedList<>();
+		} else {
+			this.train = train;	
+		}
 	}
 	
 	public List<DocumentSelectionDescriptor> getTest() {
@@ -73,6 +77,10 @@ public abstract class HtrTrainConfig implements Serializable {
 	}
 
 	public void setTest(List<DocumentSelectionDescriptor> test) {
-		this.test = test;
+		if (test == null) {
+			test = new LinkedList<>();
+		} else {
+			this.test = test;	
+		}
 	}
 }
