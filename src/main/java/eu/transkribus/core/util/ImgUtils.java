@@ -169,8 +169,14 @@ public class ImgUtils {
 	 */
 	public static Rectangle boundRectangle(Rectangle rect, int width, int height) {
 		Rectangle nr = new Rectangle(rect);
-		if (nr.x < 0) { nr.x = 0; nr.width += rect.x; }
-		if (nr.y < 0) { nr.y = 0; nr.height += rect.y; }
+		if (nr.x < 0) { 
+			nr.x = 0; 
+			nr.width += rect.x; 
+		}
+		if (nr.y < 0) { 
+			nr.y = 0; 
+			nr.height += rect.y; 
+		}
 		if (nr.width > width)
 			nr.width = width;
 		if (nr.height > height)
@@ -178,6 +184,23 @@ public class ImgUtils {
 		
 		return nr;
 	}	
+	
+	/**
+	 * compute the scale factor for an image with dimension origX x origY for fitting it into a
+	 * frame with size destX x destY while keeping the aspect ratio
+	 * 
+	 * @param origX
+	 * @param origY
+	 * @param destX
+	 * @param destY
+	 * @return
+	 */
+	public static double computeScaleFactor(final int origX, final int origY, 
+			final int destX, final int destY) {
+		final double xScale = (double)destX/origX;
+        final double yScale = (double)destY/origY;
+        return Math.min(xScale, yScale);
+	}
 	
 	public static File killBorder(File baseImageFile, Polygon p, String outPng) throws IOException {
 		BufferedImage baseImage = readImage(baseImageFile);		
