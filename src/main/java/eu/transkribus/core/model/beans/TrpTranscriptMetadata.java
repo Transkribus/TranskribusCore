@@ -16,6 +16,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.io.FileUtils;
@@ -36,6 +37,7 @@ public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrp
 	
 	static DateFormat timeFormatter = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 	
+	@XmlTransient
 	TrpPage pageReferenceForLocalDocs;
 	
 	@Id
@@ -86,29 +88,29 @@ public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrp
 	
 	private String md5Sum = "";
 
-	@Column(name="NR_OF_REGIONS")
-	private int nrOfRegions = 0;
+	@Column(name=N_REGIONS_COL_NAME)
+	private Integer nrOfRegions;
 
-	@Column(name="NR_OF_TRANSCRIBED_REGIONS")
-	private int nrOfTranscribedRegions = 0;
+	@Column(name=N_TRANSCRIBED_REGIONS_COL_NAME)
+	private Integer nrOfTranscribedRegions;
 
-	@Column(name="NR_OF_WORDS_IN_REGIONS")
-	private int nrOfWordsInRegions = 0;
+	@Column(name=N_WORDS_IN_REGIONS_COL_NAME)
+	private Integer nrOfWordsInRegions;
 	
-	@Column(name="NR_OF_LINES")
-	private int nrOfLines = 0;
+	@Column(name=N_LINES_COL_NAME)
+	private Integer nrOfLines;
 
-	@Column(name="NR_OF_TRANSCRIBED_LINES")
-	private int nrOfTranscribedLines = 0;
+	@Column(name=N_TRANSCRIBED_LINES_COL_NAME)
+	private Integer nrOfTranscribedLines;
 
-	@Column(name="NR_OF_WORDS_IN_LINES")
-	private int nrOfWordsInLines = 0;
+	@Column(name=N_WORDS_IN_LINES_COL_NAME)
+	private Integer nrOfWordsInLines;
 
-	@Column(name="NR_OF_WORDS")
-	private int nrOfWords = 0;
+	@Column(name=N_WORDS_COL_NAME)
+	private Integer nrOfWords;
 
-	@Column(name="NR_OF_TRANSCRIBED_WORDS")
-	private int nrOfTranscribedWords = 0;
+	@Column(name=N_TRANSCRIBED_WORDS_COL_NAME)
+	private Integer nrOfTranscribedWords;
 	
 	//TODO tags
 	//TODO annotations
@@ -310,52 +312,52 @@ public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrp
 		this.pageReferenceForLocalDocs = pageReferenceForLocalDocs;
 	}
 
-	public int getNrOfRegions() {
+	public Integer getNrOfRegions() {
 		return nrOfRegions;
 	}
-	public void setNrOfRegions(int nrOfRegions) {
+	public void setNrOfRegions(Integer nrOfRegions) {
 		this.nrOfRegions = nrOfRegions;
 	}
-	public int getNrOfTranscribedRegions() {
+	public Integer getNrOfTranscribedRegions() {
 		return nrOfTranscribedRegions;
 	}
-	public void setNrOfTranscribedRegions(int nrOfTranscribedRegions) {
+	public void setNrOfTranscribedRegions(Integer nrOfTranscribedRegions) {
 		this.nrOfTranscribedRegions = nrOfTranscribedRegions;
 	}
-	public int getNrOfWordsInRegions() {
+	public Integer getNrOfWordsInRegions() {
 		return nrOfWordsInRegions;
 	}
-	public void setNrOfWordsInRegions(int nrOfWordsInRegions) {
+	public void setNrOfWordsInRegions(Integer nrOfWordsInRegions) {
 		this.nrOfWordsInRegions = nrOfWordsInRegions;
 	}
-	public int getNrOfLines() {
+	public Integer getNrOfLines() {
 		return nrOfLines;
 	}
-	public void setNrOfLines(int nrOfLines) {
+	public void setNrOfLines(Integer nrOfLines) {
 		this.nrOfLines = nrOfLines;
 	}
-	public int getNrOfTranscribedLines() {
+	public Integer getNrOfTranscribedLines() {
 		return nrOfTranscribedLines;
 	}
-	public void setNrOfTranscribedLines(int nrOfTranscribedLines) {
+	public void setNrOfTranscribedLines(Integer nrOfTranscribedLines) {
 		this.nrOfTranscribedLines = nrOfTranscribedLines;
 	}
-	public int getNrOfWordsInLines() {
+	public Integer getNrOfWordsInLines() {
 		return nrOfWordsInLines;
 	}
-	public void setNrOfWordsInLines(int nrOfWordsInLines) {
+	public void setNrOfWordsInLines(Integer nrOfWordsInLines) {
 		this.nrOfWordsInLines = nrOfWordsInLines;
 	}
-	public int getNrOfWords() {
+	public Integer getNrOfWords() {
 		return nrOfWords;
 	}
-	public void setNrOfWords(int nrOfWords) {
+	public void setNrOfWords(Integer nrOfWords) {
 		this.nrOfWords = nrOfWords;
 	}
-	public int getNrOfTranscribedWords() {
+	public Integer getNrOfTranscribedWords() {
 		return nrOfTranscribedWords;
 	}
-	public void setNrOfTranscribedWords(int nrOfTranscribedWords) {
+	public void setNrOfTranscribedWords(Integer nrOfTranscribedWords) {
 		this.nrOfTranscribedWords = nrOfTranscribedWords;
 	}	
 	

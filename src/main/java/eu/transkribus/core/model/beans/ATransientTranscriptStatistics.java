@@ -2,6 +2,8 @@ package eu.transkribus.core.model.beans;
 
 import javax.persistence.Column;
 import javax.persistence.Transient;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 
 /**
  * Extension of ATranscriptStatistics that defines Transient fields which are filled upon selects from the DB
@@ -9,117 +11,118 @@ import javax.persistence.Transient;
  * @author philip
  *
  */
+@XmlAccessorType(XmlAccessType.FIELD)
 public abstract class ATransientTranscriptStatistics extends ATranscriptStatistics {
 	
 	@Transient
-	@Column(name="NR_OF_REGIONS")
-	protected int nrOfRegions;
+	@Column(name=N_REGIONS_COL_NAME)
+	protected Integer nrOfRegions;
 
 	@Transient
-	@Column(name="NR_OF_TRANSCRIBED_REGIONS")
-	protected int nrOfTranscribedRegions;
+	@Column(name=N_TRANSCRIBED_REGIONS_COL_NAME)
+	protected Integer nrOfTranscribedRegions;
 
 	@Transient
-	@Column(name="NR_OF_WORDS_IN_REGIONS")
-	protected int nrOfWordsInRegions;
+	@Column(name=N_WORDS_IN_REGIONS_COL_NAME)
+	protected Integer nrOfWordsInRegions;
 	
 	@Transient
-	@Column(name="NR_OF_LINES")
-	protected int nrOfLines;
+	@Column(name=N_LINES_COL_NAME)
+	protected Integer nrOfLines;
 
 	@Transient
-	@Column(name="NR_OF_TRANSCRIBED_LINES")
-	protected int nrOfTranscribedLines;
+	@Column(name=N_TRANSCRIBED_LINES_COL_NAME)
+	protected Integer nrOfTranscribedLines;
 
 	@Transient
-	@Column(name="NR_OF_WORDS_IN_LINES")
-	protected int nrOfWordsInLines;
+	@Column(name=N_WORDS_IN_LINES_COL_NAME)
+	protected Integer nrOfWordsInLines;
 
 	@Transient
-	@Column(name="NR_OF_WORDS")
-	protected int nrOfWords;
+	@Column(name=N_WORDS_COL_NAME)
+	protected Integer nrOfWords;
 
 	@Transient
-	@Column(name="NR_OF_TRANSCRIBED_WORDS")
-	protected int nrOfTranscribedWords;
+	@Column(name=N_TRANSCRIBED_WORDS_COL_NAME)
+	protected Integer nrOfTranscribedWords;
 
 	@Override
-	public int getNrOfRegions() {
+	public Integer getNrOfRegions() {
 		return nrOfRegions;
 	}
 
 	@Override
-	public void setNrOfRegions(int nrOfRegions) {
+	public void setNrOfRegions(Integer nrOfRegions) {
 		this.nrOfRegions = nrOfRegions;
 	}
 
 	@Override
-	public int getNrOfTranscribedRegions() {
+	public Integer getNrOfTranscribedRegions() {
 		return nrOfTranscribedRegions;
 	}
 
 	@Override
-	public void setNrOfTranscribedRegions(int nrOfTranscribedRegions) {
+	public void setNrOfTranscribedRegions(Integer nrOfTranscribedRegions) {
 		this.nrOfTranscribedRegions = nrOfTranscribedRegions;
 	}
 
 	@Override
-	public int getNrOfWordsInRegions() {
+	public Integer getNrOfWordsInRegions() {
 		return nrOfWordsInRegions;
 	}
 
 	@Override
-	public void setNrOfWordsInRegions(int nrOfWordsInRegions) {
+	public void setNrOfWordsInRegions(Integer nrOfWordsInRegions) {
 		this.nrOfWordsInRegions = nrOfWordsInRegions;
 	}
 
 	@Override
-	public int getNrOfLines() {
+	public Integer getNrOfLines() {
 		return nrOfLines;
 	}
 
 	@Override
-	public void setNrOfLines(int nrOfLines) {
+	public void setNrOfLines(Integer nrOfLines) {
 		this.nrOfLines = nrOfLines;
 	}
 
 	@Override
-	public int getNrOfTranscribedLines() {
+	public Integer getNrOfTranscribedLines() {
 		return nrOfTranscribedLines;
 	}
 
 	@Override
-	public void setNrOfTranscribedLines(int nrOfTranscribedLines) {
+	public void setNrOfTranscribedLines(Integer nrOfTranscribedLines) {
 		this.nrOfTranscribedLines = nrOfTranscribedLines;
 	}
 
 	@Override
-	public int getNrOfWordsInLines() {
+	public Integer getNrOfWordsInLines() {
 		return nrOfWordsInLines;
 	}
 
 	@Override
-	public void setNrOfWordsInLines(int nrOfWordsInLines) {
+	public void setNrOfWordsInLines(Integer nrOfWordsInLines) {
 		this.nrOfWordsInLines = nrOfWordsInLines;
 	}
 
 	@Override
-	public int getNrOfWords() {
+	public Integer getNrOfWords() {
 		return nrOfWords;
 	}
 
 	@Override
-	public void setNrOfWords(int nrOfWords) {
+	public void setNrOfWords(Integer nrOfWords) {
 		this.nrOfWords = nrOfWords;
 	}
 
 	@Override
-	public int getNrOfTranscribedWords() {
+	public Integer getNrOfTranscribedWords() {
 		return nrOfTranscribedWords;
 	}
 
 	@Override
-	public void setNrOfTranscribedWords(int nrOfTranscribedWords) {
+	public void setNrOfTranscribedWords(Integer nrOfTranscribedWords) {
 		this.nrOfTranscribedWords = nrOfTranscribedWords;
 	}
 
