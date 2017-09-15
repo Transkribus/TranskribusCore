@@ -14,7 +14,6 @@ import java.util.Set;
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dea.fimgstoreclient.FimgStoreGetClient;
@@ -28,6 +27,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.itextpdf.text.DocumentException;
 
+import eu.transkribus.core.misc.APassthroughObservable;
 import eu.transkribus.core.model.beans.JAXBPageTranscript;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
@@ -50,7 +50,7 @@ import eu.transkribus.core.model.builder.tei.TrpTeiStringBuilder;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.JaxbUtils;
 
-public class DocExporter extends Observable {
+public class DocExporter extends APassthroughObservable {
 	private static final Logger logger = LoggerFactory.getLogger(DocExporter.class);
 
 	/**
@@ -64,6 +64,7 @@ public class DocExporter extends Observable {
 	 * @param exportAlto if set alto format will be exported
 	 * @param splitIntoWordsInAlto
 	 * @param fileNamePattern
+	 * @param imgType the image type to export for remote documents
 	 * @return
 	 * @throws IOException
 	 * @throws IllegalArgumentException
@@ -72,7 +73,8 @@ public class DocExporter extends Observable {
 	 * @throws TransformerException
 	 */
 	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, 
-			boolean exportImg, boolean exportPage, boolean exportAlto, boolean splitIntoWordsInAlto, String fileNamePattern) throws IOException,
+			boolean exportImg, boolean exportPage, boolean exportAlto, boolean splitIntoWordsInAlto, 
+			String fileNamePattern, ImgType imgType) throws IOException,
 			IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
 		CommonExportPars pars = new CommonExportPars();
 		pars.setDoWriteMets(true);
@@ -84,6 +86,7 @@ public class DocExporter extends Observable {
 		pars.setPages(CoreUtils.getRangeListStrFromSet(pageIndices));
 		pars.setDir(dir);
 		pars.setDoOverwrite(doOverwrite);
+		pars.setRemoteImgQuality(imgType);
 		
 		if(fileNamePattern != null) {
 			pars.setFileNamePattern(fileNamePattern);
@@ -203,10 +206,10 @@ public class DocExporter extends Observable {
 		
 		// do export for all defined pages
 		for (int i=0; i<pages.size(); ++i) {
-//			for (TrpPage p : pages) {
-			if (pageIndices!=null && !pageIndices.contains(i))
+			if (pageIndices!=null && !pageIndices.contains(i)) {
 				continue;
-		
+			}
+			
 			TrpPage p = pages.get(i);
 			File imgFile = null, xmlFile = null, altoFile = null;
 			
@@ -219,6 +222,9 @@ public class DocExporter extends Observable {
 			// gather remote files and export document
 			if (doc2.isRemoteDoc()) {				
 				if (pars.isDoWriteImages()) {
+					final String msg = "Downloading " + imgType.toString() + " image for page nr. " + p.getPageNr();
+					logger.debug(msg);
+					updateStatus(msg);
 					final URI imgUri = uriBuilder.getImgUri(p.getKey(), imgType);
 					imgFile = getter.saveFile(imgUri, imgOutputDir.getAbsolutePath(), baseFileName + imgExt);
 					p.setUrl(imgFile.toURI().toURL());
@@ -283,6 +289,7 @@ public class DocExporter extends Observable {
 					p.getTranscripts().add(tCopy);
 				}
 			} else {
+				updateStatus("Copying local files for page nr. " + p.getPageNr());
 				// copy local files during export
 				if (pars.isDoWriteImages()) {
 					imgFile = LocalDocWriter.copyImgFile(p, p.getUrl(), imgOutputDir.getAbsolutePath(), baseFileName + imgExt);

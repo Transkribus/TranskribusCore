@@ -60,7 +60,8 @@ public class CommonExportPars {
 	public CommonExportPars(String pages, boolean doWriteMets, boolean doWriteImages, boolean doExportPageXml,
 			boolean doExportAltoXml, boolean doWritePdf, boolean doWriteTei, boolean doWriteDocx, 
 			boolean doWriteTagsXlsx, boolean doWriteTablesXlsx,
-			boolean doCreateTitle, String useVersionStatus, boolean writeTextOnWordLevel, boolean doBlackening, Set<String> selectedTags) {
+			boolean doCreateTitle, String useVersionStatus, boolean writeTextOnWordLevel, 
+			boolean doBlackening, Set<String> selectedTags) {
 		super();
 		this.pages = pages;
 		this.doWriteMets = doWriteMets;
