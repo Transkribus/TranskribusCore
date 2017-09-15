@@ -25,6 +25,7 @@ import eu.transkribus.core.model.beans.EdFeature;
 import eu.transkribus.core.model.beans.EdOption;
 import eu.transkribus.core.model.beans.JAXBPageTranscript;
 import eu.transkribus.core.model.beans.TrpDoc;
+import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.builder.ExportUtils;
@@ -166,7 +167,18 @@ public class LocalDocWriter {
 		writeTrpDocMetadata(doc, doc.getMd().getLocalFolder().getAbsolutePath());
 	}
 	
+	/**
+	 * use {@link #writeDocXml(TrpDoc, File)}
+	 * @param doc
+	 * @param path
+	 * @throws Exception
+	 */
+	@Deprecated
 	public static void writeTrpDocMetadata(TrpDoc doc, String path) throws Exception {
+		writeTrpDocXml(doc, path);
+	}
+	
+	public static void writeTrpDocXml(TrpDoc doc, String path) throws Exception {
 		checkIfLocalDoc(doc);
 		
 		File dir = new File(path);
@@ -174,7 +186,13 @@ public class LocalDocWriter {
 		
 		// write metadata:
 		File mF = new File(FilenameUtils.normalize(path)+ "/" + LocalDocConst.METADATA_FILENAME);
-		JaxbUtils.marshalToFile(doc.getMd(), mF);
+		File dF = new File(FilenameUtils.normalize(path)+ "/" + LocalDocConst.DOC_XML_FILENAME);
+		// for old versions of TranskribusX
+		if(mF.isFile()) {
+			JaxbUtils.marshalToFile(doc.getMd(), mF);
+		}
+		//this is what LocalDocReader uses now
+		writeDocXml(doc, dF);
 //		doc.getMd().writeXml(mF);
 		logger.debug("Written metadata file "+mF.getAbsolutePath());
 	}
@@ -337,5 +355,12 @@ public class LocalDocWriter {
 		
 	}
 	
+	public static void writeDocXml(TrpDoc doc, File fileOut) {
+		try {
+			JaxbUtils.marshalToFile(doc, fileOut, TrpDoc.class, TrpDocMetadata.class, TrpPage.class, TrpTranscriptMetadata.class, EdFeature.class, EdOption.class);
+		} catch (Throwable t){
+			logger.error("Could not write doc XML!", t);
+		}
+	}
 
 }

@@ -14,6 +14,10 @@ public class LocalDocConst {
 	public static final int THUMB_SIZE_HEIGHT = 120;
 	public static final String THUMB_FILE_EXT = ".jpg";
 	public static final String EDITORIAL_DECLARATION_FN = "editorialDeclaration.xml";
+	/**
+	 * The whole document is now stored to {@value #DOC_XML_FILENAME}
+	 */
+	@Deprecated
 	public static final String METADATA_FILENAME = "metadata.xml";
 	public static final String NO_IMAGE_FILENAME = "NO_IMAGE";
 	private static final String MISSING_IMAGE_NAME = "image_unavailable.png";

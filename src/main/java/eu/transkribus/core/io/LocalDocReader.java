@@ -208,14 +208,16 @@ public class LocalDocReader {
 			throw new FileNotFoundException("The directory does not contain any images: " + inputDir.getAbsolutePath());
 		}
 		
+		TrpDocMetadata docMd = null;
 		//try to read doc structure from disk
 		if(docXml.isFile()) {
-			doc = unmarshalDoc(docXml);
+			doc = loadDocXml(docXml);
 			if(isValid(doc, pageMap.size(), forceCreatePageXml)) {
 				logger.info("Loaded document structure from disk.");
 				return doc;
 			} else {
 				logger.info("Removing faulty doc XML from disk and doing reload.");
+				docMd = doc.getMd();
 				docXml.delete();
 				doc = new TrpDoc();
 			}
@@ -223,9 +225,10 @@ public class LocalDocReader {
 		
 		logger.info("Reading document at " + inputDir.getAbsolutePath());
 
-		//find metadata file ========================================================
-		TrpDocMetadata docMd = findOrCreateDocMd(inputDir);
-
+		//find metadata file if not extracted from doc.xml =============================================
+		if(docMd == null) {
+			docMd = findOrCreateDocMd(inputDir);
+		}
 		//Set the docMd
 		doc.setMd(docMd);
 
@@ -311,7 +314,7 @@ public class LocalDocReader {
 						preserveOcrTxtStyles, replaceBadChars, imgFile.getName(), dim);
 			}
 			
-			TrpPage page = buildPage(inputDir, pageNr++, imgFile, pageXml, thumbFile, imageRemark);
+			TrpPage page = buildPage(inputDir, pageNr++, imgFile, pageXml, thumbFile, dim, imageRemark);
 			pages.add(page);
 		}
 
@@ -325,12 +328,12 @@ public class LocalDocReader {
 		logger.debug(doc.toString());
 		
 		//store doc on disk to save time on next load
-		marshalDoc(doc, docXml);
+		LocalDocWriter.writeDocXml(doc, docXml);
 		
 		return doc;
 	}
 
-	private static TrpDoc unmarshalDoc(File docXml) {
+	private static TrpDoc loadDocXml(File docXml) {
 		TrpDoc doc;
 		try {
 			doc = JaxbUtils.unmarshal(docXml, TrpDoc.class, TrpDocMetadata.class, TrpPage.class, TrpTranscriptMetadata.class, EdFeature.class, EdOption.class);
@@ -338,14 +341,6 @@ public class LocalDocReader {
 			doc = null;
 		}
 		return doc;		
-	}
-
-	private static void marshalDoc(TrpDoc doc, File fileOut) {
-		try {
-			JaxbUtils.marshalToFile(doc, fileOut, TrpDoc.class, TrpDocMetadata.class, TrpPage.class, TrpTranscriptMetadata.class, EdFeature.class, EdOption.class);
-		} catch (Throwable t){
-			logger.error("Could not write doc XML!", t);
-		}
 	}
 	
 	/**
@@ -642,7 +637,7 @@ public class LocalDocReader {
 	 * @throws MalformedURLException if an URL can't be constructed from parentDir
 	 */
 	protected static TrpPage buildPage(File inputDir, int pageNr, File img, 
-			File pageXml, File thumb, final String missingImageRemark) throws IOException {
+			File pageXml, File thumb, Dimension dim, final String missingImageRemark) throws IOException {
 		logger.debug(pageNr + ": XML = " + (pageXml == null ? "null" : pageXml.getName())
 				+ " - IMG = " + (img == null ? "null" : img.getName()));
 
@@ -670,6 +665,11 @@ public class LocalDocReader {
 		if(thumb != null) {
 			final URL thumbUrl = thumb.toURI().toURL();
 			page.setThumbUrl(thumbUrl);
+		}
+		
+		if(dim != null) {
+			page.setWidth(dim.width);
+			page.setHeight(dim.height);
 		}
 		
 		if(pageXml != null){
@@ -949,7 +949,7 @@ public class LocalDocReader {
 					throw new IOException("Could not create empty PageXml on disk!", je);
 				}
 			} 
-			TrpPage page = buildPage(baseDir, pageNr, img, pageXml, thumb, imageRemark);
+			TrpPage page = buildPage(baseDir, pageNr, img, pageXml, thumb, dim, imageRemark);
 			doc.getPages().add(page);
 		}
 								
