@@ -29,6 +29,14 @@ public class CitLabSemiSupervisedHtrTrainConfig extends CitLabHtrTrainConfig {
 	public final static boolean DEFAULT_REMOVE_LINEBREAKS = true;
 	private boolean removeLineBreaks = true;
 	public final static String REMOVE_LINEBREAKS_KEY = "Do not respect linebreaks";
+	
+	private int nThreads=4;
+	
+	/**
+	 * A field for generic properties relevant to the T2I process
+	 */
+	private String jsonProps=null;
+	
 
 	public CitLabSemiSupervisedHtrTrainConfig() {
 		setTrainEpochs(DEFAULT_TRAINING_EPOCHS);
@@ -65,6 +73,22 @@ public class CitLabSemiSupervisedHtrTrainConfig extends CitLabHtrTrainConfig {
 		}
 	}
 	
+	public void setJsonProps(String jsonProps) {
+		this.jsonProps = jsonProps;
+	}
+	
+	public String getJsonProps() {
+		return jsonProps;
+	}
+
+	public int getnThreads() {
+		return nThreads;
+	}
+
+	public void setnThreads(int nThreads) {
+		this.nThreads = nThreads;
+	}
+
 	@Override public void setNumEpochs(Integer numEpochs) {
 		// does nothing as numEpochs is set fixed via trainEpochs parameter!
 	}
@@ -83,6 +107,15 @@ public class CitLabSemiSupervisedHtrTrainConfig extends CitLabHtrTrainConfig {
 		}
 		
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "CitLabSemiSupervisedHtrTrainConfig [trainEpochs=" + trainEpochs + ", subSampling=" + subSampling
+				+ ", removeLineBreaks=" + removeLineBreaks + ", nThreads=" + nThreads + ", jsonProps=" + jsonProps
+				+ ", learningRate=" + learningRate + ", noise=" + noise + ", trainSizePerEpoch=" + trainSizePerEpoch
+				+ ", baseModelId=" + baseModelId + ", language=" + language + ", colId=" + colId + ", train=" + train
+				+ ", test=" + test + "]";
 	}
 
 }
