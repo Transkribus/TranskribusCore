@@ -405,7 +405,7 @@ public class DocExporter extends APassthroughObservable {
 			// extract text from transcript:
 			String txt = transcript.getPage().getUnicodeText();
 			if (removeLineBreaks) {
-				txt = txt.replaceAll("\n", "");
+				txt = txt.replaceAll("\n", " ");
 			}
 			logger.debug("txt = "+txt);
 			
