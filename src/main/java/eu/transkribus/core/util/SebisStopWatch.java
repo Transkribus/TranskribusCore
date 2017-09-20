@@ -72,7 +72,7 @@ public class SebisStopWatch {
 		return diff;
 	}
 	
-	private void calcDiffs() {
+	protected void calcDiffs() {
 		if (timeUnitGranularity == TimeUnit.DAYS) {
 			diffMs = diff % 1000;
 			diffSeconds = diff/1000%60;
@@ -212,5 +212,13 @@ public class SebisStopWatch {
 		
 	}
 	
-
+	/**
+	 * SebisStopWatch for lazy people...
+	 */
+	public static class SSW extends SebisStopWatch {
+		public static final SSW SW = new SSW();
+		public long stop(String verbosePrefix, Logger logger) {
+			return stop(true, verbosePrefix, logger);
+		}
+	}
 }

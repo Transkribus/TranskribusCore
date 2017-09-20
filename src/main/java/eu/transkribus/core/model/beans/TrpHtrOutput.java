@@ -2,7 +2,6 @@ package eu.transkribus.core.model.beans;
 
 import java.net.URL;
 
-import javax.annotation.Generated;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -34,6 +33,21 @@ public class TrpHtrOutput {
 	private URL url; 
 	@Column(name="HTR_ID")
 	private int htrId;
+	
+	/*
+	 * for KWS
+	 * 
+	 * colId is a String so it can hold a CSV list of several groups when searching in several collections
+	 */
+	@Transient
+	@Column
+	private String colId;
+	@Transient
+	@Column
+	private int docId;
+	@Transient
+	@Column
+	private int pageNr;
 	
 	public TrpHtrOutput(){}
 	
@@ -99,6 +113,37 @@ public class TrpHtrOutput {
 
 	public void setHtrId(int htrId) {
 		this.htrId = htrId;
+	}
+
+	public String getColId() {
+		return colId;
+	}
+
+	public void setColId(String colId) {
+		this.colId = colId;
+	}
+
+	public int getDocId() {
+		return docId;
+	}
+
+	public void setDocId(int docId) {
+		this.docId = docId;
+	}
+
+	public int getPageNr() {
+		return pageNr;
+	}
+
+	public void setPageNr(int pageNr) {
+		this.pageNr = pageNr;
+	}
+
+	@Override
+	public String toString() {
+		return "TrpHtrOutput [htrOutputId=" + htrOutputId + ", pageId=" + pageId + ", lineId=" + lineId + ", provider="
+				+ provider + ", key=" + key + ", url=" + url + ", htrId=" + htrId + ", colId=" + colId + ", docId="
+				+ docId + ", pageNr=" + pageNr + "]";
 	}
 
 }
