@@ -87,6 +87,9 @@ public class TrpJobStatus implements Serializable {
 	@Column(name="JOBDATA_CLOB")
 	private String jobData;
 	
+	@Column(name="JOBDATA")
+	private String jobDataOld;
+	
 	@Column
 	private boolean resumable = false;
 	
@@ -653,6 +656,14 @@ public class TrpJobStatus implements Serializable {
 
 	public void setTotalWork(Integer totalWork) {
 		this.totalWork = totalWork;
+	}
+	
+	public String getJobDataOld() {
+		return jobDataOld;
+	}
+
+	public void setJobDataOld(String jobDataOld) {
+		this.jobDataOld = jobDataOld;
 	}
 
 	@Override

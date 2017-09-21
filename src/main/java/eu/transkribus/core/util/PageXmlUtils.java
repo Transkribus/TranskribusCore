@@ -683,7 +683,7 @@ public class PageXmlUtils {
 		}
 		return true;
 	}
-
+	
 	public static boolean regionExists(PcGtsType pc, final String regId) {
 		if (pc.getPage() == null){
 			return false;

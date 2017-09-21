@@ -363,6 +363,10 @@ public class CoreUtils {
 		
 		return s;
 	}
+	
+	public static <T> boolean isEmpty(T... list) {
+		return list==null || list.length==0;
+	}
 		
 	public static boolean isEmpty(Collection<?> c) {
 		return c==null || c.isEmpty();

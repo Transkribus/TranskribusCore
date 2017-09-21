@@ -370,19 +370,20 @@ public class DocExporter extends APassthroughObservable {
 		}
 
 		// check and create output directory
-		File outputDir = CoreUtils.createDirectory(path, overwrite);
+		File outputDir = CoreUtils.createDirectory(path, overwrite); // FIXME: throws error if dir exists and overwrite=false!
 		String outputPath = FilenameUtils.normalizeNoEndSeparator(outputDir.getAbsolutePath());
 			
 		List<Text2ImgInput> textToImageInput = new ArrayList<>();
 		
 		for (int i=0; i<doc.getPages().size(); ++i) {			
-			String folderName = StringUtils.leftPad(""+(i+1), 5, '0');
-			
 //			for (TrpPage p : pages) {
 			if (pageIndices!=null && !pageIndices.contains(i))
 				continue;
-					
+			
 			TrpPage p = doc.getPages().get(i);
+			String folderName = StringUtils.leftPad(""+(i+1), 5, '0'); // use pagenr as foldername -> problem: may not be unique when multiple doc's are used!
+//			String folderName = StringUtils.leftPad(""+p.getPageId(), 8, '0'); // use pageid as foldername
+			
 			File imgFile = null, xmlFile = null;
 						
 //			final String baseFileName = ExportFilePatternUtils.buildBaseFileName(pars.getFileNamePattern(), p);

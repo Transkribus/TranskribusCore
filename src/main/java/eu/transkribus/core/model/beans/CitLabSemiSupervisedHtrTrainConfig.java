@@ -29,8 +29,9 @@ public class CitLabSemiSupervisedHtrTrainConfig extends CitLabHtrTrainConfig {
 	public final static boolean DEFAULT_REMOVE_LINEBREAKS = true;
 	private boolean removeLineBreaks = true;
 	public final static String REMOVE_LINEBREAKS_KEY = "Do not respect linebreaks";
-	
-	private int nThreads=4;
+
+	public static final int DEFAULT_NUMBER_OF_THREADS = 4;
+	private int nThreads=DEFAULT_NUMBER_OF_THREADS;
 	
 	/**
 	 * A field for generic properties relevant to the T2I process
@@ -65,10 +66,15 @@ public class CitLabSemiSupervisedHtrTrainConfig extends CitLabHtrTrainConfig {
 	public boolean setTrainEpochs(String trainEpochs) {
 		if (isValidTrainingEpochsString(trainEpochs)) {
 			this.trainEpochs = trainEpochs;
-			setNumEpochs(this.trainEpochs.split(";").length);
+			if (StringUtils.isEmpty(this.trainEpochs)) {
+				setNumEpochs(0);	
+			} else {
+				setNumEpochs(this.trainEpochs.split(";").length);
+			}
+			
 			return true;
 		} else {
-			logger.warn("Invalid training epochs string: "+trainEpochs+" leaving current value: "+trainEpochs);
+			logger.warn("Invalid training epochs string: "+trainEpochs+" leaving current value: "+this.trainEpochs);
 			return false;
 		}
 	}
@@ -93,9 +99,10 @@ public class CitLabSemiSupervisedHtrTrainConfig extends CitLabHtrTrainConfig {
 		// does nothing as numEpochs is set fixed via trainEpochs parameter!
 	}
 	
-	public boolean isValidTrainingEpochsString(String trainEpochs) {
-		if (StringUtils.isEmpty(trainEpochs))
-			return false;
+	public static boolean isValidTrainingEpochsString(String trainEpochs) {
+		if (StringUtils.isEmpty(trainEpochs)) {
+			return true;
+		}
 		
 		for (String epochStr : trainEpochs.split(";")) {
 			try {
