@@ -330,7 +330,7 @@ public class CoreUtils {
 			try {
 				FileUtils.deleteDirectory(dir);
 			} catch (IOException e) {
-				logger.error("Error deleting directory: "+e.getMessage());
+				logger.error("Error deleting directory: "+e.getMessage(), e);
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 package eu.transkribus.core.util;
 
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.io.ByteArrayInputStream;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -787,28 +789,42 @@ public class PageXmlUtils {
 	}
 
 	public static void setTextToLine(String text, PcGtsType pc, String lineId) {
+		TextLineType tl = findLineById(pc, lineId);
+		
+		if(tl == null) {
+			logger.info("Line does not exist: " + lineId);
+			return;
+		}
+		
+		logger.debug("Setting text in line=" + lineId + ": " + text);
+		
+		if(tl.getTextEquiv() == null){
+			logger.debug("Creating new TextEquiv element.");
+			TextEquivType textEquiv = new TextEquivType();
+			textEquiv.setUnicode(text);
+			tl.setTextEquiv(textEquiv);
+		} else {
+			logger.debug("Setting text in existing TextEquiv element.");
+			tl.getTextEquiv().setUnicode(text);
+		}
+	}
+	
+	public static TextLineType findLineById(PcGtsType pc, final String lineId) {
+		if(pc == null || lineId == null) {
+			throw new IllegalArgumentException("Arguments must not be null");
+		}
 		List<TextRegionType> trList = getTextRegions(pc);
 		for(TextRegionType tr : trList){
 			List<TextLineType> tlList = tr.getTextLine();
 			if(tlList != null && !tlList.isEmpty()){
 				for(TextLineType tl : tlList){
 					if(tl.getId().equals(lineId)){
-						logger.debug("Setting text in line=" + lineId + ": " + text);
-						
-						if(tl.getTextEquiv() == null){
-							logger.debug("Creating new TextEquiv element.");
-							TextEquivType textEquiv = new TextEquivType();
-							textEquiv.setUnicode(text);
-							tl.setTextEquiv(textEquiv);
-						} else {
-							logger.debug("Setting text in existing TextEquiv element.");
-							tl.getTextEquiv().setUnicode(text);
-						}
-						return;
+						return tl;
 					}
 				}
 			}
 		}
+		return null;
 	}
 
 	public static String getFulltextFromLines(PcGtsType pc) {
@@ -906,6 +922,36 @@ public class PageXmlUtils {
 //		URL schemaFile = new URL("http://host:port/filename.xsd");
 		URL schemaUrl = PageXmlUtils.class.getClassLoader().getResource("xsd/pagecontent_extension.xsd");
 		return XmlUtils.isValid(xmlFile, schemaUrl);
+	}
+	
+	public static boolean isBaselineInLineBounds(TextLineType tl, String baseline, final int threshold) {
+		final Polygon linePoly = PageXmlUtils.buildPolygon(tl.getCoords());
+		Rectangle boundRect = linePoly.getBounds();
+		List<Point> blPoints = PointStrUtils.parsePoints(baseline);
+		boolean isIncluded = true;
+		for(Point p : blPoints) {
+			if(!GeomUtils.isInside(p.x, p.y, boundRect, threshold)) {
+				isIncluded = false;
+				break;
+			}
+		}
+		return isIncluded;
+	}
+	
+	public static List<TextLineType> findLinesByBaseline(PcGtsType pc, String baseline, final int threshold) {
+		List<TextRegionType> regions = getTextRegions(pc);
+		List<TextLineType> matchingLines = new LinkedList<>();
+		for(TextRegionType r : regions) {
+			r.getTextLine()
+			.stream()
+			.filter(l -> isBaselineInLineBounds(l, baseline, threshold))
+			.forEach(l -> matchingLines.add(l));
+		}
+		if(matchingLines.size() > 1) {
+			TrpElementCoordinatesComparator<TextLineType> comp = new TrpElementCoordinatesComparator<>(true);
+			Collections.sort(matchingLines, comp);
+		}
+		return matchingLines;
 	}
 	
 	public static void main(String[] args) {
