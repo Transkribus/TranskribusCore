@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -317,7 +316,7 @@ public class HtrUtils {
 		}
 		return list;
 	}
-
+	
 	public static void main(String[] args) {
 		Pattern fnPattern = Pattern.compile(HtrUtils.FILENAME_PATTERN);
 

@@ -259,6 +259,8 @@ public final class RESTConst {
 	public static final String HTR_URO_TRAIN_PATH = "htrTrainingUro";
 	public static final String HTR_CITLAB_TRAIN_PATH = "htrTrainingCITlab";
 	public static final String HTR_CITLAB_TEST_PATH = "htrCITlab";
+	public static final String HTR_T2I_CITLAB_PATH = "t2iCITlab";
+	
 	public static final String HTR_PATH = "htr";
 	public static final String HTR_LIST_MODEL_PATH = "htrModels";
 	public static final String HTR_MODEL_NAME_PARAM = "modelName";

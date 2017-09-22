@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -71,6 +72,12 @@ public class GsonUtil {
 		} catch (Exception e) {
 			return new HashMap<>();
 		}
+	}
+	
+	public static Properties toProperties(String json) {
+		Properties p = new Properties();
+		p.putAll(toMap2(json));
+		return p;
 	}
 
 	public static <T> T fromJson(String json, Class<T> clazz) {

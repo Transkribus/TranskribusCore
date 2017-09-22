@@ -1,5 +1,6 @@
 package eu.transkribus.core.model.beans;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -14,12 +15,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.fop.afp.modca.PageDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.util.CoreUtils;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DocumentSelectionDescriptor implements Serializable {
+	private static final Logger logger = LoggerFactory.getLogger(DocumentSelectionDescriptor.class);
 
 	private static final long serialVersionUID = -4923573285902913207L;
 	private int docId;
@@ -65,6 +69,22 @@ public class DocumentSelectionDescriptor implements Serializable {
 		return pd;
 	}
 	
+	public static DocumentSelectionDescriptor fromDocAndPagesStr(TrpDoc doc, String pagesStr) throws IOException {
+		DocumentSelectionDescriptor dd = new DocumentSelectionDescriptor(doc.getId());
+		if (!StringUtils.isEmpty(pagesStr)) {
+			for (int pageIndex : CoreUtils.parseRangeListStrToList(pagesStr, doc.getNPages())) {
+				for (TrpPage page : doc.getPages()) {
+					if (page.getPageNr() == pageIndex+1) {
+						dd.addPage(page.getPageId());
+						break;
+					}
+				}
+			}
+		}
+		
+		return dd;
+	}
+		
 	@XmlRootElement
 	@XmlAccessorType(XmlAccessType.FIELD)
 	public static class PageDescriptor implements Serializable  {

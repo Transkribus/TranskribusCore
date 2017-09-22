@@ -14,12 +14,17 @@ import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescripto
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable {
+	
+	public final static int DEFAULT_TRAIN_SIZE_PER_EPOCH = 1000;
+	public final static String DEFAULT_NOISE = "both";
+	public final static String DEFAULT_LEARNING_RATE = "2e-3";
+	public final static int DEFAULT_NUM_EPOCHS = 200;
 
 	private static final long serialVersionUID = 6826017343706433307L;
-	protected Integer numEpochs;
-	protected String learningRate;
-	protected String noise;
-	protected Integer trainSizePerEpoch;
+	protected Integer numEpochs = DEFAULT_NUM_EPOCHS;
+	protected String learningRate = DEFAULT_LEARNING_RATE;
+	protected String noise = DEFAULT_NOISE;
+	protected Integer trainSizePerEpoch = DEFAULT_TRAIN_SIZE_PER_EPOCH;
 	protected Integer baseModelId;
 	
 	public final static String NUM_EPOCHS_KEY = "Nr. of Epochs";
@@ -28,6 +33,10 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 	public final static String TRAIN_SIZE_KEY = "Train Size per Epoch";
 	public final static String BASE_MODEL_ID_KEY = "HTR Base Model ID";
 	public final static String BASE_MODEL_NAME_KEY = "HTR Base Model Name";
+	
+//	private int threads=4;
+//	private int subSampling = 4; // how many subsets are the pages divided into to reduce overfitting 
+//								// max is the number of input pages, elsewise a RuntimeException is thrown during training!
 	
 	public Integer getNumEpochs() {
 		return numEpochs;

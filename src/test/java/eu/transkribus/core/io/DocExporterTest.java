@@ -25,7 +25,7 @@ public class DocExporterTest {
 		
 		TrpDoc doc = LocalDocReader.load("/mnt/dea_scratch/TRP/Bentham_box_002", true);
 
-		exporter.exportDocForText2ImageTool(doc, "/home/sebastian/tmp/test_t2i_export", true, null, false);
+		exporter.exportDocForText2ImageTool(doc, "/home/sebastian/tmp/test_t2i_export", true, null, false, true);
 		
 	}
 }

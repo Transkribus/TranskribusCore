@@ -2,7 +2,9 @@ package eu.transkribus.core.util;
 
 import java.awt.Point;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -11,6 +13,7 @@ import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,13 +31,23 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.docx4j.openpackaging.exceptions.Docx4JException;
+import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import eu.transkribus.core.model.beans.DocumentSelectionDescriptor;
 
 public class CoreUtils {
 	private final static Logger logger = LoggerFactory.getLogger(CoreUtils.class);
@@ -66,6 +79,72 @@ public class CoreUtils {
 //		}		
 //		
 //	}
+	
+	public static List<Path> listFilesRecursive(String Path, String extension, boolean caseSensitive, String... excludeFilenames) throws IOException {
+		return Files.walk(Paths.get(Path))
+			.filter(Files::isRegularFile)
+			.filter(new Predicate<Path>() {
+				@Override
+				public boolean test(Path t) {
+					String name = caseSensitive ? t.toFile().getName() : t.toFile().getName().toLowerCase();
+					String ext = caseSensitive ? extension : extension.toLowerCase();
+					
+					if (!name.endsWith(ext))
+						return false;
+					
+					for (String exclude : excludeFilenames) {
+						exclude = caseSensitive ? exclude : exclude.toLowerCase();
+						
+						if (name.equals(exclude)) {
+							return false;
+						}
+					}
+
+					return true;
+				}
+			})
+			.collect(Collectors.toList());
+	}
+	
+	public static void convertDocxFilesToTxtFiles(String inputFolder, String outputFolder, boolean overwrite) throws IOException, Docx4JException, JAXBException {
+		File inDir = new File(inputFolder);
+		if (!inDir.exists()) {
+			throw new IOException("Input folder does not exist: "+inputFolder);
+		}
+		
+		File outDir = createDirectory(outputFolder, overwrite);
+		
+		File[] docxFiles = inDir.listFiles(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.toLowerCase().endsWith(".docx");
+			}
+		});
+		
+		for (File docx : docxFiles) {
+			String txt = extractTextFromDocx(docx.getAbsolutePath());
+			String basename = FilenameUtils.getBaseName(docx.getName());
+			Files.write(Paths.get(outDir.getAbsolutePath()+File.separator+basename+".txt"), txt.getBytes());
+		}
+	}
+	
+	/**
+	 * FIXME not sure if this method does extract text from every possible variation of a docx...
+	 */
+	public static String extractTextFromDocx(String filename) throws Docx4JException, JAXBException {
+		WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(new java.io.File(filename));
+		MainDocumentPart documentPart = wordMLPackage.getMainDocumentPart();
+		
+		String pageTxt = "";
+		for (Object o : documentPart.getContent()) {
+			if (o == null)
+				continue;
+			
+			pageTxt += o.toString() + "\n";		
+		}
+
+		return StringUtils.stripEnd(pageTxt, "\n");
+	}
 	
 	public static File createDirectory(String path, boolean overwrite) throws IOException {
 		File dir = new File(path);
@@ -112,6 +191,19 @@ public class CoreUtils {
 		}
 		
 		throw new FileNotFoundException("File not found in paths: "+CoreUtils.join(Arrays.asList(paths)));
+	}
+	
+	public static int countNumberOfFolders(File folder) {
+		if (folder != null) {
+			return folder.listFiles(new FileFilter() {
+				@Override
+				public boolean accept(File pathname) {
+					return pathname.isDirectory();
+				}
+			}).length;
+		} else {
+			return 0;
+		}
 	}
 		
 	public static String[] appendValue(String[] arr, String newObj) {
@@ -271,6 +363,10 @@ public class CoreUtils {
 		
 		return s;
 	}
+	
+	public static <T> boolean isEmpty(T... list) {
+		return list==null || list.length==0;
+	}
 		
 	public static boolean isEmpty(Collection<?> c) {
 		return c==null || c.isEmpty();
@@ -411,6 +507,10 @@ public class CoreUtils {
 				.replaceAll(" +", " ")
 				.trim()
 				;
+	}
+	
+	public static String toListString(String[] list) {
+		return "("+StringUtils.join(list)+")";
 	}
 	
 	/**
@@ -739,6 +839,23 @@ public class CoreUtils {
 		}
 	}
 	
+	public static String invertRangeListStr(String rangeStringForTrainSet, int nPages) {
+		Set<Integer> pageIndicesForTrain;
+		try {
+			pageIndicesForTrain = CoreUtils.parseRangeListStr(rangeStringForTrainSet, nPages);
+		} catch (IOException ioe) {
+			throw new IllegalArgumentException("Invalid range string was given!");
+		}
+		
+		Set<Integer> pageIndicesForTest = CoreUtils.invertPageIndices(pageIndicesForTrain, nPages);
+			
+		if(pageIndicesForTest.isEmpty()) {
+			throw new IllegalArgumentException("Given range string covers all the document!");
+		}
+		
+		return CoreUtils.getRangeListStrFromSet(pageIndicesForTest);
+	}
+	
 	public static Set<Integer> parseRangeListStr(String text, int nrOfPages) throws IOException {
 		Set<Integer> pi = new HashSet<Integer>();
 		return (Set<Integer>)parseRangeListStr(text, nrOfPages, pi);
@@ -937,13 +1054,24 @@ public class CoreUtils {
 //		return str.replaceAll("[\\/:*?\"<>|]", replace);
 //	}
 	
-	public static void main(String[] args) {
-		List<Integer> base = Arrays.asList(1, 3, 4, 5, 7, 10);
-		List<Integer> search = Arrays.asList(111, 45, 3, 4, 6, 8, 12);
+	public static void main(String[] args) throws Exception {
+//		List<Integer> base = Arrays.asList(1, 3, 4, 5, 7, 10);
+//		List<Integer> search = Arrays.asList(111, 45, 3, 4, 6, 8, 12);
+//		
+//		List<Integer> common = CoreUtils.getFirstCommonSequence(base, search);
 		
-		List<Integer> common = CoreUtils.getFirstCommonSequence(base, search);
+//		System.out.println("common = "+StringUtils.join(common));
 		
-		System.out.println("common = "+StringUtils.join(common));
+//		String pageTxt = CoreUtils.extractTextFromDocx("/home/sebastian/Downloads/Ms__orient__A_2654/Ms__orient__A_2654/docx/0001.docx");
+//		
+//		logger.info("pageTxt:");
+//		logger.info(pageTxt);
+//		logger.info("nr of lines: "+pageTxt.split("\n").length);
+		
+		convertDocxFilesToTxtFiles("/mnt/dea_scratch/TRP/test/Ms__orient__A_2654/Ms__orient__A_2654/docx", "/mnt/dea_scratch/TRP/test/Ms__orient__A_2654/Ms__orient__A_2654/txt", true);
+	}
 
+	public static int size(Collection<?> collection) {
+		return collection==null ? 0 : collection.size();
 	}
 }
