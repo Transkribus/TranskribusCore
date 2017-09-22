@@ -6,7 +6,6 @@ import eu.transkribus.core.model.beans.TrpDoc;
 
 public class DocExporterTest {
 	public static void main(String[] args) throws Exception {
-		testExportDocForText2Image();
 	}
 	
 	public static void testSth() {
@@ -20,12 +19,4 @@ public class DocExporterTest {
 		}		
 	}
 	
-	public static void testExportDocForText2Image() throws Exception {
-		DocExporter exporter = new DocExporter();
-		
-		TrpDoc doc = LocalDocReader.load("/mnt/dea_scratch/TRP/Bentham_box_002", true);
-
-		exporter.exportDocForText2ImageTool(doc, "/home/sebastian/tmp/test_t2i_export", true, null, false, true);
-		
-	}
 }
