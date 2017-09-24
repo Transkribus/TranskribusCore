@@ -146,6 +146,10 @@ public class CoreUtils {
 		return StringUtils.stripEnd(pageTxt, "\n");
 	}
 	
+	public static String replaceInvalidPathChars(String title, String replacement) {
+		return title.replaceAll("([/\\?%*:| \"<>. \\\\])", replacement);	
+	}
+	
 	public static File createDirectory(String path, boolean overwrite) throws IOException {
 		File dir = new File(path);
 		if (dir.exists()) {

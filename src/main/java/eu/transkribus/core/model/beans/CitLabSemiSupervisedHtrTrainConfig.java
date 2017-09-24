@@ -29,6 +29,10 @@ public class CitLabSemiSupervisedHtrTrainConfig extends CitLabHtrTrainConfig {
 	public final static boolean DEFAULT_REMOVE_LINEBREAKS = true;
 	private boolean removeLineBreaks = true;
 	public final static String REMOVE_LINEBREAKS_KEY = "Do not respect linebreaks";
+	
+	public final static boolean DEFAULT_DO_LAYOUT_ANALYSIS = true;
+	private boolean doLayoutAnalysis = true;
+	public final static String DO_LAYOUT_ANALYSIS_KEY = "Perform a layout analysis for the training input images";
 
 	public static final int DEFAULT_NUMBER_OF_THREADS = 4;
 	private int nThreads=DEFAULT_NUMBER_OF_THREADS;
@@ -49,6 +53,14 @@ public class CitLabSemiSupervisedHtrTrainConfig extends CitLabHtrTrainConfig {
 
 	public void setRemoveLineBreaks(boolean removeLineBreaks) {
 		this.removeLineBreaks = removeLineBreaks;
+	}
+
+	public boolean isDoLayoutAnalysis() {
+		return doLayoutAnalysis;
+	}
+
+	public void setDoLayoutAnalysis(boolean doLayoutAnalysis) {
+		this.doLayoutAnalysis = doLayoutAnalysis;
 	}
 
 	public int getSubSampling() {
@@ -119,6 +131,7 @@ public class CitLabSemiSupervisedHtrTrainConfig extends CitLabHtrTrainConfig {
 	@Override
 	public String toString() {
 		return "CitLabSemiSupervisedHtrTrainConfig [trainEpochs=" + trainEpochs + ", subSampling=" + subSampling
+				+ ", doLayoutAnalysis=" + doLayoutAnalysis
 				+ ", removeLineBreaks=" + removeLineBreaks + ", nThreads=" + nThreads + ", jsonProps=" + jsonProps
 				+ ", learningRate=" + learningRate + ", noise=" + noise + ", trainSizePerEpoch=" + trainSizePerEpoch
 				+ ", baseModelId=" + baseModelId + ", language=" + language + ", colId=" + colId + ", train=" + train

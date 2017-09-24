@@ -10,6 +10,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescriptor;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class HtrTrainConfig implements Serializable {
@@ -82,5 +84,24 @@ public abstract class HtrTrainConfig implements Serializable {
 		} else {
 			this.test = test;	
 		}
+	}
+	
+	public boolean isTestAndTrainOverlapping() {
+		for(DocumentSelectionDescriptor trainDsd : train) {
+			for(DocumentSelectionDescriptor testDsd : test) {
+				if(trainDsd.getDocId() == testDsd.getDocId()) {
+					//found overlap in doc selection; compare each of the pages
+					for(PageDescriptor trainP : trainDsd.getPages()) {
+						for(PageDescriptor testP : testDsd.getPages()) {
+							if(trainP.getPageId() == testP.getPageId()) {
+								//same page was selected for test and train
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
 	}
 }

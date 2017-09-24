@@ -69,24 +69,7 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 		this.baseModelId = baseModelId;
 	}
 	
-	public boolean isTestAndTrainOverlapping() {
-		for(DocumentSelectionDescriptor trainDsd : train) {
-			for(DocumentSelectionDescriptor testDsd : test) {
-				if(trainDsd.getDocId() == testDsd.getDocId()) {
-					//found overlap in doc selection; compare each of the pages
-					for(PageDescriptor trainP : trainDsd.getPages()) {
-						for(PageDescriptor testP : testDsd.getPages()) {
-							if(trainP.getPageId() == testP.getPageId()) {
-								//same page was selected for test and train
-								return true;
-							}
-						}
-					}
-				}
-			}
-		}
-		return false;
-	}
+
 	@Override
 	public String toString() {
 		return "CitLabHtrTrainConfig [numEpochs=" + numEpochs + ", learningRate=" + learningRate + ", noise=" + noise
