@@ -2,9 +2,11 @@ package eu.transkribus.core.model.beans;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -83,6 +85,23 @@ public class DocumentSelectionDescriptor implements Serializable {
 		}
 		
 		return dd;
+	}
+	
+	public static List<Integer> extractPageIndices(DocumentSelectionDescriptor dsd, TrpDoc doc) {
+		if (dsd.getPages() == null || dsd.getPages().isEmpty())
+			return null;
+		
+		List<Integer> indices = new ArrayList<>();
+		for (PageDescriptor pd : dsd.getPages()) {
+			try {
+				TrpPage p = doc.getPages().stream().filter(page -> { return page.getPageId()==pd.getPageId(); }).findFirst().get();
+				indices.add(p.getPageNr()-1);
+			} catch (NoSuchElementException e) {
+				continue;
+			}
+		}
+		
+		return indices;
 	}
 		
 	@XmlRootElement

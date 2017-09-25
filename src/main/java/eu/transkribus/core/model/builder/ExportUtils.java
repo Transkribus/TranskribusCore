@@ -37,6 +37,7 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
+import eu.transkribus.core.util.CoreUtils;
 
 public class ExportUtils {
 	private final static Logger logger = LoggerFactory.getLogger(ExportUtils.class);
@@ -403,21 +404,7 @@ public class ExportUtils {
 	}
 	
 	public static String getAdjustedDocTitle(String title) {
-		return getAdjustedDocTitle(title, "_");
+		return CoreUtils.replaceInvalidPathChars(title, "_");
 	}
-	
-	public static String getAdjustedDocTitle(String title, String replacement) {
-		return title.replaceAll("([/\\?%*:| \"<>. \\\\])", replacement);
-//		return title.replaceAll("([/\\?%*:| \"<>. ])", replacement); // bug -> no backslash included!
-	}
-	
-	public static void main(String[] args) {
-		
-		System.out.println(getAdjustedDocTitle("Document at C:\\Users\\zidkmai\\Downloads\\5149\\5149", "_"));
-		
-	}
-	
-
-
 
 }

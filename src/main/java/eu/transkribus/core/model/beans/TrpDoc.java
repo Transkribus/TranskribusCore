@@ -268,5 +268,14 @@ public class TrpDoc implements Serializable, Comparable<TrpDoc> {
 		}
 		return sb.toString().trim();
 	}
+	
+	public TrpPage getPageWithId(int pageid) {
+		for (TrpPage page : pages) {
+			if (page.getPageId() == pageid) {
+				return page;
+			}
+		}
+		return null;
+	}
 
 }

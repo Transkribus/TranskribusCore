@@ -14,6 +14,7 @@ import java.util.Set;
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dea.fimgstoreclient.FimgStoreGetClient;
@@ -342,129 +343,7 @@ public class DocExporter extends APassthroughObservable {
 		
 		return outputDir;
 	}
-	
-	public static class Text2ImgInput {
-		public File imgFile;
-		public File pageXmlFile;
-		public File txtFile;
-		public Text2ImgInput(File imgFile, File pageXmlFile, File txtFile) {
-			super();
-			this.imgFile = imgFile;
-			this.pageXmlFile = pageXmlFile;
-			this.txtFile = txtFile;
-		}
-	}
-	
-	public List<Text2ImgInput> exportDocForText2ImageTool(TrpDoc doc, String path, boolean overwrite, Set<Integer> pageIndices, boolean removeLineBreaks, boolean skipPagesWithNoText) throws IOException, JAXBException {
-		FimgStoreGetClient getter = null;
-		FimgStoreUriBuilder uriBuilder = null;
-		ImgType imgType = ImgType.orig;
-
-		if (doc.isRemoteDoc()) {
-			getter = new FimgStoreGetClient("dbis-thure.uibk.ac.at", "f");
-			boolean useHttps = true;
-			final String scheme = useHttps ? "https" : "http";
-			final int port = useHttps ? 443 : 80;
-			uriBuilder = new FimgStoreUriBuilder(scheme, getter.getHost(), port,
-					getter.getServerContext());
-		}
-
-		// check and create output directory
-		File outputDir = CoreUtils.createDirectory(path, overwrite); // FIXME: throws error if dir exists and overwrite=false!
-		String outputPath = FilenameUtils.normalizeNoEndSeparator(outputDir.getAbsolutePath());
-			
-		List<Text2ImgInput> textToImageInput = new ArrayList<>();
 		
-		for (int i=0; i<doc.getPages().size(); ++i) {			
-//			for (TrpPage p : pages) {
-			if (pageIndices!=null && !pageIndices.contains(i))
-				continue;
-			
-			TrpPage p = doc.getPages().get(i);
-			String folderName = StringUtils.leftPad(""+(i+1), 5, '0'); // use pagenr as foldername -> problem: may not be unique when multiple doc's are used!
-//			String folderName = StringUtils.leftPad(""+p.getPageId(), 8, '0'); // use pageid as foldername
-			
-			File imgFile = null, xmlFile = null;
-						
-//			final String baseFileName = ExportFilePatternUtils.buildBaseFileName(pars.getFileNamePattern(), p);
-			final String baseFileName = folderName;
-			final String imgExt = "." + FilenameUtils.getExtension(p.getImgFileName());
-			final String xmlExt = ".xml";
-			
-			// load transcript:
-			TrpTranscriptMetadata transcriptMd;
-			JAXBPageTranscript transcript = ExportUtils.getPageTranscriptAtIndex(i);
-			// set up transcript metadata
-			if(transcript == null) {
-				transcriptMd = p.getCurrentTranscript();
-				transcript = new JAXBPageTranscript(transcriptMd);
-				transcript.build();
-			} else {
-				transcriptMd = transcript.getMd();
-			}
-			
-			// extract text from transcript:
-			String txt = transcript.getPage().getUnicodeText();
-			if (removeLineBreaks) {
-				txt = txt.replaceAll("\n", " ");
-			}
-			logger.debug("txt = "+txt);
-			
-			if (skipPagesWithNoText && StringUtils.isEmpty(txt)) {
-				logger.info("skipping page with no text: "+(i+1));
-				continue;
-			}
-			
-			// now that it is clear whether to save the page, create dirs and store files:
-			File imgDir = new File(outputPath + File.separator + folderName);
-			logger.debug("imgDir: "+imgDir.getAbsolutePath());
-			if (!imgDir.mkdir()) {
-				throw new IOException("Could not create image directory: "+imgDir.getAbsolutePath());
-			}
-			
-			File pageDir = new File(FilenameUtils.normalizeNoEndSeparator(imgDir.getAbsolutePath()) + File.separator + "page");
-			if (!pageDir.mkdir()) {
-				throw new IOException("Could not create PAGE directory: "+pageDir.getAbsolutePath());
-			}
-			logger.debug("pageDir: "+pageDir.getAbsolutePath());
-			
-			// write image:
-			if (doc.isRemoteDoc()) {
-				URI imgUri = uriBuilder.getImgUri(p.getKey(), imgType);
-				imgFile = getter.saveFile(imgUri, imgDir.getAbsolutePath(), baseFileName + imgExt);
-			} else {
-				imgFile = LocalDocWriter.copyImgFile(p, p.getUrl(), imgDir.getAbsolutePath(), baseFileName + imgExt);
-			}
-			
-			// write PAGE XML:
-			xmlFile = new File(FilenameUtils.normalizeNoEndSeparator(pageDir.getAbsolutePath()) + File.separator + baseFileName + xmlExt);
-			transcript.write(xmlFile);
-			
-			// write TXT file:
-			File txtFile = new File(imgDir.getAbsolutePath()+File.separator+baseFileName+".txt");
-			Files.write(txt, txtFile, Charsets.UTF_8);
-						
-			if (imgFile != null)
-				logger.debug("Written image file " + imgFile.getAbsolutePath());
-			
-			if (xmlFile != null) {
-				logger.debug("Written transcript xml file " + xmlFile.getAbsolutePath());
-			}
-			
-			if (txtFile != null) {
-				logger.debug("Written txt file "+txtFile.getAbsolutePath());
-			}
-			
-			textToImageInput.add(new Text2ImgInput(imgFile, xmlFile, txtFile));
-			
-			notifyObservers(Integer.valueOf(p.getPageNr()));
-			setChanged();
-		}
-		
-		return textToImageInput;
-	}
-
-	
 	public static void main(String[] args){
 		final String p = "${filename}_${${pageId}_${pageNr}";
 		System.out.println(ExportFilePatternUtils.isFileNamePatternValid(p));
