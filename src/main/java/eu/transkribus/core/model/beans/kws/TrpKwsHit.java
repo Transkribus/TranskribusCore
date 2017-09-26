@@ -17,7 +17,7 @@ public class TrpKwsHit implements Comparable<TrpKwsHit> {
 	private int pageId;
 	private int pageNr;
 	private int docId;
-	private int colId;
+	private Integer colId;
 	
 	public String getBl() {
 		return bl;
@@ -55,10 +55,10 @@ public class TrpKwsHit implements Comparable<TrpKwsHit> {
 	public void setDocId(int docId) {
 		this.docId = docId;
 	}
-	public int getColId() {
+	public Integer getColId() {
 		return colId;
 	}
-	public void setColId(int colId) {
+	public void setColId(Integer colId) {
 		this.colId = colId;
 	}
 	public double getConfidence() {

@@ -65,6 +65,8 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.model.builder.TrpPageMarshalListener;
 import eu.transkribus.core.model.builder.TrpPageUnmarshalListener;
+import math.geom2d.Point2D;
+import math.geom2d.line.Line2D;
 
 public class PageXmlUtils {
 	private static final Logger logger = LoggerFactory.getLogger(PageXmlUtils.class);
@@ -294,6 +296,13 @@ public class PageXmlUtils {
     	return buildPolygon(coords.getPoints());
 	}
 	
+	/**
+	 * 
+	 * See PointStrUtils
+	 * @param pointsStr
+	 * @return
+	 */
+	@Deprecated 
 	public static Polygon buildPolygon(String pointsStr) {
 		Polygon p = new Polygon();
 		//pointsStr MIGHT contain leading or trailing whitespace from some tool..
@@ -315,7 +324,7 @@ public class PageXmlUtils {
 		}
 		return p;
 	}
-
+	
 	public static Polygon getOffsetPolygon(Polygon poly, Rectangle boundRect) {
 		final int x0 = boundRect.x;
 		final int y0 = boundRect.y;
@@ -923,28 +932,50 @@ public class PageXmlUtils {
 		URL schemaUrl = PageXmlUtils.class.getClassLoader().getResource("xsd/pagecontent_extension.xsd");
 		return XmlUtils.isValid(xmlFile, schemaUrl);
 	}
+
+//	public static boolean isBaselineInLineBounds(TextLineType tl, String baseline, final int threshold) {
+//		final Polygon linePoly = PageXmlUtils.buildPolygon(tl.getCoords());
+//		Rectangle boundRect = linePoly.getBounds();
+//		List<Point> blPoints = PointStrUtils.parsePoints(baseline);
+//		boolean isIncluded = true;
+//		for(Point p : blPoints) {
+//			if(!GeomUtils.isInside(p.x, p.y, boundRect, threshold)) {
+//				isIncluded = false;
+//				break;
+//			}
+//		}
+//		return isIncluded;
+//	}
 	
-	public static boolean isBaselineInLineBounds(TextLineType tl, String baseline, final int threshold) {
-		final Polygon linePoly = PageXmlUtils.buildPolygon(tl.getCoords());
-		Rectangle boundRect = linePoly.getBounds();
-		List<Point> blPoints = PointStrUtils.parsePoints(baseline);
-		boolean isIncluded = true;
-		for(Point p : blPoints) {
-			if(!GeomUtils.isInside(p.x, p.y, boundRect, threshold)) {
-				isIncluded = false;
-				break;
-			}
-		}
-		return isIncluded;
+//	public static double getOverlap(TextLineType tl, String baseline) {
+//		final String linePoints = tl.getCoords().getPoints();
+//		logger.debug("Line points: " + linePoints);
+//		List<Point2D> pointsLine = PointStrUtils.buildPoints2DList(linePoints);
+//		List<Point2D> pointsBaseline = PointStrUtils.buildPoints2DList(baseline);
+//		double o = GeomUtils.getOverlap(pointsLine, pointsBaseline);
+//		if(o > 0) {
+//			logger.debug("Overlap is: " + o);
+//		}
+//		return o;
+//	}
+	
+	public static boolean doesIntersect(TextLineType tl, String baseline) {
+		final String linePoints = tl.getCoords().getPoints();
+//		logger.debug("Line points: " + linePoints);
+		Polygon linePoly = PointStrUtils.buildPolygon(linePoints);
+		Polygon baselinePoly = PointStrUtils.buildPolygon(baseline);
+//		List<Point2D> pointsBaseline = PointStrUtils.buildPolygon(baseline);
+//		Line2D myLine = new Line2D(pointsBaseline.get(0), pointsBaseline.get(pointsBaseline.size()-1));
+		return linePoly.intersects(baselinePoly.getBounds2D());
 	}
 	
-	public static List<TextLineType> findLinesByBaseline(PcGtsType pc, String baseline, final int threshold) {
+	public static List<TextLineType> findLinesByBaseline(PcGtsType pc, String baseline) {
 		List<TextRegionType> regions = getTextRegions(pc);
 		List<TextLineType> matchingLines = new LinkedList<>();
 		for(TextRegionType r : regions) {
 			r.getTextLine()
 			.stream()
-			.filter(l -> isBaselineInLineBounds(l, baseline, threshold))
+			.filter(l -> doesIntersect(l, baseline))//isBaselineInLineBounds(l, baseline, threshold))
 			.forEach(l -> matchingLines.add(l));
 		}
 		if(matchingLines.size() > 1) {

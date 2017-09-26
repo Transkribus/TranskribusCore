@@ -48,6 +48,8 @@ public enum JobImpl {
 	CITlabHtrJob(JobTask.Htr, "CITlab " + JobTask.Htr.getLabel(), "CITlabHtrJob", null),
 	FinereaderOcrJob(JobTask.Ocr, JobTask.Ocr.getLabel(), "OcrJob", null),
 	
+	CITlabKwsJob(JobTask.Kws, "CITlab " + JobTask.Kws.getLabel(), "CITlabKwsJob", null),
+	
 	//for testing
 	DummyJob(JobTask.CreateDocument, "Dummy Job", "DummyJob", null),
 //	DummyJob2(JobTask.CreateDocument, "Dummy Job 2", "DummyJob2", null),

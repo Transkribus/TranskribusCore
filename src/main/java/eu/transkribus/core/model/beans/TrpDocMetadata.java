@@ -170,10 +170,19 @@ public class TrpDocMetadata extends ATransientTranscriptStatistics implements Se
 		return uploadTimestamp;
 	}
 	
+	/**
+	 * A helper that converts the timestamp to a Date
+	 * 
+	 * @return
+	 */
 	public Date getUploadTime() {
 		return new Date(this.uploadTimestamp);
 	}
 	
+	/**
+	 * Helper to set the timestamp via a Date object
+	 * @param uploadTime
+	 */
 	public void setUploadTime(Date uploadTime) {
 		this.uploadTimestamp = uploadTime.getTime();
 	}

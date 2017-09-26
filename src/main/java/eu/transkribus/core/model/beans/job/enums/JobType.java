@@ -4,7 +4,8 @@ public enum JobType {
 	layoutAnalysis,
 	utility,
 	recognition,
-	upvlc;
+	upvlc,
+	kws;
 	
 //	layoutAnalysis("la"),
 //	utility("util"),

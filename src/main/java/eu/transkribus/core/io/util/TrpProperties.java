@@ -14,7 +14,8 @@ import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.GsonUtil;
 
 /**
- * Utility class containing for reading property files and mapping values to various data types
+ * Utility class containing for reading property files and mapping values to various data types<br/>
+ * FIXME this does not extend Properties and thus doesn't work interchangeably. E.g. the object can't be used with JobManager::createJob whereas Jobs internally use it.
  */
 public class TrpProperties {
 		private static final Logger logger = LoggerFactory.getLogger(TrpProperties.class);
@@ -152,11 +153,11 @@ public class TrpProperties {
 			return Boolean.parseBoolean(getProperty(key));
 		}
 		
-		public List<String> getStringListProperty(String key, boolean trimEntries) {
+		public List<String> getCsvStringListProperty(String key, boolean trimEntries) {
 			return CoreUtils.parseStringList(getProperty(key), trimEntries);
 		}
 		
-		public List<Integer> getIntListProperty(String key) {
+		public List<Integer> getCsvIntListProperty(String key) {
 			return CoreUtils.parseIntList(getProperty(key));
 			
 //			List<Integer> result = new LinkedList<>();

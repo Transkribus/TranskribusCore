@@ -55,4 +55,7 @@ public class JobConst {
 
 	public static final String PROP_EXPORT_OPTIONS = "options";
 
+	//kws
+	public static final String PROP_QUERY = "query";
+
 }
