@@ -70,6 +70,10 @@ public class TrpDocMetadata extends ATransientTranscriptStatistics implements Se
 	
 	@Column(name="IMG_ID")
 	private Integer imageId;
+	
+	@Column(name="PAGE_ID")
+	private Integer pageId;
+	
 	@Column
 	@Transient
 	private URL url;
@@ -135,6 +139,7 @@ public class TrpDocMetadata extends ATransientTranscriptStatistics implements Se
 		createdToTimestamp = md.getCreatedToTimestamp();
 		origDocId = md.getOrigDocId();
 		imageId = md.getImageId();
+		pageId = md.getPageId();
 		url = md.getUrl();
 		thumbUrl = md.getThumbUrl();
 		for(TrpCollection c : md.getColList()) {
@@ -355,6 +360,14 @@ public class TrpDocMetadata extends ATransientTranscriptStatistics implements Se
 		return imageId;
 	}
 
+	public Integer getPageId() {
+		return pageId;
+	}
+
+	public void setPageId(Integer pageId) {
+		this.pageId = pageId;
+	}
+
 	public void setImageId(Integer imageId) {
 		this.imageId = imageId;
 	}
@@ -413,6 +426,7 @@ public class TrpDocMetadata extends ATransientTranscriptStatistics implements Se
 		sb.append((new Date(uploadTimestamp)).toString() + " - ");
 		sb.append(this.getNrOfPages() + " - ");
 		sb.append(this.language + " - ");
+		sb.append(this.getPageId() + " - ");
 		sb.append((getCreatedFromDate() == null ? null : getCreatedFromDate().toString()) + " - ");
 		sb.append((getCreatedToDate() == null ? null : getCreatedToDate().toString()) + " - ");
 		if (this.getLocalFolder()!=null) {
@@ -569,6 +583,8 @@ public class TrpDocMetadata extends ATransientTranscriptStatistics implements Se
 		} else if (!writer.equals(other.writer))
 			return false;
 		if (imageId != other.imageId)
+			return false;
+		if (pageId != other.pageId)
 			return false;
 		if (thumbUrl == null) {
 			if (other.thumbUrl != null)
