@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -291,5 +292,21 @@ public class PointStrUtils {
 			System.out.println(p);
 		}
 		
+	}
+
+	public static Pair<Integer, Integer> getXBounds(String baseline) {
+		Polygon baselinePoly = PointStrUtils.buildPolygon(baseline);
+		int baselineMinX = Integer.MAX_VALUE;
+		int baselineMaxX = Integer.MIN_VALUE;
+		for(int i = 0; i < baselinePoly.xpoints.length; i++) {
+			int x = baselinePoly.xpoints[i];
+			if(x < baselineMinX) {
+				baselineMinX = x;
+			}
+			if(x > baselineMaxX) {
+				baselineMaxX = x;
+			}
+		}
+		return Pair.of(baselineMinX, baselineMaxX);
 	}
 }

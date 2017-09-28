@@ -57,5 +57,9 @@ public class JobConst {
 
 	//kws
 	public static final String PROP_QUERY = "query";
+	/**
+	 * kws result is too big for the result-column. So this goes into  the job data clob
+	 */
+	public static final String PROP_RESULT = "result";
 
 }
