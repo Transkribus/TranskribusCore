@@ -16,6 +16,7 @@ public class TrpKwsHit implements Comparable<TrpKwsHit> {
 	private URL imgUrl;
 	private int pageId;
 	private int pageNr;
+	private String transcription;
 	private int docId;
 	private Integer colId;
 	
@@ -48,6 +49,12 @@ public class TrpKwsHit implements Comparable<TrpKwsHit> {
 	}
 	public void setPageNr(int pageNr) {
 		this.pageNr = pageNr;
+	}
+	public String getTranscription() {
+		return transcription;
+	}
+	public void setTranscription(String transcription) {
+		this.transcription = transcription;
 	}
 	public int getDocId() {
 		return docId;

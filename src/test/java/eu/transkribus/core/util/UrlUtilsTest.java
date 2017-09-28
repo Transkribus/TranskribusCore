@@ -28,7 +28,7 @@ public class UrlUtilsTest {
 		tmpDir = Files.createTempDirectory(tmp.toPath(), "UrlUtilsTest_").toFile();
 	}
 	
-	@Test
+//	@Test
 	public void testWorkingUrls() throws MalformedURLException {
 		File out = new File(tmpDir.getAbsolutePath() + File.separator + "outFile");
 		for(String s : workingUrls) {
@@ -41,7 +41,7 @@ public class UrlUtilsTest {
 		}
 	}
 	
-	@Test
+//	@Test
 	public void testNonWorkingUrls() throws MalformedURLException {
 		File out = new File(tmpDir.getAbsolutePath() + File.separator + "outFile");
 		for(String s : nonWorkingUrls) {
