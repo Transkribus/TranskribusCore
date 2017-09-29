@@ -364,8 +364,8 @@ public class TrpDocMetadata extends ATransientTranscriptStatistics implements Se
 		return pageId;
 	}
 
-	public void setPageId(Integer pageId) {
-		this.pageId = pageId;
+	public void setPageId(int pageId) {
+		this.pageId = new Integer(pageId);
 	}
 
 	public void setImageId(Integer imageId) {
