@@ -46,7 +46,7 @@ public class TrpCollection extends ATransientTranscriptStatistics implements Ser
 	
 	//id of thee symbolic image
 	@Column(name="PAGE_ID")
-	private Integer pageId;
+	private int pageId;
 	
 	@Column
 	@Transient
@@ -130,10 +130,10 @@ public class TrpCollection extends ATransientTranscriptStatistics implements Ser
 		this.elearning = isElearning;
 	}
 	
-	public Integer getPageId() {
+	public int getPageId() {
 		return pageId;
 	}
-	public void setPageId(Integer pageId) {
+	public void setPageId(int pageId) {
 		this.pageId = pageId;
 	}
 	public String getSummary() {

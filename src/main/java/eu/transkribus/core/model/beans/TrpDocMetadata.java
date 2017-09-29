@@ -72,7 +72,7 @@ public class TrpDocMetadata extends ATransientTranscriptStatistics implements Se
 	private Integer imageId;
 	
 	@Column(name="PAGE_ID")
-	private Integer pageId;
+	private int pageId;
 	
 	@Column
 	@Transient
@@ -360,11 +360,11 @@ public class TrpDocMetadata extends ATransientTranscriptStatistics implements Se
 		return imageId;
 	}
 
-	public Integer getPageId() {
+	public int getPageId() {
 		return pageId;
 	}
 
-	public void setPageId(Integer pageId) {
+	public void setPageId(int pageId) {
 		this.pageId = pageId;
 	}
 
@@ -425,7 +425,7 @@ public class TrpDocMetadata extends ATransientTranscriptStatistics implements Se
 		sb.append(this.getScriptType() + " - ");
 		sb.append((new Date(uploadTimestamp)).toString() + " - ");
 		sb.append(this.getNrOfPages() + " - ");
-		sb.append(this.language + " - ");
+		sb.append(this.language + " - pageID ");
 		sb.append(this.getPageId() + " - ");
 		sb.append((getCreatedFromDate() == null ? null : getCreatedFromDate().toString()) + " - ");
 		sb.append((getCreatedToDate() == null ? null : getCreatedToDate().toString()) + " - ");
