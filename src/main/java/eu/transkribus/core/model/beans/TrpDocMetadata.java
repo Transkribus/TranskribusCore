@@ -486,6 +486,80 @@ public class TrpDocMetadata extends ATransientTranscriptStatistics implements Se
 		return result;
 	}
 
+	/**
+	 * Only compares field values that are allowed to be changed in user interface's and are also in the doc_md DB table.
+	 * This is used on TrpServer's REST API to check if a DB update and Solr index update is needed 
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	public boolean equalsMutableFields(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TrpDocMetadata other = (TrpDocMetadata) obj;
+		if (author == null) {
+			if (other.author != null)
+				return false;
+		} else if (!author.equals(other.author))
+			return false;
+		if (createdFromTimestamp == null) {
+			if (other.createdFromTimestamp != null)
+				return false;
+		} else if (!createdFromTimestamp.equals(other.createdFromTimestamp))
+			return false;
+		if (createdToTimestamp == null) {
+			if (other.createdToTimestamp != null)
+				return false;
+		} else if (!createdToTimestamp.equals(other.createdToTimestamp))
+			return false;
+		if (desc == null) {
+			if (other.desc != null)
+				return false;
+		} else if (!desc.equals(other.desc))
+			return false;
+		if (docId != other.docId)
+			return false;
+		if (externalId == null) {
+			if (other.externalId != null)
+				return false;
+		} else if (!externalId.equals(other.externalId))
+			return false;
+		if (genre == null) {
+			if (other.genre != null)
+				return false;
+		} else if (!genre.equals(other.genre))
+			return false;
+		if (imageId == null) {
+			if (other.imageId != null)
+				return false;
+		} else if (!imageId.equals(other.imageId))
+			return false;
+		if (language == null) {
+			if (other.language != null)
+				return false;
+		} else if (!language.equals(other.language))
+			return false;
+		if (scriptType != other.scriptType)
+			return false;
+		if (title == null) {
+			if (other.title != null)
+				return false;
+		} else if (!title.equals(other.title))
+			return false;
+		if (type != other.type)
+			return false;
+		if (writer == null) {
+			if (other.writer != null)
+				return false;
+		} else if (!writer.equals(other.writer))
+			return false;
+		return true;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
