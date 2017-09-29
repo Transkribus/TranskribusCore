@@ -487,7 +487,7 @@ public class TrpDocMetadata extends ATransientTranscriptStatistics implements Se
 	}
 
 	/**
-	 * Only compares field values that are allowed to be changed in user interface's and are also in the doc_md DB table.
+	 * Only compares field values that are allowed to be changed in user interfaces and are also in the doc_md DB table.
 	 * This is used on TrpServer's REST API to check if a DB update and Solr index update is needed 
 	 * 
 	 * @param obj
