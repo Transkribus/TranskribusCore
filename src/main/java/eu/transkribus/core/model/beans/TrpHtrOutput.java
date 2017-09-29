@@ -23,6 +23,8 @@ public class TrpHtrOutput {
 	@Column
 	private int pageId;
 	@Column
+	private Integer tsId;
+	@Column
 	private String lineId;
 	@Column
 	private String provider;
@@ -51,8 +53,9 @@ public class TrpHtrOutput {
 	
 	public TrpHtrOutput(){}
 	
-	public TrpHtrOutput(int pageId, String lineId, String provider, String key, int htrId) {
+	public TrpHtrOutput(int pageId, Integer tsId, String lineId, String provider, String key, int htrId) {
 		this.pageId = pageId;
+		this.tsId = tsId;
 		this.lineId = lineId;
 		this.provider = provider;
 		this.key = key;
@@ -81,6 +84,14 @@ public class TrpHtrOutput {
 
 	public void setPageId(int pageId) {
 		this.pageId = pageId;
+	}
+
+	public Integer getTsId() {
+		return tsId;
+	}
+
+	public void setTsId(Integer tsId) {
+		this.tsId = tsId;
 	}
 
 	public String getLineId() {
@@ -141,7 +152,8 @@ public class TrpHtrOutput {
 
 	@Override
 	public String toString() {
-		return "TrpHtrOutput [htrOutputId=" + htrOutputId + ", pageId=" + pageId + ", lineId=" + lineId + ", provider="
+		return "TrpHtrOutput [htrOutputId=" + htrOutputId + ", pageId=" + pageId + ", tsId=" + tsId 
+				+ ", lineId=" + lineId + ", provider="
 				+ provider + ", key=" + key + ", url=" + url + ", htrId=" + htrId + ", colId=" + colId + ", docId="
 				+ docId + ", pageNr=" + pageNr + "]";
 	}
