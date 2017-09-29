@@ -44,6 +44,10 @@ public class TrpCollection extends ATransientTranscriptStatistics implements Ser
 	@Column(name=IS_ELEARNING_COLUMN_NAME)
 	private boolean elearning = false;
 	
+	//id of thee symbolic image
+	@Column(name="PAGE_ID")
+	private Integer pageId;
+	
 	@Column
 	@Transient
 	private String label;
@@ -126,6 +130,12 @@ public class TrpCollection extends ATransientTranscriptStatistics implements Ser
 		this.elearning = isElearning;
 	}
 	
+	public Integer getPageId() {
+		return pageId;
+	}
+	public void setPageId(Integer pageId) {
+		this.pageId = pageId;
+	}
 	public String getSummary() {
 		return getColName() +" ("+getColId()+", "+ (getRole() == null ? "Admin" : getRole())+")";
 	}
@@ -205,6 +215,8 @@ public class TrpCollection extends ATransientTranscriptStatistics implements Ser
 		} else if (!description.equals(other.description))
 			return false;
 		if (elearning != other.elearning)
+			return false;
+		if (pageId != other.pageId)
 			return false;
 		if (label == null) {
 			if (other.label != null)
