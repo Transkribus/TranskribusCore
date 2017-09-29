@@ -72,7 +72,7 @@ public class TrpDocMetadata extends ATransientTranscriptStatistics implements Se
 	private Integer imageId;
 	
 	@Column(name="PAGE_ID")
-	private int pageId;
+	private Integer pageId;
 	
 	@Column
 	@Transient
@@ -360,11 +360,11 @@ public class TrpDocMetadata extends ATransientTranscriptStatistics implements Se
 		return imageId;
 	}
 
-	public int getPageId() {
+	public Integer getPageId() {
 		return pageId;
 	}
 
-	public void setPageId(int pageId) {
+	public void setPageId(Integer pageId) {
 		this.pageId = pageId;
 	}
 
@@ -538,6 +538,11 @@ public class TrpDocMetadata extends ATransientTranscriptStatistics implements Se
 				return false;
 		} else if (!imageId.equals(other.imageId))
 			return false;
+		if (pageId == null) {
+			if (other.pageId != null)
+				return false;
+		} else if (!pageId.equals(other.pageId))
+			return false;
 		if (language == null) {
 			if (other.language != null)
 				return false;
@@ -658,7 +663,10 @@ public class TrpDocMetadata extends ATransientTranscriptStatistics implements Se
 			return false;
 		if (imageId != other.imageId)
 			return false;
-		if (pageId != other.pageId)
+		if (pageId == null) {
+			if (other.pageId != null)
+				return false;
+		}else if (pageId != other.pageId)
 			return false;
 		if (thumbUrl == null) {
 			if (other.thumbUrl != null)

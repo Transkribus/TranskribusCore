@@ -46,7 +46,7 @@ public class TrpCollection extends ATransientTranscriptStatistics implements Ser
 	
 	//id of thee symbolic image
 	@Column(name="PAGE_ID")
-	private int pageId;
+	private Integer pageId;
 	
 	@Column
 	@Transient
@@ -130,10 +130,10 @@ public class TrpCollection extends ATransientTranscriptStatistics implements Ser
 		this.elearning = isElearning;
 	}
 	
-	public int getPageId() {
+	public Integer getPageId() {
 		return pageId;
 	}
-	public void setPageId(int pageId) {
+	public void setPageId(Integer pageId) {
 		this.pageId = pageId;
 	}
 	public String getSummary() {
@@ -216,7 +216,10 @@ public class TrpCollection extends ATransientTranscriptStatistics implements Ser
 			return false;
 		if (elearning != other.elearning)
 			return false;
-		if (pageId != other.pageId)
+		if (pageId == null) {
+			if (other.pageId != null)
+				return false;
+		}else if (pageId != other.pageId)
 			return false;
 		if (label == null) {
 			if (other.label != null)
@@ -233,7 +236,7 @@ public class TrpCollection extends ATransientTranscriptStatistics implements Ser
 	public String toString() {
 		return "TrpCollection [colId=" + colId + ", colName=" + colName + ", description=" + description
 				+ ", defaultForApp=" + defaultForApp + ", crowdsourcing=" + crowdsourcing + ", elearning=" + elearning
-				+ ", label=" + label + ", role=" + role + ", nrOfDocuments=" + nrOfDocuments +"]";
+				+ ", page_id=" + pageId + ", label=" + label + ", role=" + role + ", nrOfDocuments=" + nrOfDocuments +"]";
 
 	}
 
