@@ -46,4 +46,12 @@ public class TrpKwsResult {
 	public void setKeyWords(List<TrpKeyWord> keyWords) {
 		this.keyWords = keyWords;
 	}
+
+	public int getTotalNrOfHits() {
+		int n = 0;
+		for(TrpKeyWord k : getKeyWords()) {
+			n += k.getHits().size();
+		}
+		return n;
+	}
 }
