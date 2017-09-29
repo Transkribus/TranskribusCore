@@ -1,9 +1,9 @@
 package eu.transkribus.core.util;
 
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -65,8 +65,6 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.model.builder.TrpPageMarshalListener;
 import eu.transkribus.core.model.builder.TrpPageUnmarshalListener;
-import math.geom2d.Point2D;
-import math.geom2d.line.Line2D;
 
 public class PageXmlUtils {
 	private static final Logger logger = LoggerFactory.getLogger(PageXmlUtils.class);
@@ -961,12 +959,23 @@ public class PageXmlUtils {
 	
 	public static boolean doesIntersect(TextLineType tl, String baseline) {
 		final String linePoints = tl.getCoords().getPoints();
-//		logger.debug("Line points: " + linePoints);
 		Polygon linePoly = PointStrUtils.buildPolygon(linePoints);
 		Polygon baselinePoly = PointStrUtils.buildPolygon(baseline);
-//		List<Point2D> pointsBaseline = PointStrUtils.buildPolygon(baseline);
-//		Line2D myLine = new Line2D(pointsBaseline.get(0), pointsBaseline.get(pointsBaseline.size()-1));
-		return linePoly.intersects(baselinePoly.getBounds2D());
+//		logger.debug(linePoly.getBounds2D().toString());
+//		logger.debug(baselinePoly.getBounds2D().toString());
+		Rectangle2D baselineRect = baselinePoly.getBounds2D();
+		if(baselineRect.getHeight() == 0) {
+			/*
+			 * if the baseline is horizontal, the boundRect includes no area and thus
+			 * there will not be an intersection...
+			 */
+			baselineRect.setRect(
+					baselineRect.getX(), 
+					baselineRect.getY(), 
+					baselineRect.getWidth(), 
+					1); //blow this up to be height 1
+		}
+		return linePoly.intersects(baselineRect);
 	}
 	
 	public static List<TextLineType> findLinesByBaseline(PcGtsType pc, String baseline) {
