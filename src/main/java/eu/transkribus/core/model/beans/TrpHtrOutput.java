@@ -35,6 +35,18 @@ public class TrpHtrOutput {
 	private URL url; 
 	@Column(name="HTR_ID")
 	private int htrId;
+	@Column
+	@Transient
+	private String imgKey;
+//	@Column
+//	@Transient
+//	private URL imgUrl;
+	@Column
+	@Transient
+	private String xmlKey;
+//	@Column
+//	@Transient
+//	private URL xmlUrl;
 	
 	/*
 	 * for KWS
@@ -150,12 +162,27 @@ public class TrpHtrOutput {
 		this.pageNr = pageNr;
 	}
 
+	public String getImgKey() {
+		return imgKey;
+	}
+
+	public void setImgKey(String imgKey) {
+		this.imgKey = imgKey;
+	}
+
+	public String getXmlKey() {
+		return xmlKey;
+	}
+
+	public void setXmlKey(String xmlKey) {
+		this.xmlKey = xmlKey;
+	}
+
 	@Override
 	public String toString() {
-		return "TrpHtrOutput [htrOutputId=" + htrOutputId + ", pageId=" + pageId + ", tsId=" + tsId 
-				+ ", lineId=" + lineId + ", provider="
-				+ provider + ", key=" + key + ", url=" + url + ", htrId=" + htrId + ", colId=" + colId + ", docId="
-				+ docId + ", pageNr=" + pageNr + "]";
+		return "TrpHtrOutput [htrOutputId=" + htrOutputId + ", pageId=" + pageId + ", tsId=" + tsId + ", lineId="
+				+ lineId + ", provider=" + provider + ", key=" + key + ", url=" + url + ", htrId=" + htrId + ", imgKey="
+				+ imgKey + ", xmlKey=" + xmlKey + ", colId=" + colId + ", docId=" + docId + ", pageNr=" + pageNr + "]";
 	}
 
 }
