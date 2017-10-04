@@ -19,6 +19,7 @@ public class TrpKwsHit implements Comparable<TrpKwsHit> {
 	private String transcription;
 	private int docId;
 	private Integer colId;
+	private Integer tsId;
 	
 	public String getBl() {
 		return bl;
@@ -73,6 +74,12 @@ public class TrpKwsHit implements Comparable<TrpKwsHit> {
 	}
 	public void setConfidence(double confidence) {
 		this.confidence = confidence;
+	}
+	public Integer getTsId() {
+		return tsId;
+	}
+	public void setTsId(Integer tsId) {
+		this.tsId = tsId;
 	}
 	@Override
     public int compareTo(TrpKwsHit o) {

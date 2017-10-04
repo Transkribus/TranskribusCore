@@ -562,6 +562,16 @@ public class TrpDocMetadata extends ATransientTranscriptStatistics implements Se
 				return false;
 		} else if (!writer.equals(other.writer))
 			return false;
+		if (thumbUrl == null) {
+			if (other.thumbUrl != null)
+				return false;
+		} else if (!thumbUrl.equals(other.thumbUrl))
+			return false;
+		if (url == null) {
+			if (other.url != null)
+				return false;
+		} else if (!url.equals(other.url))
+			return false;
 		return true;
 	}
 

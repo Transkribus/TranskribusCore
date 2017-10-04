@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -12,6 +13,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TrpKwsResult {
+	
+	/*benchmark data*/
+	@XmlAttribute
+	private Long initTime;
+	@XmlAttribute
+	private Long searchTime;
+	@XmlAttribute
+	private Long enrichmentTime;
 	
 	@XmlElementWrapper(name="collectionList")
 	@XmlElement
@@ -23,6 +32,30 @@ public class TrpKwsResult {
 	@XmlElement
 	private List<TrpKeyWord> keyWords = new ArrayList<>();
 	
+	public Long getInitTime() {
+		return initTime;
+	}
+
+	public void setInitTime(Long initTime) {
+		this.initTime = initTime;
+	}
+
+	public Long getSearchTime() {
+		return searchTime;
+	}
+
+	public void setSearchTime(Long searchTime) {
+		this.searchTime = searchTime;
+	}
+
+	public Long getEnrichmentTime() {
+		return enrichmentTime;
+	}
+
+	public void setEnrichmentTime(Long enrichmentTime) {
+		this.enrichmentTime = enrichmentTime;
+	}
+
 	public List<Integer> getColIds() {
 		return colIds;
 	}
