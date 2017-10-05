@@ -16,28 +16,28 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class TrpTranscriptStatistics extends ATranscriptStatistics {
 	
 	@Column(name=N_REGIONS_COL_NAME)
-	private Integer nrOfRegions;
+	protected Integer nrOfRegions;
 
 	@Column(name=N_TRANSCRIBED_REGIONS_COL_NAME)
-	private Integer nrOfTranscribedRegions;
+	protected Integer nrOfTranscribedRegions;
 
 	@Column(name=N_WORDS_IN_REGIONS_COL_NAME)
-	private Integer nrOfWordsInRegions;
+	protected Integer nrOfWordsInRegions;
 	
 	@Column(name=N_LINES_COL_NAME)
-	private Integer nrOfLines;
+	protected Integer nrOfLines;
 
 	@Column(name=N_TRANSCRIBED_LINES_COL_NAME)
-	private Integer nrOfTranscribedLines;
+	protected Integer nrOfTranscribedLines;
 
 	@Column(name=N_WORDS_IN_LINES_COL_NAME)
-	private Integer nrOfWordsInLines;
+	protected Integer nrOfWordsInLines;
 
 	@Column(name=N_WORDS_COL_NAME)
-	private Integer nrOfWords;
+	protected Integer nrOfWords;
 
 	@Column(name=N_TRANSCRIBED_WORDS_COL_NAME)
-	private Integer nrOfTranscribedWords;
+	protected Integer nrOfTranscribedWords;
 	
 	public Integer getNrOfRegions() {
 		return nrOfRegions;
