@@ -28,11 +28,20 @@ import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.PageXmlUtils;
 
+/**
+ * Includes the data of a single transcript version for a page.
+ * <br/><br/>
+ * TODO: DbUtils retrieves only fields declared, so extending TrpTranscriptStatistics
+ * and removing the respective inherited fields here does not work!
+ * 
+ * @author philip
+ *
+ */
 @Entity
 @Table(name = "transcripts")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpTranscriptMetadata extends TrpTranscriptStatistics implements ITrpFile, Serializable, Comparable<TrpTranscriptMetadata>  {
+public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrpFile, Serializable, Comparable<TrpTranscriptMetadata>  {
 	private static final long serialVersionUID = 1L;
 	
 	static DateFormat timeFormatter = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
@@ -87,6 +96,30 @@ public class TrpTranscriptMetadata extends TrpTranscriptStatistics implements IT
 	private String note = "";
 	
 	private String md5Sum = "";
+
+	@Column(name=N_REGIONS_COL_NAME)
+	private Integer nrOfRegions;
+
+	@Column(name=N_TRANSCRIBED_REGIONS_COL_NAME)
+	private Integer nrOfTranscribedRegions;
+
+	@Column(name=N_WORDS_IN_REGIONS_COL_NAME)
+	private Integer nrOfWordsInRegions;
+	
+	@Column(name=N_LINES_COL_NAME)
+	private Integer nrOfLines;
+
+	@Column(name=N_TRANSCRIBED_LINES_COL_NAME)
+	private Integer nrOfTranscribedLines;
+
+	@Column(name=N_WORDS_IN_LINES_COL_NAME)
+	private Integer nrOfWordsInLines;
+
+	@Column(name=N_WORDS_COL_NAME)
+	private Integer nrOfWords;
+
+	@Column(name=N_TRANSCRIBED_WORDS_COL_NAME)
+	private Integer nrOfTranscribedWords;
 	
 	//TODO tags
 	//TODO annotations
@@ -287,6 +320,55 @@ public class TrpTranscriptMetadata extends TrpTranscriptStatistics implements IT
 	public void setPageReferenceForLocalDocs(TrpPage pageReferenceForLocalDocs) {
 		this.pageReferenceForLocalDocs = pageReferenceForLocalDocs;
 	}
+
+	public Integer getNrOfRegions() {
+		return nrOfRegions;
+	}
+	public void setNrOfRegions(Integer nrOfRegions) {
+		this.nrOfRegions = nrOfRegions;
+	}
+	public Integer getNrOfTranscribedRegions() {
+		return nrOfTranscribedRegions;
+	}
+	public void setNrOfTranscribedRegions(Integer nrOfTranscribedRegions) {
+		this.nrOfTranscribedRegions = nrOfTranscribedRegions;
+	}
+	public Integer getNrOfWordsInRegions() {
+		return nrOfWordsInRegions;
+	}
+	public void setNrOfWordsInRegions(Integer nrOfWordsInRegions) {
+		this.nrOfWordsInRegions = nrOfWordsInRegions;
+	}
+	public Integer getNrOfLines() {
+		return nrOfLines;
+	}
+	public void setNrOfLines(Integer nrOfLines) {
+		this.nrOfLines = nrOfLines;
+	}
+	public Integer getNrOfTranscribedLines() {
+		return nrOfTranscribedLines;
+	}
+	public void setNrOfTranscribedLines(Integer nrOfTranscribedLines) {
+		this.nrOfTranscribedLines = nrOfTranscribedLines;
+	}
+	public Integer getNrOfWordsInLines() {
+		return nrOfWordsInLines;
+	}
+	public void setNrOfWordsInLines(Integer nrOfWordsInLines) {
+		this.nrOfWordsInLines = nrOfWordsInLines;
+	}
+	public Integer getNrOfWords() {
+		return nrOfWords;
+	}
+	public void setNrOfWords(Integer nrOfWords) {
+		this.nrOfWords = nrOfWords;
+	}
+	public Integer getNrOfTranscribedWords() {
+		return nrOfTranscribedWords;
+	}
+	public void setNrOfTranscribedWords(Integer nrOfTranscribedWords) {
+		this.nrOfTranscribedWords = nrOfTranscribedWords;
+	}	
 	
 	/**
 	 * Check key and URL protocol.<br/>
