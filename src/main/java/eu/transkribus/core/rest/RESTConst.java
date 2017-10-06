@@ -157,6 +157,7 @@ public final class RESTConst {
 	public static final String KEY_PARAM = "key";
 	public static final String REF_KEY_PARAM = "ref";
 	public static final String TEI_TAGS_PARAM = "teiTags";
+	public static final String EMPTY_PARAM = "empty";
 	
 	public static final String TITLE_PARAM = "title";
 	public static final String DESCRIPTION_PARAM = "descr";

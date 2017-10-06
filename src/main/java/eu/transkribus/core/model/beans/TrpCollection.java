@@ -21,7 +21,7 @@ import eu.transkribus.core.model.beans.auth.TrpRole;
 @Table(name="COLLECTION")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpCollection extends ATransientTranscriptStatistics implements Serializable {
+public class TrpCollection extends ATotalTranscriptStatistics implements Serializable {
 	private static final long serialVersionUID = -6247876122034400418L;
 	
 	private static final String IS_CROWDSOURCING_COLUMN_NAME = "IS_CROWDSOURCING";
