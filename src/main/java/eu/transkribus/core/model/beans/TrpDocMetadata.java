@@ -30,7 +30,7 @@ import eu.transkribus.core.model.beans.enums.ScriptType;
 @Table(name="DOC_MD")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpDocMetadata extends ATransientTranscriptStatistics implements Serializable, Comparable<TrpDocMetadata> {
+public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serializable, Comparable<TrpDocMetadata> {
 	private static final long serialVersionUID = 1L;
 
 	@Id
@@ -444,6 +444,14 @@ public class TrpDocMetadata extends ATransientTranscriptStatistics implements Se
 			clist += " null ";
 		clist += " }";
 		sb.append(clist);
+		
+		sb.append(this.getNrOfLines() + " - ");
+		sb.append(this.getNrOfTranscribedLines() + " - ");
+		sb.append(this.getNrOfNew() + " - ");
+		sb.append(this.getNrOfInProgress() + " - ");
+		sb.append(this.getNrOfDone() + " - ");
+		sb.append(this.getNrOfFinal() + " - ");
+		sb.append(this.getNrOfGT() + " - ");
 		
 		sb.append("}");
 		return sb.toString();

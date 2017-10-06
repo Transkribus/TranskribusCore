@@ -12,8 +12,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
  *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class ATransientTranscriptStatistics extends ATranscriptStatistics {
-	
+public abstract class ATotalTranscriptStatistics extends ATranscriptStatistics {
+		
 	@Transient
 	@Column(name=N_REGIONS_COL_NAME)
 	protected Integer nrOfRegions;
@@ -45,6 +45,26 @@ public abstract class ATransientTranscriptStatistics extends ATranscriptStatisti
 	@Transient
 	@Column(name=N_TRANSCRIBED_WORDS_COL_NAME)
 	protected Integer nrOfTranscribedWords;
+	
+	@Transient
+	@Column(name="NUMBER_STATUS_NEW")
+	protected Integer nrOfNew;
+	
+	@Transient
+	@Column(name="NUMBER_STATUS_INPROGRESS")
+	protected Integer nrOfInProgress;
+	
+	@Transient
+	@Column(name="NUMBER_STATUS_DONE")
+	protected Integer nrOfDone;
+	
+	@Transient
+	@Column(name="NUMBER_STATUS_FINAL")
+	protected Integer nrOfFinal;
+	
+	@Transient
+	@Column(name="NUMBER_STATUS_GT")
+	protected Integer nrOfGT;
 
 	@Override
 	public Integer getNrOfRegions() {
@@ -124,6 +144,67 @@ public abstract class ATransientTranscriptStatistics extends ATranscriptStatisti
 	@Override
 	public void setNrOfTranscribedWords(Integer nrOfTranscribedWords) {
 		this.nrOfTranscribedWords = nrOfTranscribedWords;
+	}
+
+	public Integer getNrOfNew() {
+		return nrOfNew;
+	}
+
+	public void setNrOfNew(Integer nrOfNew) {
+		this.nrOfNew = nrOfNew;
+	}
+
+	public Integer getNrOfInProgress() {
+		return nrOfInProgress;
+	}
+
+	public void setNrOfInProgress(Integer nrOfInProgress) {
+		this.nrOfInProgress = nrOfInProgress;
+	}
+
+	public Integer getNrOfDone() {
+		return nrOfDone;
+	}
+
+	public void setNrOfDone(Integer nrOfDone) {
+		this.nrOfDone = nrOfDone;
+	}
+
+	public Integer getNrOfFinal() {
+		return nrOfFinal;
+	}
+
+	public void setNrOfFinal(Integer nrOfFinal) {
+		this.nrOfFinal = nrOfFinal;
+	}
+
+	public Integer getNrOfGT() {
+		return nrOfGT;
+	}
+
+	public void setNrOfGT(Integer nrOfGT) {
+		this.nrOfGT = nrOfGT;
+	}
+	
+	public TrpTotalTranscriptStatistics getTotalStats() {
+		TrpTotalTranscriptStatistics s = new TrpTotalTranscriptStatistics();
+		s.setStats(this.getStats());
+		s.setNrOfNew(this.getNrOfNew());
+		s.setNrOfInProgress(this.getNrOfInProgress());
+		s.setNrOfDone(this.getNrOfDone());
+		s.setNrOfFinal(this.getNrOfFinal());
+		s.setNrOfGT(this.getNrOfGT());
+		return s;
+	}
+	
+	public void setTotalStats(TrpTotalTranscriptStatistics s) {
+		
+		this.setStats(s.getStats());
+		this.setNrOfNew(s.getNrOfNew());
+		this.setNrOfInProgress(s.getNrOfInProgress());
+		this.setNrOfDone(s.getNrOfDone());
+		this.setNrOfFinal(s.getNrOfFinal());
+		this.setNrOfGT(s.getNrOfGT());
 	}
 
 	
