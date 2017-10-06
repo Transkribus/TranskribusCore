@@ -16,10 +16,13 @@ public class TrpTotalTranscriptStatistics extends ATotalTranscriptStatistics {
 	
 	@Override
 	public String toString() {
-		return "TrpTranscriptStatistics [nrOfRegions=" + nrOfRegions + ", nrOfTranscribedRegions="
+		return "TrpTotalTranscriptStatistics [nrOfRegions=" + nrOfRegions + ", nrOfTranscribedRegions="
 				+ nrOfTranscribedRegions + ", nrOfWordsInRegions=" + nrOfWordsInRegions + ", nrOfLines=" + nrOfLines
 				+ ", nrOfTranscribedLines=" + nrOfTranscribedLines + ", nrOfWordsInLines=" + nrOfWordsInLines
-				+ ", nrOfWords=" + nrOfWords + ", nrOfTranscribedWords=" + nrOfTranscribedWords + "]";
+				+ ", nrOfWords=" + nrOfWords + ", nrOfTranscribedWords=" + nrOfTranscribedWords 
+				+ ", nrOfNew=" + nrOfNew + ", nrOfInProgress=" + nrOfInProgress + ", nrOfDone=" + nrOfDone
+				+ ", nrOfFinal=" + nrOfFinal + ", nrOfGT=" + nrOfGT
+				+ "]";
 	}
 	
 }
