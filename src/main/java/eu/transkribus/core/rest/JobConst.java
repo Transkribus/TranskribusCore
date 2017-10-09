@@ -35,6 +35,7 @@ public class JobConst {
 	public static final String PROP_METS_PATH = "metsPath";
 	
 	public static final String PROP_DICTNAME = "dictName";
+	public static final String PROP_TEMP_DICTNAME = "tempDictName";
 	public static final String PROP_NUM_EPOCHS = "numEpochs";
 	public static final String PROP_LEARNING_RATE = "learningRate";
 	public static final String PROP_NOISE = "noise";

@@ -31,17 +31,25 @@ public class HtrCITlabUtils {
 	@Deprecated
 	public static final String NET_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/net";
 	public static final String DICT_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/dict";
+	public static final String TEMP_DICT_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/dictTmp";
 
 	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("####0.00");
 	static {
 		DECIMAL_FORMAT.setRoundingMode(RoundingMode.UP);
 	}
 	
+	public static File resolveTempDict(String dictName) throws FileNotFoundException {
+		return resolveDict(HtrCITlabUtils.TEMP_DICT_PATH, dictName);
+	}
+	
 	public static File resolveDict(String dictName) throws FileNotFoundException {
+		return resolveDict(HtrCITlabUtils.DICT_PATH, dictName);
+	}
+	
+	private static File resolveDict(final String baseDir, String dictName) throws FileNotFoundException {
 		if (StringUtils.isEmpty(dictName)) {
 			return null;
 		}
-		final String baseDir = HtrCITlabUtils.DICT_PATH;
 		File dict = new File(baseDir + File.separator + dictName);
 		if (!dict.isFile()) {
 			throw new FileNotFoundException("A dictionary by this name could not be found: " + dictName);

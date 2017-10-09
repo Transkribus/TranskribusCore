@@ -4,7 +4,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.xml.bind.JAXBException;
+
 import org.apache.commons.lang3.StringUtils;
+
+import eu.transkribus.core.io.util.TrpProperties;
+import eu.transkribus.core.model.beans.CitLabHtrTrainConfig;
+import eu.transkribus.core.model.beans.DocumentSelectionDescriptor;
+import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescriptor;
+import eu.transkribus.core.rest.JobConst;
 
 public class JobDataUtils {
 	private static final String LIST_SEP = ".";
@@ -66,5 +74,16 @@ public class JobDataUtils {
 	
 	private static String buildKey(String key, int i) {
 		return key + LIST_SEP + i;
+	}
+	
+	public static <T> T getObject(TrpProperties jobProps, String key,
+			Class<T> targetClazz, Class<?>... nestedClazzes) throws JAXBException {
+		final String objectStr = jobProps.getString(key);
+		T object = null;
+		if(!StringUtils.isEmpty(objectStr)) {
+			object = JaxbUtils.unmarshal(objectStr, targetClazz, 
+					nestedClazzes);
+		}
+		return object;
 	}
 }

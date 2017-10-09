@@ -52,19 +52,19 @@
   <logger name="org.apache" level="DEBUG">
     <appender-ref ref="CONSOLE"/>
 <!--     <appender-ref ref="CONSOLE_ERR"/> -->
-    <appender-ref ref="LOGFILE"/>
+<!--     <appender-ref ref="LOGFILE"/> -->
   </logger>
   <logger name="org.dea" level="DEBUG">
     <appender-ref ref="CONSOLE"/>
 <!--     <appender-ref ref="CONSOLE_ERR"/> -->
-    <appender-ref ref="LOGFILE"/>
+<!--     <appender-ref ref="LOGFILE"/> -->
   </logger>
   <logger name="org.dea.transcript.trp.core.model.builder.TrpPageUnmarshalListener" level="INFO">
     <appender-ref ref="CONSOLE"/>
-    <appender-ref ref="LOGFILE"/>
+<!--     <appender-ref ref="LOGFILE"/> -->
   </logger>
   <logger name="eu.transkribus.core.io" level="DEBUG">
     <appender-ref ref="CONSOLE"/>
-    <appender-ref ref="LOGFILE"/>
+<!--     <appender-ref ref="LOGFILE"/> -->
   </logger>
 </configuration>
