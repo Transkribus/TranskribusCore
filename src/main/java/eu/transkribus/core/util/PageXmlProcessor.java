@@ -25,7 +25,7 @@ import eu.transkribus.core.io.FimgStoreReadConnection;
 import eu.transkribus.core.util.xpath.TrpXPathProcessor;
 
 /**
- * Equivalent to {@link PageXmlUtils} but relying on org.w3c.dom.Document and XPath instead of JaxB.
+ * Equivalent to {@link PageXmlUtils} but relying on org.w3c.dom.Document and XPath instead of JaxB.<br/>
  * Use {@link PageXmlProcessorFactory} to get an instance of this.
  * 
  * @author philip
