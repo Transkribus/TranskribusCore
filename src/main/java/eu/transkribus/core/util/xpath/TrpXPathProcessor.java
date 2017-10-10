@@ -23,9 +23,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Provides means parse XML files and to apply XPath Expressions on XML files in various sources.<br/>
+ * Provides means to parse XML files and to evaluate XPath Expressions on XML files in various sources.<br/>
  * All heavy initialization tasks are done in the constructor, so reuse instances.<br/>
- * In the first place this class is meant to be used for applying the same xPath expression(s)
+ * In the first place this class is meant to be used for applying xPath expression(s)
  * to a large batch of files. Therefore the {@link #compile(String)} method and the apply-methods can be used.
  * 
  * @author philip
@@ -97,7 +97,7 @@ public class TrpXPathProcessor {
 	 */
 	public NodeList getNodeList(File xmlFile, XPathExpression xPathExp) throws SAXException, IOException, XPathExpressionException {
 		Document doc = this.parse(xmlFile);
-		return (NodeList)applyXPathExpression(doc, xPathExp, XPathConstants.NODESET);
+		return (NodeList)evaluate(doc, xPathExp, XPathConstants.NODESET);
 	}
 	
 	/**
@@ -112,7 +112,7 @@ public class TrpXPathProcessor {
 	 */
 	public NodeList getNodeList(URL xmlUrl, XPathExpression xPathExp) throws SAXException, IOException, XPathExpressionException {
 		Document doc = this.parse(xmlUrl);
-		return (NodeList)applyXPathExpression(doc, xPathExp, XPathConstants.NODESET);
+		return (NodeList)evaluate(doc, xPathExp, XPathConstants.NODESET);
 	}
 	
 	/**
@@ -126,7 +126,7 @@ public class TrpXPathProcessor {
 	 * @throws XPathExpressionException
 	 */
 	public NodeList getNodeList(Document doc, XPathExpression xPathExp) throws SAXException, IOException, XPathExpressionException {
-		return (NodeList)applyXPathExpression(doc, xPathExp, XPathConstants.NODESET);
+		return (NodeList)evaluate(doc, xPathExp, XPathConstants.NODESET);
 	}
 	
 	/**
@@ -142,7 +142,7 @@ public class TrpXPathProcessor {
 	 */
 	public Node getNode(File xmlFile, XPathExpression xPathExp) throws SAXException, IOException, XPathExpressionException {
 		Document doc = this.parse(xmlFile);
-		return (Node)applyXPathExpression(doc, xPathExp, XPathConstants.NODE);
+		return (Node)evaluate(doc, xPathExp, XPathConstants.NODE);
 	}
 	
 	/**
@@ -158,7 +158,7 @@ public class TrpXPathProcessor {
 	 */
 	public Node getNode(URL xmlUrl, XPathExpression xPathExp) throws SAXException, IOException, XPathExpressionException {
 		Document doc = this.parse(xmlUrl);
-		return (Node)applyXPathExpression(doc, xPathExp, XPathConstants.NODE);
+		return (Node)evaluate(doc, xPathExp, XPathConstants.NODE);
 	}
 	
 	/**
@@ -173,10 +173,10 @@ public class TrpXPathProcessor {
 	 * @throws IllegalArgumentException if the given xPathExpression does not return a single node
 	 */
 	public Node getNode(Document doc, XPathExpression xPathExp) throws SAXException, IOException, XPathExpressionException {
-		return (Node)applyXPathExpression(doc, xPathExp, XPathConstants.NODE);
+		return (Node)evaluate(doc, xPathExp, XPathConstants.NODE);
 	}
 
-	protected Object applyXPathExpression(Document doc, XPathExpression xPathExp, QName returnType) throws XPathExpressionException {
+	protected Object evaluate(Document doc, XPathExpression xPathExp, QName returnType) throws XPathExpressionException {
 		if(doc == null || xPathExp == null) {
 			throw new IllegalArgumentException("An argument is null!");
 		}
