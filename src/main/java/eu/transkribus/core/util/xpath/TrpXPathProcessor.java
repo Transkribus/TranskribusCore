@@ -176,7 +176,7 @@ public class TrpXPathProcessor {
 		return (Node)applyXPathExpression(doc, xPathExp, XPathConstants.NODE);
 	}
 
-	private Object applyXPathExpression(Document doc, XPathExpression xPathExp, QName returnType) throws XPathExpressionException {
+	protected Object applyXPathExpression(Document doc, XPathExpression xPathExp, QName returnType) throws XPathExpressionException {
 		if(doc == null || xPathExp == null) {
 			throw new IllegalArgumentException("An argument is null!");
 		}

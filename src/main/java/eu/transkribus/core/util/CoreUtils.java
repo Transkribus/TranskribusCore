@@ -873,7 +873,7 @@ public class CoreUtils {
 	private static Collection<Integer> parseRangeListStr(String text, int nrOfPages, Collection<Integer> pi) throws IOException {
 //		List<Integer> pi = new LinkedList<Integer>();
 		if(pi == null) throw new IOException("Collection is null!");
-		if (text.isEmpty())
+		if (StringUtils.isEmpty(text))
 			return pi;
 		
 		String[] ranges = text.split(",");
