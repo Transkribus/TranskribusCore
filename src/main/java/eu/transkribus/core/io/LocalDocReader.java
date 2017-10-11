@@ -86,6 +86,10 @@ import eu.transkribus.core.util.XmlUtils;
  * </pre>
  * <br>
  * 
+ * When the document is loaded for the first time, the structure will be stored on disk in the file
+ * "doc.xml". Each subsequent loading will read that file, check if directory content has changed, 
+ * and return the given structure if possible.
+ * 
  * @author philip
  * 
  */
@@ -166,6 +170,8 @@ public class LocalDocReader {
 	public static TrpDoc load(final String path, boolean preserveOcrTxtStyles, 
 			boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml,
 			boolean enableSyncWithoutImages) throws IOException {
+		//create the document
+		TrpDoc doc = new TrpDoc();
 		//check OS and adjust URL protocol
 		final String os = System.getProperty("os.name");
 		
@@ -177,8 +183,7 @@ public class LocalDocReader {
 		} //else: keep default
 
 		final File inputDir = new File(path);
-
-		logger.info("Reading document at " + inputDir.getAbsolutePath());
+		final File docXml = new File(inputDir.getAbsolutePath() + File.separator + LocalDocConst.DOC_XML_FILENAME);
 
 		//validate input path ======================================================
 
@@ -190,18 +195,42 @@ public class LocalDocReader {
 		if (!inputDir.isDirectory()) {
 			throw new IOException(inputDir.getAbsolutePath() + " is not a directory.");
 		}
-
-		//find metadata file ========================================================
-		TrpDocMetadata docMd = findOrCreateDocMd(inputDir);
-
-		//create the document
-		TrpDoc doc = new TrpDoc();
-		//and set the docMd
-		doc.setMd(docMd);
-
+		
+		if (!inputDir.canWrite()) {
+			throw new IOException(inputDir.getAbsolutePath() + " is not writeable.");
+		}
+		
 		// search for IMG files
 		TreeMap<String, File> pageMap = findImgFiles(inputDir);
 		logger.info("Found " + pageMap.entrySet().size() + " page images.");
+		
+		if(pageMap.isEmpty()) {
+			throw new FileNotFoundException("The directory does not contain any images: " + inputDir.getAbsolutePath());
+		}
+		
+		TrpDocMetadata docMd = null;
+		//try to read doc structure from disk
+		if(docXml.isFile()) {
+			doc = loadDocXml(docXml);
+			if(isValid(doc, pageMap.size(), forceCreatePageXml)) {
+				logger.info("Loaded document structure from disk.");
+				return doc;
+			} else {
+				logger.info("Removing faulty doc XML from disk and doing reload.");
+				docMd = doc.getMd();
+				docXml.delete();
+				doc = new TrpDoc();
+			}
+		}
+		
+		logger.info("Reading document at " + inputDir.getAbsolutePath());
+
+		//find metadata file if not extracted from doc.xml =============================================
+		if(docMd == null) {
+			docMd = findOrCreateDocMd(inputDir);
+		}
+		//Set the docMd
+		doc.setMd(docMd);
 
 		//Construct the input dir with pageXml Files. 
 		File pageInputDir = new File(inputDir.getAbsolutePath() + File.separatorChar
@@ -263,6 +292,7 @@ public class LocalDocReader {
 			} 
 			
 			//try to read image dimension in any case to detect corrupt files immediately!
+			//FIXME this is taking too long and is only necessary on initial loading
 			Dimension dim = null;
 			String imageRemark = null;
 			try {
@@ -284,7 +314,7 @@ public class LocalDocReader {
 						preserveOcrTxtStyles, replaceBadChars, imgFile.getName(), dim);
 			}
 			
-			TrpPage page = buildPage(inputDir, pageNr++, imgFile, pageXml, thumbFile, imageRemark);
+			TrpPage page = buildPage(inputDir, pageNr++, imgFile, pageXml, thumbFile, dim, imageRemark);
 			pages.add(page);
 		}
 
@@ -296,9 +326,23 @@ public class LocalDocReader {
 		doc.setEdDeclList(features);
 
 		logger.debug(doc.toString());
+		
+		//store doc on disk to save time on next load
+		LocalDocWriter.writeDocXml(doc, docXml);
+		
 		return doc;
 	}
 
+	private static TrpDoc loadDocXml(File docXml) {
+		TrpDoc doc;
+		try {
+			doc = JaxbUtils.unmarshal(docXml, TrpDoc.class, TrpDocMetadata.class, TrpPage.class, TrpTranscriptMetadata.class, EdFeature.class, EdOption.class);
+		} catch (Exception e) {
+			doc = null;
+		}
+		return doc;		
+	}
+	
 	/**
 	 * Method will create a PAGE XML from the given source files at pageOutFile.
 	 * if no supported source file exists (abbyy/alto/txt), then a skeleton will be created if possible.
@@ -593,7 +637,7 @@ public class LocalDocReader {
 	 * @throws MalformedURLException if an URL can't be constructed from parentDir
 	 */
 	protected static TrpPage buildPage(File inputDir, int pageNr, File img, 
-			File pageXml, File thumb, final String missingImageRemark) throws IOException {
+			File pageXml, File thumb, Dimension dim, final String missingImageRemark) throws IOException {
 		logger.debug(pageNr + ": XML = " + (pageXml == null ? "null" : pageXml.getName())
 				+ " - IMG = " + (img == null ? "null" : img.getName()));
 
@@ -621,6 +665,11 @@ public class LocalDocReader {
 		if(thumb != null) {
 			final URL thumbUrl = thumb.toURI().toURL();
 			page.setThumbUrl(thumbUrl);
+		}
+		
+		if(dim != null) {
+			page.setWidth(dim.width);
+			page.setHeight(dim.height);
 		}
 		
 		if(pageXml != null){
@@ -900,7 +949,7 @@ public class LocalDocReader {
 					throw new IOException("Could not create empty PageXml on disk!", je);
 				}
 			} 
-			TrpPage page = buildPage(baseDir, pageNr, img, pageXml, thumb, imageRemark);
+			TrpPage page = buildPage(baseDir, pageNr, img, pageXml, thumb, dim, imageRemark);
 			doc.getPages().add(page);
 		}
 								
@@ -909,5 +958,50 @@ public class LocalDocReader {
 	
 	public static String getCorruptImgMsg(final String imgFileName) {
 		return "Image file is corrupt: " + imgFileName;
+	}
+	
+	/**
+	 * do a quick check if all files still exist and if new files have been added
+	 * 
+	 * @param doc
+	 * @return
+	 * @throws IOException 
+	 */
+	public static boolean isValid(TrpDoc doc, final int nrOfImagesFound, final boolean forceCreatePageXml) throws IOException {
+		if(doc == null || !doc.isLocalDoc()) {
+			return false;
+		}
+		
+		//check if nr of image files is the same:
+		if(doc.getPages().size() != nrOfImagesFound) {
+			return false;
+		}
+		
+		//even though the number is the same, a file might have been exchanged. Check filenames
+		List<TrpPage> faultyPages = new LinkedList<>();
+		doc.getPages().stream().forEach(p ->  {
+			if(!doFilesExist(p, forceCreatePageXml)){
+				faultyPages.add(p);
+			}
+		});
+		logger.info("The files of " + faultyPages.size() + " pages have changed.");
+		return faultyPages.isEmpty();
+	}
+	
+	private static boolean doFilesExist(TrpPage p, final boolean forceCreatePageXml) {
+		File f = FileUtils.toFile(p.getUrl());
+		if(!f.isFile()) {
+			return false;
+		}
+		if(p.getTranscripts().isEmpty() && forceCreatePageXml) {
+			return false;
+		}
+		if(!p.getTranscripts().isEmpty()) {
+			File t = FileUtils.toFile(p.getCurrentTranscript().getUrl());
+			if(!t.isFile()) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

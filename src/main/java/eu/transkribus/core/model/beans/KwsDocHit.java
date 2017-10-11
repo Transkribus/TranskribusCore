@@ -3,6 +3,7 @@ package eu.transkribus.core.model.beans;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class KwsDocHit {
 	private int colId;
 	private int docId;

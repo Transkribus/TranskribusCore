@@ -10,7 +10,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
-
 import eu.transkribus.core.model.beans.auth.TrpUserLogin;
 
 @XmlRootElement
@@ -36,7 +35,10 @@ public class PageLock implements Serializable {
 	public PageLock(TrpUserLogin login, int colId, int docId, int pageNr, String lockType){
 		this.login = login;
 		
-		this.loginTime = login.getCreated();
+		//this.loginTime = (Timestamp) login.getLoginTime();//getCreated();
+		//System.out.println("login at: " + loginTime);
+		
+		this.loginTime = (Timestamp) login.getCreated();
 		this.userName = login.getUserName();
 		this.colId = colId;
 		this.docId = docId;

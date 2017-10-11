@@ -3,6 +3,7 @@ package eu.transkribus.core.util;
 import java.awt.Dimension;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +42,7 @@ import eu.transkribus.core.io.FimgStoreReadConnection;
 import eu.transkribus.core.io.formats.XmlFormat;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
-import eu.transkribus.core.model.beans.TrpTranscriptMetadata.TrpTranscriptStatistics;
+import eu.transkribus.core.model.beans.TrpTranscriptStatistics;
 import eu.transkribus.core.model.beans.customtags.CustomTagUtil;
 import eu.transkribus.core.model.beans.enums.TranscriptionLevel;
 import eu.transkribus.core.model.beans.pagecontent.CoordsType;
@@ -292,6 +294,13 @@ public class PageXmlUtils {
     	return buildPolygon(coords.getPoints());
 	}
 	
+	/**
+	 * 
+	 * See PointStrUtils
+	 * @param pointsStr
+	 * @return
+	 */
+	@Deprecated 
 	public static Polygon buildPolygon(String pointsStr) {
 		Polygon p = new Polygon();
 		//pointsStr MIGHT contain leading or trailing whitespace from some tool..
@@ -313,7 +322,7 @@ public class PageXmlUtils {
 		}
 		return p;
 	}
-
+	
 	public static Polygon getOffsetPolygon(Polygon poly, Rectangle boundRect) {
 		final int x0 = boundRect.x;
 		final int y0 = boundRect.y;
@@ -787,28 +796,42 @@ public class PageXmlUtils {
 	}
 
 	public static void setTextToLine(String text, PcGtsType pc, String lineId) {
+		TextLineType tl = findLineById(pc, lineId);
+		
+		if(tl == null) {
+			logger.info("Line does not exist: " + lineId);
+			return;
+		}
+		
+		logger.debug("Setting text in line=" + lineId + ": " + text);
+		
+		if(tl.getTextEquiv() == null){
+			logger.debug("Creating new TextEquiv element.");
+			TextEquivType textEquiv = new TextEquivType();
+			textEquiv.setUnicode(text);
+			tl.setTextEquiv(textEquiv);
+		} else {
+			logger.debug("Setting text in existing TextEquiv element.");
+			tl.getTextEquiv().setUnicode(text);
+		}
+	}
+	
+	public static TextLineType findLineById(PcGtsType pc, final String lineId) {
+		if(pc == null || lineId == null) {
+			throw new IllegalArgumentException("Arguments must not be null");
+		}
 		List<TextRegionType> trList = getTextRegions(pc);
 		for(TextRegionType tr : trList){
 			List<TextLineType> tlList = tr.getTextLine();
 			if(tlList != null && !tlList.isEmpty()){
 				for(TextLineType tl : tlList){
 					if(tl.getId().equals(lineId)){
-						logger.debug("Setting text in line=" + lineId + ": " + text);
-						
-						if(tl.getTextEquiv() == null){
-							logger.debug("Creating new TextEquiv element.");
-							TextEquivType textEquiv = new TextEquivType();
-							textEquiv.setUnicode(text);
-							tl.setTextEquiv(textEquiv);
-						} else {
-							logger.debug("Setting text in existing TextEquiv element.");
-							tl.getTextEquiv().setUnicode(text);
-						}
-						return;
+						return tl;
 					}
 				}
 			}
 		}
+		return null;
 	}
 
 	public static String getFulltextFromLines(PcGtsType pc) {
@@ -849,7 +872,7 @@ public class PageXmlUtils {
 	}
 	
 	public static TrpTranscriptStatistics extractStats(PcGtsType page) {
-		TrpTranscriptStatistics s = (new TrpTranscriptMetadata()).new TrpTranscriptStatistics();
+		TrpTranscriptStatistics s = new TrpTranscriptStatistics();
 		
 		int nrOfRegions, nrOfTranscribedRegions, nrOfWordsInRegions, 
 		nrOfLines, nrOfTranscribedLines, nrOfWordsInLines, nrOfWords, nrOfTranscribedWords;
@@ -906,6 +929,69 @@ public class PageXmlUtils {
 //		URL schemaFile = new URL("http://host:port/filename.xsd");
 		URL schemaUrl = PageXmlUtils.class.getClassLoader().getResource("xsd/pagecontent_extension.xsd");
 		return XmlUtils.isValid(xmlFile, schemaUrl);
+	}
+
+//	public static boolean isBaselineInLineBounds(TextLineType tl, String baseline, final int threshold) {
+//		final Polygon linePoly = PageXmlUtils.buildPolygon(tl.getCoords());
+//		Rectangle boundRect = linePoly.getBounds();
+//		List<Point> blPoints = PointStrUtils.parsePoints(baseline);
+//		boolean isIncluded = true;
+//		for(Point p : blPoints) {
+//			if(!GeomUtils.isInside(p.x, p.y, boundRect, threshold)) {
+//				isIncluded = false;
+//				break;
+//			}
+//		}
+//		return isIncluded;
+//	}
+	
+//	public static double getOverlap(TextLineType tl, String baseline) {
+//		final String linePoints = tl.getCoords().getPoints();
+//		logger.debug("Line points: " + linePoints);
+//		List<Point2D> pointsLine = PointStrUtils.buildPoints2DList(linePoints);
+//		List<Point2D> pointsBaseline = PointStrUtils.buildPoints2DList(baseline);
+//		double o = GeomUtils.getOverlap(pointsLine, pointsBaseline);
+//		if(o > 0) {
+//			logger.debug("Overlap is: " + o);
+//		}
+//		return o;
+//	}
+	
+	public static boolean doesIntersect(TextLineType tl, String baseline) {
+		final String linePoints = tl.getCoords().getPoints();
+		Polygon linePoly = PointStrUtils.buildPolygon(linePoints);
+		Polygon baselinePoly = PointStrUtils.buildPolygon(baseline);
+//		logger.debug(linePoly.getBounds2D().toString());
+//		logger.debug(baselinePoly.getBounds2D().toString());
+		Rectangle2D baselineRect = baselinePoly.getBounds2D();
+		if(baselineRect.getHeight() == 0) {
+			/*
+			 * if the baseline is horizontal, the boundRect includes no area and thus
+			 * there will not be an intersection...
+			 */
+			baselineRect.setRect(
+					baselineRect.getX(), 
+					baselineRect.getY(), 
+					baselineRect.getWidth(), 
+					1); //blow this up to be height 1
+		}
+		return linePoly.intersects(baselineRect);
+	}
+	
+	public static List<TextLineType> findLinesByBaseline(PcGtsType pc, String baseline) {
+		List<TextRegionType> regions = getTextRegions(pc);
+		List<TextLineType> matchingLines = new LinkedList<>();
+		for(TextRegionType r : regions) {
+			r.getTextLine()
+			.stream()
+			.filter(l -> doesIntersect(l, baseline))//isBaselineInLineBounds(l, baseline, threshold))
+			.forEach(l -> matchingLines.add(l));
+		}
+		if(matchingLines.size() > 1) {
+			TrpElementCoordinatesComparator<TextLineType> comp = new TrpElementCoordinatesComparator<>(true);
+			Collections.sort(matchingLines, comp);
+		}
+		return matchingLines;
 	}
 	
 	public static void main(String[] args) {

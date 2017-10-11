@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 import math.geom2d.AffineTransform2D;
 import math.geom2d.Point2D;
 import math.geom2d.line.Line2D;
+import math.geom2d.polygon.Polygon2D;
+import math.geom2d.polygon.Polygons2D;
+import math.geom2d.polygon.SimplePolygon2D;
 
 public class GeomUtils {
 	private static final Logger logger = LoggerFactory.getLogger(GeomUtils.class);
@@ -78,6 +81,18 @@ public class GeomUtils {
 	
 	public static boolean isInside(int x, int y, Rectangle b, int thresh) {
 		return extend(b, thresh).contains(x, y);
+	}
+	
+	public static double getOverlap(List<Point2D> points1, List<Point2D> points2) {
+		Polygon2D i = Polygons2D.intersection(
+				SimplePolygon2D.create(points1), 
+				SimplePolygon2D.create(points2)
+				);
+		if (i==null) {
+			return 0;
+		} else {
+			return i.area();
+		}
 	}
 	
 	public static double angleWithHorizontalLine(Point p1, Point p2) {

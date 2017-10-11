@@ -21,7 +21,9 @@ public enum JobTask {
 	HtrTraining(JobType.recognition, "HTR Training", "uro"),
 	Ocr(JobType.recognition, "Optical Character Recognition", "uibk"),
 	UpvlcHtr(JobType.upvlc, "Handwritten Text Recognition", "upvlc"),
-	UpvlcHtrTraining(JobType.upvlc, "HTR Training", "upvlc");
+	UpvlcHtrTraining(JobType.upvlc, "HTR Training", "upvlc"),
+	
+	Kws(JobType.kws, "Keyword Spotting", "uro");
 	
 	private JobType type;
 	private String label;

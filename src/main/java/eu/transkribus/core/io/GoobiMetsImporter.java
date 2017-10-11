@@ -342,14 +342,14 @@ public class GoobiMetsImporter extends APassthroughObservable
 		File pageXml = null;
 		File thumb = null;
 		File imgDir = new File(imgDirPath);
+		Dimension dim = null;
 		if(imgFile == null) {
 			//the divType did not include an image pointer
 			logger.error("No image mapped for page " + pageNr + " in the structmap!");
 			problemMsg = getMissingImgMsg(pageNr);
 		} else {
 			logger.info("Page " + pageNr + " image: " + imgFile.getAbsolutePath());
-			
-			Dimension dim = null;
+
 			if(imgFile.isFile()) {
 				try {
 					dim = ImgUtils.readImageDimensions(imgFile);
@@ -365,7 +365,7 @@ public class GoobiMetsImporter extends APassthroughObservable
 					null, true, true, false, imgFile.getName(), dim);
 			thumb = LocalDocReader.getThumbFile(imgDir, imgFile.getName());
 		}
-		TrpPage page = LocalDocReader.buildPage(new File(dir), pageNr, imgFile, pageXml, thumb, 
+		TrpPage page = LocalDocReader.buildPage(new File(dir), pageNr, imgFile, pageXml, thumb, dim,
 				problemMsg);
 		
 //		//try to create TrpPage at this time instead of LocalDocReader

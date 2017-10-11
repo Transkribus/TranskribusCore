@@ -2,7 +2,6 @@ package eu.transkribus.core.model.beans;
 
 import java.net.URL;
 
-import javax.annotation.Generated;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -24,6 +23,8 @@ public class TrpHtrOutput {
 	@Column
 	private int pageId;
 	@Column
+	private Integer tsId;
+	@Column
 	private String lineId;
 	@Column
 	private String provider;
@@ -34,11 +35,39 @@ public class TrpHtrOutput {
 	private URL url; 
 	@Column(name="HTR_ID")
 	private int htrId;
+	@Column
+	@Transient
+	private String imgKey;
+//	@Column
+//	@Transient
+//	private URL imgUrl;
+	@Column
+	@Transient
+	private String xmlKey;
+//	@Column
+//	@Transient
+//	private URL xmlUrl;
+	
+	/*
+	 * for KWS
+	 * 
+	 * colId is a String so it can hold a CSV list of several groups when searching in several collections
+	 */
+	@Transient
+	@Column
+	private String colId;
+	@Transient
+	@Column
+	private int docId;
+	@Transient
+	@Column
+	private int pageNr;
 	
 	public TrpHtrOutput(){}
 	
-	public TrpHtrOutput(int pageId, String lineId, String provider, String key, int htrId) {
+	public TrpHtrOutput(int pageId, Integer tsId, String lineId, String provider, String key, int htrId) {
 		this.pageId = pageId;
+		this.tsId = tsId;
 		this.lineId = lineId;
 		this.provider = provider;
 		this.key = key;
@@ -67,6 +96,14 @@ public class TrpHtrOutput {
 
 	public void setPageId(int pageId) {
 		this.pageId = pageId;
+	}
+
+	public Integer getTsId() {
+		return tsId;
+	}
+
+	public void setTsId(Integer tsId) {
+		this.tsId = tsId;
 	}
 
 	public String getLineId() {
@@ -99,6 +136,53 @@ public class TrpHtrOutput {
 
 	public void setHtrId(int htrId) {
 		this.htrId = htrId;
+	}
+
+	public String getColId() {
+		return colId;
+	}
+
+	public void setColId(String colId) {
+		this.colId = colId;
+	}
+
+	public int getDocId() {
+		return docId;
+	}
+
+	public void setDocId(int docId) {
+		this.docId = docId;
+	}
+
+	public int getPageNr() {
+		return pageNr;
+	}
+
+	public void setPageNr(int pageNr) {
+		this.pageNr = pageNr;
+	}
+
+	public String getImgKey() {
+		return imgKey;
+	}
+
+	public void setImgKey(String imgKey) {
+		this.imgKey = imgKey;
+	}
+
+	public String getXmlKey() {
+		return xmlKey;
+	}
+
+	public void setXmlKey(String xmlKey) {
+		this.xmlKey = xmlKey;
+	}
+
+	@Override
+	public String toString() {
+		return "TrpHtrOutput [htrOutputId=" + htrOutputId + ", pageId=" + pageId + ", tsId=" + tsId + ", lineId="
+				+ lineId + ", provider=" + provider + ", key=" + key + ", url=" + url + ", htrId=" + htrId + ", imgKey="
+				+ imgKey + ", xmlKey=" + xmlKey + ", colId=" + colId + ", docId=" + docId + ", pageNr=" + pageNr + "]";
 	}
 
 }

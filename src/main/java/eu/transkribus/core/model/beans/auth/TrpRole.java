@@ -21,8 +21,15 @@ public enum TrpRole {
 	
 	public int getValue() { return value; }
 	
-	public boolean canManage() { return AuthUtils.canManage(this); }
-	public boolean canTranscribe() { return AuthUtils.canTranscribe(this); }
+	public boolean canManage() { 
+		return AuthUtils.canManage(this); 
+	}
+	public boolean canTranscribe() { 
+		return AuthUtils.canTranscribe(this); 
+	}
+	public boolean canRead() {
+		return AuthUtils.canRead(this);
+	}
 	
 	public boolean isVirtual() {
 		return value > Owner.value || value == CrowdTranscriber.value || value <= None.value; // currently CrowdTranscriber is also virtual!!

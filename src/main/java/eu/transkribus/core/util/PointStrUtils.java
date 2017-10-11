@@ -1,13 +1,21 @@
 package eu.transkribus.core.util;
 
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import math.geom2d.Point2D;
 
 public class PointStrUtils {
 	
@@ -175,6 +183,64 @@ public class PointStrUtils {
 		return ptsList;
 	}
 	
+	/** Parse points from String in format "x1,y1 x2,y2 ..." */
+	public static List<Point> parsePoints3(String pts) throws PointParseException  {
+		return (List<Point>) buildPointContainer(pts, Collectors.toList(), Point::new, false);
+	}
+	
+	public static List<Point2D> buildPoints2DList(String pointsStr) {
+		return (List<Point2D>)PointStrUtils.buildPointContainer(
+				pointsStr, Collectors.toList(), Point2D::new, false);
+	}
+	
+	/**
+	 * parse the points string and construct objects using constr BiFunction
+	 * 
+	 * @param pointsStr PAGE XML style points string
+	 * @param collector incorporates objects into a structure
+	 * @param constr constructur for the objects to be collected
+	 * @return
+	 */
+	public static <T, A, R> A buildPointContainer(String pointsStr, Collector<T, A, R> collector, BiFunction<Integer, Integer, T> constr, boolean omitPointsOnParseException) {
+		Supplier<A> sup = collector.supplier();
+		A container = sup.get();
+		//pointsStr MIGHT contain leading or trailing whitespace from some tool..
+		pointsStr = pointsStr.trim();
+		if(pointsStr == null || pointsStr.isEmpty()){
+    		return container;
+    	}
+		
+		try{
+			final String[] coordsArr = pointsStr.split(" ");
+			for (int i = 0; i < coordsArr.length; i++) {
+				final String[] xy = coordsArr[i].split(",");
+				final Integer x = Integer.parseInt(xy[0]);
+				final Integer y = Integer.parseInt(xy[1]);
+				collector.accumulator().accept(container, constr.apply(x, y));
+			}
+		} catch(NumberFormatException e){
+			logger.error("Bad coords String: " + pointsStr, e);
+			if(!omitPointsOnParseException) {
+				throw e;
+			}
+		}
+		return container;
+	}
+	
+	public static Polygon buildPolygon(String pointsStr) {
+		List<Point> coords = (List<Point>)PointStrUtils.buildPointContainer(
+				pointsStr, Collectors.toList(), Point::new, false);
+		int n = coords.size();
+		int[] xValues = new int[n];
+		int[] yValues = new int[n];
+		for(int i = 0; i < n; i++) {
+			final Point p = coords.get(i);
+			xValues[i] = p.x;
+			yValues[i] = p.y;
+		}
+		return new Polygon(xValues, yValues, n);
+	}
+	
 	public static String pointsToString(List<Point> pts) {
 		String ptsStr="";
 		for (Point pt : pts) {
@@ -221,6 +287,26 @@ public class PointStrUtils {
 			e.printStackTrace();
 		}
 		
+		String test = "1,2 3,4 5,6";
+		for(Point p : parsePoints3(test)) {
+			System.out.println(p);
+		}
 		
+	}
+
+	public static Pair<Integer, Integer> getXBounds(String baseline) {
+		Polygon baselinePoly = PointStrUtils.buildPolygon(baseline);
+		int baselineMinX = Integer.MAX_VALUE;
+		int baselineMaxX = Integer.MIN_VALUE;
+		for(int i = 0; i < baselinePoly.xpoints.length; i++) {
+			int x = baselinePoly.xpoints[i];
+			if(x < baselineMinX) {
+				baselineMinX = x;
+			}
+			if(x > baselineMaxX) {
+				baselineMaxX = x;
+			}
+		}
+		return Pair.of(baselineMinX, baselineMaxX);
 	}
 }

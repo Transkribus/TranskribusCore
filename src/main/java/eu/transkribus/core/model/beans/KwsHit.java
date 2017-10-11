@@ -1,6 +1,6 @@
 package eu.transkribus.core.model.beans;
 
-
+@Deprecated
 public class KwsHit implements Comparable<KwsHit> {
 	private int colId;
 	private int docId;

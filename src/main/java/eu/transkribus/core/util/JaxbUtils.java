@@ -125,10 +125,35 @@ public class JaxbUtils {
 		return marshalToStream(object, out, true, nestedClasses);
 	}
 	
-	public static <T> ValidationEvent[] marshalToStream(T object, OutputStream out, boolean doFormatting, Class<?>... nestedClasses) throws JAXBException {
+	public static <T> ValidationEvent[] marshalToStream(T object, OutputStream out, 
+			boolean doFormatting, Class<?>... nestedClasses) throws JAXBException {
+		return marshalToStream(object, out, doFormatting, MarshallerType.XML, nestedClasses);
+	}
+	
+	private static <T> ValidationEvent[] marshalToStream(T object, OutputStream out, 
+			boolean doFormatting, MarshallerType type, Class<?>... nestedClasses) throws JAXBException {
 		ValidationEventCollector vec = new ValidationEventCollector();
-		Class<?>[] targetClasses = merge(object.getClass(), nestedClasses);
+
+		final Marshaller marshaller;
+//		switch(type) {
+//		case JSON:
+//			marshaller = createJsonMarshaller(object, doFormatting, nestedClasses);
+//			break;
+//		default:
+//			marshaller = createXmlMarshaller(object, doFormatting, nestedClasses);
+//			break;
+//		}
+		marshaller = createXmlMarshaller(object, doFormatting, nestedClasses);
+		marshaller.setEventHandler(vec);
+		marshaller.marshal(object, out);
 		
+		checkEvents(vec);
+		
+		return vec.getEvents();
+	}
+	
+	private static <T> Marshaller createXmlMarshaller(T object, boolean doFormatting, Class<?>... nestedClasses) throws JAXBException {
+		Class<?>[] targetClasses = merge(object.getClass(), nestedClasses);
 		JAXBContext jc = createJAXBContext(targetClasses);
 		Marshaller marshaller = jc.createMarshaller();
 		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, doFormatting);
@@ -138,16 +163,22 @@ public class JaxbUtils {
 		if(format != null && !format.equals(XmlFormat.UNKNOWN)) {
 			marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, format.xsiSchemaLocation);
 		}
-		
-		marshaller.setEventHandler(vec);
-//		ObjectFactory objectFactory = new ObjectFactory();
-//		JAXBElement<T> je = objectFactory.createPcGts(object);
-		marshaller.marshal(object, out);
-		
-		checkEvents(vec);
-		
-		return vec.getEvents();
+		logger.debug(marshaller.getClass().getCanonicalName());
+		return marshaller;
 	}
+
+//	private static <T> Marshaller createJsonMarshaller(T object, boolean doFormatting, Class<?>... nestedClasses) throws JAXBException {
+//		Class<?>[] targetClasses = merge(object.getClass(), nestedClasses);
+//		JAXBContext jc = createJAXBContext(targetClasses);
+//		Marshaller marshaller = jc.createMarshaller();
+//		// Set the Marshaller media type to JSON or XML
+//        marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
+//        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, doFormatting);
+//        marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+//        // Set it to true if you need to include the JSON root element in the JSON output
+//        marshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, true);
+//        return marshaller;
+//	}
 	
 	public static <T> T unmarshal(Document doc, Class<T> targetClass, Class<?>... nestedClasses) throws JAXBException {
 		JAXBContext jc = createJAXBContext(merge(targetClass, nestedClasses));
@@ -191,6 +222,12 @@ public class JaxbUtils {
 	public static <T> String marshalToString(T object, boolean doFormatting, Class<?>... nestedClasses) throws JAXBException {		
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		marshalToStream(object, baos, doFormatting, nestedClasses);
+		return baos.toString();		
+	}
+	
+	private static <T> String marshalToString(T object, boolean doFormatting, MarshallerType type, Class<?>... nestedClasses) throws JAXBException {		
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		marshalToStream(object, baos, doFormatting, type, nestedClasses);
 		return baos.toString();		
 	}
 	
@@ -267,5 +304,9 @@ public class JaxbUtils {
 		}
 		return xmlCal;
 	}
-
+	
+	public enum MarshallerType {
+		XML,
+		JSON;
+	}
 }

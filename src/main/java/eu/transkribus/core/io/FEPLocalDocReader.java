@@ -387,7 +387,7 @@ public class FEPLocalDocReader {
 						
 			//TODO is is assumed that the image is not corrupt here! Try to read dimension to be sure
 			TrpPage page = LocalDocReader.buildPage(inputDir, pageNr, imgFile, 
-					pageOutFile, thumbFile, null);
+					pageOutFile, thumbFile, null, null);
 			
 			// exract logical structs for this page from mets and apply them to the page:
 			applyLogicalStructFromMetsToPageFile(mets, pageNr, pageOutFile);

@@ -35,6 +35,7 @@ public class JobConst {
 	public static final String PROP_METS_PATH = "metsPath";
 	
 	public static final String PROP_DICTNAME = "dictName";
+	public static final String PROP_TEMP_DICTNAME = "tempDictName";
 	public static final String PROP_NUM_EPOCHS = "numEpochs";
 	public static final String PROP_LEARNING_RATE = "learningRate";
 	public static final String PROP_NOISE = "noise";
@@ -54,5 +55,12 @@ public class JobConst {
 	public static final String PROP_ADDITIONAL_COL_IDS = "additionalColIds";
 
 	public static final String PROP_EXPORT_OPTIONS = "options";
+
+	//kws
+	public static final String PROP_QUERY = "query";
+	/**
+	 * kws result is too big for the result-column. So this goes into  the job data clob
+	 */
+	public static final String PROP_RESULT = "result";
 
 }

@@ -157,6 +157,7 @@ public final class RESTConst {
 	public static final String KEY_PARAM = "key";
 	public static final String REF_KEY_PARAM = "ref";
 	public static final String TEI_TAGS_PARAM = "teiTags";
+	public static final String EMPTY_PARAM = "empty";
 	
 	public static final String TITLE_PARAM = "title";
 	public static final String DESCRIPTION_PARAM = "descr";
@@ -269,6 +270,7 @@ public final class RESTConst {
 	public static final String REMOVE_PATH = "remove";
 	
 	public static final String WER_PATH = "computeWER";
+	public static final String ERROR_RATE = "errorRate";
 
 	public static final String TEST_DOC_PATH = "testSet";
 	public static final String TRAIN_DOC_PATH = "trainSet";
@@ -330,6 +332,7 @@ public final class RESTConst {
 	public static final String HTR_RNN_PATH = "rnn";
 
 	public static final String HTR_DICT_NAME_PARAM = "dict";
+	public static final String HTR_TEMP_DICT_NAME_PARAM = "tempDict";
 	
 	public static final String TYPE_FACE_PARAM = "typeFace";
 	public static final String LANGUAGE_PARAM = "language";

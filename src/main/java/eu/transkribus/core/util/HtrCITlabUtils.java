@@ -31,6 +31,10 @@ public class HtrCITlabUtils {
 	@Deprecated
 	public static final String NET_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/net";
 	public static final String DICT_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/dict";
+	/**
+	 * this will located in the virtual FTP user storage
+	 */
+	public static final String TEMP_DICT_DIR_NAME = "dictTmp";
 
 	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("####0.00");
 	static {
@@ -38,17 +42,23 @@ public class HtrCITlabUtils {
 	}
 	
 	public static File resolveDict(String dictName) throws FileNotFoundException {
+		return resolveDict(HtrCITlabUtils.DICT_PATH, dictName);
+	}
+	
+	public static File resolveDict(final File baseDir, String dictName) throws FileNotFoundException {
+		return resolveDict(baseDir.getAbsolutePath(), dictName);
+	}
+	
+	public static File resolveDict(final String baseDir, String dictName) throws FileNotFoundException {
 		if (StringUtils.isEmpty(dictName)) {
 			return null;
 		}
-		final String baseDir = HtrCITlabUtils.DICT_PATH;
 		File dict = new File(baseDir + File.separator + dictName);
 		if (!dict.isFile()) {
 			throw new FileNotFoundException("A dictionary by this name could not be found: " + dictName);
 		}
 		return dict;
 	}
-	
 
 	@Deprecated
 	public static File[] getNetList() {

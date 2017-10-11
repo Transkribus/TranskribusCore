@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import org.dea.fimgstoreclient.AbstractHttpClient.Scheme;
 import org.dea.fimgstoreclient.FimgStoreGetClient;
 import org.dea.fimgstoreclient.beans.FimgStoreFileMd;
 import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
+import org.dea.fimgstoreclient.utils.FimgStoreUriBuilder;
 import org.dea.fimgstoreclient.utils.FimgStoreUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,7 @@ public class FimgStoreReadConnection {
 	private static final Logger logger = LoggerFactory.getLogger(FimgStoreReadConnection.class);
 	
 	protected static FimgStoreGetClient getter = null;
+	protected static FimgStoreUriBuilder uriBuilder = null;
 	
 	public static FimgStoreGetClient getGetClient(){
 		if(getter == null){
@@ -52,5 +55,14 @@ public class FimgStoreReadConnection {
 		}
 		FimgStoreImgMd imgMd = (FimgStoreImgMd) md;
 		return imgMd;
+	}
+	
+	public static FimgStoreUriBuilder getUriBuilder() {
+		if(uriBuilder == null){
+			uriBuilder = new FimgStoreUriBuilder(
+				Scheme.https.toString(), TrpFimgStoreConf.STORE_HOST, 
+				TrpFimgStoreConf.STORE_PORT, TrpFimgStoreConf.STORE_CONTEXT);
+		}
+		return uriBuilder;
 	}
 }
