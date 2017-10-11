@@ -382,7 +382,7 @@ public class LocalDocReader {
 		
 		if(abbyyXml != null){
 			//try find Abbyy XML
-			pc = createPageFromAbbyy(imgFileName, altoXml, preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars);
+			pc = createPageFromAbbyy(imgFileName, abbyyXml, preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars);
 		}
 		
 		if(pc == null && altoXml != null){
