@@ -235,7 +235,7 @@ public class DocExporter extends APassthroughObservable {
 					//old
 					//TrpTranscriptMetadata t = p.getCurrentTranscript();
 					/*
-					 * new: to get the previously stored choosen version
+					 * new: to get the previously stored chosen version
 					 */
 					TrpTranscriptMetadata transcriptMd;
 					JAXBPageTranscript transcript = ExportUtils.getPageTranscriptAtIndex(i);
