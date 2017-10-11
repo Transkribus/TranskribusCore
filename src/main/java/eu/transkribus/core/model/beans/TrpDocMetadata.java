@@ -68,9 +68,6 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 	@Transient
 	private int nrOfPages;
 	
-	@Column(name="IMG_ID")
-	private Integer imageId;
-	
 	@Column(name="PAGE_ID")
 	private Integer pageId;
 	
@@ -138,7 +135,6 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		createdFromTimestamp = md.getCreatedFromTimestamp();
 		createdToTimestamp = md.getCreatedToTimestamp();
 		origDocId = md.getOrigDocId();
-		imageId = md.getImageId();
 		pageId = md.getPageId();
 		url = md.getUrl();
 		thumbUrl = md.getThumbUrl();
@@ -363,14 +359,6 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 	public void setPageId(Integer pageId) {
 		this.pageId = pageId;
 	}
-	
-	public Integer getImageId() {
-		return imageId;
-	}
-
-	public void setImageId(Integer imageId) {
-		this.imageId = imageId;
-	}
 
 	public URL getUrl() {
 		return url;
@@ -425,8 +413,8 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		sb.append(this.getScriptType() + " - ");
 		sb.append((new Date(uploadTimestamp)).toString() + " - ");
 		sb.append(this.getNrOfPages() + " - ");
-		sb.append(this.language + " - pageID ");
-		sb.append(this.getPageId() + " - ");
+		sb.append(this.language + " - ");
+		sb.append("pageID = " + this.getPageId() + " - ");
 		sb.append((getCreatedFromDate() == null ? null : getCreatedFromDate().toString()) + " - ");
 		sb.append((getCreatedToDate() == null ? null : getCreatedToDate().toString()) + " - ");
 		if (this.getLocalFolder()!=null) {
@@ -540,11 +528,6 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 			if (other.genre != null)
 				return false;
 		} else if (!genre.equals(other.genre))
-			return false;
-		if (imageId == null) {
-			if (other.imageId != null)
-				return false;
-		} else if (!imageId.equals(other.imageId))
 			return false;
 		if (pageId == null) {
 			if (other.pageId != null)
@@ -678,8 +661,6 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 			if (other.writer != null)
 				return false;
 		} else if (!writer.equals(other.writer))
-			return false;
-		if (imageId != other.imageId)
 			return false;
 		if (pageId == null) {
 			if (other.pageId != null)
