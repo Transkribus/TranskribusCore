@@ -1260,7 +1260,7 @@ public class TrpPdfDocument extends APdfDocument {
 							rtl = textIsRTL(text);
 							addString(boundRect, baseLineMeanY, text, cb, cutoffLeft, cutoffTop, bf, rotation, rtl);
 						} else {
-							logger.info("No text content in word: " + w.getId());
+							//logger.info("No text content in word: " + w.getId());
 						}
 						
 					}
@@ -1301,7 +1301,7 @@ public class TrpPdfDocument extends APdfDocument {
 //					}
 
 				} else {
-					logger.info("No text content in line: " + l.getId());
+					//logger.info("No text content in line: " + l.getId());
 				}
 				
 				

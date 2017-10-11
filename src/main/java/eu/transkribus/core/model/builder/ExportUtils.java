@@ -68,8 +68,9 @@ public class ExportUtils {
 		
 		int totalPages = pages.size();	
 		int c = 0;
-
+		
 		for (int i=0; i<totalPages; ++i) {
+			logger.debug(" i " + i);
 			if (pageIndices!=null && !pageIndices.contains(i)){
 				//fill up with null to have the proper index of each page later on
 				pageTranscripts.add(null);
@@ -82,22 +83,37 @@ public class ExportUtils {
 			
 			TrpPage page = pages.get(i);
 			
-			TrpTranscriptMetadata md = page.getCurrentTranscript();
+			TrpTranscriptMetadata md = null; 
 			if (versionStatus.contains("Latest")){
 				//current transcript
+				md = page.getCurrentTranscript();
 			}
 			else if (versionStatus.contains("Loaded")){
-				//if loaded page idx == i than we can export the loaded status and for all other pages the latest
+				//if loaded page idx == i than we can export the loaded version and for all other pages the latest
 				if (i==pageIdx && loadedTranscript != null){
 					md = loadedTranscript;
+//					String loadedStatus = loadedTranscript.getStatus().getStr();
+//					md = page.getTranscriptWithStatus(loadedStatus);
 				}
-				
+				else{
+					md = page.getCurrentTranscript();
+				}
 			}
 			else{
-				md = page.getTranscriptWithStatus(versionStatus);
+				//logger.debug("We want to export pages with status: " + versionStatus);
+				md = page.getTranscriptWithStatusOrNull(versionStatus);
 			}
 			
-			
+			/*
+			 * for pages where we have not found versions with the defined status -> remove from the page list so that
+			 * they will not exported
+			 */
+			if (md==null){
+				//logger.debug("remove page index " + i);
+				pageIndices.remove(new Integer(i));
+				continue;
+			}
+
 			JAXBPageTranscript tr = new JAXBPageTranscript(md);
 			tr.build();
 			pageTranscripts.add(tr);
