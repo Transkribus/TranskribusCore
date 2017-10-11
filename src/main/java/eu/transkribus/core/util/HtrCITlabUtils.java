@@ -31,22 +31,25 @@ public class HtrCITlabUtils {
 	@Deprecated
 	public static final String NET_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/net";
 	public static final String DICT_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/dict";
-	public static final String TEMP_DICT_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/dictTmp";
+	/**
+	 * this will located in the virtual FTP user storage
+	 */
+	public static final String TEMP_DICT_DIR_NAME = "dictTmp";
 
 	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("####0.00");
 	static {
 		DECIMAL_FORMAT.setRoundingMode(RoundingMode.UP);
 	}
 	
-	public static File resolveTempDict(String dictName) throws FileNotFoundException {
-		return resolveDict(HtrCITlabUtils.TEMP_DICT_PATH, dictName);
-	}
-	
 	public static File resolveDict(String dictName) throws FileNotFoundException {
 		return resolveDict(HtrCITlabUtils.DICT_PATH, dictName);
 	}
 	
-	private static File resolveDict(final String baseDir, String dictName) throws FileNotFoundException {
+	public static File resolveDict(final File baseDir, String dictName) throws FileNotFoundException {
+		return resolveDict(baseDir.getAbsolutePath(), dictName);
+	}
+	
+	public static File resolveDict(final String baseDir, String dictName) throws FileNotFoundException {
 		if (StringUtils.isEmpty(dictName)) {
 			return null;
 		}
@@ -56,7 +59,6 @@ public class HtrCITlabUtils {
 		}
 		return dict;
 	}
-	
 
 	@Deprecated
 	public static File[] getNetList() {

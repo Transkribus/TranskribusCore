@@ -35,7 +35,8 @@ public class PageXmlProcessorFactory {
 		return newInstance(dbImpl, xpImpl);
 	}
 	
-	public static PageXmlProcessor newInstance(DocBuilderFactoryImpl docBuilderFactoryImpl, XPathFactoryImpl xPathFactoryImpl) throws XPathFactoryConfigurationException, ParserConfigurationException {
+	public static PageXmlProcessor newInstance(DocBuilderFactoryImpl docBuilderFactoryImpl, 
+			XPathFactoryImpl xPathFactoryImpl) throws XPathFactoryConfigurationException, ParserConfigurationException {
 		File store = new File(STORE_LOCATION);
 		if(store.isDirectory() && store.canRead()) {
 			logger.debug("Returning Instance with netShare access.");

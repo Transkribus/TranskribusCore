@@ -15,8 +15,6 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import javax.xml.xpath.XPathFactoryConfigurationException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -32,11 +30,8 @@ import org.xml.sax.SAXException;
  *
  */
 public class TrpXPathProcessor {
-	private final static  Logger logger = LoggerFactory.getLogger(TrpXPathProcessor.class);
 	public final static DocBuilderFactoryImpl DEFAULT_DOC_BUILDER_FACTORY_IMPL = DocBuilderFactoryImpl.ApacheXerces;
 	public final static XPathFactoryImpl DEFAULT_XPATH_FACTORY_IMPL = XPathFactoryImpl.SunApache;
-//	public final static DocBuilderFactoryImpl DEFAULT_DOC_BUILDER_FACTORY_IMPL = DocBuilderFactoryImpl.Saxon;
-//	public final static XPathFactoryImpl DEFAULT_XPATH_FACTORY_IMPL = XPathFactoryImpl.Saxon;
 	private final DocumentBuilder builder;
 	private final ClassLoader classLoader;
 	private final XPathFactory xPathFactory;
@@ -220,14 +215,17 @@ public class TrpXPathProcessor {
 	 */
 	public enum XPathFactoryImpl {
 		/**
+		 * Tested and working for Transkribus components.<br/>
 		 * "com.sun.org.apache.xpath.internal.jaxp.XPathFactoryImpl"
 		 */
 		SunApache("com.sun.org.apache.xpath.internal.jaxp.XPathFactoryImpl"),
 		/**
+		 * Not tested.<br/>
 		 * "net.sf.saxon.xpath.XPathFactoryImpl"
 		 */
 		Saxon("net.sf.saxon.xpath.XPathFactoryImpl"),
 		/**
+		 * Not tested.<br/>
 		 * "org.apache.xpath.jaxp.XPathFactoryImpl"
 		 */
 		OrgApache("org.apache.xpath.jaxp.XPathFactoryImpl");
@@ -242,14 +240,17 @@ public class TrpXPathProcessor {
 	
 	public enum DocBuilderFactoryImpl {
 		/**
+		 * Tested and working for Transkribus components.<br/>
 		 * "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"
 		 */
 		ApacheXerces("com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"),
 		/**
+		 * Not tested.<br/>
 		 * "net.sf.saxon.om.DocumentBuilderFactoryImpl"
 		 */
 		Saxon("net.sf.saxon.om.DocumentBuilderFactoryImpl"),
 		/**
+		 * Not tested.<br/>
 		 * "oracle.xml.jaxp.JXDocumentBuilderFactory"
 		 */
 		Oracle("oracle.xml.jaxp.JXDocumentBuilderFactory");
