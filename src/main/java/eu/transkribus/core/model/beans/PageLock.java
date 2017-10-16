@@ -33,12 +33,8 @@ public class PageLock implements Serializable {
 	public PageLock() {}
 	
 	public PageLock(TrpUserLogin login, int colId, int docId, int pageNr, String lockType){
-		this.login = login;
-		
-		//this.loginTime = (Timestamp) login.getLoginTime();//getCreated();
-		//System.out.println("login at: " + loginTime);
-		
-		this.loginTime = (Timestamp) login.getCreated();
+		this.login = login;		
+		this.loginTime = new Timestamp(login.getLoginTime().getTime());
 		this.userName = login.getUserName();
 		this.colId = colId;
 		this.docId = docId;
