@@ -220,6 +220,14 @@ public class CoreUtils {
 		return temp.toArray(new String[0]);
 	}
 	
+	public static <E extends Enum<E>> String[] appendValue(String[] arr, E newObj) {
+		if(newObj == null) {
+			return appendValue(arr, (String)null);
+		} else {
+			return appendValue(arr, newObj.toString());
+		}
+	}
+	
 	public static List<String> parseStringList(String str, boolean trimEntries) {
 		List<String> result = new ArrayList<>();
 		
