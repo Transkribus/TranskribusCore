@@ -3,19 +3,16 @@ package eu.transkribus.core.model.beans.pagecontent_trp;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Comparator;
-import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.transkribus.core.model.beans.pagecontent.BaselineType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
 import eu.transkribus.core.util.GeomUtils;
 import eu.transkribus.core.util.IntRange;
-import eu.transkribus.core.util.PageXmlUtils;
 import eu.transkribus.core.util.PointStrUtils;
 
 public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
@@ -124,7 +121,7 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 				pt1 = GeomUtils.rotate(pt1, orientation);
 				pt2 = GeomUtils.rotate(pt2, orientation);
 				
-				logger.debug("orientation set: "+orientation+" rotated points: "+pt1+", "+pt2);
+				logger.trace("orientation set: "+orientation+" rotated points: "+pt1+", "+pt2);
 			}
 			
 			if (compareByYX == null) { // if compareByYX was not set by constructor, determine via shape

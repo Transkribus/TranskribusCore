@@ -34,6 +34,7 @@ public enum JobImpl {
 	NcsrOldLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", null),
 	NcsrLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", "libNCSR_TextLineSegmentation.so"),
 	CITlabLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", null),
+	CITlabAdvancedLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", null),
 	CvlLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", null),
 	UpvlcLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", null),
 	

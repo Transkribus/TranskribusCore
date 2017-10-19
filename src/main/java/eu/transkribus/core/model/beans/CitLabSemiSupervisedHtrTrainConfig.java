@@ -20,11 +20,11 @@ public class CitLabSemiSupervisedHtrTrainConfig extends CitLabHtrTrainConfig {
 	private String trainEpochs=DEFAULT_TRAINING_EPOCHS;
 	public final static String TRAINING_EPOCHS_KEY = "Training epochs";
 
-	// the subsampling parameter defines into how much subsets the training document is split to avoid overfitting.
+	// the subsets parameter defines into how much subsets the training document is split to avoid overfitting.
 	// Important: the parameter cannot exceed the number of input training pages (should be checked in TrpCITlabSemiSupervisedHtrTrainer)  
-	public final static int DEFAULT_SUBSAMPLING = 4;
-	private int subSampling = DEFAULT_SUBSAMPLING;
-	public final static String SUBSAMPLING_KEY = "Subsampling";
+	public final static int DEFAULT_SUBSETS = 1;
+	private int subSets = DEFAULT_SUBSETS;
+	public final static String SUBSETS_KEY = "Subsets";
 	
 	public final static boolean DEFAULT_REMOVE_LINEBREAKS = true;
 	private boolean removeLineBreaks = true;
@@ -63,12 +63,12 @@ public class CitLabSemiSupervisedHtrTrainConfig extends CitLabHtrTrainConfig {
 		this.doLayoutAnalysis = doLayoutAnalysis;
 	}
 
-	public int getSubSampling() {
-		return subSampling;
+	public int getSubSets() {
+		return subSets;
 	}
 
-	public void setSubSampling(int subSampling) {
-		this.subSampling = subSampling;
+	public void setSubSets(int subSets) {
+		this.subSets = subSets;
 	}
 
 	public String getTrainEpochs() {
@@ -130,7 +130,7 @@ public class CitLabSemiSupervisedHtrTrainConfig extends CitLabHtrTrainConfig {
 
 	@Override
 	public String toString() {
-		return "CitLabSemiSupervisedHtrTrainConfig [trainEpochs=" + trainEpochs + ", subSampling=" + subSampling
+		return "CitLabSemiSupervisedHtrTrainConfig [trainEpochs=" + trainEpochs + ", subSampling=" + subSets
 				+ ", doLayoutAnalysis=" + doLayoutAnalysis
 				+ ", removeLineBreaks=" + removeLineBreaks + ", nThreads=" + nThreads + ", jsonProps=" + jsonProps
 				+ ", learningRate=" + learningRate + ", noise=" + noise + ", trainSizePerEpoch=" + trainSizePerEpoch
