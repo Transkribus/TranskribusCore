@@ -1,5 +1,10 @@
 package eu.transkribus.core.model.beans.enums;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import eu.transkribus.core.util.EnumUtils;
 
 public enum EditStatus {
 	NEW(0, "New"),
@@ -30,6 +35,16 @@ public enum EditStatus {
 	            }
 	        }
     	}
-        throw new IllegalArgumentException(v);
-    }	
+        throw new IllegalArgumentException("for setting new version status " + v);
+    }
+
+	public static String[] getStatusListWithoutNew() {
+		String [] stati = EnumUtils.stringsArray(EditStatus.class);
+		
+	    final List<String> list = new ArrayList<String>();
+	    Collections.addAll(list, stati); 
+	    list.remove("New");
+	    stati = list.toArray(new String[list.size()]);
+		return stati;
+	}	
 }
