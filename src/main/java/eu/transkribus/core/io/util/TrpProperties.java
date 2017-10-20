@@ -79,19 +79,6 @@ public class TrpProperties {
 		public String getString(String name){
 			return props.getProperty(name);
 		}
-		
-		public Integer getInt(String name) {
-			final String prop = props.getProperty(name);
-			Integer value = null;
-			if(prop != null){
-				try{
-					value = Integer.parseInt(props.getProperty(name));
-				} catch (NumberFormatException nfe){
-					nfe.printStackTrace();
-				}
-			}
-			return value;
-		}
 				
 		public Pattern getPattern(String name){
 			return Pattern.compile(props.getProperty(name));
@@ -131,6 +118,32 @@ public class TrpProperties {
 			}
 		}
 		
+		/**
+		 * Duplicate of getIntProperty()
+		 * 
+		 * @param name
+		 * @return
+		 */
+		@Deprecated 
+		public Integer getInt(String name) {
+			final String prop = props.getProperty(name);
+			Integer value = null;
+			if(prop != null){
+				try{
+					value = Integer.parseInt(props.getProperty(name));
+				} catch (NumberFormatException nfe){
+					nfe.printStackTrace();
+				}
+			}
+			return value;
+		}
+		
+		/**
+		 * Duplicate of getBoolProperty()
+		 * @param name
+		 * @return
+		 */
+		@Deprecated
 		public boolean getBool(String name){
 			final String value = props.getProperty(name);
 			boolean bool = false;
@@ -142,6 +155,9 @@ public class TrpProperties {
 				
 		public Integer getIntProperty(String key) {
 			String propStr = getProperty(key);
+			if(propStr == null) {
+				return null;
+			}
 			Integer retVal = null;
 			try {
 				retVal = Integer.parseInt(propStr);
@@ -149,8 +165,24 @@ public class TrpProperties {
 			return retVal;
 		}
 		
+		public Double getDoubleProperty(String key) {
+			String propStr = getProperty(key);
+			if(propStr == null) {
+				return null;
+			}
+			Double retVal = null;
+			try {
+				retVal = Double.parseDouble(propStr);
+			} catch (NumberFormatException nfe) {}
+			return retVal;
+		}
+		
 		public Boolean getBoolProperty(String key) {
-			return Boolean.parseBoolean(getProperty(key));
+			final String propStr = getProperty(key);
+			if("1".equals(propStr)) {
+				return true;
+			}
+			return Boolean.parseBoolean(propStr);
 		}
 		
 		public List<String> getCsvStringListProperty(String key, boolean trimEntries) {

@@ -1,7 +1,11 @@
 package eu.transkribus.core.util;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.xml.bind.JAXBException;
@@ -9,10 +13,6 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.lang3.StringUtils;
 
 import eu.transkribus.core.io.util.TrpProperties;
-import eu.transkribus.core.model.beans.CitLabHtrTrainConfig;
-import eu.transkribus.core.model.beans.DocumentSelectionDescriptor;
-import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescriptor;
-import eu.transkribus.core.rest.JobConst;
 
 public class JobDataUtils {
 	private static final String LIST_SEP = ".";
@@ -57,23 +57,6 @@ public class JobDataUtils {
 			values.add(i++, val);
 		}
 		return values;
-//		props.stringPropertyNames()
-//			.stream()
-//			.filter(s -> s.startsWith(key) && s.contains(LIST_SEP))
-//			.forEach(s -> {
-//				final String value = props.getProperty(s);
-//				final String iStr = s.substring(s.lastIndexOf(LIST_SEP));
-//				try {
-//					final int i = Integer.parseInt(iStr);
-//					values.add(i, value);
-//				} catch (NumberFormatException nfe) {
-//					logger.debug(iStr);
-//				}
-//			});
-	}
-	
-	private static String buildKey(String key, int i) {
-		return key + LIST_SEP + i;
 	}
 	
 	public static <T> T getObject(TrpProperties jobProps, String key,
@@ -85,5 +68,103 @@ public class JobDataUtils {
 					nestedClazzes);
 		}
 		return object;
+	}
+	
+	public static Map<String, String> getStringMap(Properties props, final String propKey) {
+		Map<String, String> map = new HashMap<>();
+		
+		if(StringUtils.isEmpty(propKey)) {
+			return map;
+		}
+		int i = 0;
+		String key;
+		while((key = props.getProperty(buildKeyOfKey(propKey, i))) != null) {
+			final String value = props.getProperty(buildKeyOfValue(propKey, i));
+			if(!StringUtils.isEmpty(value)) {
+				map.put(key, value);
+			}
+			i++;
+		}
+		return map;
+	}
+	
+	public static Properties setStringMap(Properties props, final String key, Map<String, String> map) {
+		if(props == null) {
+			props = new Properties();
+		}
+		int i = 0;
+		for(Entry<String, String> e : map.entrySet()) {
+			if(e.getValue() != null && !e.getValue().trim().isEmpty()) {
+				props.setProperty(
+					buildKeyOfKey(key, i),
+					e.getKey()
+				);
+				props.setProperty(
+					buildKeyOfValue(key, i),
+					e.getValue()
+				);
+				i++;
+			}
+		}
+		return props;
+	}
+	
+	/**
+	 * Flatten a parameter map into a list, which is then compatible with Planet-style property arrays.
+	 * 
+	 * @param map
+	 * @return
+	 */
+	public static List<String> convertToPropList(Map<String, String> map) {
+		if(map == null || map.isEmpty()) {
+			return new ArrayList<>(0);
+		}
+		List<String> list = new ArrayList<>(map.size() * 2);
+		for(Entry<String, String> e : map.entrySet()) {
+			if(!StringUtils.isEmpty(e.getValue())) {
+				list.add(e.getKey());
+				list.add(e.getValue());
+			}
+		}
+		return list;
+	}
+	
+	/**
+	 * For map keys
+	 * @param key
+	 * @param i
+	 * @return
+	 */
+	private static String buildKeyOfKey(String key, int i) {
+		return buildKeyWithSuffix(key, i, "key");
+	}
+	
+	/**
+	 * For map values
+	 * @param key
+	 * @param i
+	 * @return
+	 */
+	private static String buildKeyOfValue(String key, int i) {
+		return buildKeyWithSuffix(key, i, "value");
+	}
+	
+	private static String buildKey(String key, int i) {
+		if(StringUtils.isEmpty(key)) {
+			throw new IllegalArgumentException("key must not be empty.");
+		}
+		return key + LIST_SEP + i;
+	}
+	
+	/** For storing a map
+	 * @param key
+	 * @param i
+	 * @return
+	 */
+	private static String buildKeyWithSuffix(String key, int i, final String suffix) {
+		if(StringUtils.isEmpty(suffix)) {
+			throw new IllegalArgumentException("Suffix must not be empty.");
+		}
+		return buildKey(key, i) + LIST_SEP + suffix;
 	}
 }
