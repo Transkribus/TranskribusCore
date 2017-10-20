@@ -142,6 +142,12 @@ public class LocalDocReader {
 		return load(path, true, true, false, forceCreatePageXml, enableSyncWithoutImages);
 	}
 	
+	public static TrpDoc load(final String path, boolean preserveOcrTxtStyles, 
+			boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml,
+			boolean enableSyncWithoutImages) throws IOException {
+		return load(path, preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars, forceCreatePageXml, enableSyncWithoutImages, null);
+	}
+	
 	/**
 	 * Loads a document from path.<br>
 	 * 
@@ -166,15 +172,17 @@ public class LocalDocReader {
 	 * @param enableSyncWithoutImages if true, document will be created from XMLs only even if no images exist
 	 * @return the constructed document
 	 * @throws IOException if the path can't be read or is malformed
+	 * 
+	 * @todo implement monitor feedback!
 	 */
 	public static TrpDoc load(final String path, boolean preserveOcrTxtStyles, 
 			boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml,
-			boolean enableSyncWithoutImages) throws IOException {
+			boolean enableSyncWithoutImages, IProgressMonitor monitor) throws IOException {
 		//create the document
 		TrpDoc doc = new TrpDoc();
 		//check OS and adjust URL protocol
 		final String os = System.getProperty("os.name");
-		
+				
 		/*
 		 * FIXME use SysUtils.isWin() here?
 		 */
