@@ -80,27 +80,37 @@ public class CoreUtils {
 //		
 //	}
 	
-	public static List<Path> listFilesRecursive(String Path, String extension, boolean caseSensitive, String... excludeFilenames) throws IOException {
+	public static List<Path> listFilesRecursive(String Path, String[] extensions, boolean caseSensitive, String... excludeFilenames) throws IOException {
 		return Files.walk(Paths.get(Path))
 			.filter(Files::isRegularFile)
 			.filter(new Predicate<Path>() {
 				@Override
 				public boolean test(Path t) {
 					String name = caseSensitive ? t.toFile().getName() : t.toFile().getName().toLowerCase();
-					String ext = caseSensitive ? extension : extension.toLowerCase();
 					
-					if (!name.endsWith(ext))
-						return false;
-					
-					for (String exclude : excludeFilenames) {
-						exclude = caseSensitive ? exclude : exclude.toLowerCase();
+					for (String extension : extensions) {
+						String ext = caseSensitive ? extension : extension.toLowerCase();
 						
-						if (name.equals(exclude)) {
-							return false;
+						if (!name.endsWith(ext))
+							continue;
+						
+						boolean doExcludeFile=false;
+						for (String exclude : excludeFilenames) {
+							exclude = caseSensitive ? exclude : exclude.toLowerCase();
+							
+							if (name.equals(exclude)) {
+								doExcludeFile=true;
+								break;
+							}
 						}
+						if (doExcludeFile) {
+							continue;
+						}
+	
+						return true;
 					}
-
-					return true;
+					
+					return false;
 				}
 			})
 			.collect(Collectors.toList());
@@ -242,6 +252,14 @@ public class CoreUtils {
 		}
 		
 		return result;
+	}
+	
+	public static int parseInt(String str, int errorVal) {
+		try {
+			return Integer.parseInt(str);
+		} catch (Exception e) {
+			return errorVal;
+		}
 	}
 	
 	public static List<Integer> parseIntList(String str) {

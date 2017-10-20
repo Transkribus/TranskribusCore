@@ -510,6 +510,15 @@ public class PageXmlUtils {
 			}
 		}
 	}
+	
+	public static List<TextLineType> getLines(PcGtsType pc) {
+		List<TextLineType> lines = new ArrayList<>();
+		List<TextRegionType> regions = PageXmlUtils.getTextRegions(pc);
+		for (TextRegionType r : regions) {
+			lines.addAll((r.getTextLine()));
+		}
+		return lines;
+	}
 
 	public static List<TextLineType> getLinesInRegion(PcGtsType pc, final String regId) {
 		if (!hasRegions(pc)){
