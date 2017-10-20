@@ -62,5 +62,11 @@ public class JobConst {
 	 * kws result is too big for the result-column. So this goes into  the job data clob
 	 */
 	public static final String PROP_RESULT = "result";
-
+	public static final String PROP_THRESHOLD = "threshold";
+	public static final String PROP_IS_CASE_SENSITIVE = "caseSensitive";
+	public static final String PROP_IS_EXPERT = "expert";
+	public static final String PROP_MAX_NR_OF_HITS = "maxNrOfHits";
+	public static final String PROP_DO_PARTIAL_MATCHING = "partialMatching";
+	public static final String PROP_CUSTOM_PROP_MAP = "customPropMap";
+	
 }
