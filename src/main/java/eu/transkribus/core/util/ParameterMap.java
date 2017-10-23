@@ -1,13 +1,10 @@
-package eu.transkribus.core.model.beans.job;
+package eu.transkribus.core.util;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
@@ -15,24 +12,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Wraps a HashMap and can be transmitted as entity in REST API calls both as JSON and XML
- * 
- * TODO write adapter to make this work as expected: https://stackoverflow.com/questions/8413608/sending-list-map-as-post-parameter-jersey
- * 
+ * Implements {@link AJaxbMap} and adds parameter-related helper methods.
  * @author philip
  *
  */
 @XmlRootElement(name="parameters")
-@XmlAccessorType(XmlAccessType.FIELD)
-public class ParameterMap {
+public class ParameterMap extends AJaxbMap {
 	private static final Logger logger = LoggerFactory.getLogger(ParameterMap.class);	
-//	@XmlElement(name="param")
-	protected Map<String, String> paramMap = new HashMap<>();
 	
 	//keep that for Jaxb
-	public ParameterMap() {}
+	public ParameterMap() {
+		super();
+	}
 	
 	public ParameterMap(Map<String, Object> paramMap) {
+		super();
 		if(paramMap == null || paramMap.isEmpty()) {
 			return;
 		}
@@ -50,7 +44,7 @@ public class ParameterMap {
 	}
 
 	public String getParameterValue(final String name) {
-		return paramMap.get(name);
+		return map.get(name);
 	}
 	
 	public Integer getIntParam(String key) {
@@ -86,15 +80,15 @@ public class ParameterMap {
 	}
 	
 	public Map<String, String> getParamMap() {
-		return paramMap;
+		return map;
 	}
 
 	public void setParamMap(Map<String, String> paramMap) {
-		this.paramMap = paramMap;
+		this.map = paramMap;
 	}
 	
 	public boolean containsKey(final String name) {
-		return paramMap.containsKey(name);
+		return map.containsKey(name);
 	}
 	
 	protected String convertToString(Object o) {
@@ -144,11 +138,58 @@ public class ParameterMap {
 	 * @return
 	 */
 	public List<String> toList() {
-		List<String> list = new ArrayList<>(paramMap.size() * 2);
-		for(Entry<String, String> e : paramMap.entrySet()) {
+		List<String> list = new ArrayList<>(map.size() * 2);
+		for(Entry<String, String> e : map.entrySet()) {
 			list.add(e.getKey());
 			list.add(e.getValue());
 		}
 		return list;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer(this.getClass().getName() + " {\n");
+		for(Entry<String, String> e : map.entrySet()) {
+			sb.append("\t" + e.getKey() + " = " + e.getValue() + "\n");
+		}
+		return sb.toString() + "}";
+	}
+	
+	/**
+	 * Get a Planet-style property array
+	 * 
+	 * @return
+	 */
+	public String[] toArray() {
+		return this.toList().toArray(new String[map.size() * 2]);
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if(other == null) {
+			return false;
+		}
+		if(!(other instanceof ParameterMap)) {
+			return false;
+		}
+		ParameterMap otherMap = (ParameterMap)other;
+		if(map.size() != otherMap.getParamMap().size()) {
+			logger.debug("Size differs!");
+			return false;
+		}
+		for(Entry<String,String> e : map.entrySet()) {
+			final String key = e.getKey();
+			final String value = e.getValue();
+			if(!otherMap.containsKey(key)) {
+				logger.debug("A key is missing: " + key);
+				return false;
+			}
+			final String otherValue = otherMap.getParameterValue(key);
+			if(!value.equals(otherValue)) {
+				logger.debug("A value does not match: " + value + " <-> " + otherValue);
+				return false;
+			}
+		}
+		return true;
 	}
 }

@@ -56,6 +56,8 @@ public class JobConst {
 
 	public static final String PROP_EXPORT_OPTIONS = "options";
 
+	public static final String PROP_PARAMETERS = "parameters";
+	
 	//kws
 	public static final String PROP_QUERY = "query";
 	/**
@@ -68,5 +70,7 @@ public class JobConst {
 	public static final String PROP_MAX_NR_OF_HITS = "maxNrOfHits";
 	public static final String PROP_DO_PARTIAL_MATCHING = "partialMatching";
 	public static final String PROP_CUSTOM_PROP_MAP = "customPropMap";
+
+
 	
 }

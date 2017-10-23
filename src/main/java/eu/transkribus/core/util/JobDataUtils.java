@@ -1,5 +1,7 @@
 package eu.transkribus.core.util;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -86,6 +88,34 @@ public class JobDataUtils {
 			i++;
 		}
 		return map;
+	}
+	
+	public static <T extends ParameterMap> T getParameterObject(Properties props, final String key, Class<T> targetClass) {
+		Constructor<T> constructor;
+		ParameterMap params = getParameterMap(props, key);
+		try {
+			constructor = targetClass.getConstructor();
+			T object = constructor.newInstance();
+			object.setParamMap(params.getParamMap());
+			return object;
+		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			throw new IllegalArgumentException("Target class is invalid: no no-args constructor!");
+		}
+	}
+	
+	public static ParameterMap getParameterMap(Properties props, final String key) {
+		Map <String, String> map = getStringMap(props, key);
+		ParameterMap params = new ParameterMap();
+		params.setParamMap(map);
+		return params;
+	}
+	
+	public static <T extends ParameterMap> Properties setParameterObject(Properties props, final String key, T object) {
+		return setParameterMap(props, key, (ParameterMap)object);
+	}
+	
+	public static Properties setParameterMap(Properties props, final String key, ParameterMap map) {
+		return JobDataUtils.setStringMap(props, key, map.getParamMap());
 	}
 	
 	public static Properties setStringMap(Properties props, final String key, Map<String, String> map) {
