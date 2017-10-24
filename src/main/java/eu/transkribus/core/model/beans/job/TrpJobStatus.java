@@ -437,6 +437,11 @@ public class TrpJobStatus implements Serializable {
 		this.result = result;
 	}
 
+	/**
+	 * This job has finished execution, i.e. it has finished its workflow, failed or was cancelled.
+	 * 
+	 * @return
+	 */
 	public boolean isFinished() {
 		return state.equals(FINISHED) || state.equals(FAILED) || state.equals(CANCELED);
 	}

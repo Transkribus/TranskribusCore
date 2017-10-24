@@ -403,5 +403,6 @@ public final class RESTConst {
 	
 	//uploads
 	public static final String UPLOAD_ID_PARAM = "uploadId";
+	public static final String DETAILS_PATH = "details";
 	
 }
