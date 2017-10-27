@@ -139,6 +139,7 @@ public class HtrCITlabUtils {
 		double[] cerVals = new double[cerStrs.length];
 		for (int i = 0; i < cerStrs.length; i++) {
 			try {
+				//FIXME separator should be a dot! but is a comma with locale de_at!!
 				cerVals[i] = Double.parseDouble(cerStrs[i].replace(',', '.'));
 			} catch (NumberFormatException e) {
 				logger.error("Could not parse CER String: " + cerStrs[i]);

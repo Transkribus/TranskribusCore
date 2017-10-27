@@ -31,7 +31,8 @@ public class KwsParameters extends ParameterMap {
 	
 	public KwsParameters() {
 		super();
-//		params = new ParameterMap();
+		//case sensitivity is on as default
+		setCaseSensitive(true);
 	}
 
 	public Double getThreshold() {
