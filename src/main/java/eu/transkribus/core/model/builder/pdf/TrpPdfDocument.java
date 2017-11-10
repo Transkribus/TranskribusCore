@@ -1694,13 +1694,15 @@ public class TrpPdfDocument extends APdfDocument {
 					}
 					
 					boolean rtl = false;
-					String searchText = "";
+					
 					
 					if (!currValue.isEmpty() && textIsRTL(currValue)){
 						rtl = true;
 						//logger.debug("rtl tag found " + currValue);
 						currValue = reverseString(currValue);
 					}
+					
+					String searchText = currValue;
 					
 					if (currTagname.equals(CommentTag.TAG_NAME)){
 						
