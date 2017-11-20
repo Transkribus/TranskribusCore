@@ -833,9 +833,9 @@ public class CustomTagList {
 
 		List<CustomTag> overlapping = getOverlappingTags(null, offset, length);
 		
-		logger.debug("overlapping tags are: "+overlapping.size());
+		logger.trace("overlapping tags are: "+overlapping.size());
 		for (CustomTag t : overlapping) {
-			logger.debug("t = "+t);
+			logger.trace("t = "+t);
 		}
 
 		IntRange range = new IntRange(offset, length);
