@@ -159,7 +159,7 @@ public class FinereaderUtils {
 	}};
 	
 	
-	static boolean isFinreaderLanguage(String l) {
+	public static boolean isFinreaderLanguage(String l) {
 		return getLanguageIndex(l) != -1;
 	}
 	
