@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -144,7 +145,21 @@ public class FinereaderUtils {
 		"Welsh",
 	};
 	
-	public static boolean isFinreaderLanguage(String l) {
+	public final static String[] FINEREADER_LANGUAGES_NOT_LICENSED = new String[] {
+		//no license for Arabic and Hebrew, Ladino and Judeo-Arabic not in Abbyy languages
+		"Arabic",
+		"Hebrew",
+		"Ladino",
+		"Judeo-Arabic",
+	};
+	
+	public final static ArrayList<String> ALL_LANGUAGES = new ArrayList<String>(){{
+		addAll(Arrays.asList(FINEREADER_LANGUAGES));
+		addAll(Arrays.asList(FINEREADER_LANGUAGES_NOT_LICENSED));
+	}};
+	
+	
+	static boolean isFinreaderLanguage(String l) {
 		return getLanguageIndex(l) != -1;
 	}
 	
