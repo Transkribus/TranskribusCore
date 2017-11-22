@@ -9,16 +9,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang.StringUtils;
 
 import eu.transkribus.core.io.util.TrpProperties;
-import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescriptor;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable {
 	
-	public final static int DEFAULT_TRAIN_SIZE_PER_EPOCH = 1000;
+	public final static int DEFAULT_TRAIN_SIZE_PER_EPOCH = 10000;
 	public final static String DEFAULT_NOISE = "both";
-	public final static String DEFAULT_LEARNING_RATE = "2e-3";
-	public final static int DEFAULT_NUM_EPOCHS = 200;
+	public final static String DEFAULT_LEARNING_RATE = "1e-3";
+	public final static int DEFAULT_NUM_EPOCHS = 20;
 
 	private static final long serialVersionUID = 6826017343706433307L;
 	protected Integer numEpochs = DEFAULT_NUM_EPOCHS;
