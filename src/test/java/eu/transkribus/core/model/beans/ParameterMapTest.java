@@ -1,4 +1,4 @@
-package eu.transkribus.core.beans;
+package eu.transkribus.core.model.beans;
 
 import javax.xml.bind.JAXBException;
 
