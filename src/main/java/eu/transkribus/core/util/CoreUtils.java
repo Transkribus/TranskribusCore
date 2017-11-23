@@ -247,12 +247,12 @@ public class CoreUtils {
 			return arr;
 		}
 		
-		CoreUtils.appendValue(arr, key);
+		arr = CoreUtils.appendValue(arr, key);
 		
 		if (value == null) {
-			CoreUtils.appendValue(arr, (String) null);	
+			arr = CoreUtils.appendValue(arr, (String) null);	
 		} else {
-			CoreUtils.appendValue(arr, value.toString());
+			arr = CoreUtils.appendValue(arr, value.toString());
 		}
 		
 		return arr;
