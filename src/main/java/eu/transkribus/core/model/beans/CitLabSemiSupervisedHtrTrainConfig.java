@@ -15,6 +15,9 @@ public class CitLabSemiSupervisedHtrTrainConfig extends CitLabHtrTrainConfig {
 	
 	private static final long serialVersionUID = 8243670144313403179L;
 	
+	//Do not use the value from CitLabHtrTrainConfig
+	public final static int DEFAULT_TRAIN_SIZE_PER_EPOCH = 1000;
+	
 	// this parameter defines the number of training epochs per iteration of the semi-supervised training divided by semicolons
 	public final static String DEFAULT_TRAINING_EPOCHS = "1;1;2;3;5;8;13;21;34;55";
 	private String trainEpochs=DEFAULT_TRAINING_EPOCHS;
