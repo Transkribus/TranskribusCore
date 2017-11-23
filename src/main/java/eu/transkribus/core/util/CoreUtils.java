@@ -238,6 +238,26 @@ public class CoreUtils {
 		}
 	}
 	
+	public static String[] appendKeyValue(String[] arr, String key, Object value, boolean skipIfValueIsNull) {
+		if (StringUtils.isEmpty(key)) {
+			return arr;
+		}
+		
+		if (skipIfValueIsNull && value == null) {
+			return arr;
+		}
+		
+		arr = CoreUtils.appendValue(arr, key);
+		
+		if (value == null) {
+			arr = CoreUtils.appendValue(arr, (String) null);	
+		} else {
+			arr = CoreUtils.appendValue(arr, value.toString());
+		}
+		
+		return arr;
+	}
+	
 	public static List<String> parseStringList(String str, boolean trimEntries) {
 		List<String> result = new ArrayList<>();
 		
