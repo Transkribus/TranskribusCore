@@ -318,8 +318,9 @@ public class DocExporter extends APassthroughObservable {
 				logger.warn("No alto was exported for page ");
 			}
 			
-			notifyObservers(Integer.valueOf(p.getPageNr()));
 			setChanged();
+			notifyObservers(Integer.valueOf(p.getPageNr()));
+			
 		}
 		
 		if (pars.isDoWriteMets()) {
