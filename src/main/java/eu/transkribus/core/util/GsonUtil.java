@@ -79,6 +79,10 @@ public class GsonUtil {
 		p.putAll(toMap2(json));
 		return p;
 	}
+	
+	public static <T> T fromJson(String json, Type type) {
+		return GSON.fromJson(json, type);
+	}
 
 	public static <T> T fromJson(String json, Class<T> clazz) {
 		return GSON.fromJson(json, clazz);
