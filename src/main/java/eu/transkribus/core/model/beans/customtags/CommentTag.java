@@ -43,7 +43,7 @@ public class CommentTag extends CustomTag {
 		return false;
 	}
 	
-	@Override public boolean showInTagWidget() { return false; }
+	@Override public boolean showInTagWidget() { return true; }
 //	@Override public boolean canAddAttribute() { return false; }
 	
 	@Override

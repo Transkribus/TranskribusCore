@@ -556,6 +556,16 @@ public class CustomTagList {
 		}
 		return it;
 	}
+	
+	public List<CustomTag> getIndexedTagsAsList() {
+		List<CustomTag> indexedTags = new ArrayList<>();
+		for (CustomTag t : tags) {
+			if (t.isIndexed()) {
+				indexedTags.add(t);
+			}
+		}
+		return indexedTags;
+	}
 
 	public Set<CustomTag> getIndexedTags() {
 		Set<CustomTag> indexedTags = new HashSet<>();
