@@ -138,6 +138,14 @@ public class CustomTagUtil {
 		CustomTag ct = CustomTagFactory.create(cssTag.getTagName(), cssTag.getAttributes());
 		return ct;
 	}
+	
+	public static CustomTag parseSingleCustomTag2(String tag) {
+		try {
+			return parseSingleCustomTag(tag);
+		} catch (Exception e) {
+			return null;
+		}
+	}
 					
 	public static List<CustomTag> getCustomTags(String customTag) {
 		List<CssSyntaxTag> cssStyleTags = CssSyntaxTag.parseTags(customTag);
