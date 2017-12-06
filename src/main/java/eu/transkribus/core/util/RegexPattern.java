@@ -13,7 +13,7 @@ public class RegexPattern {
 			"Specify a tagname, then optionally a list of attributes contained in curly braces");
 	
 	public static final RegexPattern TAG_NAME_PATTERN = new RegexPattern("[_a-zA-Z][_a-zA-Z0-9-]*",
-			"First letter must be underscore or letter, afterwards letters, underscores or hyphens are allowed");
+			"First letter must be an underscore or a letter afterwards letters, underscores or hyphens are allowed");
 	
 	public static final RegexPattern RANGE_PATTERN = new RegexPattern("([0-9]+)[\\-([0-9]+)]?", 
 			"Either a single number or a range of numbers divided by a dash");

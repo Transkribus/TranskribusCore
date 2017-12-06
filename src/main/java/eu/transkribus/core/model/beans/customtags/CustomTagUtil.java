@@ -1,6 +1,8 @@
 package eu.transkribus.core.model.beans.customtags;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -129,6 +131,12 @@ public class CustomTagUtil {
 		}
 		
 		return r;
+	}
+	
+	public static CustomTag parseSingleCustomTag(String tag) throws ParseException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException, NoSuchMethodException, IOException {
+		CssSyntaxTag cssTag = CssSyntaxTag.parseSingleCssTag(tag);
+		CustomTag ct = CustomTagFactory.create(cssTag.getTagName(), cssTag.getAttributes());
+		return ct;
 	}
 					
 	public static List<CustomTag> getCustomTags(String customTag) {
