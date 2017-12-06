@@ -299,7 +299,8 @@ public class GoobiMetsImporter extends APassthroughObservable
 			
 			final String mimetype = type.getMIMETYPE();//MIMETYPE="image/jpeg"
 			final URL url = new URL(fLocat.getHref());
-			final String filename = determineFilename(url, type.getID(), mimetype);
+			//final String filename = determineFilename(url, type.getID(), mimetype);
+			final String filename = "tmp.jpg";
 			logger.debug("mimetype " + mimetype);
 							
 			if(imgGrp.contains(type)){
