@@ -44,6 +44,7 @@ public class UrlUtils {
 				    String fileName = raw.split("=")[1]; //getting value after '='
 				    dest = new File(fileName);
 				} else {
+					logger.debug("No filename found in Content-Disposition");
 				    // fall back to random generated file name?
 				}
 				FileUtils.copyInputStreamToFile(is, dest);
