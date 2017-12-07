@@ -81,6 +81,8 @@ public final class RESTConst {
 	public static final String UPLOAD_PATH = "upload";
 	public static final String UPLOAD_PATH_MULTIPART = "uploadMultipart";
 	public static final String UPLOAD_PATH_FTP = "uploadFromFtp";
+	public static final String UPLOAD_PATH_METS = "createDocFromMets";
+	public static final String UPLOAD_PATH_METS_URL = "createDocFromMetsUrl";
 	public static final String DELETE_PATH = "delete";
 	public static final String CHECK_PATH = "check";
 	
@@ -194,6 +196,9 @@ public final class RESTConst {
 	public static final String DO_WORD_SEG_PARAM = "doWordSeg";
 	public static final String DO_POLYGON_TO_BASELINE_PARAM = "doPolygonToBaseline";
 	public static final String DO_BASELINE_TO_POLYGON_PARAM = "doBaselineToPolygon";
+	public static final String LA_JOB_MODE = "mode";
+	public static final String LA_SINGLE_JOB_MODE_VALUE = "single";
+	public static final String LA_BATCH_JOB_MODE_VALUE = "batch";
 	
 	@Deprecated
 	public static final String IMG_KEY_PARAM = "imgKey";
