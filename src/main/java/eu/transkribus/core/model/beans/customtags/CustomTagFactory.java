@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Observer;
 import java.util.Set;
 import java.util.regex.Matcher;
 
@@ -30,33 +31,6 @@ import eu.transkribus.core.util.RegexPattern;
  */
 public class CustomTagFactory {
 	
-//	public static class Property implements Map.Entry<String, Object> {
-//		String key;
-//		Object value;
-//		
-//		private Property(String key, Object value) {
-//	        this.key = key;
-//	        this.value = value;
-//	    }
-//		
-//		public static Property create(String key, Object value) {
-//			return new Property(key, value);
-//		}
-//
-//		@Override public String getKey() {
-//			return key;
-//		}
-//
-//		@Override public Object getValue() {
-//			return value;
-//		}
-//
-//		@Override public Object setValue(Object value) {
-//			return null;
-//		}
-//	};
-	
-		
 	public static class EnumConvertUtilsBean extends ConvertUtilsBean {
         @Override
         public Object convert(String value, Class clazz) {
@@ -85,13 +59,14 @@ public class CustomTagFactory {
 //	private static final Map<String, CustomTag > objectRegistry = new HashMap<>();
 //	private static final Map<String, String > colorRegistry = new HashMap<>();
 	
-	public static final MyObservable registryObserver = new MyObservable();
-	
+	private static final MyObservable registryObserver = new MyObservable();
 	
 	public static class TagRegistryChangeEvent {
 		public static final String ADDED_TAG = "ADDED_TAG";
 		public static final String REMOVED_TAG = "REMOVED_TAG";
 		public static final String ADDED_TAG_ATTRIBUTES = "ADDED_TAG_ATTRIBUTES";
+		public static final String CHANGED_TAG_COLOR="CHANGED_TAG_COLOR";
+		
 		public TagRegistryChangeEvent(String type, CustomTag tag) {
 			super();
 			this.type = type;
@@ -159,6 +134,10 @@ public class CustomTagFactory {
 //			}
 //		}
 //	}
+	
+	public static void addObserver(Observer o) {
+		registryObserver.addObserver(o);
+	}
 	
 	/**
 	 * Constructs a String for the config.properties file that stores non-predefined tags and additionals properties from predefined tags
@@ -336,6 +315,9 @@ public class CustomTagFactory {
 	public static boolean setTagColor(String tagName, String color) {
 		if (CoreUtils.isValidColorCode(color)) {
 			colorRegistry.put(tagName, color.toUpperCase());
+			
+			TagRegistryChangeEvent e = new TagRegistryChangeEvent(TagRegistryChangeEvent.CHANGED_TAG_COLOR, objectRegistry.get(tagName));
+			registryObserver.setChangedAndNotifyObservers(e);
 			return true;
 		} else {
 //			logger.warn("no valid color specified: "+color+" tag: "+tagName);
