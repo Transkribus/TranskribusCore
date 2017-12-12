@@ -299,7 +299,18 @@ public class GoobiMetsImporter extends APassthroughObservable
 			
 			final String mimetype = type.getMIMETYPE();//MIMETYPE="image/jpeg"
 			final URL url = new URL(fLocat.getHref());
-			final String filename = determineFilename(url, type.getID(), mimetype);
+			String ext = MimeTypes.lookupExtension(mimetype);
+			
+			/*
+			 * brought problems with file/img links without the filname + ext at the end of the URL 
+			 */
+			//final String filename = determineFilename(url, type.getID(), mimetype);
+			
+			/*
+			 * instead we use the fileID and mimityep extension as fallback filename 
+			 * As prefered name is the filename in the getHeaderField("Content-Disposition");
+			 */
+			final String filename = type.getID() + "." + ext;
 			logger.debug("mimetype " + mimetype);
 							
 			if(imgGrp.contains(type)){

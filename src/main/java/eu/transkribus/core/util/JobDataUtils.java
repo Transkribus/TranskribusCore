@@ -72,6 +72,22 @@ public class JobDataUtils {
 		return object;
 	}
 	
+	public static <T> List<T> getObjectList(TrpProperties props, String key,
+			Class<T> targetClazz, Class<?>... nestedClazzes) throws JAXBException {
+		List<T> values = new LinkedList<>();
+		if(StringUtils.isEmpty(key)) {
+			return values;
+		}
+		int i = 0;
+		String strVal;
+		while((strVal = props.getProperty(buildKey(key, i))) != null) {
+			final T object = JaxbUtils.unmarshal(strVal, targetClazz, 
+					nestedClazzes);
+			values.add(i++, object);
+		}
+		return values;
+	}
+	
 	public static Map<String, String> getStringMap(Properties props, final String propKey) {
 		Map<String, String> map = new HashMap<>();
 		
