@@ -41,6 +41,8 @@ public class UrlUtils {
 				
 			} catch(IOException ioe) {
 				throw new IOException("Could not get connection to URL: " + source, ioe);
+			} finally {
+				huc.disconnect();
 			}
 		} else {
 			logger.error("Could not download file at " + source + ": HTTP Status = " + code);
