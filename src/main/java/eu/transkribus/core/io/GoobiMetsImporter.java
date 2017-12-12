@@ -3,6 +3,8 @@ package eu.transkribus.core.io;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -22,6 +24,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.validation.Schema;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dea.fimgstoreclient.utils.MimeTypes;
@@ -257,8 +260,7 @@ public class GoobiMetsImporter extends APassthroughObservable
 		}
 		return pages;
 	}
-	
-	
+		
 	
 	private TrpPage fetchFilesFromUrl(DivType div, List<FileType> imgGrp, List<FileType> xmlGrp, String dir) throws IOException {
 		final int pageNr = div.getORDER().intValue();
@@ -307,12 +309,23 @@ public class GoobiMetsImporter extends APassthroughObservable
 			//final String filename = determineFilename(url, type.getID(), mimetype);
 			
 			/*
-			 * instead we use the fileID and mimityep extension as fallback filename 
-			 * As prefered name is the filename in the getHeaderField("Content-Disposition");
+			 * Preferred filename is the name in the getHeaderField("Content-Disposition");
+			 * as fallback we use the fileID and mimetype extension
+			 * 
 			 */
-			final String filename = type.getID() + "." + ext;
-			logger.debug("mimetype " + mimetype);
-							
+			String filename = type.getID() + "." + ext;
+			logger.debug("url.getProtocol() " + url.getProtocol());
+			if (url.getProtocol().startsWith("http")){
+				String tmpFn = UrlUtils.getFilenameFromHeaderField(url);
+				//logger.debug("tmpFn " + tmpFn);
+				if (tmpFn != null){
+					filename = tmpFn;
+				}
+			}
+			
+			//logger.debug("mimetype " + mimetype);
+			logger.debug("imported filename " + filename);
+										
 			if(imgGrp.contains(type)){
 				imgFile = new File(imgDirPath + File.separator + filename);
 				logger.debug("Downloading: " + url);
