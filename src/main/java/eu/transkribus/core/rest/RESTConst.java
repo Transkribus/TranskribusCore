@@ -57,7 +57,7 @@ public final class RESTConst {
 	
 	public static final String TOOL_HOST_PARAM = "toolHost";
 	public static final String REGISTER_PARAM = "register";
-	
+	public static final String ERROR_PATH = "errors";
 	
 	/* SECOND TIER: Methods */
 	public static final String DB_PATH = "db";
@@ -409,5 +409,6 @@ public final class RESTConst {
 	//uploads
 	public static final String UPLOAD_ID_PARAM = "uploadId";
 	public static final String DETAILS_PATH = "details";
+	
 	
 }

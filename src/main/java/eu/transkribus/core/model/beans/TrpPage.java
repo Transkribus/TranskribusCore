@@ -554,5 +554,24 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	public boolean hasImgError() {
 		return !StringUtils.isEmpty(imgFileProblem);
 	}
+
+	/**
+	 * returns the transcript with the given ID from the transcript list or null if not found
+	 * 
+	 * @param tsId
+	 * @return
+	 */
+	public TrpTranscriptMetadata getTranscriptById(int tsId) {
+		TrpTranscriptMetadata tmd = null;
+		if(!getTranscripts().isEmpty()) {
+			for(TrpTranscriptMetadata t : getTranscripts()) {
+				if(t.getTsId() == tsId) {
+					tmd = t;
+					break;
+				}
+			}
+		}
+		return tmd;
+	}
 	
 }
