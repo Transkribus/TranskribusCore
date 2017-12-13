@@ -3,7 +3,7 @@ package eu.transkribus.core.model.beans.job.enums;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public enum JobImpl {
+public enum JobImpl {	
 	// --- utility jobs ---
 	DeleteDocumentJob(JobTask.DeleteDocument, JobTask.DeleteDocument.getLabel(), "DeleteDocJob", null),
 	MetsImportJob(JobTask.CreateDocument, JobTask.CreateDocument.getLabel(), "MetsImportJob", null),
@@ -38,6 +38,14 @@ public enum JobImpl {
 	CvlLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", null),
 	UpvlcLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", null),
 	
+	//FIXME this could be reduced by stating one impl while the wrapper is merely a job-parameter
+	NcsrOldLaJobMultiThread(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "MultiThreadLaJob", null),
+	NcsrLaJobMultiThread(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "MultiThreadLaJob", "libNCSR_TextLineSegmentation.so"),
+	CITlabLaJobMultiThread(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "MultiThreadLaJob", null),
+	CITlabAdvancedLaJobMultiThread(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "MultiThreadLaJob", null),
+	CvlLaJobMultiThread(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "MultiThreadLaJob", null),
+	UpvlcLaJobMultiThread(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "MultiThreadLaJob", null),
+	
 //	NcsrLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "SinglePageLaJob", "libNCSR_TextLineSegmentation.so"),
 	// ---------------------
 	HmmHtrJob(JobTask.UpvlcHtr, "PRHLT " + JobTask.Htr.getLabel(), "HmmHtrJob", null),
@@ -58,7 +66,7 @@ public enum JobImpl {
 	;
 	
 	private final static Logger logger = LoggerFactory.getLogger(JobImpl.class);
-	
+	public final static String MULTI_THREAD_LA_JOB_SUFFIX = "MultiThread";
 	private JobTask task;
 	private String label;
 	private String className;
