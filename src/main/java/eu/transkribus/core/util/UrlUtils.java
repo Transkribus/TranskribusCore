@@ -32,30 +32,42 @@ public class UrlUtils {
 		HttpURLConnection huc = (HttpURLConnection)source.openConnection(); 
 		huc.setRequestMethod("GET"); //OR  huc.setRequestMethod ("HEAD"); 
 		huc.connect(); 
-
 		final int code = huc.getResponseCode();
-	 
 		if(code < 400) {
 			try (InputStream is = huc.getInputStream()){
 				//do check on URL and handle 404 etc.
-				String raw = huc.getHeaderField("Content-Disposition");
-				// raw = "attachment; filename=abc.jpg"
-				if(raw != null && raw.indexOf("=") != -1) {
-				    String fileName = raw.split("=")[1]; //getting value after '='
-				    dest = new File(fileName);
-				} else {
-					logger.debug("No filename found in Content-Disposition");
-				    // fall back to random generated file name?
-				}
 				FileUtils.copyInputStreamToFile(is, dest);
 				logger.info("File loaded from URL: " + source);
 				
 			} catch(IOException ioe) {
 				throw new IOException("Could not get connection to URL: " + source, ioe);
+			} finally {
+				huc.disconnect();
 			}
 		} else {
 			logger.error("Could not download file at " + source + ": HTTP Status = " + code);
 		}
 		return code;
+	}
+	
+	public static String getFilenameFromHeaderField(URL source) throws IOException {
+		HttpURLConnection huc = (HttpURLConnection)source.openConnection(); 
+		huc.setRequestMethod("GET"); //OR  huc.setRequestMethod ("HEAD"); 
+		huc.connect(); 
+		final int code = huc.getResponseCode();
+		if(code < 400) {
+			//do check on URL and handle 404 etc.
+			String raw = huc.getHeaderField("Content-Disposition");
+			// raw = "attachment; filename=abc.jpg"
+			if(raw != null && raw.indexOf("=") != -1) {
+			    String fileName = raw.split("=")[1]; //getting value after '='
+			    logger.debug("Filename from Content-Disposition " + fileName);
+			    return fileName;
+			} else {
+				logger.debug("No filename found in Content-Disposition");
+				return null;
+			}
+		}
+		return null;
 	}
 }

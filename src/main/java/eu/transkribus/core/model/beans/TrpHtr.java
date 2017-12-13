@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -84,6 +85,14 @@ public class TrpHtr {
 	
 	@Column(name="PARAMS")
 	private String params;
+	
+	@Transient
+	@Column
+	private String userName;
+	
+	@Transient
+	@Column
+	private int userId;
 
 	public int getHtrId() {
 		return htrId;
@@ -272,6 +281,22 @@ public class TrpHtr {
 		return cerTestString != null && !cerTestString.isEmpty();
 	}
 	
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public int getUserId() {
+		return userId;
+	}
+
+	public void setUserId(int userId) {
+		this.userId = userId;
+	}
+
 	@Override
 	public String toString() {
 		return "TrpHtr [htrId=" + htrId + ", name=" + name + ", description=" + description + ", provider=" + provider
