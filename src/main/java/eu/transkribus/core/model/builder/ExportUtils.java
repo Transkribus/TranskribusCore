@@ -70,7 +70,7 @@ public class ExportUtils {
 		int c = 0;
 		
 		for (int i=0; i<totalPages; ++i) {
-			logger.debug(" i " + i);
+			//logger.debug(" i " + i);
 			if (pageIndices!=null && !pageIndices.contains(i)){
 				//fill up with null to have the proper index of each page later on
 				pageTranscripts.add(null);
