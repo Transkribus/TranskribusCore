@@ -196,9 +196,7 @@ public final class RESTConst {
 	public static final String DO_WORD_SEG_PARAM = "doWordSeg";
 	public static final String DO_POLYGON_TO_BASELINE_PARAM = "doPolygonToBaseline";
 	public static final String DO_BASELINE_TO_POLYGON_PARAM = "doBaselineToPolygon";
-	public static final String LA_JOB_MODE = "mode";
-	public static final String LA_SINGLE_JOB_MODE_VALUE = "single";
-	public static final String LA_BATCH_JOB_MODE_VALUE = "batch";
+	public static final String DO_CREATE_JOB_BATCH_PARAM = "doCreateJobBatch";
 	
 	@Deprecated
 	public static final String IMG_KEY_PARAM = "imgKey";
@@ -281,6 +279,9 @@ public final class RESTConst {
 	public static final String TRAIN_DOC_PATH = "trainSet";
 	
 	public static final String KWS_SEARCH_PATH = "kwsSearch";
+	
+	public static final String KWS_PATH = "kws";
+	public static final String KWS_QUERIES_PATH = "queries";
 	
 	//editorial declaration
 	public static final String STORE_EDIT_DECL_FEATURE = "storeEditDeclFeat";

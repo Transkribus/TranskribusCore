@@ -685,6 +685,22 @@ public class TrpJobStatus implements Serializable {
 				+ ", stackTrace="+stackTrace+", progress="+progress+", totalWork="+totalWork+"]";
 	}
 
-	
+	/**
+	 * toString() without the jobData
+	 * 
+	 * @return
+	 */
+	public String toShortString() {
+		return "TrpJobStatus [jobId=" + jobId + ", colId=" + colId+", docId=" + docId + ", pageNr=" + pageNr + ", pages=" + pages
+				+ ", type=" + type + ", state=" + state + ", success=" + success + ", description=" + description
+				+ ", userName=" + userName + ", userId=" + userId + ", createTime=" + createTime + ", startTime="
+				+ startTime + ", endTime=" + endTime + ", resumable=" + resumable
+				+ ", className=" + className + ", result=" + result + ", session_history_id=" + session_history_id
+				+ ", jobImpl=" + jobImpl + ", moduleUrl=" + moduleUrl + ", moduleName=" + moduleName
+				+ ", moduleVersion=" + moduleVersion + ", started=" + started + ", ended=" + ended + ", created="
+				+ created + ", pid=" + pid + ", batchId=" + batchId + ", pageid=" + pageid + ", tsid=" + tsid
+				+ ", regionids=" + regionids + ", parent_jobid=" + parent_jobid + ", parent_batchid=" + parent_batchid
+				+ ", stackTrace="+stackTrace+", progress="+progress+", totalWork="+totalWork+"]";
+	}
 
 }

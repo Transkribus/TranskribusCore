@@ -35,9 +35,9 @@ public class JobError {
 	private int pageNr;
 	@Column
 	private int tsId;
-	@Column
+	@Column(name="MSG")
 	private String message;
-	@Column
+	@Column(name="EX_CLASS")
 	private String exceptionClass;
 	@XmlTransient
 	@Column
