@@ -280,6 +280,9 @@ public final class RESTConst {
 	
 	public static final String KWS_SEARCH_PATH = "kwsSearch";
 	
+	public static final String KWS_PATH = "kws";
+	public static final String KWS_QUERIES_PATH = "queries";
+	
 	//editorial declaration
 	public static final String STORE_EDIT_DECL_FEATURE = "storeEditDeclFeat";
 	public static final String UPDATE_EDIT_DECL_FEATURE = "updateEditDeclFeat";

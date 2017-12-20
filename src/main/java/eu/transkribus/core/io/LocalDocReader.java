@@ -998,7 +998,7 @@ public class LocalDocReader {
 	
 	private static boolean doFilesExist(TrpPage p, final boolean forceCreatePageXml) {
 		File f = FileUtils.toFile(p.getUrl());
-		if(!f.isFile()) {
+		if(f == null || !f.isFile()) {
 			return false;
 		}
 		if(p.getTranscripts().isEmpty() && forceCreatePageXml) {
