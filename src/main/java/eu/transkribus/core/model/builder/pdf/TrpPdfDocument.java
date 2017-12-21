@@ -194,7 +194,8 @@ public class TrpPdfDocument extends APdfDocument {
 				ITrpShapeType trpShape = (ITrpShapeType) r;
 				boolean isBlackening = RegionTypeUtil.isBlackening(trpShape);
 				if (isBlackening){
-					Rectangle blackRect = (Rectangle) PageXmlUtils.buildPolygon(urt.getCoords().getPoints()).getBounds();
+					//Rectangle blackRect = (Rectangle) PageXmlUtils.buildPolygon(urt.getCoords().getPoints()).getBounds();
+					Rectangle blackRect = urt.getBoundingBox();
 					graph.fillRect((int)blackRect.getMinX(), (int)blackRect.getMinY(), (int)blackRect.getWidth(), (int)blackRect.getHeight());
 					
 				}
@@ -346,7 +347,7 @@ public class TrpPdfDocument extends APdfDocument {
 			List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 			
 			/*
-			 * use reding order comparator for sorting since at this time reading order is more trustable
+			 * use reading order comparator for sorting since at this time reading order is more trustable
 			 * other sorting is not transitive and seldomly produces "Comparison violates its general contract" exception
 			 */
 			Collections.sort(regions, new TrpElementReadingOrderComparator<RegionType>(true));
@@ -355,7 +356,7 @@ public class TrpPdfDocument extends APdfDocument {
 				//TODO add paths for tables etc.
 				if(r instanceof TextRegionType){
 					TextRegionType tr = (TextRegionType)r;
-					PageXmlUtils.buildPolygon(tr.getCoords().getPoints()).getBounds().getMinX();
+					//PageXmlUtils.buildPolygon(tr.getCoords().getPoints()).getBounds().getMinX();
 					addTextFromTextRegion(tr, cb, cutoffLeft, cutoffTop, bfArial);
 				}
 			}
@@ -401,7 +402,7 @@ public class TrpPdfDocument extends APdfDocument {
 		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 		
 		/*
-		 * use reding order comparator for sorting since at this time reading order is more trustable
+		 * use reading order comparator for sorting since at this time reading order is more trustable
 		 * other sorting is not transitive and seldomly produces "Comparison violates its general contract" exception
 		 */
 		Collections.sort(regions, new TrpElementReadingOrderComparator<RegionType>(true));
@@ -409,6 +410,7 @@ public class TrpPdfDocument extends APdfDocument {
 		
 		float textBlockXStart = 0;
 
+		int i = 0;
 		for(RegionType r : regions){
 			//TODO add paths for tables etc.
 			if(r instanceof TextRegionType){
@@ -416,29 +418,52 @@ public class TrpPdfDocument extends APdfDocument {
 				
 				//compute average text region start
 				//textBlockXStart = (float) (PageXmlUtils.buildPolygon(tr.getCoords().getPoints()).getBounds().getMinX());
-				double minX = PageXmlUtils.buildPolygon(tr.getCoords().getPoints()).getBounds().getMinX();
+				//double minX = PageXmlUtils.buildPolygon(tr.getCoords().getPoints()).getBounds().getMinX();
+				//this should result in the the same value as the method in the line above which is deprecated
+				double minX = tr.getBoundingBox().getMinX();
+				double maxX = tr.getBoundingBox().getMaxX();
+				double trWidth = tr.getBoundingBox().getWidth();
 				
-				if (hasSmallerColumn(regions, tr)){
-					
-					//logger.debug("several columns found, minX of text region is : " + minX);
-					float startWithThisX = (float) (minX < smallerRegionMaxX ? smallerRegionMaxX : minX);
-					textBlockXStart = getPrintregionStartX((float) (startWithThisX));
-				}
-				//if there is only one text region at this vertical section start the text block at the second thwelfth
-				else{
-					//logger.debug("just one column column");
-					if (minX < twelfthPoints[1][0]){
+//				logger.debug("region "+ ++i);
+//				logger.debug("region minX " + minX);
+//				logger.debug("region maxX " + tr.getBoundingBox().getMaxX());
+
+				//if there is only one text region at this vertical section start the text block at the second twelfth
+				//if (hasSmallerColumn(regions, tr)){
+				if (isOnlyRegionInThisRow(regions, tr)){
+				//if (regions.size() == 1){
+					logger.debug("only one region in this row!!");
+					//indent start of text block under certain preconditions
+					if (minX < twelfthPoints[1][0] && (twelfthPoints[1][0] < maxX && trWidth > twelfthPoints[2][0])){
 						textBlockXStart = twelfthPoints[1][0];
 					}
 					//if textregion contains only one line this is probably a headline
 					else if (tr.getTextLine().size() == 1){
-						textBlockXStart = getPrintregionStartX((float) (minX));
+						//logger.debug("tr.getTextLine().size() == 1 ");
+						textBlockXStart = getPrintregionStartX((float) (minX), tr.getBoundingBox().getMaxX());
 					}
-					else{
+					else if (twelfthPoints[2][0] < maxX && trWidth > twelfthPoints[3][0]){
+						//logger.debug("twelfthPoints[2][0] < tr.getBoundingBox().getMaxX() ");
 						textBlockXStart = twelfthPoints[2][0];
 					}
+					else{
+						textBlockXStart = (float) minX;
+					}
 				}
-				
+				else{
+					
+					logger.debug("several columns found, minX of text region is : " + minX);
+					//float startWithThisX = (float) (minX < smallerRegionMaxX ? smallerRegionMaxX : minX);
+					//textBlockXStart = getPrintregionStartX((float) (startWithThisX));
+					
+					/*
+					 * this is then used for all lines of a region as start point
+					 */
+					textBlockXStart = getAverageBeginningOfBaselines(tr);
+					textBlockXStart += 40;
+
+				}
+				//logger.debug("textBlockXStart " + textBlockXStart);
 				addUniformTextFromTextRegion(tr, cb, cutoffLeft, cutoffTop, bfArial, textBlockXStart);
 			}
 		}
@@ -448,7 +473,112 @@ public class TrpPdfDocument extends APdfDocument {
 //		addTocLinks(doc, page,cutoffTop);
 	}
 	
-	private float getPrintregionStartX(float textBlockX) {
+	private boolean isOnlyRegionInThisRow(List<TrpRegionType> regions, TextRegionType regionToCompare) {
+		float minX = 0;
+		float minY = 0;
+		float maxX = 0;
+		float maxY = 0;
+		float meanX = 0;
+		float meanY = 0;
+		
+		java.awt.Rectangle compareBlock = regionToCompare.getBoundingBox();
+		float compareMinX = (float) compareBlock.getMinX();
+		float compareMinY = (float) compareBlock.getMinY();
+		float compareMaxX = (float) compareBlock.getMaxX();
+		float compareMaxY = (float) compareBlock.getMaxY();
+		
+		float compareMeanX = compareMinX+(compareMaxX - compareMinX)/2;
+		float compareMeanY = compareMinY+(compareMaxY - compareMinY)/2;
+		
+		boolean foundSmallerColumn = false;
+		
+//		logger.debug("nr of regions " + regions.size());
+//		logger.debug("regionToCompare id " + regionToCompare.getId());
+		
+		if (regions.size() == 1){
+			return true;
+		}
+		else{
+
+			for(RegionType r : regions){
+				//TODO add paths for tables etc.
+				if(r instanceof TextRegionType && r.getId() != regionToCompare.getId()){
+					TextRegionType tr = (TextRegionType)r;
+					
+					//empty region can be ignored
+					if (tr.getTextLine().isEmpty())
+						continue;
+					else{
+						//region with empty lines can also be ignored
+						boolean textFound = false;
+						for (TextLineType tlt : tr.getTextLine()){
+							TrpTextLineType l = (TrpTextLineType)tlt;
+							textFound = !l.getUnicodeText().isEmpty();
+							if (textFound){
+								break;
+							}
+						}
+						//no text in region -> go to next region
+						if (!textFound){
+							continue;
+						}
+					}
+					//logger.debug("tr id " + tr.getId());
+
+					//compute average text region start
+					//java.awt.Rectangle block = PageXmlUtils.buildPolygon(tr.getCoords().getPoints()).getBounds();
+					java.awt.Rectangle block = tr.getBoundingBox();
+					minX = (float) block.getMinX();
+					maxX = (float) block.getMaxX();
+					minY = (float) block.getMinY();
+					maxY = (float) block.getMaxY();
+					
+					//meanX = minX+(maxX - minX)/2;
+					meanY = minY+(maxY - minY)/2;
+					
+					if ( ( (meanY > compareMinY && meanY < compareMaxY) ||
+							(compareMeanY > minY && compareMeanY < maxY) ) ){
+
+						return false;
+					}	
+				}
+			}
+		}
+		return true;
+	}
+
+	/*
+	 * calculate where the line alignment should be placed
+	 * take average of starting points of all lines
+	 * problem when some lines are on the right
+	 * So take only lines starting within the first 1/10 of the text region width
+	 */
+	private float getAverageBeginningOfBaselines(TextRegionType tr) {
+		
+		//logger.debug("calculate average beginning of baselines ");
+		
+		float avgStartOfLines = 0;
+		double width = tr.getBoundingBox().getWidth();
+		float firstTenth = (float) (width/10);
+		int nrOfLines = 0;
+
+		for (TextLineType l : tr.getTextLine()){
+			TrpBaselineType bl = (TrpBaselineType) l.getBaseline();
+			if (bl.getBoundingBox().getMinX() <= firstTenth){
+				avgStartOfLines += bl.getBoundingBox().getMinX();
+				nrOfLines += 1;
+			}
+			
+		}
+		if (nrOfLines > 0){
+			avgStartOfLines = avgStartOfLines/nrOfLines;
+			return avgStartOfLines;
+		}
+		return (float) tr.getBoundingBox().getMinX();       
+
+    }
+	
+	private float getPrintregionStartX(float textBlockX, double textBlockMaxX) {
 		
 		float shortestDistance = 0;
 		float closestX = twelfthPoints[2][0];
@@ -492,10 +622,56 @@ public class TrpPdfDocument extends APdfDocument {
 //			e.printStackTrace();
 //		}
         
-        return closestX;
+        return closestX < textBlockMaxX ? closestX : textBlockX;
         
 
     }		
+	
+	/*
+	 * idea is to divide each textregion into a grid (e.g. 10 columns) 
+	 * and return the one which is nearest to the particular line
+	 * result is a nice?? print layout
+	 */
+	private float getLinePositionInTextregionGrid(float[][] tenthRegion, double minXOfLine) {
+			
+		float shortestDistance = 0;
+		float closestX = tenthRegion[1][0];
+		int j = -1;
+
+        for (int i=1; i<=10; i++)
+        {
+
+        	if (minXOfLine < tenthRegion[i][0]){
+//                logger.debug("twelfthPoints[i][0]: " + twelfthPoints[i][0]);
+//                logger.debug("The closest x of this textRegion is " + closestX);
+        		j++;
+                float distance = (float) (tenthRegion[i][0] - minXOfLine);
+                distance = Math.abs(distance);
+
+                //set shortestDistance and closestPoints to the first iteration
+                if (j == 0)
+                {
+                    shortestDistance = distance;
+                    closestX = tenthRegion[i][0];
+                }
+                //then check if any further iterations have shorter distances
+                else if (distance < shortestDistance)
+                {
+                    shortestDistance = distance;
+                    if(i==10){
+                    	closestX = tenthRegion[i-1][0];
+                    }
+                    else{
+                    	closestX = tenthRegion[i][0];
+                    }
+                }
+        	}
+            
+        }      
+        
+        return closestX;
+
+    }	
 	
 
 	private void addUniformTextFromTextRegion(final TextRegionType tr, final PdfContentByte cb, int cutoffLeft, int cutoffTop, BaseFont bf, float lineStartX) throws IOException, DocumentException {
@@ -514,11 +690,17 @@ public class TrpPdfDocument extends APdfDocument {
 			//java.awt.Rectangle regionRect = PageXmlUtils.buildPolygon(tr.getCoords().getPoints()).getBounds();
 			
 			int maxIdx = lines.size()-1;
-			java.awt.Rectangle firstLineRect = PageXmlUtils.buildPolygon(lines.get(0).getCoords().getPoints()).getBounds();
-			java.awt.Rectangle lastLineRect = PageXmlUtils.buildPolygon(lines.get(maxIdx).getCoords().getPoints()).getBounds();
-			
+			//java.awt.Rectangle firstLineRectOld = PageXmlUtils.buildPolygon(lines.get(0).getCoords().getPoints()).getBounds();
+			//logger.debug("OLDDDDD: firstLineRectOld minX = " + firstLineRectOld.getMinX());
+			java.awt.Rectangle firstLineRect = ((TrpTextLineType) lines.get(0)).getBoundingBox();
+			//logger.debug("NEWWWWW: firstLineRect minX = " + firstLineRect.getMinX());
+			//java.awt.Rectangle lastLineRect = PageXmlUtils.buildPolygon(lines.get(maxIdx).getCoords().getPoints()).getBounds();
+			java.awt.Rectangle lastLineRect = ((TrpTextLineType) lines.get(maxIdx)).getBoundingBox();
+					
 			double firstLineRotation = computeRotation((TrpBaselineType) lines.get(0).getBaseline());
 			double lastLineRotation = computeRotation((TrpBaselineType) lines.get(maxIdx).getBaseline());
+			
+			boolean isVerticalRegion = false;
 			
 			//first and last line rotated -> seems to be vertical
 			//use X coords to compute the total line gap
@@ -533,6 +715,8 @@ public class TrpPdfDocument extends APdfDocument {
 				
 				minY = Math.min(tmpMinX1, tmpMinX2);
 				maxY = Math.max(tmpMaxX1, tmpMaxX2);
+				
+				isVerticalRegion = true;
 			}
 			else{
 			
@@ -542,13 +726,11 @@ public class TrpPdfDocument extends APdfDocument {
 			
 			/*
 			 * if start of line is too tight on the upper bound - set to the first 1/12 of t page from above
-			 * Is not good since page number and other informations are often in this section
+			 * BUT: Is not good since page number and other informations are often in this section
 			 */
 //			if (minY < twelfthPoints[1][1]){
 //				minY = twelfthPoints[1][1];
-//			}
-			
-			
+//			}		
 //			for(TextLineType lt : lines){
 //				
 //				TrpTextLineType l = (TrpTextLineType)lt;
@@ -584,7 +766,7 @@ public class TrpPdfDocument extends APdfDocument {
 				//overallLineMeanHeight = ( (overallLineMeanHeight != 0) ? overallLineMeanHeight+lineMeanHeight/2 : lineMeanHeight);
 			}
 			
-			logger.debug("Line Mean Height for Export " + lineMeanHeight);
+			//logger.debug("Line Mean Height for Export " + lineMeanHeight);
 			
 			for(TextLineType lt : lines){
 
@@ -592,11 +774,13 @@ public class TrpPdfDocument extends APdfDocument {
 				TrpTextLineType l = (TrpTextLineType)lt;
 				TrpBaselineType baseline = (TrpBaselineType) l.getBaseline();
 
-				java.awt.Rectangle lineRect = PageXmlUtils.buildPolygon(l.getCoords().getPoints()).getBounds();
-				java.awt.Rectangle baseLineRect = baseline == null ? null : PageXmlUtils.buildPolygon(baseline.getPoints()).getBounds();
+				java.awt.Rectangle lineRect = l.getBoundingBox();//PageXmlUtils.buildPolygon(l.getCoords().getPoints()).getBounds();
+				java.awt.Rectangle baseLineRect = baseline == null ? null : baseline.getBoundingBox();//PageXmlUtils.buildPolygon(baseline.getPoints()).getBounds();
 				
 				float tmpLineStartX = lineStartX;
-				float regionStartMinX = (float) PageXmlUtils.buildPolygon(tr.getCoords().getPoints()).getBounds().getMinX();
+				float regionStartMinX = (float) tr.getBoundingBox().getMinX();//PageXmlUtils.buildPolygon(tr.getCoords().getPoints()).getBounds().getMinX();
+				double regionWidth = tr.getBoundingBox().getWidth();
+				
 				//first line
 				if (i == 0){
 					
@@ -606,8 +790,9 @@ public class TrpPdfDocument extends APdfDocument {
 					 * if first line of a text region is indented then take this into account in printed text
 					 */
 					if (lineRect.getMinX() > regionStartMinX){
-						if (lineRect.getMinX() - regionStartMinX > twelfthPoints[2][0]){
-							tmpLineStartX = (float) lineStartX + twelfthPoints[1][0];
+						if (lineRect.getMinX() - regionStartMinX > regionWidth/4){
+							//tmpLineStartX = (float) lineStartX + twelfthPoints[1][0];
+							tmpLineStartX = (float) baseLineRect.getMinX();
 						}
 					}
 					
@@ -615,6 +800,25 @@ public class TrpPdfDocument extends APdfDocument {
 				
 				//for subsequent lines
 				else{
+					/*
+					 * construct the grid for the current text region
+					 */
+//					float[][] twelfthRegion = new float[11][2];
+//					Rectangle trRect = tr.getBoundingBox();
+//			        for (int j=0; j<=10; j++)
+//			        {
+//			        	twelfthRegion[j][0] = (float) (trRect.getMinX() + (float) (j*(tr.getBoundingBox().getWidth()/10)));
+//			        	//twelfthRegion[j][1] = (float) (trRect.getMinX() + (float) (j*(tr.getBoundingBox().getHeight()/12)));
+//			        }
+			        
+					if (lineRect.getMinX() > regionStartMinX){
+						if (lineRect.getMinX() - regionStartMinX > regionWidth/4){
+							//tmpLineStartX = (float) lineStartX + twelfthPoints[1][0];
+							tmpLineStartX = (float) baseLineRect.getMinX();
+						}
+					}
+			        
+			        //tmpLineStartX = getLinePositionInTextregionGrid(twelfthRegion, lineRect.getMinX());
 					lineStartY = lineStartY + lineMeanHeight + leading;
 					
 					
@@ -649,10 +853,10 @@ public class TrpPdfDocument extends APdfDocument {
 
 						if (!region.getId().equals(tr.getId())){
 
-							double regionMinX = PageXmlUtils.buildPolygon(region.getCoords().getPoints()).getBounds().getMinX();
-							double regionMaxX = PageXmlUtils.buildPolygon(region.getCoords().getPoints()).getBounds().getMaxX();
-							double regionMinY = PageXmlUtils.buildPolygon(region.getCoords().getPoints()).getBounds().getMinY();
-							double regionMaxY = PageXmlUtils.buildPolygon(region.getCoords().getPoints()).getBounds().getMaxY();
+							double regionMinX = region.getBoundingBox().getMinX();//PageXmlUtils.buildPolygon(region.getCoords().getPoints()).getBounds().getMinX();
+							double regionMaxX = region.getBoundingBox().getMaxX();
+							double regionMinY = region.getBoundingBox().getMinY();
+							double regionMaxY = region.getBoundingBox().getMaxY();
 							double meanX = regionMinX+(regionMaxX-regionMinX)/2;
 	
 							//Rectangle rec = PageXmlUtils.buildPolygon(region.getCoords().getPoints()).getBounds();
@@ -783,26 +987,16 @@ public class TrpPdfDocument extends APdfDocument {
 				}
 				//empty shape
 				else{
+					logger.debug("empty shape ");
 					continue;
 				}
 				
 				Phrase phrase = new Phrase();
 				
-				boolean rtl = false;
-				//from right to left
-				//logger.debug("&&&&&&&& shapeText : " + shapeText);
-				if (!shapeText.isEmpty()){
-					if (Character.getDirectionality(shapeText.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT
-						    || Character.getDirectionality(shapeText.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC
-						    || Character.getDirectionality(shapeText.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING
-						    || Character.getDirectionality(shapeText.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_OVERRIDE
-						    ) {
-						logger.debug("&&&&&&&& STRING IS RTL : ");
-						rtl = true;
-					}
-//					else{
-//						logger.debug("&&&&&&&& STRING IS NOT RTL : ");
-//					}
+				//trim is important to get the 'real' first char for rtl definition
+				boolean rtl = textIsRTL(shapeText.trim());
+				if (rtl){
+					logger.debug("&&&&&&&& STRING IS RTL : ");
 				}
 				
 				/*
@@ -826,28 +1020,36 @@ public class TrpPdfDocument extends APdfDocument {
 				
 				
 				//compute rotation of text, if rotation higher PI/16 than rotate otherwise even text
-				double rotation = (baseline != null ? computeRotation(baseline) : 0);
+				/*
+				 * No rotation for single lines in a overall horizontal text region 
+				 * Reason: Vertical line uses too much space - calculated for horizontal
+				 */
+				double rotation = 0;
+				if (isVerticalRegion){
+
+					rotation = (baseline != null ? computeRotation(baseline) : 0);
 				
-				if(rotation != 0){
-					/*
-					 * if we rotate e.g. 90° than we should use the actual x location of the line
-					 * so vertical text must be treated different than horizontal text 
-					 */
-					if (baseLineRect != null){
-						if (rtl){
-							tmpLineStartX = (float) baseLineRect.getMaxX();
+					if(rotation != 0){
+						/*
+						 * if we rotate e.g. 90° than we should use the actual x location of the line
+						 * so vertical text must be treated different than horizontal text 
+						 */
+						if (baseLineRect != null){
+							if (rtl){
+								tmpLineStartX = (float) baseLineRect.getMaxX();
+							}
+							else{
+								tmpLineStartX = (float) baseLineRect.getMinX();
+							}
+							
+							lineStartY = (float) baseLineRect.getMaxY();
 						}
-						else{
-							tmpLineStartX = baseLineRect.x;
+						else if(lineRect != null){
+							tmpLineStartX = lineRect.x;
+							lineStartY = (float) lineRect.getMaxY();
 						}
 						
-						lineStartY = (float) baseLineRect.getMaxY();
 					}
-					else if(lineRect != null){
-						tmpLineStartX = lineRect.x;
-						lineStartY = (float) lineRect.getMaxY();
-					}
-					
 				}
 
 				//blacken Strings if wanted
@@ -871,15 +1073,32 @@ public class TrpPdfDocument extends APdfDocument {
 
 				//for rtl export
 				float lineEndX = 0;
+				float width = 0;
 				if (baseLineRect != null){
 					lineEndX = (float) baseLineRect.getMaxX();
+					width = (float) baseLineRect.getWidth();
+					//this leads to an extra start for each line instead of having a combined start for all lines in a region
+					//tmpLineStartX = (float) (lineEndX - baseLineRect.getWidth());
 				}
 				else if(lineRect != null){
 					lineEndX = lineRect.x + lineRect.width;
+					width = (float) lineRect.getWidth();
 				}
+				
+//				logger.debug("tmpLineStartX " + tmpLineStartX);
+//				logger.debug("lineEndX " + lineEndX);
+				
+				//mainly for very small regions at the very left of a page
+				if(tmpLineStartX > lineEndX){
+					lineEndX = tmpLineStartX + width;
+				}
+				
+//				logger.debug("width " + width);
+//				logger.debug("lineEndX " + lineEndX);
+
 				//first add uniform String (=line), ,after that eventaully highlight the tags in this line using the current line information like x/y position, 
 				//addUniformString(lineMeanHeight, tmpLineStartX, lineStartY, lineText, cb, cutoffLeft, cutoffTop, bf, twelfthPoints[1][0], false, null, rotation);
-				addUniformString(lineMeanHeight, tmpLineStartX, lineStartY, lineEndX, phrase, cb, cutoffLeft, cutoffTop, bf, twelfthPoints[1][0], false, null, rotation, rtl);
+				addUniformString(tr.getBoundingBox(), lineMeanHeight, tmpLineStartX, lineStartY, lineEndX, phrase, cb, cutoffLeft, cutoffTop, bf, twelfthPoints[1][0], false, null, rotation, rtl);
 				
 				/*
 				 * old:
@@ -903,7 +1122,6 @@ public class TrpPdfDocument extends APdfDocument {
 //					}					
 //
 //				}
-
 			}
 		}	
 	}
@@ -1218,7 +1436,7 @@ public class TrpPdfDocument extends APdfDocument {
 			for(TextLineType lt : lines){
 				
 				TrpTextLineType l = (TrpTextLineType)lt;
-				java.awt.Rectangle lineRect = PageXmlUtils.buildPolygon(l.getCoords().getPoints()).getBounds();
+				//java.awt.Rectangle lineRect = PageXmlUtils.buildPolygon(l.getCoords().getPoints()).getBounds();
 				
 				//compute rotation of text, if rotation higher PI/16 than rotate otherwise even text
 				TrpBaselineType baseline = (TrpBaselineType) l.getBaseline();
@@ -1240,7 +1458,7 @@ public class TrpPdfDocument extends APdfDocument {
 				baseLineMeanYPrev = baseLineMeanY;
 				if(baseline != null){
 					//use lowest point in baseline and move up one half of the distance to the topmost point
-					java.awt.Rectangle baseLineRect = PageXmlUtils.buildPolygon(l.getBaseline().getPoints()).getBounds();
+					java.awt.Rectangle baseLineRect = l.getBoundingBox();
 					baseLineMeanY =  baseLineRect.getMaxY() - ((baseLineRect.getMaxY() - baseLineRect.getMinY())/2);
 					if (baseLineMeanYPrev != 0){
 						baseLineMeanGap = baseLineMeanY - baseLineMeanYPrev;
@@ -1255,9 +1473,10 @@ public class TrpPdfDocument extends APdfDocument {
 					for(WordType wt : words){
 						TrpWordType w = (TrpWordType)wt;
 						if(!w.getUnicodeText().isEmpty()){
-							java.awt.Rectangle boundRect = PageXmlUtils.buildPolygon(w.getCoords()).getBounds();
+							//java.awt.Rectangle boundRect = PageXmlUtils.buildPolygon(w.getCoords()).getBounds();
+							java.awt.Rectangle boundRect = w.getBoundingBox();
 							String text = w.getUnicodeText();
-							rtl = textIsRTL(text);
+							rtl = textIsRTL(text.trim());
 							addString(boundRect, baseLineMeanY, text, cb, cutoffLeft, cutoffTop, bf, rotation, rtl);
 						} else {
 							//logger.info("No text content in word: " + w.getId());
@@ -1268,7 +1487,7 @@ public class TrpPdfDocument extends APdfDocument {
 					
 					String lineTextTmp = l.getUnicodeText();
 					//get surrounding rectangle coords of this line
-					java.awt.Rectangle boundRect = PageXmlUtils.buildPolygon(l.getCoords()).getBounds();
+					java.awt.Rectangle boundRect = l.getBoundingBox();
 					
 					Set<Entry<CustomTag, String>> blackSet = ExportUtils.getAllTagsOfThisTypeForShapeElement(l, RegionTypeUtil.BLACKENING_REGION.toLowerCase()).entrySet();
 					
@@ -1290,7 +1509,7 @@ public class TrpPdfDocument extends APdfDocument {
 						}
 					}
 
-					rtl = textIsRTL(lineTextTmp);
+					rtl = textIsRTL(lineTextTmp.trim());
 					addString(boundRect, baseLineMeanY, lineTextTmp, cb, cutoffLeft, cutoffTop, bf, rotation, rtl);
 					/*
 					 * highlight all tags of this text line if property is set
@@ -1329,11 +1548,14 @@ public class TrpPdfDocument extends APdfDocument {
 
 	
 	private boolean textIsRTL(String text) {
-		return (Character.getDirectionality(text.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT
-			    || Character.getDirectionality(text.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC
-			    || Character.getDirectionality(text.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING
-			    || Character.getDirectionality(text.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_OVERRIDE
-			    );
+		if (!text.isEmpty()){
+			return (Character.getDirectionality(text.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT
+				    || Character.getDirectionality(text.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC
+				    || Character.getDirectionality(text.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING
+				    || Character.getDirectionality(text.charAt(0)) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_OVERRIDE
+				    );
+		}
+		return false;
 	}
 		
 
@@ -1416,7 +1638,8 @@ public class TrpPdfDocument extends APdfDocument {
 				 */
 				if(baseline != null){
 					//use lowest point in baseline and move up one half of the distance to the topmost point
-					java.awt.Rectangle baseLineRect = PageXmlUtils.buildPolygon(baseline.getPoints()).getBounds();
+					//java.awt.Rectangle baseLineRect = PageXmlUtils.buildPolygon(baseline.getPoints()).getBounds();
+					java.awt.Rectangle baseLineRect = ((TrpBaselineType)baseline).getBoundingBox();
 					calculateTagLines(baseLineRect, shape, currEntry.getKey().getContainedText(), currOffset, currLength, color, yShift, falling, rtl);
 				}
 			}
@@ -1451,7 +1674,7 @@ public class TrpPdfDocument extends APdfDocument {
 		
 		java.awt.Rectangle shapeRect = null;
 		if (shape instanceof TrpWordType){
-			shapeRect = PageXmlUtils.buildPolygon(((TrpWordType) shape).getCoords()).getBounds();
+			shapeRect = ((TrpWordType) shape).getBoundingBox();
 		}
 		else{
 			shapeRect = baseLineRect;
@@ -1546,7 +1769,8 @@ public class TrpPdfDocument extends APdfDocument {
 		float meanX = 0;
 		float meanY = 0;
 		
-		java.awt.Rectangle compareBlock = PageXmlUtils.buildPolygon(regionToCompare.getCoords().getPoints()).getBounds();
+		//java.awt.Rectangle compareBlock = PageXmlUtils.buildPolygon(regionToCompare.getCoords().getPoints()).getBounds();
+		java.awt.Rectangle compareBlock = regionToCompare.getBoundingBox();
 		float compareMinX = (float) compareBlock.getMinX();
 		float compareMinY = (float) compareBlock.getMinY();
 		float compareMaxX = (float) compareBlock.getMaxX();
@@ -1592,7 +1816,8 @@ public class TrpPdfDocument extends APdfDocument {
 					//logger.debug("tr id " + tr.getId());
 
 					//compute average text region start
-					java.awt.Rectangle block = PageXmlUtils.buildPolygon(tr.getCoords().getPoints()).getBounds();
+					//java.awt.Rectangle block = PageXmlUtils.buildPolygon(tr.getCoords().getPoints()).getBounds();
+					java.awt.Rectangle block = tr.getBoundingBox();
 					minX = (float) block.getMinX();
 					maxX = (float) block.getMaxX();
 					minY = (float) block.getMinY();
