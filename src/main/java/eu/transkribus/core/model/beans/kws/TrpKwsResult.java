@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpKwsResult {
+public class TrpKwsResult extends TrpKwsQuery {
 	
 	/*benchmark data*/
 	@XmlAttribute
@@ -21,17 +21,7 @@ public class TrpKwsResult {
 	private Long searchTime;
 	@XmlAttribute
 	private Long enrichmentTime;
-	
-	@XmlElementWrapper(name="collectionList")
-	@XmlElement
-	private List<Integer> colIds = new ArrayList<>();
-	@XmlElementWrapper(name="docList")
-	@XmlElement
-	private List<Integer> docIds = new ArrayList<>();
-	@XmlElementWrapper(name="keyWordList")
-	@XmlElement
-	private List<TrpKeyWord> keyWords = new ArrayList<>();
-	
+
 	public Long getInitTime() {
 		return initTime;
 	}
@@ -54,30 +44,6 @@ public class TrpKwsResult {
 
 	public void setEnrichmentTime(Long enrichmentTime) {
 		this.enrichmentTime = enrichmentTime;
-	}
-
-	public List<Integer> getColIds() {
-		return colIds;
-	}
-
-	public void setColIds(List<Integer> colIds) {
-		this.colIds = colIds;
-	}
-
-	public List<Integer> getDocIds() {
-		return docIds;
-	}
-
-	public void setDocIds(List<Integer> docIds) {
-		this.docIds = docIds;
-	}
-
-	public List<TrpKeyWord> getKeyWords() {
-		return keyWords;
-	}
-
-	public void setKeyWords(List<TrpKeyWord> keyWords) {
-		this.keyWords = keyWords;
 	}
 
 	public int getTotalNrOfHits() {

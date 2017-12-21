@@ -282,6 +282,10 @@ public final class RESTConst {
 	
 	public static final String KWS_PATH = "kws";
 	public static final String KWS_QUERIES_PATH = "queries";
+	public static final String KWS_HITS_PATH = "hits";
+	public static final String KWS_RESULT_PATH = "resultData";
+	
+	
 	
 	//editorial declaration
 	public static final String STORE_EDIT_DECL_FEATURE = "storeEditDeclFeat";
@@ -410,6 +414,5 @@ public final class RESTConst {
 	//uploads
 	public static final String UPLOAD_ID_PARAM = "uploadId";
 	public static final String DETAILS_PATH = "details";
-	
 	
 }
