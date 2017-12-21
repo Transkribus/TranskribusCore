@@ -10,6 +10,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import eu.transkribus.core.io.util.TrpProperties;
+import eu.transkribus.core.model.beans.job.KwsParameters;
+import eu.transkribus.core.model.beans.job.TrpJobStatus;
+import eu.transkribus.core.model.beans.transformer.KwsTransformer;
+import eu.transkribus.core.rest.JobConst;
+import eu.transkribus.core.util.JobDataUtils;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TrpKwsQuery {
@@ -19,6 +26,8 @@ public class TrpKwsQuery {
 	protected String duration;
 	protected String scope;
 	protected String status;
+	
+	protected KwsParameters params;
 	
 	@XmlElementWrapper(name="collectionList")
 	@XmlElement
@@ -30,6 +39,38 @@ public class TrpKwsQuery {
 	@XmlElementWrapper(name="keyWordList")
 	@XmlElement
 	protected List<TrpKeyWord> keyWords = new ArrayList<>();
+	
+	public TrpKwsQuery() {}
+	
+	public TrpKwsQuery(TrpJobStatus job, TrpKwsResult result) {
+		this.setJobId(job.getJobIdAsInt());
+		this.setCreated(job.getCreated());
+		this.setDuration(KwsTransformer.getKwsDuration(job));
+		this.setScope(KwsTransformer.getKwsScope(job));
+		this.setStatus(KwsTransformer.getKwsStatus(job));
+		this.getColIds().add(job.getColId());
+		if(job.getDocId() > 0) {
+			this.getDocIds().add(job.getDocId());
+		}
+		
+		KwsParameters params = JobDataUtils.getParameterObject(job.getJobDataProps().getProperties(), 
+				JobConst.PROP_PARAMETERS, KwsParameters.class);
+		this.setParams(params);
+		
+		if(result == null) {
+			TrpProperties props = job.getJobDataProps();
+			List<String> queries = JobDataUtils.getStringList(props.getProperties(), JobConst.PROP_QUERY);
+			queries.stream()
+				.forEach(s -> this.getKeyWords()
+								.add(new TrpKeyWord(s))
+							);
+		} else {
+			result.getKeyWords()
+				.forEach(k -> this.getKeyWords()
+								.add(new TrpKeyWord(k.getKeyWord(), k.getHits().size()))
+							);
+		}
+	}
 	
 	public Integer getJobId() {
 		return jobId;
@@ -71,6 +112,14 @@ public class TrpKwsQuery {
 		this.status = status;
 	}
 	
+	public KwsParameters getParams() {
+		return params;
+	}
+
+	public void setParams(KwsParameters params) {
+		this.params = params;
+	}
+
 	public List<Integer> getColIds() {
 		return colIds;
 	}

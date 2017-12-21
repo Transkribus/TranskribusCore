@@ -61,10 +61,17 @@ public class TrpKeyWord {
 	
 	public void beforeMarshal(Marshaller m) {
 		logger.trace("running JAXB event callback method");
-		if(hits.isEmpty()) {
+		if(hits.isEmpty() && nrOfHits != null) {
 			logger.trace("Hiding empty hitList");
 			//empty list is removed in order to omit an empty XML wrapper element
 			hits = null;
 		}
 	}
+	
+//	public void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
+//		
+//		logger.debug("running JAXB unmarshal callback: hits = " + hits.size());
+//		
+//	}
+	
 }

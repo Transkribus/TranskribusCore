@@ -17,7 +17,6 @@ import eu.transkribus.core.model.beans.kws.TrpKwsQuery;
 import eu.transkribus.core.model.beans.kws.TrpKwsResult;
 import eu.transkribus.core.rest.JobConst;
 import eu.transkribus.core.util.JaxbUtils;
-import eu.transkribus.core.util.JobDataUtils;
 import eu.transkribus.core.util.KwsResultCache;
 
 public class KwsTransformer {
@@ -28,62 +27,39 @@ public class KwsTransformer {
 	private KwsTransformer() {}
 	
 	public static TrpKwsQuery getQuery(TrpJobStatus job) {
-		TrpKwsQuery q = new TrpKwsQuery();
-//		logger.debug(job.toString());
-		
-		q.setJobId(job.getJobIdAsInt());
-		q.setCreated(job.getCreated());
-		q.setDuration(getKwsDuration(job));
-		q.setScope(getKwsScope(job));
-		q.setStatus(getKwsStatus(job));
-
 		TrpKwsResult result = getKwsResultData(job);
-		
-		if(result == null) {
-			TrpProperties props = job.getJobDataProps();
-			List<String> queries = JobDataUtils.getStringList(props.getProperties(), JobConst.PROP_QUERY);
-			queries.stream()
-				.forEach(s -> q.getKeyWords()
-								.add(new TrpKeyWord(s))
-							);
-		} else {
-			result.getKeyWords()
-				.forEach(k -> q.getKeyWords()
-								.add(new TrpKeyWord(k.getKeyWord(), k.getHits().size()))
-							);
-		}
+		TrpKwsQuery q = new TrpKwsQuery(job, result);
 		return q;
 	}
 	
-	public static TrpKwsResult getResult(TrpJobStatus job) {
-		TrpKwsResult r = getKwsResultData(job);
-		
-		if(r == null) {
-			return r;
-		}
-
-//		logger.debug(job.toString());
-		r.setJobId(job.getJobIdAsInt());
-		r.setCreated(job.getCreated());
-		r.setDuration(getKwsDuration(job));
-		r.setScope(getKwsScope(job));
-		r.setStatus(getKwsStatus(job));
-
-		return r;
-	}
-	
-	public static List<TrpKwsHit> getHitList(TrpJobStatus job) {
+	public static List<TrpKwsHit> getHitList(TrpJobStatus job, String keyword, int index, int nValues) {
 		TrpKwsResult r = getKwsResultData(job);
 		if(r == null) {
 			return new ArrayList<>(0);
 		}
+		final boolean doPaging;
+		if(nValues > 0) {
+			doPaging = true;
+		} else {
+			doPaging = false;
+			nValues = Integer.MAX_VALUE;
+		}
 		List<TrpKwsHit> hitList = new ArrayList<>(r.getTotalNrOfHits());
+		
+		int count = 0;
 		for(TrpKeyWord k : r.getKeyWords()) {
-			final String keyWord = k.getKeyWord();
-			k.getHits().stream().forEach(h -> {
-				h.setKeyword(keyWord);
-				hitList.add(h);
-			});
+			final String currWord = k.getKeyWord();
+			if(keyword != null && !currWord.equals(keyword)) {
+				continue;
+			}
+			for(int i = 0; i < k.getHits().size(); i++) {
+				if(!doPaging || (i >= index && count < nValues)) {
+					TrpKwsHit h = k.getHits().get(i);
+					h.setKeyword(currWord);
+					hitList.add(h);
+					count++;
+				}
+			}
 		}
 		return hitList;
 	}
@@ -114,7 +90,7 @@ public class KwsTransformer {
 		return res;
 	}
 	
-	private static String getKwsDuration(TrpJobStatus job) {
+	public static String getKwsDuration(TrpJobStatus job) {
 		final String durStr;
 		if (job.getEndTime() < 1) {
 			durStr = "N/A";
@@ -125,11 +101,11 @@ public class KwsTransformer {
 		return durStr;
 	}
 
-	private static String getKwsScope(TrpJobStatus job) {
+	public static String getKwsScope(TrpJobStatus job) {
 		return job.getDocId() < 1 ? "Collection " + job.getColId() : "Document " + job.getDocId();
 	}
 
-	private static String getKwsStatus(TrpJobStatus job) {
+	public static String getKwsStatus(TrpJobStatus job) {
 		final String statusStr;
 		switch(job.getState()) {
 		case TrpJobStatus.RUNNING:

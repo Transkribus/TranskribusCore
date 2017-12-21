@@ -2,6 +2,7 @@ package eu.transkribus.core.model.beans.rest;
 
 import java.util.List;
 
+import javax.ws.rs.ext.ContextResolver;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyElement;
@@ -14,7 +15,9 @@ import javax.xml.bind.annotation.XmlSeeAlso;
  * <br/>
  * <b>IMPORTANT</b>: when extending this you must use the {@link XmlSeeAlso} annotation to 
  * specify all the included classes that the JAXB context needs!<br/>
- * See {@link TrpKwsQueryList} for example.
+ * See {@link TrpKwsQueryList} for example.<br/>
+ * <br/>
+ * TODO: try to use {@link ContextResolver} instead of XmlSeeAlso annotation as it might be faster. 
  * 
  * @author philip
  *
