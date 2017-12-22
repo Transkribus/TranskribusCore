@@ -201,6 +201,19 @@
 			</exclusions>
 		</dependency>
 		
+		<!-- more robust image readers for ImageIO -->
+		<dependency>
+	        <groupId>com.twelvemonkeys.imageio</groupId>
+	        <artifactId>imageio-jpeg</artifactId>
+	        <version>3.3.2</version> 
+	    </dependency>
+	    
+	    <dependency>
+	        <groupId>com.twelvemonkeys.imageio</groupId>
+	        <artifactId>imageio-tiff</artifactId>
+	        <version>3.3.2</version>
+	    </dependency>
+		
 		<!-- ImageJ for Image IO: -->
 <!-- 		<dependency> -->
 <!-- 			<groupId>gov.nih.imagej</groupId> -->

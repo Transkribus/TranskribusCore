@@ -116,7 +116,7 @@ public class ImgUtils {
 		try {
 			dim = readImageDimensionsWithExiftool(imgFile);			
 		} catch (Exception e1) {
-			logger.warn("Could not read image dimensions with exiftool: " + e1.getMessage());
+			logger.warn("Could not read image dimensions with exiftool: " + e1.getMessage(), e1);
 		}
 		
 		//if exiftool is not installed or failed try imageIO
@@ -124,7 +124,7 @@ public class ImgUtils {
 			try {
 				dim = readImageDimensionsWithImageIO(imgFile);
 			} catch (Exception e1) {
-				logger.warn(e1.getMessage());
+				logger.warn(e1.getMessage(), e1);
 			}
 		}
 		
@@ -145,7 +145,10 @@ public class ImgUtils {
 			try {
 				logger.debug("reader format = "+reader.getFormatName());
 				reader.setInput(iis);
-				dim = new Dimension(reader.getWidth(0), reader.getHeight(0));
+				final int xDim = reader.getWidth(0);
+				final int yDim = reader.getHeight(0);
+				logger.debug("Success with reader impl: " + reader.getClass().getCanonicalName());
+				dim = new Dimension(xDim, yDim);
 			} catch(Exception e) {
 				logger.warn("Could not read image dimensions with reader: "+reader.getFormatName()+": " + e.getMessage());
 				logger.debug("Cause: ",  e);
