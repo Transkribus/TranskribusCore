@@ -15,6 +15,7 @@ import eu.transkribus.core.model.beans.kws.TrpKeyWord;
 import eu.transkribus.core.model.beans.kws.TrpKwsHit;
 import eu.transkribus.core.model.beans.kws.TrpKwsQuery;
 import eu.transkribus.core.model.beans.kws.TrpKwsResult;
+import eu.transkribus.core.model.beans.rest.TrpKwsHitList;
 import eu.transkribus.core.rest.JobConst;
 import eu.transkribus.core.util.JaxbUtils;
 import eu.transkribus.core.util.KwsResultCache;
@@ -32,19 +33,25 @@ public class KwsTransformer {
 		return q;
 	}
 	
-	public static List<TrpKwsHit> getHitList(TrpJobStatus job, String keyword, int index, int nValues) {
+	public static TrpKwsHitList getHitList(TrpJobStatus job, String keyword, int index, int nValues) {
 		TrpKwsResult r = getKwsResultData(job);
 		if(r == null) {
-			return new ArrayList<>(0);
+			return new TrpKwsHitList(new ArrayList<>(0), 0, index, nValues, null, null);
 		}
+		TrpKwsHitList hitList = new TrpKwsHitList();
+		hitList.setTotal(r.getTotalNrOfHits());
 		final boolean doPaging;
 		if(nValues > 0) {
 			doPaging = true;
+			hitList.setnValues(nValues);
+			hitList.setIndex(index);
 		} else {
 			doPaging = false;
 			nValues = Integer.MAX_VALUE;
+			hitList.setnValues(-1);
+			hitList.setIndex(0);
 		}
-		List<TrpKwsHit> hitList = new ArrayList<>(r.getTotalNrOfHits());
+		List<TrpKwsHit> hits = new ArrayList<>(r.getTotalNrOfHits());
 		
 		int count = 0;
 		for(TrpKeyWord k : r.getKeyWords()) {
@@ -56,11 +63,12 @@ public class KwsTransformer {
 				if(!doPaging || (i >= index && count < nValues)) {
 					TrpKwsHit h = k.getHits().get(i);
 					h.setKeyword(currWord);
-					hitList.add(h);
+					hits.add(h);
 					count++;
 				}
 			}
 		}
+		hitList.setList(hits);
 		return hitList;
 	}
 	
