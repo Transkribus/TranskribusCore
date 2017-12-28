@@ -462,8 +462,6 @@ public class DocxBuilder {
 		
 		mdp.getPropertyResolver().activateStyle("Light Shading");
 		mdp.getPropertyResolver().activateStyle("Medium List 1");
-		
-		
 
 		addParagraph("", "Title Page", mdp, "Title");
 		
