@@ -70,6 +70,8 @@ public class JobConst {
 	public static final String PROP_MAX_NR_OF_HITS = "maxNrOfHits";
 	public static final String PROP_DO_PARTIAL_MATCHING = "partialMatching";
 	public static final String PROP_CUSTOM_PROP_MAP = "customPropMap";
+	
+	public static final String PROP_KEY = "key";
 
 
 	
