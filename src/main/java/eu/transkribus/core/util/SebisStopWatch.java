@@ -5,12 +5,15 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /** A simple stopwatch */
 public class SebisStopWatch {
-	public static final SebisStopWatch SW = new SebisStopWatch(); 
+	private static final Logger LOGGER = LoggerFactory.getLogger(SebisStopWatch.class);
 	
+	public static final SebisStopWatch SW = new SebisStopWatch(); 
+		
 	long start = 0, diff = 0;
 	String name="";
 	
@@ -63,7 +66,8 @@ public class SebisStopWatch {
 			
 			String outStr = formatStr+timeStr+"\n";
 			if (logger==null)
-				System.out.printf(outStr);
+				//use this class' logger
+				LOGGER.debug(outStr);
 			else
 				logger.debug(outStr);
 //				logger.log(logger.getLevel(), outStr);
