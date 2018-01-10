@@ -15,6 +15,7 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.lang3.StringUtils;
 
 import eu.transkribus.core.io.util.TrpProperties;
+import eu.transkribus.core.model.beans.rest.ParameterMap;
 
 public class JobDataUtils {
 	private static final String LIST_SEP = ".";

@@ -7,8 +7,8 @@ import java.util.Map.Entry;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import eu.transkribus.core.model.beans.rest.ParameterMap;
 import eu.transkribus.core.rest.JobConst;
-import eu.transkribus.core.util.ParameterMap;
 
 @XmlRootElement
 public class KwsParameters extends ParameterMap {

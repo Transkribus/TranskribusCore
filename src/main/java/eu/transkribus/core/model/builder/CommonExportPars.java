@@ -31,6 +31,7 @@ public class CommonExportPars {
 	boolean doWritePdf=false;
 	boolean doWriteTei=false;
 	boolean doWriteDocx=false;
+	boolean doWriteTxt=false;
 	boolean doWriteTagsXlsx = false;
 	boolean doWriteTablesXlsx = false;
 	
@@ -59,7 +60,7 @@ public class CommonExportPars {
 
 	public CommonExportPars(String pages, boolean doWriteMets, boolean doWriteImages, boolean doExportPageXml,
 			boolean doExportAltoXml, boolean doWritePdf, boolean doWriteTei, boolean doWriteDocx, 
-			boolean doWriteTagsXlsx, boolean doWriteTablesXlsx,
+			boolean doWriteTxt, boolean doWriteTagsXlsx, boolean doWriteTablesXlsx,
 			boolean doCreateTitle, String useVersionStatus, boolean writeTextOnWordLevel, 
 			boolean doBlackening, Set<String> selectedTags) {
 		super();
@@ -71,6 +72,7 @@ public class CommonExportPars {
 		this.doWritePdf = doWritePdf;
 		this.doWriteTei = doWriteTei;
 		this.doWriteDocx = doWriteDocx;
+		this.doWriteTxt = doWriteTxt;
 		this.doWriteTagsXlsx = doWriteTagsXlsx;
 		this.doWriteTablesXlsx = doWriteTablesXlsx;
 		this.doCreateTitle = doCreateTitle;
@@ -210,6 +212,14 @@ public class CommonExportPars {
 		this.doWriteDocx = doWriteDocx;
 	}
 
+	public boolean isDoWriteTxt() {
+		return doWriteTxt;
+	}
+
+	public void setDoWriteTxt(boolean doWriteTxt) {
+		this.doWriteTxt = doWriteTxt;
+	}
+
 	public boolean isDoCreateTitle() {
 		return doCreateTitle;
 	}
@@ -305,9 +315,18 @@ public class CommonExportPars {
 	}
 	
 	public boolean isTaggableExport() {
-		return (isDoWritePdf() || isDoWriteDocx() || isDoWriteTagsXlsx() || isDoWriteTei() || isDoWriteTagsXlsx());			
+		return (isDoWritePdf() || isDoWriteDocx() || isDoWriteTagsXlsx() || isDoWriteTei());			
 //		return (isDoWritePdf() || isDoWriteDocx() || isDoWriteTagsXlsx() || isDoWriteTei())
 //				&& (isHighlightTags() || isDocxTagExport() || isTagXlsxExport());
+	}
+	
+	/*
+	 * export only images - that means we do not load the transcripts during export and save time
+	 */
+	public boolean exportImagesOnly(){
+		return (isDoWriteMets() && doWriteImages && !doExportAltoXml && !doExportPageXml && 
+				!(isDoWritePdf() || isDoWriteDocx() || isDoWriteTxt() || isDoWriteTagsXlsx() || isDoWriteTei() || isDoWriteTablesXlsx()));
+		
 	}
 
 	@Override

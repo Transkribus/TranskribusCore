@@ -282,6 +282,11 @@ public final class RESTConst {
 	
 	public static final String KWS_PATH = "kws";
 	public static final String KWS_QUERIES_PATH = "queries";
+	public static final String KWS_HITS_PATH = "hits";
+	public static final String KWS_RESULT_PATH = "resultData";
+	public static final String KEYWORD_PARAM = "keyword";
+	
+	
 	
 	//editorial declaration
 	public static final String STORE_EDIT_DECL_FEATURE = "storeEditDeclFeat";
@@ -384,6 +389,7 @@ public final class RESTConst {
 	public static final String WRITE_PDF_PARAM = "doWritePdf";
 	public static final String WRITE_TEI_PARAM = "doWriteTei";
 	public static final String WRITE_DOCX_PARAM = "doWriteDocx";
+	public static final String WRITE_TXT_PARAM = "doWriteTxt";
 	public static final String WRITE_TAGS_EXCEL_PARAM = "doWriteTagsXlsx";
 	public static final String WRITE_TABLES_EXCEL_PARAM = "doWriteTablesXlsx";
 	public static final String DO_PDF_IMAGES_ONLY_PARAM = "doPdfImagesOnly";
@@ -410,6 +416,5 @@ public final class RESTConst {
 	//uploads
 	public static final String UPLOAD_ID_PARAM = "uploadId";
 	public static final String DETAILS_PATH = "details";
-	
 	
 }

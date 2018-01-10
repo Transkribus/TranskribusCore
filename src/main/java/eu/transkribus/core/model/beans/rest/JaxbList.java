@@ -1,4 +1,4 @@
-package eu.transkribus.core.util;
+package eu.transkribus.core.model.beans.rest;
 
 import java.util.List;
 

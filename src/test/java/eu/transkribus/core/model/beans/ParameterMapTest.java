@@ -9,10 +9,10 @@ import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.io.util.TrpProperties;
 import eu.transkribus.core.model.beans.job.KwsParameters;
+import eu.transkribus.core.model.beans.rest.ParameterMap;
 import eu.transkribus.core.rest.JobConst;
 import eu.transkribus.core.util.JaxbUtils;
 import eu.transkribus.core.util.JobDataUtils;
-import eu.transkribus.core.util.ParameterMap;
 
 public class ParameterMapTest {
 	private static final Logger logger = LoggerFactory.getLogger(ParameterMapTest.class);

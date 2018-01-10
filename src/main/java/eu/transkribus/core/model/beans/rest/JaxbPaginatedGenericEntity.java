@@ -1,16 +1,22 @@
-package eu.transkribus.core.util;
+package eu.transkribus.core.model.beans.rest;
 
-import java.util.List;
-
+import javax.ws.rs.core.GenericEntity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyElement;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * Doesn't work
+ * 
+ * @author philip
+ *
+ * @param <T>
+ */
 @XmlRootElement(name="ResultList")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class JaxbPaginatedList<T>{
+public class JaxbPaginatedGenericEntity<T> {
 	
 	@XmlAttribute
 	protected int total;
@@ -28,14 +34,14 @@ public class JaxbPaginatedList<T>{
 	protected String sortDirection;
 	
 	@XmlAnyElement(lax=true)
-    protected List<T> list;
+    protected GenericEntity<T> entity;
 
-    public JaxbPaginatedList(){}
+    public JaxbPaginatedGenericEntity(){}
 
-    public JaxbPaginatedList(List<T> list, int total, int index, int nValues, 
+    public JaxbPaginatedGenericEntity(T list, int total, int index, int nValues, 
     		String sortColumnField, String sortDirection){
     	this();
-    	this.setList(list);
+    	this.setEntity(new GenericEntity<T>(list) {});
     	this.total = total;
     	this.index = index;
     	this.nValues = nValues;
@@ -43,14 +49,13 @@ public class JaxbPaginatedList<T>{
     	this.sortDirection = sortDirection;
     }
 
-//    @XmlElement(name="Item")
-    public List<T> getList(){
-    	return list;
-    }
-    
-    public void setList(List<T> list){
-    	this.list = list;
-    }
+    public GenericEntity<T> getEntity() {
+		return entity;
+	}
+
+	public void setEntity(GenericEntity<T> entity) {
+		this.entity = entity;
+	}
 
 	public int getTotal() {
 		return total;

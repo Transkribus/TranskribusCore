@@ -10,6 +10,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TrpKwsHit implements Comparable<TrpKwsHit> {
 	
+	/**
+	 * keyword is necessary here for presenting the hit in a flat list
+	 */
+	private String keyword = null;
 	private double confidence;
 	private String bl;
 	private String lineId;
@@ -21,6 +25,12 @@ public class TrpKwsHit implements Comparable<TrpKwsHit> {
 	private Integer colId;
 	private Integer tsId;
 	
+	public String getKeyword() {
+		return keyword;
+	}
+	public void setKeyword(String keyword) {
+		this.keyword = keyword;
+	}
 	public String getBl() {
 		return bl;
 	}

@@ -79,7 +79,7 @@
 		<dependency>
 			<groupId>javax.ws.rs</groupId>
 			<artifactId>javax.ws.rs-api</artifactId>
-			<version>2.0</version>
+			<version>2.0.1</version>
 		</dependency>
 
 		<!-- primaresearch page io libs -->
@@ -200,6 +200,19 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		
+		<!-- more robust image readers for ImageIO -->
+		<dependency>
+	        <groupId>com.twelvemonkeys.imageio</groupId>
+	        <artifactId>imageio-jpeg</artifactId>
+	        <version>3.3.2</version> 
+	    </dependency>
+	    
+	    <dependency>
+	        <groupId>com.twelvemonkeys.imageio</groupId>
+	        <artifactId>imageio-tiff</artifactId>
+	        <version>3.3.2</version>
+	    </dependency>
 		
 		<!-- ImageJ for Image IO: -->
 <!-- 		<dependency> -->
