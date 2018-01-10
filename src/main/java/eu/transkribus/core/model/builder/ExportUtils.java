@@ -109,8 +109,10 @@ public class ExportUtils {
 			 * they will not exported
 			 */
 			if (md==null){
-				//logger.debug("remove page index " + i);
-				pageIndices.remove(new Integer(i));
+				logger.debug("remove page index " + i);
+				if (pageIndices!=null && pageIndices.contains(i)){
+					pageIndices.remove(new Integer(i));
+				}
 				continue;
 			}
 
