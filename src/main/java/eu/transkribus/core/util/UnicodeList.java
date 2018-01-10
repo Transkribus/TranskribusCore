@@ -140,9 +140,9 @@ public class UnicodeList implements Comparable<UnicodeList> {
 
 	private static List<Pair<Integer, String>> parseUnicodeChars(String value) {
 		List<Pair<Integer,String>> unicodes = new ArrayList<>();
-		for (String split : value.split(" ")) {
+		for (String split : value.split("\\s+")) {
 			if (split.matches(UNICODE_RANGE_REGEX)) {
-				logger.trace("h1");
+				logger.trace("unicode range matched");
 				Pair<String, String> range;
 				try {
 					range = parseRange(split);				
@@ -158,7 +158,7 @@ public class UnicodeList implements Comparable<UnicodeList> {
 				}
 			}
 			else if (split.matches(UNICODE_VALUE_REGEX)) {
-				logger.trace("h2");
+				logger.trace("single unicode value matched");
 				try {
 					Pair<Integer, String> c = parseUnicodeString(split);
 
@@ -176,7 +176,7 @@ public class UnicodeList implements Comparable<UnicodeList> {
 				}
 			}
 			else {
-				logger.trace("h3, value length = "+value.length());
+				logger.trace("single list of characters matched, value length = "+value.length());
 				for (int j = 0; j < split.length(); ++j) {
 					char c = split.charAt(j);
 					if (!Character.isWhitespace(c))
