@@ -777,6 +777,11 @@ public class TrpPdfDocument extends APdfDocument {
 				java.awt.Rectangle lineRect = l.getBoundingBox();//PageXmlUtils.buildPolygon(l.getCoords().getPoints()).getBounds();
 				java.awt.Rectangle baseLineRect = baseline == null ? null : baseline.getBoundingBox();//PageXmlUtils.buildPolygon(baseline.getPoints()).getBounds();
 				
+				if (baseLineRect == null){
+					logger.debug("Baseline is null - not allowed");
+					continue;
+				}
+				
 				float tmpLineStartX = lineStartX;
 				float regionStartMinX = (float) tr.getBoundingBox().getMinX();//PageXmlUtils.buildPolygon(tr.getCoords().getPoints()).getBounds().getMinX();
 				double regionWidth = tr.getBoundingBox().getWidth();
@@ -1129,6 +1134,9 @@ public class TrpPdfDocument extends APdfDocument {
 	
 	private double computeRotation(TrpBaselineType baseline) {
 		
+		if (baseline==null){
+			return 0;
+		}
 		double rotation = 0;
 		List<Point> lp;
 		try {
