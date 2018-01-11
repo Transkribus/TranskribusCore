@@ -112,6 +112,17 @@ public class CoreUtils {
 		return list.get(neighborIndex);
 	}
 	
+	public static <T> List<T> addNewElements(List<T> list, List<T> elementsToAdd) {
+		List<T> added = new ArrayList<>();
+		for (T element : elementsToAdd) {
+			if (!list.contains(element)) {
+				list.add(element);
+				added.add(element);
+			}
+		}
+		return added;
+	}
+	
 	public static List<Path> listFilesRecursive(String Path, String[] extensions, boolean caseSensitive, String... excludeFilenames) throws IOException {
 		return Files.walk(Paths.get(Path))
 			.filter(Files::isRegularFile)
