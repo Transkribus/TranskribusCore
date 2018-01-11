@@ -41,6 +41,7 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
@@ -79,6 +80,17 @@ public class CoreUtils {
 //		}		
 //		
 //	}
+	
+	public static <T> List<T> addNewElements(List<T> list, List<T> elementsToAdd) {
+		List<T> added = new ArrayList<>();
+		for (T element : elementsToAdd) {
+			if (!list.contains(element)) {
+				list.add(element);
+				added.add(element);
+			}
+		}
+		return added;
+	}
 	
 	public static List<Path> listFilesRecursive(String Path, String[] extensions, boolean caseSensitive, String... excludeFilenames) throws IOException {
 		return Files.walk(Paths.get(Path))

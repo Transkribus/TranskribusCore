@@ -65,6 +65,10 @@ public class UnicodeList implements Comparable<UnicodeList> {
 		return unicodes;
 	}
 	
+	public void setUnicodes(List<Pair<Integer,String>> unicodes) {
+		this.unicodes = unicodes;
+	}
+	
 //	public boolean addChar(Character c) {
 //		if (!chars.contains(c)) {
 //			chars.add(c);
@@ -135,10 +139,8 @@ public class UnicodeList implements Comparable<UnicodeList> {
 	    appendHexRange(sb, begin, end);
 	    return sb.substring(1);
 	}
-	
-	
 
-	private static List<Pair<Integer, String>> parseUnicodeChars(String value) {
+	public static List<Pair<Integer, String>> parseUnicodeChars(String value) {
 		List<Pair<Integer,String>> unicodes = new ArrayList<>();
 		for (String split : value.split("\\s+")) {
 			if (split.matches(UNICODE_RANGE_REGEX)) {
