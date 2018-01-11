@@ -103,7 +103,7 @@ public class KwsTransformer {
 		if (job.getEndTime() < 1) {
 			durStr = "N/A";
 		} else {
-			final long diff = job.getEndTime() - job.getCreateTime();
+			final long diff = job.getEndTime() - job.getStartTime();
 			durStr = DECIMAL_FORMAT.format(diff / 1000f) + " sec.";
 		}
 		return durStr;

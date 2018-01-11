@@ -70,9 +70,9 @@ public class ExportUtils {
 		int c = 0;
 		
 		for (int i=0; i<totalPages; ++i) {
-			//logger.debug(" i " + i);
 			if (pageIndices!=null && !pageIndices.contains(i)){
 				//fill up with null to have the proper index of each page later on
+				//logger.debug(" add null to transcripts " + i);
 				pageTranscripts.add(null);
 				continue;
 			}
@@ -109,8 +109,12 @@ public class ExportUtils {
 			 * they will not exported
 			 */
 			if (md==null){
-				//logger.debug("remove page index " + i);
-				pageIndices.remove(new Integer(i));
+				//pageIndices contained but has not the desired status -> add transcript 0;
+				if (pageIndices!=null && pageIndices.contains(i)){
+					//logger.debug("remove page index " + i);
+					pageIndices.remove(new Integer(i));
+					pageTranscripts.add(null);
+				}
 				continue;
 			}
 
