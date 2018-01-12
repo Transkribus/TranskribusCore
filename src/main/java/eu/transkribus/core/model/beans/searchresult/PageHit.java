@@ -1,14 +1,13 @@
 package eu.transkribus.core.model.beans.searchresult;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -19,25 +18,25 @@ public class PageHit {
 	private String pageUrl;	
 	@XmlElementWrapper(name="collectionIds")
 	@XmlElement(name="collectionId")
-	private ArrayList<Integer> collectionIds = new ArrayList<>();
-	private ArrayList<String> highlights = new ArrayList<>();
-	private ArrayList<String> wordCoords = new ArrayList<>();
+	private List<Integer> collectionIds = new ArrayList<>(0);
+	private List<String> highlights = new ArrayList<>(0);
+	private List<String> wordCoords = new ArrayList<>(0);
 	
-	public ArrayList<Integer> getCollectionIds() {
+	public List<Integer> getCollectionIds() {
 		return collectionIds;
 	}
 
-	public void setCollectionIds(ArrayList<Integer> collectionIds) {
+	public void setCollectionIds(List<Integer> collectionIds) {
 		this.collectionIds = collectionIds;
 	}	
 	
 	public PageHit(){}
 	
-	public ArrayList<String> getHighlights() {
+	public List<String> getHighlights() {
 		return highlights;
 	}
 
-	public void setHighlights(ArrayList<String> highlights) {
+	public void setHighlights(List<String> highlights) {
 		this.highlights = highlights;
 	}
 
@@ -65,11 +64,11 @@ public class PageHit {
 		this.docId = docId;
 	}
 
-	public ArrayList<String> getWordCoords() {
+	public List<String> getWordCoords() {
 		return wordCoords;
 	}
 
-	public void setWordCoords(ArrayList<String> wordCoords) {
+	public void setWordCoords(List<String> wordCoords) {
 		this.wordCoords = wordCoords;
 	}
 
