@@ -89,10 +89,17 @@ public class TrpImage implements Serializable, ITrpFile {
 	public void setMd5Sum(String md5Sum) {
 		this.md5sum = md5Sum;
 	}
+	
+	/**
+	 * @return true if width and/or height is not set, i.e. < 1
+	 */
+	public boolean isDimensionSet() {
+		return this.width < 1 || this.height < 1;
+	}
+	
 	@Override
 	public String toString() {
 		return "TrpImage [imageId=" + imageId + ", key=" + key + ", imgFileName=" + imgFileName + ", width=" + width
 				+ ", height=" + height + ", url=" + url + ", created=" + created + "]";
 	}
-
 }
