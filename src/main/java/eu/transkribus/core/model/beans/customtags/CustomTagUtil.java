@@ -416,19 +416,25 @@ public class CustomTagUtil {
 //		return tags;
 //	}
 	
-	public static List<CustomTag> extractCustomTags(TrpPageType p) {
+	public static List<CustomTag> extractCustomTags(TrpPageType p, boolean onlyIndexed) {
 		List<CustomTag> tags = new ArrayList<>();
-		
 		for (ITrpShapeType s : p.getAllShapes(true)) {
 			CustomTagList cl = s.getCustomTagList();
-			if (cl==null)
+			if (cl==null) { 
 				continue;
+			}
 			
-			tags.addAll(cl.getTags());
+			if (onlyIndexed) {
+				tags.addAll(cl.getIndexedTags());
+			} else {
+				tags.addAll(cl.getTags());	
+			}
 		}
 			
 		return tags;
 	}
+	
+	
 	
 	public static void main(String[] args) {
 	}
