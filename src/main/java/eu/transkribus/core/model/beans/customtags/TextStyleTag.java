@@ -425,6 +425,36 @@ public class TextStyleTag extends CustomTag {
 		return t;
 	}
 	
+	public static Object getSerifTag() {
+		TextStyleTag t = new TextStyleTag();
+		t.setSerif(true);
+		return t;
+	}
+	
+	public static Object getMonospaceTag() {
+		TextStyleTag t = new TextStyleTag();
+		t.setMonospace(true);
+		return t;
+	}
+	
+	public static Object getReverseVideoTag() {
+		TextStyleTag t = new TextStyleTag();
+		t.setReverseVideo(true);
+		return t;
+	}
+	
+	public static Object getSmallCapsTag() {
+		TextStyleTag t = new TextStyleTag();
+		t.setSmallCaps(true);
+		return t;
+	}
+	
+	public static Object getLetterSpacedTag() {
+		TextStyleTag t = new TextStyleTag();
+		t.setLetterSpaced(true);
+		return t;
+	}
+	
 	/**
 	 * Helper function to apply all boolean fields from tag t to this tag if they are true
 	 */
