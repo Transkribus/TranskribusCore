@@ -560,8 +560,8 @@ public class DocxBuilder {
 				int cols = table.getNCols();
 				int rows = table.getNRows();
 				
-	        	double maxX = PageXmlUtils.buildPolygon(table.getCoords().getPoints()).getBounds().getMaxX();
-	        	double minX = PageXmlUtils.buildPolygon(table.getCoords().getPoints()).getBounds().getMinX();
+	        	double maxX = table.getBoundingBox().getMaxX();//PageXmlUtils.buildPolygon(table.getCoords().getPoints()).getBounds().getMaxX();
+	        	double minX = table.getBoundingBox().getMinX();//PageXmlUtils.buildPolygon(table.getCoords().getPoints()).getBounds().getMinX();
 	        	int tablesize = (int) (maxX - minX);
 				
 				List<List<TrpTableCellType>> allRowCells = new ArrayList<List<TrpTableCellType>>();
@@ -759,8 +759,8 @@ public class DocxBuilder {
 		        		rowSpan = "restart";
 		        	}
 		        	
-		        	double maxX = PageXmlUtils.buildPolygon(entry.get(key).getCoords().getPoints()).getBounds().getMaxX();
-		        	double minX = PageXmlUtils.buildPolygon(entry.get(key).getCoords().getPoints()).getBounds().getMinX();
+		        	double maxX = entry.get(key).getBoundingBox().getMaxX();//PageXmlUtils.buildPolygon(entry.get(key).getCoords().getPoints()).getBounds().getMaxX();
+		        	double minX = entry.get(key).getBoundingBox().getMinX();//PageXmlUtils.buildPolygon(entry.get(key).getCoords().getPoints()).getBounds().getMinX();
 		        	double colsizeRel = maxX - minX;
 		        	
 //		        	logger.debug("maxX " + maxX);
