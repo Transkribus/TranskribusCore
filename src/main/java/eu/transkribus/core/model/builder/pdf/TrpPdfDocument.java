@@ -778,7 +778,7 @@ public class TrpPdfDocument extends APdfDocument {
 				java.awt.Rectangle baseLineRect = baseline == null ? null : baseline.getBoundingBox();//PageXmlUtils.buildPolygon(baseline.getPoints()).getBounds();
 				
 				if (baseLineRect == null){
-					logger.debug("Baseline is null - not allowed");
+					logger.debug("Baseline is null - ignore this line");
 					continue;
 				}
 				

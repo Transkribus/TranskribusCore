@@ -119,7 +119,7 @@ public class TrpTxtBuilder {
 			}
 		}
 		
-		System.out.println("Saved " + file.getAbsolutePath());
+		logger.debug("Saved " + file.getAbsolutePath());
 		
 	}
 	
@@ -135,7 +135,7 @@ public class TrpTxtBuilder {
 		for (int j=0; j<regions.size(); ++j) {
 			TrpRegionType r = regions.get(j);
 			
-			logger.debug("region " + j);
+			//logger.debug("region " + j);
 			
 			if (r instanceof TrpTableRegionType){
 				/*
@@ -158,9 +158,8 @@ public class TrpTxtBuilder {
 							content.add(((ITrpShapeType) word).getUnicodeText());
 						}
 					}
-					else {
+					else if (textOfCurrLine != ""){
 						content.add(textOfCurrLine);
-						
 					}
 //					if(preserveLineBreaks){
 //						content.add(System.lineSeparator());
