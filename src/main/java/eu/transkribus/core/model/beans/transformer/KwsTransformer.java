@@ -116,6 +116,13 @@ public class KwsTransformer {
 	public static String getKwsStatus(TrpJobStatus job) {
 		final String statusStr;
 		switch(job.getState()) {
+		case TrpJobStatus.CREATED:
+		case TrpJobStatus.WAITING:
+			statusStr = "Waiting...";
+			break;
+		case TrpJobStatus.CANCELED:
+			statusStr = "Canceled.";
+			break;
 		case TrpJobStatus.RUNNING:
 			statusStr = "Processing...";
 			break;
