@@ -557,7 +557,7 @@ public class CustomTagList {
 		return it;
 	}
 	
-	public List<CustomTag> getIndexedTagsAsList() {
+	public List<CustomTag> getIndexedTags() {
 		List<CustomTag> indexedTags = new ArrayList<>();
 		for (CustomTag t : tags) {
 			if (t.isIndexed()) {
@@ -567,14 +567,17 @@ public class CustomTagList {
 		return indexedTags;
 	}
 
-	public Set<CustomTag> getIndexedTags() {
-		Set<CustomTag> indexedTags = new HashSet<>();
-		for (CustomTag t : tags) {
-			if (t.isIndexed())
-				indexedTags.add(t);
-		}
-		return indexedTags;
-	}
+//	/**
+//	 * @deprecated Set removes messes up the order of the tags --> do not use! 
+//	 */
+//	public Set<CustomTag> getIndexedTags() {
+//		Set<CustomTag> indexedTags = new HashSet<>();
+//		for (CustomTag t : tags) {
+//			if (t.isIndexed())
+//				indexedTags.add(t);
+//		}
+//		return indexedTags;
+//	}
 
 	public Set<String> getIndexedTagNames() {
 		Set<String> indexedTagNames = new HashSet<>();
