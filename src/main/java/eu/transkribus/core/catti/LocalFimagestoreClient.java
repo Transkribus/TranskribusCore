@@ -154,6 +154,10 @@ public class LocalFimagestoreClient {
 		return getFile(dir, FILE_TYPE_VIEW);
 	}
 	
+	public static File getBinFile(File dir) throws FileNotFoundException {
+		return getFile(dir, FILE_TYPE_BIN);
+	}
+	
 	public static File getThumbFile(File dir) throws FileNotFoundException  {
 		return getFile(dir, FILE_TYPE_THUMB);
 	}
