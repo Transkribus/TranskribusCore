@@ -1,5 +1,6 @@
 package eu.transkribus.core.model.beans.rest;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.ext.ContextResolver;
@@ -50,6 +51,9 @@ public abstract class JaxbPaginatedList<T> {
     public JaxbPaginatedList(List<T> list, int total, int index, int nValues, 
     		String sortColumnField, String sortDirection){
     	this();
+    	if(list == null) {
+    		list = new ArrayList<>(0);
+    	}
     	this.setList(list);
     	this.total = total;
     	this.index = index;
