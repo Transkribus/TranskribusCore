@@ -593,6 +593,10 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 		return css;
 	}
 	
+	public String getAttributesCssStrWoOffsetAndLength() {
+		return getAttributeCssStr().replaceAll("offset\\:.*\\;", "").replaceAll("length\\:.*\\;", "");
+	}
+	
 	public String getAttributeCssStr() {
 		String css = "";
 		String S = "";
