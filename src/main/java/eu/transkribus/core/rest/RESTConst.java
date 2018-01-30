@@ -285,6 +285,8 @@ public final class RESTConst {
 	public static final String KWS_HITS_PATH = "hits";
 	public static final String KWS_RESULT_PATH = "resultData";
 	public static final String KEYWORD_PARAM = "keyword";
+	public static final String KEYWORDS_PARAM = "keywords";
+	
 	
 	
 	

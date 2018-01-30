@@ -23,4 +23,5 @@ public class TrpKwsQueryList extends JaxbPaginatedList<TrpKwsQuery> {
 	public TrpKwsQueryList(List<TrpKwsQuery> list, int total, int index, int nValues, String sortColumnField,
 			String sortDirection) {
 		super(list, total, index, nValues, sortColumnField, sortDirection);
-	}}
+	}
+}
