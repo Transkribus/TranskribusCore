@@ -226,6 +226,8 @@ public class LocalDocReader {
 			} else {
 				logger.info("Removing faulty doc XML from disk and doing reload.");
 				docMd = doc.getMd();
+				//fix localFolder in case it has changed
+				docMd.setLocalFolder(inputDir);
 				docXml.delete();
 				doc = new TrpDoc();
 			}
