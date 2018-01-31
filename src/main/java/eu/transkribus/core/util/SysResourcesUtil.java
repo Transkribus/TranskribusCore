@@ -11,7 +11,7 @@ public class SysResourcesUtil {
 	
 	public static final DecimalFormat DEC_FORMAT = new DecimalFormat("0.000");
 	
-	private static final double MIB_DIV = 1024 * 1024f;
+	public static final double MIB_DIV = 1024 * 1024f;
 
 	private SysResourcesUtil() {}
 
