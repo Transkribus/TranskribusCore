@@ -98,7 +98,8 @@ public class LocalDocReader {
 	private final static Logger logger = LoggerFactory.getLogger(LocalDocReader.class);
 
 	public static TrpDoc load(final String path) throws IOException {
-		return load(path, true, true, false, true, false);
+		DocLoadConfig config = new DocLoadConfig();
+		return load(path, config, null);
 	}
 
 	/**
@@ -126,8 +127,11 @@ public class LocalDocReader {
 	 * @return the constructed document
 	 * @throws IOException if the path can't be read or is malformed or an invalid XML format is found
 	 */
+	@Deprecated
 	public static TrpDoc load(final String path, boolean forceCreatePageXml) throws IOException {
-		return load(path, true, true, false, forceCreatePageXml, false);
+		DocLoadConfig config = new DocLoadConfig();
+		config.setForceCreatePageXml(forceCreatePageXml);
+		return load(path, config, null);
 	}
 	
 	/**
@@ -138,14 +142,25 @@ public class LocalDocReader {
 	 * @return the constructed document
 	 * @throws IOException if the path can't be read or is malformed or an invalid XML format is found
 	 */
+	@Deprecated
 	public static TrpDoc load(final String path, boolean forceCreatePageXml, boolean enableSyncWithoutImages) throws IOException {
-		return load(path, true, true, false, forceCreatePageXml, enableSyncWithoutImages);
+		DocLoadConfig config = new DocLoadConfig();
+		config.setForceCreatePageXml(forceCreatePageXml);
+		config.setEnableSyncWithoutImages(enableSyncWithoutImages);
+		return load(path, config, null);
 	}
 	
+	@Deprecated
 	public static TrpDoc load(final String path, boolean preserveOcrTxtStyles, 
 			boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml,
 			boolean enableSyncWithoutImages) throws IOException {
-		return load(path, preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars, forceCreatePageXml, enableSyncWithoutImages, null);
+		DocLoadConfig config = new DocLoadConfig();
+		config.setPreserveOcrTxtStyles(preserveOcrTxtStyles);
+		config.setPreserveOcrFontFamily(preserveOcrFontFamily);
+		config.setReplaceBadChars(replaceBadChars);
+		config.setForceCreatePageXml(forceCreatePageXml);
+		config.setEnableSyncWithoutImages(enableSyncWithoutImages);
+		return load(path, config, null);
 	}
 	
 	/**
@@ -173,11 +188,50 @@ public class LocalDocReader {
 	 * @return the constructed document
 	 * @throws IOException if the path can't be read or is malformed
 	 * 
-	 * @todo implement monitor feedback!
 	 */
+	@Deprecated
 	public static TrpDoc load(final String path, boolean preserveOcrTxtStyles, 
 			boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml,
 			boolean enableSyncWithoutImages, IProgressMonitor monitor) throws IOException {
+		DocLoadConfig config = new DocLoadConfig();
+		config.setPreserveOcrTxtStyles(preserveOcrTxtStyles);
+		config.setPreserveOcrFontFamily(preserveOcrFontFamily);
+		config.setReplaceBadChars(replaceBadChars);
+		config.setForceCreatePageXml(forceCreatePageXml);
+		config.setEnableSyncWithoutImages(enableSyncWithoutImages);
+		return load(path, config, monitor);
+	}
+	
+	public static TrpDoc load(final String path, DocLoadConfig config) throws IOException {
+		return load(path, config, null);
+	}
+	
+	/**
+	 * Loads a document from path.<br>
+	 * 
+	 * Document metadata has to be in an XML called "metadata.xml".<br>
+	 * 
+	 * Image files and corresponding XML/txt files have to have the same name. <br>
+	 * Lexicographic order of image names will imply order of pages.<br>
+	 * Types of transcript source files are searched in this order:
+	 * <ol>
+	 * <li>./page: PAGE XMLs according to schema 2010/2013</li>
+	 * <li>./ocr: Abbyy Finereader XMLs schema version 10</li>
+	 * <li>./alto: ALTO v2 XMls
+	 * <li>./txt: txt files with transcription fulltext only
+	 * </ol>
+	 * Testdoc is in $dea_scratch/TRP/TrpTestDoc <br>
+	 * No versioning of files for local use!<br>
+	 * 
+	 * @param path the path where the document is stored
+	 * @param config {@link DocLoadConfig}
+	 * @return the constructed document
+	 * @throws IOException if the path can't be read or is malformed
+	 * 
+	 * @todo implement monitor feedback! 
+	 * @todo Respect Storage.uploadDocument where the monitor will be used by the upload itself later.
+	 */
+	public static TrpDoc load(final String path, DocLoadConfig config, IProgressMonitor monitor) throws IOException {
 		//create the document
 		TrpDoc doc = new TrpDoc();
 		//check OS and adjust URL protocol
@@ -195,18 +249,7 @@ public class LocalDocReader {
 
 		//validate input path ======================================================
 
-		if (!inputDir.canRead()) {
-			logger.info("IS NOT READABLE");
-			throw new IOException(inputDir.getAbsolutePath() + " is not readable.");
-		}
-
-		if (!inputDir.isDirectory()) {
-			throw new IOException(inputDir.getAbsolutePath() + " is not a directory.");
-		}
-		
-		if (!inputDir.canWrite()) {
-			throw new IOException(inputDir.getAbsolutePath() + " is not writeable.");
-		}
+		checkInputDir(inputDir);
 		
 		// search for IMG files
 		TreeMap<String, File> pageMap = findImgFiles(inputDir);
@@ -220,7 +263,7 @@ public class LocalDocReader {
 		//try to read doc structure from disk
 		if(docXml.isFile()) {
 			doc = loadDocXml(docXml);
-			if(isValid(doc, pageMap.size(), forceCreatePageXml)) {
+			if(isValid(doc, pageMap.size(), config.isForceCreatePageXml())) {
 				logger.info("Loaded document structure from disk.");
 				return doc;
 			} else {
@@ -243,23 +286,19 @@ public class LocalDocReader {
 		doc.setMd(docMd);
 
 		//Construct the input dir with pageXml Files. 
-		File pageInputDir = new File(inputDir.getAbsolutePath() + File.separatorChar
-				+ LocalDocConst.PAGE_FILE_SUB_FOLDER);
-		if (forceCreatePageXml && !pageInputDir.isDirectory()) {
+		File pageInputDir = getPageXmlInputDir(inputDir);
+		if (config.isForceCreatePageXml() && !pageInputDir.isDirectory()) {
 			pageInputDir.mkdir();
 		}
 		
 		//abbyy XML search path
-		File ocrInputDir = new File(inputDir.getAbsolutePath() + File.separatorChar
-				+ LocalDocConst.OCR_FILE_SUB_FOLDER);
+		File ocrInputDir = getOcrXmlInputDir(inputDir);
+				
+		//alto XML search path
+		File altoInputDir = getAltoXmlInputDir(inputDir);
 		
 		//alto XML search path
-		File altoInputDir = new File(inputDir.getAbsolutePath() + File.separatorChar
-				+ LocalDocConst.ALTO_FILE_SUB_FOLDER);
-		
-		//alto XML search path
-		File txtInputDir = new File(inputDir.getAbsolutePath() + File.separatorChar
-				+ LocalDocConst.TXT_FILE_SUB_FOLDER);
+		File txtInputDir = getTxtInputDir(altoInputDir);
 		
 		//backupfolder for outdated page format files, if any
 		final String backupFolderName = XmlFormat.PAGE_2010.toString().toLowerCase()
@@ -272,7 +311,7 @@ public class LocalDocReader {
 		List<TrpPage> pages = new ArrayList<TrpPage>(pageMap.entrySet().size());
 		
 		// need a special variable to test whether we are in sync mode (only then do the following!!!!)
-		if (pageMap.entrySet().size() == 0 && enableSyncWithoutImages ) {
+		if (pageMap.entrySet().size() == 0 && config.isEnableSyncWithoutImages()) {
 			pageMap = createDummyImgFilesForXmls(inputDir, pageInputDir);
 		}
 		
@@ -312,7 +351,7 @@ public class LocalDocReader {
 				imageRemark = getCorruptImgMsg(imgFile.getName());
 			}
 			
-			if(pageXml == null && forceCreatePageXml) {
+			if(pageXml == null && config.isForceCreatePageXml()) {
 				//if no page XML, then create one at this path
 				File pageOutFile = new File(pageInputDir.getAbsolutePath() + File.separatorChar 
 						+ imgFileName + ".xml");
@@ -320,8 +359,10 @@ public class LocalDocReader {
 				File altoXml = findXml(imgFileName, altoInputDir);
 				File txtFile = findFile(imgFileName, txtInputDir, "txt");
 				
-				pageXml = createPageXml(pageOutFile, false, abbyyXml, altoXml, txtFile, preserveOcrFontFamily, 
-						preserveOcrTxtStyles, replaceBadChars, imgFile.getName(), dim);
+				pageXml = createPageXml(pageOutFile, false, abbyyXml, altoXml, txtFile, 
+						config.isPreserveOcrFontFamily(), 
+						config.isPreserveOcrTxtStyles(), 
+						config.isReplaceBadChars(), imgFile.getName(), dim);
 			}
 			
 			TrpPage page = buildPage(inputDir, pageNr++, imgFile, pageXml, thumbFile, dim, imageRemark);
@@ -341,6 +382,48 @@ public class LocalDocReader {
 		LocalDocWriter.writeDocXml(doc, docXml);
 		
 		return doc;
+	}
+	
+	public static File getPageXmlInputDir(File inputDir) {
+		return new File(inputDir.getAbsolutePath() + File.separatorChar
+				+ LocalDocConst.PAGE_FILE_SUB_FOLDER);
+	}
+	
+	public static File getOcrXmlInputDir(File inputDir) {
+		return new File(inputDir.getAbsolutePath() + File.separatorChar
+				+ LocalDocConst.OCR_FILE_SUB_FOLDER);
+	}
+	
+	public static File getAltoXmlInputDir(File inputDir) {
+		return new File(inputDir.getAbsolutePath() + File.separatorChar
+				+ LocalDocConst.ALTO_FILE_SUB_FOLDER);
+	}
+	
+	public static File getTxtInputDir(File inputDir) {
+		return new File(inputDir.getAbsolutePath() + File.separatorChar
+				+ LocalDocConst.TXT_FILE_SUB_FOLDER);
+	}
+
+	/**
+	 * 
+	 * 
+	 * @param inputDir
+	 * @throws IOException
+	 */
+	public static void checkInputDir(File inputDir) throws IOException {
+		
+		if (!inputDir.isDirectory()) {
+			throw new IOException(inputDir.getAbsolutePath() + " is not a directory.");
+		}
+		
+		if (!inputDir.canRead()) {
+			logger.info("IS NOT READABLE");
+			throw new IOException(inputDir.getAbsolutePath() + " is not readable.");
+		}
+		
+		if (!inputDir.canWrite()) {
+			throw new IOException(inputDir.getAbsolutePath() + " is not writeable.");
+		}
 	}
 
 	private static TrpDoc loadDocXml(File docXml) {
@@ -995,6 +1078,7 @@ public class LocalDocReader {
 			}
 		});
 		logger.info("The files of " + faultyPages.size() + " pages have changed.");
+		faultyPages.stream().forEach(p -> logger.info(p.getImgFileName()));
 		return faultyPages.isEmpty();
 	}
 	
@@ -1014,4 +1098,80 @@ public class LocalDocReader {
 		}
 		return true;
 	}
+	
+	public static class DocLoadConfig {
+		protected boolean preserveOcrTxtStyles; //true
+		protected boolean preserveOcrFontFamily; //true
+		protected boolean replaceBadChars; //false
+		protected boolean forceCreatePageXml; //true
+		protected boolean enableSyncWithoutImages; //false
+		
+		/**
+		 * build the default loadConfig
+		 */
+		public DocLoadConfig() {
+			this.preserveOcrTxtStyles = true;
+			this.preserveOcrFontFamily = true;
+			this.replaceBadChars = false;
+			this.forceCreatePageXml = true;
+			this.enableSyncWithoutImages = false;
+		}
+		/**
+		 * @param preserveOcrTxtStyles when creating the pageXML from alto/finereader XMLs, preserve the text style information
+		 * @param preserveOcrFontFamily when creating the pageXML from alto/finereader XMLs, preserve the font information
+		 * @param replaceBadChars TODO when creating the pageXML from alto/finereader XMLs, specific characters are replaced. see FinereaderUtils
+		 * @param forceCreatePageXml if true, then a Page XML skeleton is created for pages where none exists
+		 * @param enableSyncWithoutImages if true, document will be created from XMLs only even if no images exist
+		 */
+		public DocLoadConfig(boolean preserveOcrTxtStyles, 
+				boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml,
+				boolean enableSyncWithoutImages) {
+			this.preserveOcrTxtStyles = preserveOcrTxtStyles;
+			this.preserveOcrFontFamily = preserveOcrFontFamily;
+			this.replaceBadChars = replaceBadChars;
+			this.forceCreatePageXml = forceCreatePageXml;
+			this.enableSyncWithoutImages = enableSyncWithoutImages;
+		}
+		
+		public boolean isPreserveOcrTxtStyles() {
+			return preserveOcrTxtStyles;
+		}
+
+		public void setPreserveOcrTxtStyles(boolean preserveOcrTxtStyles) {
+			this.preserveOcrTxtStyles = preserveOcrTxtStyles;
+		}
+
+		public boolean isPreserveOcrFontFamily() {
+			return preserveOcrFontFamily;
+		}
+
+		public void setPreserveOcrFontFamily(boolean preserveOcrFontFamily) {
+			this.preserveOcrFontFamily = preserveOcrFontFamily;
+		}
+
+		public boolean isReplaceBadChars() {
+			return replaceBadChars;
+		}
+
+		public void setReplaceBadChars(boolean replaceBadChars) {
+			this.replaceBadChars = replaceBadChars;
+		}
+
+		public boolean isForceCreatePageXml() {
+			return forceCreatePageXml;
+		}
+
+		public void setForceCreatePageXml(boolean forceCreatePageXml) {
+			this.forceCreatePageXml = forceCreatePageXml;
+		}
+
+		public boolean isEnableSyncWithoutImages() {
+			return enableSyncWithoutImages;
+		}
+
+		public void setEnableSyncWithoutImages(boolean enableSyncWithoutImages) {
+			this.enableSyncWithoutImages = enableSyncWithoutImages;
+		}
+	}
+	
 }
