@@ -5,7 +5,7 @@ import java.util.Set;
 public class CommentTag extends CustomTag {
 	public static final String TAG_NAME = "comment";
 	
-//	public static String DEFAULT_COLOR = "#FFEB00";
+	public static String DEFAULT_COLOR = "#FFFF00";
 	
 	public static final String COMMENT_PROPERTY_NAME = "comment";
 	
@@ -24,6 +24,8 @@ public class CommentTag extends CustomTag {
 		
 		this.comment = other.comment;
 	}
+	
+	@Override public String getDefaultColor() { return DEFAULT_COLOR; }
 
 	public String getComment() {
 		return comment;

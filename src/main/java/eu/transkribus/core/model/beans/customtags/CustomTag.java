@@ -143,6 +143,14 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 		
 		return customTagList.getShape().getUnicodeText();
 	}
+	
+	public String getLeftContext(int N) {
+		return getNeighborText(true, N);
+	}
+	
+	public String getRightContext(int N) {
+		return getNeighborText(false, N);
+	}
 
 	public String getNeighborText(boolean before, int N) {
 		if (customTagList == null)
@@ -583,6 +591,10 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 		css += "}";
 
 		return css;
+	}
+	
+	public String getAttributesCssStrWoOffsetAndLength() {
+		return getAttributeCssStr().replaceAll("offset\\:.*\\;", "").replaceAll("length\\:.*\\;", "");
 	}
 	
 	public String getAttributeCssStr() {

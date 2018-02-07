@@ -41,7 +41,6 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
@@ -80,6 +79,38 @@ public class CoreUtils {
 //		}		
 //		
 //	}
+	
+	public static <T> T getNeighborElement(List<T> list, Object object, boolean previous, boolean wrap) {
+		if (list == null || list.isEmpty() || list.size()==1) {
+			return null;
+		}
+		
+		int index = list.indexOf(object);
+		if (index == -1) { // found --> return null
+			return null;
+		}
+		
+		int neighborIndex = previous ? index-1 : index+1;
+		
+		if (neighborIndex < 0) {
+			if (wrap && previous) {
+				neighborIndex = list.size()-1;
+			}
+			else {
+				return null;
+			}
+		}
+		if (neighborIndex >= list.size()) {
+			if (wrap && !previous) {
+				neighborIndex = 0;
+			}
+			else {
+				return null;
+			}			
+		}
+		
+		return list.get(neighborIndex);
+	}
 	
 	public static <T> List<T> addNewElements(List<T> list, List<T> elementsToAdd) {
 		List<T> added = new ArrayList<>();

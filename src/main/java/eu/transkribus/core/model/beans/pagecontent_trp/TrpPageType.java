@@ -463,7 +463,7 @@ public class TrpPageType extends PageType {
 		}
 		return null;
 	}
-	
+		
 	/** Returns all lines of all regions in the current order. */
 	public List<TrpTextLineType> getLines() {
 		List<TrpTextLineType> lines = new ArrayList<>();

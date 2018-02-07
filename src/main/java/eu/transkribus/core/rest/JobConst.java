@@ -72,7 +72,5 @@ public class JobConst {
 	public static final String PROP_CUSTOM_PROP_MAP = "customPropMap";
 	
 	public static final String PROP_KEY = "key";
-
-
-	
+	public static final String PROP_IMG_FILE = "imgKey";
 }

@@ -14,6 +14,29 @@ import eu.transkribus.core.util.SebisStopWatch;
 public class TrpShapeTypeUtils {
 	private final static Logger logger = LoggerFactory.getLogger(TrpShapeTypeUtils.class);
 	
+
+	/**
+	 * Currently only implemented for TrpWordType, TrpTextLineType and TrpTextRegionType
+	 * @param shape The shape for which its neighbor shape shall be found.
+	 * @param previous True to get the previous sibling, false to get the next one.
+	 * @param wrap True to wrap the search, i.e. to return the first shape if the end was reached and vice versa.
+	 * @return 
+	 */
+	public static ITrpShapeType getNeighborShape(ITrpShapeType shape, boolean previous, boolean wrap) {
+		List<? extends ITrpShapeType> shapes = null;
+		if (shape instanceof TrpWordType) {
+			shapes = shape.getPage().getWords();
+		}
+		else if (shape instanceof TrpTextLineType) {
+			shapes = shape.getPage().getLines();
+		}
+		else if (shape instanceof TrpTextRegionType) {
+			shapes = shape.getPage().getTextRegions(false);
+		}
+		
+		return CoreUtils.getNeighborElement(shapes, shape, previous, wrap);
+	}
+	
 	/**
 	 * Tries to get the (parent) text region of the specified shape; returns null if not found 
 	 */

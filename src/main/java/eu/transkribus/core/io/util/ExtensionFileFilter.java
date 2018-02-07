@@ -47,4 +47,7 @@ public class ExtensionFileFilter implements FileFilter {
 		}
 	}	
 
+	public static ExtensionFileFilter getXmlFileFilter() {
+		return new ExtensionFileFilter("xml", true, false);
+	}
 }

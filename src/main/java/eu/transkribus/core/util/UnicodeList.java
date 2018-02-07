@@ -191,13 +191,13 @@ public class UnicodeList implements Comparable<UnicodeList> {
 		return unicodes;
 	}
 	
-	private static Pair<Integer,String> parseUnicodeString(String str) throws IOException {
+	public static Pair<Integer,String> parseUnicodeString(String str) throws IOException {
 		if (str == null)
 			throw new IOException("Given string is null");
 		
 		str = StringUtils.removeStart(str, "U+");
 		if (str.length() < minStringSize || str.length() > maxStringSize)
-			throw new IOException("Given string must have size from: " + minStringSize + " to " + maxStringSize + " "+str);
+			throw new IOException("Unicode string must have size from: " + minStringSize + " to " + maxStringSize + " "+str);
 		
 		try {
 			//this way we got from an Unicode String its String representation

@@ -20,7 +20,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.transkribus.core.io.util.MdFileFilter;
 import eu.transkribus.core.model.beans.EdFeature;
 import eu.transkribus.core.model.beans.EdOption;
 import eu.transkribus.core.model.beans.JAXBPageTranscript;
@@ -161,6 +160,7 @@ public class LocalDocWriter {
 //		PageXmlDao.writeJAXBPageTranscript(tr, xmlFile);
 	}
 	
+	@Deprecated
 	public static void updateTrpDocMetadata(TrpDoc doc) throws Exception {
 		checkIfLocalDoc(doc);
 						
@@ -189,7 +189,7 @@ public class LocalDocWriter {
 		File dF = new File(FilenameUtils.normalize(path)+ "/" + LocalDocConst.DOC_XML_FILENAME);
 		// for old versions of TranskribusX
 		if(mF.isFile()) {
-			JaxbUtils.marshalToFile(doc.getMd(), mF);
+			mF.delete();
 		}
 		//this is what LocalDocReader uses now
 		writeDocXml(doc, dF);

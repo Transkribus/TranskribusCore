@@ -92,6 +92,12 @@ public enum JobImpl {
 		return libName;
 	}
 	
+	/**
+	 * Same as {@link #valueOf} but will return null if invalid value is passed!
+	 * 
+	 * @param str
+	 * @return
+	 */
 	public static JobImpl fromStr(String str) {
 		try {
 			return JobImpl.valueOf(str); 
