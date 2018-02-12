@@ -595,10 +595,15 @@ public class DocxBuilder {
 	            	allRows.add(currRowMap);
 	            }
 
-	      		Tbl thisTable = getDocxTable(wordMLPackage, rows, cols, allRows, tablesize);
-	      			      		
-				mdp.addObject(thisTable);   
-				
+	      		Tbl thisTable;
+				try {
+					thisTable = getDocxTable(wordMLPackage, wordBased, rows, cols, allRows, tablesize, mdp);
+					mdp.addObject(thisTable);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
 				Br br = factory.createBr(); // this Br element is used break the current and go for next line
 				org.docx4j.wml.P  p = factory.createP();
 				mdp.addObject(p);
@@ -619,59 +624,59 @@ public class DocxBuilder {
 				
 				if (!helper.equals("")){
 					
-					org.docx4j.wml.P  p = factory.createP();
-					mdp.addObject(p);
-	
-					List<TextLineType> lines = tr.getTextLine();
-					for (int i=0; i<lines.size(); ++i) {
-						TrpTextLineType trpL = (TrpTextLineType) lines.get(i);
-												
-						String textOfCurrLine = trpL.getUnicodeText();
-						
-						try {
-							if (wordBased && trpL.getWord().size()>0){
-								getFormattedTextForLineElement(trpL.getWord(), p, mdp);
-							}
-							else {
-								getFormattedTextForShapeElement(trpL, p, mdp);
-								
-							}
-	
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						
-						/* with ¶ the user can mark a new paragraph inside a text region
-						 * unicode is \u00B6
-						 */
-						if (trpL.getCustomTagList().containsParagraphTag()){
-							//then new paragraph should be used;
-							p = factory.createP();
-							mdp.addObject(p);
-						}
-						/*add line break after each text line
-						 * or omit this if explicitely wished to have dense lines
-						 * No line break at end of paragraph
-						 */
-						else if (preserveLineBreaks && !(i+1==lines.size()) ){
-							Br br = factory.createBr(); // this Br element is used break the current and go for next line
-							p.getContent().add(br);
-						}
-	
+					exportTextRegion(tr, wordBased, null, mdp);
 		
-					}
-	//								
-	//				linesTexts[i] = ((trpL.getUnicodeText().equals("") || wordBased) && trpL.getWord().size()>0) ? getRtfTextForLineFromWords(trpL) : getRtfTextForShapeElement(trpL);
-	//				linesTexts[i] = RtfText.text(linesTexts[i], "\n");
 				}
 			}
-			
-		}
-				
+		}				
 	}
 	
-	private static Tbl getDocxTable(WordprocessingMLPackage wPMLpackage, int rows, int cols, List<HashMap<Integer, TrpTableCellType>> allRows, int tablesize) {
+	private static void exportTextRegion(TrpTextRegionType tr, boolean wordBased, P p, MainDocumentPart mdp) {
+		
+		if (p == null){
+			p = factory.createP();
+			mdp.addObject(p);
+		}
+
+		List<TextLineType> lines = tr.getTextLine();
+		for (int i=0; i<lines.size(); ++i) {
+			TrpTextLineType trpL = (TrpTextLineType) lines.get(i);
+												
+			try {
+				if (wordBased && trpL.getWord().size()>0){
+					getFormattedTextForLineElement(trpL.getWord(), p, mdp);
+				}
+				else {
+					getFormattedTextForShapeElement(trpL, p, mdp);
+					
+				}
+
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			/* with ¶ the user can mark a new paragraph inside a text region
+			 * unicode is \u00B6
+			 */
+			if (trpL.getCustomTagList().containsParagraphTag()){
+				//then new paragraph should be used;
+				p = factory.createP();
+				mdp.addObject(p);
+			}
+			/*add line break after each text line
+			 * or omit this if explicitely wished to have dense lines
+			 * No line break at end of paragraph
+			 */
+			else if (preserveLineBreaks && !(i+1==lines.size()) ){
+				Br br = factory.createBr(); // this Br element is used break the current and go for next line
+				p.getContent().add(br);
+			}
+		}
+		
+	}
+
+	private static Tbl getDocxTable(WordprocessingMLPackage wPMLpackage, boolean isWordBased, int rows, int cols, List<HashMap<Integer, TrpTableCellType>> allRows, int tablesize, MainDocumentPart mdp) throws Exception {
 
 	    int writableWidthTwips = wPMLpackage.getDocumentModel().getSections()
 	                                        .get(0).getPageDimensions()
@@ -682,38 +687,7 @@ public class DocxBuilder {
 	        ).intValue();
 
 	    Tbl table = TblFactory.createTable(0 , 0, cellWidthTwips);
-	    
-//	    TblPr tProps = factory.createTblPr();
-//	    table.setTblPr(tProps);
-//	    TblStyle tblStyle = factory.createCTTblPrBaseTblStyle();
-//	    tblStyle.setVal("TableGrid");
-//	    tProps.setTblStyle(tblStyle);
-//	    
-//	    
-//  		CTTblPPr _cttblpr = factory.createCTTblPPr();
-//  		tProps.setTblpPr(_cttblpr);
-//
-//  		_cttblpr.setLeftFromText( BigInteger.valueOf( 187) ); 
-//  		_cttblpr.setRightFromText( BigInteger.valueOf( 187) ); 
-//  		_cttblpr.setBottomFromText( BigInteger.valueOf( 4320) ); 
-//  		_cttblpr.setVertAnchor(org.docx4j.wml.STVAnchor.TEXT);
-//  		_cttblpr.setTblpY( BigInteger.valueOf( 1) ); 
-//  		
-//  	        // Create object for tblOverlap
-//        CTTblOverlap tbloverlap = factory.createCTTblOverlap(); 
-//        tProps.setTblOverlap(tbloverlap); 
-//        tbloverlap.setVal(org.docx4j.wml.STTblOverlap.NEVER);
-	    
-	    //this way table must not have a predefined size
-	   // Tbl table = factory.createTbl();
-	    
-//	    TblPr tblPr = factory.createTblPr();
-//        
-//        TblWidth tblW = factory.createTblWidth();
-//        tblW.setW( BigInteger.valueOf( writableWidthTwips ));
-//        tblW.setType( "dxa" );
-//        tblPr.setTblW( tblW );
-        
+	          
         TblGrid tblGrid = factory.createTblGrid();
         
         for( int i = 0; i < cols; i++) {
@@ -724,12 +698,9 @@ public class DocxBuilder {
        
         table.setTblGrid( tblGrid );
 
-	    //Tr headerRow = (Tr) table.getContent().get(0);
-
 	    int i = 0;
 
 	    for (HashMap<Integer, TrpTableCellType> entry : allRows) {
-	        //Tr row = (Tr) table.getContent().get(i);
 	        
 	        Tr row = factory.createTr();
 	        table.getContent().add(row);
@@ -743,7 +714,6 @@ public class DocxBuilder {
 	        
 	        for (Integer key : entry.keySet()) {
 	        	Tc cell = factory.createTc();
-	           // Tc column = (Tc) row.getContent().get(key);
 	        	
 	        	row.getContent().add(cell);
 	        	
@@ -762,13 +732,7 @@ public class DocxBuilder {
 		        	double maxX = entry.get(key).getBoundingBox().getMaxX();//PageXmlUtils.buildPolygon(entry.get(key).getCoords().getPoints()).getBounds().getMaxX();
 		        	double minX = entry.get(key).getBoundingBox().getMinX();//PageXmlUtils.buildPolygon(entry.get(key).getCoords().getPoints()).getBounds().getMinX();
 		        	double colsizeRel = maxX - minX;
-		        	
-//		        	logger.debug("maxX " + maxX);
-//		        	logger.debug("minX " + minX);
-//		        	logger.debug("colsizeRel " + colsizeRel);
-//		        	logger.debug("tablesize " + tablesize);
-//		        	logger.debug("writableWidthTwips " + writableWidthTwips);
-		        	
+		        			        	
 		        	double colsizetmp = colsizeRel/ (double) tablesize;
 //		        	logger.debug("colsizetmp " + colsizetmp);
 		        	colsize=(int) (writableWidthTwips*colsizetmp);
@@ -795,9 +759,13 @@ public class DocxBuilder {
 	            d++;
 	            Text tx = factory.createText();
 	            R run = factory.createR();
-	            if (entry.get(key) != null){
-	            	tx.setValue(entry.get(key).getUnicodeTextFromLines());
-	            	//logger.debug(" text " + tx.getValue() + " colSpan " + entry.get(key).getColSpan() + " rowSpan " + entry.get(key).getRowSpan());
+
+	            if (entry.get(key) != null){            	
+	            	//old solution till now: tx.setValue(entry.get(key).getUnicodeTextFromLines());
+	            	if(entry.get(key).getUnicodeTextFromLines() != ""){
+	            		exportTextRegion(entry.get(key), isWordBased, columnPara, mdp);
+	            	}
+
 	            }
 	            run.getContent().add(tx);
 	            columnPara.getContent().add(run);
@@ -902,12 +870,12 @@ public class DocxBuilder {
 //				
 //	}
 	
-	private static void getFormattedTextForLineElement(List<WordType> lines, P p, MainDocumentPart mdp) throws Exception{
+	private static void getFormattedTextForLineElement(List<WordType> words, P p, MainDocumentPart mdp) throws Exception{
 		
 		int wordCount = 0;
-		int nrWords = lines.size();
+		int nrWords = words.size();
 		
-		for (WordType word : lines){
+		for (WordType word : words){
 			getFormattedTextForShapeElement((ITrpShapeType) word, p, mdp);
 			//add empty space after each word
 			if (wordCount < nrWords-1){

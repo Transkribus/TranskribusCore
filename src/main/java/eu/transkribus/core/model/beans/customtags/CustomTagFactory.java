@@ -349,6 +349,12 @@ public class CustomTagFactory {
 	public static Collection<CustomTag> getRegisteredTagObjects() { return objectRegistry.values(); }
 //	public static Map<String, CustomTag> getRegisteredObjects() { return objectRegistry; } 
 	
+	public static List<CustomTag> getRegisteredTagObjectsSorted() {
+		List<CustomTag> registeredTagsSorted = new ArrayList<>(CustomTagFactory.getRegisteredTagObjects());
+		Collections.sort(registeredTagsSorted);
+		return registeredTagsSorted;
+	}
+	
 	public static Set<CustomTagAttribute> getTagAttributes(String tagName) {
 		CustomTag t = getTagObjectFromRegistry(tagName);
 		if (t == null)

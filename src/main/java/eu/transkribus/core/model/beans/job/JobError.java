@@ -131,4 +131,11 @@ public class JobError {
 		final String stacktrace = ExceptionUtils.getStackTrace(t);
 		this.setStacktrace(stacktrace);
 	}
+
+	@Override
+	public String toString() {
+		return "JobError [jobErrorId=" + jobErrorId + ", jobId=" + jobId + ", docId=" + docId + ", pageId=" + pageId
+				+ ", pageNr=" + pageNr + ", tsId=" + tsId + ", message=" + message + ", exceptionClass="
+				+ exceptionClass + ", stacktrace=" + stacktrace + "]";
+	}
 }

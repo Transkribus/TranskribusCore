@@ -30,6 +30,8 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.io.IOUtils;
 import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
 import org.dea.util.pdf.APdfDocument;
+import org.docx4j.wml.Br;
+import org.docx4j.wml.Tbl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +68,8 @@ import eu.transkribus.core.model.beans.pagecontent_trp.RegionTypeUtil;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpBaselineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementReadingOrderComparator;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableCellType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
@@ -354,7 +358,12 @@ public class TrpPdfDocument extends APdfDocument {
 	
 			for(RegionType r : regions){
 				//TODO add paths for tables etc.
-				if(r instanceof TextRegionType){
+				if (r instanceof TrpTableRegionType){
+					
+					exportTable(r, cb, cutoffLeft, cutoffTop, false);
+
+				}
+				else if(r instanceof TextRegionType){
 					TextRegionType tr = (TextRegionType)r;
 					//PageXmlUtils.buildPolygon(tr.getCoords().getPoints()).getBounds().getMinX();
 					addTextFromTextRegion(tr, cb, cutoffLeft, cutoffTop, bfArial);
@@ -385,6 +394,60 @@ public class TrpPdfDocument extends APdfDocument {
 //		addTocLinks(doc, page,cutoffTop);
 	}
 	
+	private void exportTable(RegionType r, PdfContentByte cb, int cutoffLeft, int cutoffTop, boolean addUniformText) throws IOException, DocumentException {
+		logger.debug("is table");
+		TrpTableRegionType table = (TrpTableRegionType) r;
+		
+		int cols = table.getNCols();
+		int rows = table.getNRows();
+							
+		List<List<TrpTableCellType>> allRowCells = new ArrayList<List<TrpTableCellType>>();
+		for (int k = 0; k<rows; k++){
+			allRowCells.add(table.getRowCells(k));
+		}
+		
+        List<HashMap<Integer, TrpTableCellType>> allRows = new ArrayList<HashMap<Integer, TrpTableCellType>>();
+        
+        HashMap<Integer, TrpTableCellType> nextRowMap = new HashMap<Integer, TrpTableCellType>();
+       
+        for (List<TrpTableCellType> rowCells : allRowCells){
+      
+        	HashMap<Integer, TrpTableCellType> currRowMap = new HashMap<Integer, TrpTableCellType>();
+        	
+        	/*
+        	 * fill up all cells which are not set in TRP (needed for vertical cell merge)
+        	 * the nextRowMap contains already all cells which span vertically with the cells above - means they got merged 
+        	 * in the table but have to be considered here 
+        	 */
+			currRowMap.putAll(nextRowMap);
+			nextRowMap.clear();
+        	
+        	for (TrpTableCellType cell : rowCells){
+            	//logger.debug("table cell text " + cell.getUnicodeTextFromLines());
+            	currRowMap.put(cell.getCol(), cell);
+            	if (cell.getRowSpan() > 1){
+            		nextRowMap.put(cell.getCol(), null);
+            	}
+        	}
+        	allRows.add(currRowMap);
+        }
+        
+        for (HashMap<Integer, TrpTableCellType> entry : allRows) {
+        	for (Integer key : entry.keySet()) {
+        		if (addUniformText){
+					float textBlockXStart = getAverageBeginningOfBaselines(entry.get(key));
+					textBlockXStart += 40;
+					addUniformTextFromTextRegion(entry.get(key), cb, cutoffLeft, cutoffTop, bfArial, textBlockXStart);
+				}
+        		else{
+        			addTextFromTextRegion(entry.get(key), cb, cutoffLeft, cutoffTop, bfArial);
+        		}
+
+        	}
+        }
+		
+	}
+
 	private void addUniformText(PcGtsType pc, int cutoffLeft, int cutoffTop) throws DocumentException, IOException {
 		PdfContentByte cb = writer.getDirectContentUnder();
 		cb.setColorFill(BaseColor.BLACK);
@@ -411,10 +474,13 @@ public class TrpPdfDocument extends APdfDocument {
 		float textBlockXStart = 0;
 
 		int i = 0;
-		for(RegionType r : regions){
-			//TODO add paths for tables etc.
-			if(r instanceof TextRegionType){
-				TextRegionType tr = (TextRegionType)r;
+		for(TrpRegionType r : regions){
+			//TODO add paths for tables etc.			
+			if (r instanceof TrpTableRegionType){
+				exportTable(r, cb, cutoffLeft, cutoffTop, true);
+			}
+			else if(r instanceof TrpTextRegionType){
+				TrpTextRegionType tr = (TrpTextRegionType) r;
 				
 				//compute average text region start
 				//textBlockXStart = (float) (PageXmlUtils.buildPolygon(tr.getCoords().getPoints()).getBounds().getMinX());
@@ -1614,7 +1680,6 @@ public class TrpPdfDocument extends APdfDocument {
 			
 			if (wantedTags.contains(currEntry.getKey().getTagName())){
 				
-
 				String color = CustomTagFactory.getTagColor(currEntry.getKey().getTagName());
 				
 				int currLength = currEntry.getKey().getLength();
