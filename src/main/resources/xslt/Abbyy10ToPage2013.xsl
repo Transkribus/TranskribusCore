@@ -163,6 +163,45 @@
         </TextRegion>
     </xsl:template>
     
+    <xsl:template name="TextRegion_for_table">
+        <xsl:param name="seq"/>
+         <!-- compute region bounds from lines within and add a padding -->
+        <xsl:param name="padding" select="number(1)"/>
+         <xsl:for-each select="./abbyy:text/abbyy:par">
+            <!-- there are pars with @lineSpacing="-1" and no nodes inside -->
+             <xsl:if test="not(empty(.) or ./@lineSpacing='-1')">
+                <TableCell>
+                    <xsl:attribute name="id" select="concat('r_', $seq, '_', position())"/>
+                    <xsl:attribute name="type" select="'paragraph'"/>
+					<xsl:if test="number($seq)">
+                   		<xsl:attribute name="custom" select="concat('readingOrder {index:', $seq - 1, ';}')"/>
+                   	</xsl:if>
+                    <xsl:call-template name="writeCoords">
+                        <xsl:with-param name="l" select="min(./abbyy:line/@l)-$padding"/>
+                        <xsl:with-param name="t" select="min(./abbyy:line/@t)-$padding"/>
+                        <xsl:with-param name="r" select="max(./abbyy:line/@r)+$padding"/>
+                        <xsl:with-param name="b" select="max(./abbyy:line/@b)+$padding"/>
+                    </xsl:call-template>
+                    <xsl:apply-templates select="./abbyy:line"/> 
+                    <xsl:if test="not($textToWordsOnly)">             
+	                    <TextEquiv>
+	                        <Unicode>
+	                            <xsl:variable name="regionLineCount" select="count(./abbyy:line)"/>
+	                            <xsl:for-each select="./abbyy:line">
+	                                <xsl:value-of select="string-join(.//abbyy:charParams/text(), '')"/>
+	                                <xsl:if test="position() &lt; $regionLineCount">
+	                                    <xsl:text>&#10;</xsl:text>
+	                                </xsl:if>
+	                            </xsl:for-each>
+	                        </Unicode>
+	                    </TextEquiv>
+                    </xsl:if>
+                    <CornerPts>0 1 2 3</CornerPts>
+                </TableCell>
+            </xsl:if>
+        </xsl:for-each>
+    </xsl:template>
+    
      <xsl:template name="TextRegion_from_par">
         <xsl:param name="seq"/>
          <!-- compute region bounds from lines within and add a padding -->
@@ -218,7 +257,7 @@
                     <xsl:call-template name="writeCoords"/>                    
                     <xsl:for-each select="./abbyy:row/abbyy:cell">
                         <xsl:variable name="pos" select="position()"/>
-                        <xsl:call-template name="TextRegion_from_par">
+                        <xsl:call-template name="TextRegion_for_table">
                             <xsl:with-param name="seq" select="concat($seq, '_', $pos)"/>
                         </xsl:call-template>
                     </xsl:for-each>

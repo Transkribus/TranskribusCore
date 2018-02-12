@@ -117,7 +117,9 @@
                         <xsl:with-param name="b" select="(./@VPOS+./@HEIGHT)+1"/>
                     </xsl:call-template>
                     <!-- TODO check for more ComposedBlocks within Type=table ?-->
-                    <xsl:apply-templates select="./TextBlock"/>
+                    <xsl:apply-templates select="./TextBlock">
+                    	<xsl:with-param name="isTable" select="true()"/>
+                    </xsl:apply-templates>
                 </TableRegion>
             </xsl:when>
             <xsl:when test="@TYPE='container'">
@@ -132,58 +134,111 @@
     
     <!-- blocks to Regions -->    
     <xsl:template match="TextBlock">
+      	<xsl:param name="isTable" select="false()"/>
         <xsl:variable name="actId" select="@ID"/>
         <xsl:variable name="seq" select="number(substring-after($actId,'Page1_Block')) - 1"/>
         <xsl:variable name="font" select="./@STYLEREFS"/>
         <xsl:variable name="fontFamily" select="//TextStyle[@ID=$font]/@FONTFAMILY"/>
         <xsl:variable name="fontSize" select="//TextStyle[@ID=$font]/@FONTSIZE"/>
-        <TextRegion>
-            <xsl:attribute name="id" select="$actId"/>
-            <xsl:attribute name="custom" select="concat('readingOrder ', (concat((concat('{index:', $seq)), ';}') ) )"/>
-<!--         We don't know the type from ALTO...    <xsl:attribute name="type" select="'paragraph'"/> -->
-            <xsl:choose>
-                <xsl:when test="count(./Shape/Polygon) > 0">
-                    <Coords points="{./Shape/Polygon/@POINTS}"/>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:call-template name="writeCoords">
-                        <xsl:with-param name="l" select="./@HPOS - 1"/>
-                        <xsl:with-param name="t" select="./@VPOS - 1"/>
-                        <xsl:with-param name="r" select="(./@HPOS+./@WIDTH)+1"/>
-                        <xsl:with-param name="b" select="(./@VPOS+./@HEIGHT)+1"/>
-                    </xsl:call-template>
-                </xsl:otherwise>
-            </xsl:choose>
-            <xsl:apply-templates select="./TextLine"/>                
-            <xsl:if test="not($textToWordsOnly)">  
-	            <TextEquiv>
-	                <Unicode>
-	                    <xsl:variable name="regionLineCount" select="count(./TextLine)"/>
-	                    <xsl:for-each select="./TextLine">
-	                        <xsl:value-of select="string-join(.//String/@CONTENT, ' ')"/>
-	                        <xsl:if test="position() &lt; $regionLineCount">
-	                            <xsl:text>&#10;</xsl:text>
-	                        </xsl:if>
-	                    </xsl:for-each>
-	                </Unicode>
-	            </TextEquiv>
-            </xsl:if>
-            <xsl:if test="$preserveTextStyles">
-                <xsl:choose>
-                    <xsl:when test="$font">
-                        <!-- apply format to textLine -->
-                        <TextStyle>
-                            <xsl:call-template name="writeStyleAttribs">
-                                <xsl:with-param name="fontFam" select="$fontFamily"/>
-                                <xsl:with-param name="fontSize" select="$fontSize"/>
-                            </xsl:call-template>
-                        </TextStyle>
-                    </xsl:when>
-                </xsl:choose>
-            </xsl:if>
-        </TextRegion>
+        <xsl:choose>
+        <xsl:when test="$isTable">
+	        <TableCell>      
+		        <xsl:attribute name="id" select="$actId"/>
+		        <xsl:attribute name="custom" select="concat('readingOrder ', (concat((concat('{index:', $seq)), ';}') ) )"/>
+		<!--         We don't know the type from ALTO...    <xsl:attribute name="type" select="'paragraph'"/> -->
+		        <xsl:choose>
+		            <xsl:when test="count(./Shape/Polygon) > 0">
+		                <Coords points="{./Shape/Polygon/@POINTS}"/>
+		            </xsl:when>
+		            <xsl:otherwise>
+		                <xsl:call-template name="writeCoords">
+		                    <xsl:with-param name="l" select="./@HPOS - 1"/>
+		                    <xsl:with-param name="t" select="./@VPOS - 1"/>
+		                    <xsl:with-param name="r" select="(./@HPOS+./@WIDTH)+1"/>
+		                    <xsl:with-param name="b" select="(./@VPOS+./@HEIGHT)+1"/>
+		                </xsl:call-template>
+		            </xsl:otherwise>
+		        </xsl:choose>
+		        <xsl:apply-templates select="./TextLine"/>                
+		        <xsl:if test="not($textToWordsOnly)">  
+		         <TextEquiv>
+		             <Unicode>
+		                 <xsl:variable name="regionLineCount" select="count(./TextLine)"/>
+		                 <xsl:for-each select="./TextLine">
+		                     <xsl:value-of select="string-join(.//String/@CONTENT, ' ')"/>
+		                     <xsl:if test="position() &lt; $regionLineCount">
+		                         <xsl:text>&#10;</xsl:text>
+		                     </xsl:if>
+		                 </xsl:for-each>
+		             </Unicode>
+		         </TextEquiv>
+		        </xsl:if>
+		        <xsl:if test="$preserveTextStyles">
+		            <xsl:choose>
+		                <xsl:when test="$font">
+		                    <!-- apply format to textLine -->
+		                    <TextStyle>
+		                        <xsl:call-template name="writeStyleAttribs">
+		                            <xsl:with-param name="fontFam" select="$fontFamily"/>
+		                            <xsl:with-param name="fontSize" select="$fontSize"/>
+		                        </xsl:call-template>
+		                    </TextStyle>
+		                </xsl:when>
+		            </xsl:choose>
+		        </xsl:if>
+		        <CornerPts>0 1 2 3</CornerPts>
+	    	</TableCell>
+        </xsl:when>
+        <xsl:otherwise>
+	        <TextRegion>
+		        <xsl:attribute name="id" select="$actId"/>
+		        <xsl:attribute name="custom" select="concat('readingOrder ', (concat((concat('{index:', $seq)), ';}') ) )"/>
+		<!--         We don't know the type from ALTO...    <xsl:attribute name="type" select="'paragraph'"/> -->
+		        <xsl:choose>
+		            <xsl:when test="count(./Shape/Polygon) > 0">
+		                <Coords points="{./Shape/Polygon/@POINTS}"/>
+		            </xsl:when>
+		            <xsl:otherwise>
+		                <xsl:call-template name="writeCoords">
+		                    <xsl:with-param name="l" select="./@HPOS - 1"/>
+		                    <xsl:with-param name="t" select="./@VPOS - 1"/>
+		                    <xsl:with-param name="r" select="(./@HPOS+./@WIDTH)+1"/>
+		                    <xsl:with-param name="b" select="(./@VPOS+./@HEIGHT)+1"/>
+		                </xsl:call-template>
+		            </xsl:otherwise>
+		        </xsl:choose>
+		        <xsl:apply-templates select="./TextLine"/>                
+		        <xsl:if test="not($textToWordsOnly)">  
+		         <TextEquiv>
+		             <Unicode>
+		                 <xsl:variable name="regionLineCount" select="count(./TextLine)"/>
+		                 <xsl:for-each select="./TextLine">
+		                     <xsl:value-of select="string-join(.//String/@CONTENT, ' ')"/>
+		                     <xsl:if test="position() &lt; $regionLineCount">
+		                         <xsl:text>&#10;</xsl:text>
+		                     </xsl:if>
+		                 </xsl:for-each>
+		             </Unicode>
+		         </TextEquiv>
+		        </xsl:if>
+		        <xsl:if test="$preserveTextStyles">
+		            <xsl:choose>
+		                <xsl:when test="$font">
+		                    <!-- apply format to textLine -->
+		                    <TextStyle>
+		                        <xsl:call-template name="writeStyleAttribs">
+		                            <xsl:with-param name="fontFam" select="$fontFamily"/>
+		                            <xsl:with-param name="fontSize" select="$fontSize"/>
+		                        </xsl:call-template>
+		                    </TextStyle>
+		                </xsl:when>
+		            </xsl:choose>
+		        </xsl:if>
+	        </TextRegion>
+        </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
-    
+        
     <!-- Simple Region template with ID and coordinates but no text content -->
     <xsl:template name="OtherRegion">
         <xsl:param name="id"/>
@@ -216,7 +271,8 @@
                     <xsl:with-param name="t" select="./@VPOS - 1"/>
                     <xsl:with-param name="r" select="(./@HPOS+./@WIDTH)+1"/>
                     <xsl:with-param name="b" select="(./@VPOS+./@HEIGHT)+1"/>
-                </xsl:call-template>                                
+                </xsl:call-template> 
+                <Baseline points="{./@HPOS - 1},{(./@VPOS+./@HEIGHT)+1} {(./@HPOS+./@WIDTH)+1},{(./@VPOS+./@HEIGHT)+1}"/>                               
                 <!-- produce Word nodes -->
                 <xsl:apply-templates select="./String"/>
                 <xsl:if test="not($textToWordsOnly)">  

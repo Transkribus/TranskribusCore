@@ -1,11 +1,17 @@
 package eu.transkribus.core.io;
 
+import java.awt.Dimension;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.exceptions.CorruptImageException;
 import eu.transkribus.core.model.beans.TrpDoc;
+import eu.transkribus.core.util.ImgUtils;
 
 public class LocalDocReaderTest {
 	private static final Logger logger = LoggerFactory.getLogger(LocalDocReaderTest.class);
@@ -15,19 +21,42 @@ public class LocalDocReaderTest {
 	public static final String TEST_DOC1 = BASE + "TrpTestDoc_20140127/";
 	public static final String TEST_DOC2 = BASE + "TrpTestDoc_20140508/";
 	
-	public static void main(String[] args) {
-		logger.debug("Setting up doc loading process...");
-		try {
-
-			TrpDoc doc = LocalDocReader.load("C:\\Users\\lange\\Desktop\\testimages");
-			System.out.print("Logging messages from this / LocalDocReader: ");
-			System.out.println(logger.isDebugEnabled() + " / " +LoggerFactory.getLogger(LocalDocReader.class).isDebugEnabled());
-			System.out.println(doc.toString());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			logger.error(e.toString());
+	public static void main(String[] args) throws FileNotFoundException, IOException {
+		
+		String pageDirPath = "C:/Neuer Ordner/Briefe_aus_allen_Jahrhunderten_der_christlichen_Zeitrechnung_1/Briefe_aus_allen_Jahrhunderten_der_christlichen_Zeitrechnung_1/alto";
+		
+	    File altoFile = new File("C:/Neuer Ordner/Briefe_aus_allen_Jahrhunderten_der_christlichen_Zeitrechnung_1/Briefe_aus_allen_Jahrhunderten_der_christlichen_Zeitrechnung_1/alto/0014_ubr16515_0014.xml");
+		File pageDirFile = new File(pageDirPath);
+		File pageOutFile = new File(pageDirPath + File.separatorChar + "pageTest.xml");
+		
+		File imgFile = new File("C:/Neuer Ordner/Briefe_aus_allen_Jahrhunderten_der_christlichen_Zeitrechnung_1/Briefe_aus_allen_Jahrhunderten_der_christlichen_Zeitrechnung_1/0014_ubr16515_0014.jpg");
+		Dimension dim = null;
+		
+		if(imgFile.isFile()) {
+			try {
+				dim = ImgUtils.readImageDimensions(imgFile);
+			} catch (CorruptImageException cie) {
+				logger.error("Image is corrupted!", cie);
+				//the image dimension can not be read from the downloaded file
+			}
 		}
+		
+		File pageXml = LocalDocReader.createPageXml(pageOutFile, true, null, altoFile, 
+				null, true, true, false, imgFile.getName(), dim);
+		
+//		logger.debug("Setting up doc loading process...");
+//		try {
+//
+//			
+//			TrpDoc doc = LocalDocReader.load("C:\\Users\\lange\\Desktop\\testimages");
+//			System.out.print("Logging messages from this / LocalDocReader: ");
+//			System.out.println(logger.isDebugEnabled() + " / " +LoggerFactory.getLogger(LocalDocReader.class).isDebugEnabled());
+//			System.out.println(doc.toString());
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//			logger.error(e.toString());
+//		}
 
 //		String[] docs = {
 		//				BASE + "TrpTestDoc_20131209/"
