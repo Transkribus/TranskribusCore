@@ -405,16 +405,6 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 
 		return false;
 	}
-	
-	public boolean isEditable(String attrName) {
-		for (CustomTagAttribute a : getAttributes()) {
-			if (a.getName().equals(attrName) && a.isEditable) {
-				return true;
-			}
-		}
-
-		return false;
-	}
 
 	public boolean hasAttribute(String attrName) {
 		return getAttributeNames().contains(attrName);
