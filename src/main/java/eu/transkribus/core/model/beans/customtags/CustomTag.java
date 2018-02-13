@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -404,6 +405,16 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 
 		return false;
 	}
+	
+	public boolean isEditable(String attrName) {
+		for (CustomTagAttribute a : getAttributes()) {
+			if (a.getName().equals(attrName) && a.isEditable) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	public boolean hasAttribute(String attrName) {
 		return getAttributeNames().contains(attrName);
@@ -413,6 +424,13 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 		Set<String> a1 = getAttributeNames();
 		Set<String> a2 = t.getAttributeNames();
 		return (a1.size() == a2.size() && a1.containsAll(a2));
+	}
+	
+	public List<String> getAttributeNamesSortedByName() {
+		List<String> attNamesSorted = new ArrayList<>();
+		attNamesSorted.addAll(getAttributeNames());
+		Collections.sort(attNamesSorted);
+		return attNamesSorted;
 	}
 	
 	public Set<String> getAttributeNames() {
