@@ -361,6 +361,7 @@ public final class RESTConst {
 	
 	//Solr search
 	public static final String FULLTEXT_PATH = "fulltext";
+	public static final String KEYWORD_PATH = "keyword";
 	public static final String QUERY_PARAM = "query";
 	public static final String START_PARAM = "start";
 	public static final String ROWS_PARAM = "rows";
