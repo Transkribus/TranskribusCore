@@ -365,6 +365,10 @@ public final class RESTConst {
 	public static final String START_PARAM = "start";
 	public static final String ROWS_PARAM = "rows";
 	public static final String FILTER_PARAM = "filter";
+	public static final String SORTING_PARAM = "sorting";
+	public static final String FUZZY_PARAM = "fuzzy";
+	public static final String PROBL_PARAM = "probL";
+	public static final String PROBH_PARAM = "probH";
 	
 	// tags
 	public static final String TAGS_PATH = "tags";

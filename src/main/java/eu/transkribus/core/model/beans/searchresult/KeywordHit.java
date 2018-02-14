@@ -15,6 +15,7 @@ public class KeywordHit {
 	private int pageNr;
 	private ArrayList<Integer> colIds;
 	private String pageUrl;
+	private String lineId;
 	private String textCoords;
 	private String word;
 	private float probability;
@@ -66,6 +67,12 @@ public class KeywordHit {
 	}
 	public void setProbability(float probability) {
 		this.probability = probability;
+	}
+	public String getLineId() {
+		return lineId;
+	}
+	public void setLineId(String lineId) {
+		this.lineId = lineId;
 	}
 	
 	
