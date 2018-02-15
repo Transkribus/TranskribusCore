@@ -14,6 +14,7 @@ import java.util.Set;
 import org.apache.bcel.generic.INSTANCEOF;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -601,8 +602,14 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 		return css;
 	}
 	
-	public String getAttributesCssStrWoOffsetAndLength() {
-		return getAttributeCssStr().replaceAll("offset\\:.*\\;", "").replaceAll("length\\:.*\\;", "");
+	public String getAttributesCssStrWoOffsetAndLength(boolean unescape) {
+		String str = getAttributeCssStr().replaceAll("offset\\:.*\\;", "").replaceAll("length\\:.*\\;", "");
+		if (unescape) {
+			return CssSyntaxTag.unescapeCss(str);
+		}
+		else {
+			return str;
+		}
 	}
 	
 	public String getAttributeCssStr() {
