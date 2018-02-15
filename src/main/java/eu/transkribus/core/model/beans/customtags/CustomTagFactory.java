@@ -5,15 +5,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observer;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.regex.Matcher;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
+import org.apache.commons.collections.comparators.ComparableComparator;
 //import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -50,9 +53,13 @@ public class CustomTagFactory {
 //	private static final Map<String, Constructor<? extends CustomTag> > registry = new HashMap<>();
 	
 	// case insensitve maps:
-	private static final Map<String, Class<? extends CustomTag> > registry = new CaseInsensitiveMap<>();
-	private static final Map<String, CustomTag > objectRegistry = new CaseInsensitiveMap<>();
-	private static final Map<String, String > colorRegistry = new CaseInsensitiveMap<>();
+//	private static final Map<String, Class<? extends CustomTag> > registry = new CaseInsensitiveMap<>();
+//	private static final ConcurrentMap<String, CustomTag > objectRegistry = new CaseInsensitiveMap<>();
+//	private static final Map<String, String > colorRegistry = new CaseInsensitiveMap<>();
+	
+	private static final Map<String, Class<? extends CustomTag> > registry = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);
+	private static final Map<String, CustomTag > objectRegistry = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);
+	private static final Map<String, String > colorRegistry = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);
 	
 	// case sensitive maps:
 //	private static final Map<String, Class<? extends CustomTag> > registry = new HashMap<>();
@@ -349,9 +356,20 @@ public class CustomTagFactory {
 	public static Collection<CustomTag> getRegisteredTagObjects() { return objectRegistry.values(); }
 //	public static Map<String, CustomTag> getRegisteredObjects() { return objectRegistry; } 
 	
-	public static List<CustomTag> getRegisteredTagObjectsSorted() {
+	public static List<CustomTag> getRegisteredTagObjectsSortedByName(boolean caseInsensitve) {
 		List<CustomTag> registeredTagsSorted = new ArrayList<>(CustomTagFactory.getRegisteredTagObjects());
-		Collections.sort(registeredTagsSorted);
+		Collections.sort(registeredTagsSorted, new Comparator<CustomTag>() {
+			@Override
+			public int compare(CustomTag t1, CustomTag t2) {
+				if (caseInsensitve) {
+					return t1.getTagName().toLowerCase().compareTo(t2.getTagName().toLowerCase());	
+				}
+				else {
+					return t1.getTagName().compareTo(t2.getTagName());
+				}
+			}
+		});
+		
 		return registeredTagsSorted;
 	}
 	
