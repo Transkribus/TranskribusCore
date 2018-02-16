@@ -231,14 +231,6 @@ public class CustomTagList {
 		}
 	}
 
-	private void tryRegisterTag(CustomTag givenTag) {
-		try {
-			CustomTagFactory.addToRegistry(givenTag, null);
-		} catch (Exception e) {
-			logger.warn(e.getMessage());
-		}
-	}
-
 	public void addOrMergeTag(CustomTag givenTag, String addOnlyThisProperty) throws IndexOutOfBoundsException {
 		addOrMergeTag(givenTag, addOnlyThisProperty, true);
 	}

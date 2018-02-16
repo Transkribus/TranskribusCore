@@ -78,10 +78,7 @@ public class PageXmlUtils {
 	private static final String TEXT_STYLE_XSL_PARAM_NAME = "preserveTextStyles";
 	private static final String FONT_FAM_XSL_PARAM_NAME = "preserveFontFam";
 	
-	public static final boolean USE_TEXT_STYLE_CUSTOM_TAGS=true;
-
 	private static final String NO_EVENTS_MSG = "No events occured during marshalling xml file!";
-	
 
 	//	private final static SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 	//	private static Schema schema=null;
