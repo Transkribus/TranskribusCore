@@ -84,4 +84,20 @@ public class DateTag extends CustomTag {
 		return atts;
 	}	
 	
+	public static void main(String[] args) {
+		try {
+			DateTag dt = (DateTag) CustomTagFactory.create(DateTag.TAG_NAME);
+			logger.info(""+dt);
+			dt.setDay(null);
+			logger.info(""+dt);
+			dt.setAttributes(dt.copy(), true, false);
+			logger.info(""+dt);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+	}
+	
 }

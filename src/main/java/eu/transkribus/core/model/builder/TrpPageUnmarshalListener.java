@@ -51,7 +51,7 @@ final public class TrpPageUnmarshalListener extends Unmarshaller.Listener {
 		logger.trace("unmarshalling "+target.getClass().getSimpleName()+" parent: "+parent);
 				
 		setParent(target, parent);
-		syncTextStyleAndTags(target);
+		syncTags(target);
 		
 		if (target instanceof ITrpShapeType) {
 			((ITrpShapeType) target).getObservable().setActive(true);
@@ -67,36 +67,26 @@ final public class TrpPageUnmarshalListener extends Unmarshaller.Listener {
 		
 	}
 	
-	/** sync text styles for each and every shape */
-	private void syncTextStyleAndTags(Object target) {
-		if (PageXmlUtils.USE_TEXT_STYLE_CUSTOM_TAGS && target instanceof ITrpShapeType) {
-			ITrpShapeType st = (ITrpShapeType) target;
-			st.setCustom(st.getCustom()); // manually call setter method for custom tag as JAXB does not call setters!
-			
+	/** sync tags with registry for each and every shape */
+	private void syncTags(Object target) {
+		if (!(target instanceof ITrpShapeType)) {
+			return;
+		}
+		
+		ITrpShapeType st = (ITrpShapeType) target;
+		st.setCustom(st.getCustom()); // manually call setter method for custom tag as JAXB does not call setters!
+		
 //			TextStyleTypeUtils.applyTextStyleToCustomTag(st);
-			
-			if (st.getCustomTagList()!=null) {
-				// try registering (possibly new) tags:
-				
-				for (CustomTag t : st.getCustomTagList().getTags()) {
-					try {
-						CustomTagFactory.addToRegistry(t);
-					} catch (NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e) {
-						logger.error("Could not register the tag: "+t.getCssStr()+", reason: "+e.getMessage(), e);
-					}
+		
+		if (st.getCustomTagList()!=null) {
+			// try registering (possibly new) tags:
+			for (CustomTag t : st.getCustomTagList().getTags()) {
+				try {
+					CustomTagFactory.addToRegistry(t, null);
+				} catch (NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e) {
+					logger.error("Could not register the tag: "+t.getCssStr()+", reason: "+e.getMessage(), e);
 				}
-
-//				allTagNames.addAll(st.getCustomTagList().getIndexedTagNames());
-				
-				
-//				List<CustomTag> tags = st.getCustomTagList().getIndexedTagsAtRange(0, st.getUnicodeText().length());
-//				for (CustomTag t : tags)
-//					logger.debug(st.getId()+" custom tag: "+t);	
-//				for (CustomTag t : st.getCustomTagList().getTags()) {
-//					allTagNamesWithSample.put(t.getTagName(), t);
-//				}
 			}
-
 		}
 	}
 	

@@ -50,37 +50,16 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 	protected int length = -1;
 	protected boolean continued = false;
 	
-//	protected String tagColor = null;
-//	public static String TAG_COLOR_PROPERTY_NAME = "tagColor";
-//	public static CustomTagAttribute TAG_COLOR_PROPERTY = new CustomTagAttribute(TAG_COLOR_PROPERTY_NAME, false, null, "The display color of the tag");
-//	public String getTagColor() {
-//		return tagColor;
-//	}
-//
-//	public void setTagColor(String tagColor) {
-//		this.tagColor = tagColor;
-//	}	
-	
-//	protected String displayName;
-
-	protected static HashSet<CustomTagAttribute> ATTRIBUTES = new HashSet<CustomTagAttribute>();
-	
 	public static String OFFSET_PROPERTY_NAME = "offset";
 	public static CustomTagAttribute OFFSET_PROPERTY = new CustomTagAttribute(OFFSET_PROPERTY_NAME, false, null, "The character offset of the tag, relative to the line or word it is set", int.class);
 	
 	public static String LENGTH_PROPERTY_NAME = "length";
-	public static CustomTagAttribute LENGTH_PROPETY = new CustomTagAttribute(LENGTH_PROPERTY_NAME, false, null, "The length in characters of the tag", int.class);
+	public static CustomTagAttribute LENGTH_PROPERTY = new CustomTagAttribute(LENGTH_PROPERTY_NAME, false, null, "The length in characters of the tag", int.class);
 	
 	public static String CONTINUED_PROPERTY_NAME = "continued";
 	public static CustomTagAttribute CONTINUED_PROPERTY = new CustomTagAttribute(CONTINUED_PROPERTY_NAME, false, null,
 			"Determines if this tag is a continuation from a tag of the previous line or word", boolean.class);
 		
-//	public static 
-	// TODO: insert color tag
-
-	// Map<String, Object> attributes = new HashMap<>(); /** a set of additional
-	// attributes */
-	
 	Map<CustomTagAttribute, Object> attributes = new HashMap<>();
 	
 	private static BeanUtilsBean BEAN_UTILS_BEAN = new BeanUtilsBean();
@@ -278,12 +257,14 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 //		for (CustomTagAttribute a : ct.attributes.keySet()) {
 		boolean addedAttributes = false;
 		for (String an : ct.getAttributeNames()) {
-			if (!withIndices && isOffsetOrLengthProperty(an))
+			if (!withIndices && isOffsetOrLengthProperty(an)) {
 				continue;
+			}
 			
 			try {
-				if (setAttribute(an, withValues ? ct.getAttributeValue(an) : null, true))
+				if (setAttribute(an, withValues ? ct.getAttributeValue(an) : null, true)) {
 					addedAttributes = true;
+				}
 			} catch (IOException e) {
 				logger.error("Error setting attribute '"+an+"' : "+e.getMessage(), e);
 			}
@@ -320,22 +301,39 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 			try {
 				logger.trace("setting property: "+name+" value: "+value+" type: "+(value==null ? "" : value.getClass().getSimpleName()));
 				
-//				BeanUtilsBean b = new BeanUtilsBean();
-//				b.getConvertUtils().register(new ColourSimpleTypeConverter(), ColourSimpleType.class);
-
-				BEAN_UTILS_BEAN.setProperty(this, name, value);
+				if (value == null) { // avoid type conversion for null values!
+					if (isOffsetOrLengthProperty(name)) {
+						PropertyUtils.setProperty(this, name, -1);
+					}
+					else if (CONTINUED_PROPERTY_NAME.equals(name)) {
+						PropertyUtils.setProperty(this, name, false);
+					}
+					else {
+						try {
+							PropertyUtils.setProperty(this, name, null);
+						} catch (Exception e) {
+							logger.info("falling back to BEAN_UTILS_BEAN: "+e.getMessage());
+							BEAN_UTILS_BEAN.setProperty(this, name, value);	
+						}						
+					}
+				}
+				else {
+					BEAN_UTILS_BEAN.setProperty(this, name, value);
+				}
 			} catch (Exception e) {
 				logger.error("Error setting property '" + name + "': " + e.getMessage(), e);
 			}
 		} else {
 			CustomTagAttribute att = getAttribute(name);
 			if (att == null) {
-				if (!forceAdd)
+				if (!forceAdd) {
 					throw new IOException("An attribute with this name does not exist: " + name);
+				}
 				else {
 					att = new CustomTagAttribute(name);
-					if (type != null)
+					if (type != null) {
 						att.setType(type);
+					}
 					addedAttribute = true;
 				}
 				
@@ -391,7 +389,7 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 	protected Set<CustomTagAttribute> getPredefinedAttributes() {
 		Set<CustomTagAttribute> atts = new HashSet<>();
 		atts.add(OFFSET_PROPERTY);
-		atts.add(LENGTH_PROPETY);
+		atts.add(LENGTH_PROPERTY);
 		atts.add(CONTINUED_PROPERTY);
 		
 //		atts.add(TAG_COLOR_PROPERTY);
