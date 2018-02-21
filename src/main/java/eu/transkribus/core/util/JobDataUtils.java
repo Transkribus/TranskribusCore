@@ -200,6 +200,9 @@ public class JobDataUtils {
 		if(StringUtils.isEmpty(key)) {
 			throw new IllegalArgumentException("key must not be empty.");
 		}
+		if(key.contains(LIST_SEP)) {
+			throw new IllegalArgumentException("The key must not include the seperator char: '" + LIST_SEP + "'");
+		}
 		return key + LIST_SEP + i;
 	}
 	
