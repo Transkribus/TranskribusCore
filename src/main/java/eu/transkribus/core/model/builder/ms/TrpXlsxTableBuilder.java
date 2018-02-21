@@ -60,6 +60,7 @@ public class TrpXlsxTableBuilder {
 				
 		wb = new XSSFWorkbook();
 		int c=0;
+		int tableId = 0;
 		for (int i=0; i<pages.size(); ++i) {
 			if (pageIndices!=null && !pageIndices.contains(i))
 				continue;
@@ -90,6 +91,7 @@ public class TrpXlsxTableBuilder {
 				TrpRegionType r = regions.get(j);
 				
 				if (r instanceof TrpTableRegionType){
+					tableId++;
 					logger.debug("is table");
 					TrpTableRegionType table = (TrpTableRegionType) r;
 					
@@ -135,7 +137,7 @@ public class TrpXlsxTableBuilder {
 		            	allRows.add(currRowMap);
 		            }
 
-		            createTable(rows, cols, allRows, j);
+		            createTable(rows, cols, allRows, tableId);
 
 				}
 				
