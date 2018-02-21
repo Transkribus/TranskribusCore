@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import eu.transkribus.core.model.beans.DocumentSelectionDescriptor;
@@ -14,20 +15,40 @@ import eu.transkribus.core.model.beans.DocumentSelectionDescriptor;
 //@XmlSeeAlso({DocumentSelectionDescriptor.class, ParameterMap.class})
 public class JobParameters {
 	
-	private List<DocumentSelectionDescriptor> descriptors;
+	private Integer colId;
+	private String jobImpl;
+	
+	@XmlElementWrapper(name="docList")
+	private List<DocumentSelectionDescriptor> docs;
 	private ParameterMap params;
 	
 	public JobParameters() {
-		descriptors = new ArrayList<>(0);
+		docs = new ArrayList<>(0);
 		params = new ParameterMap();
 	}
 	
-	public List<DocumentSelectionDescriptor> getDescriptors() {
-		return descriptors;
+	public Integer getColId() {
+		return colId;
 	}
 
-	public void setDescriptors(List<DocumentSelectionDescriptor> descriptors) {
-		this.descriptors = descriptors;
+	public void setColId(Integer colId) {
+		this.colId = colId;
+	}
+
+	public String getJobImpl() {
+		return jobImpl;
+	}
+
+	public void setJobImpl(String jobImpl) {
+		this.jobImpl = jobImpl;
+	}
+
+	public List<DocumentSelectionDescriptor> getDocs() {
+		return docs;
+	}
+
+	public void setDocs(List<DocumentSelectionDescriptor> docs) {
+		this.docs = docs;
 	}
 
 	public ParameterMap getParams() {

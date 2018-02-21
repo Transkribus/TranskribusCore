@@ -77,7 +77,7 @@ public class ParameterMapTest {
 		DocumentSelectionDescriptor d = new DocumentSelectionDescriptor(1);
 		PageDescriptor pd = new PageDescriptor(2, 3);
 		d.addPage(pd);
-		p.getDescriptors().add(d);
+		p.getDocs().add(d);
 		p.getParams().addParameter(key, value);
 		return p;		
 	}
