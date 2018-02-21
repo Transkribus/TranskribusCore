@@ -14,6 +14,7 @@ public class KeywordHit {
 	private String docTitle;
 	private int pageNr;
 	private ArrayList<Integer> colIds;
+	private ArrayList<String> wordOptions;
 	private String pageUrl;
 	private String lineId;
 	private String textCoords;
@@ -73,6 +74,12 @@ public class KeywordHit {
 	}
 	public void setLineId(String lineId) {
 		this.lineId = lineId;
+	}
+	public ArrayList<String> getWordOptions() {
+		return wordOptions;
+	}
+	public void setWordOptions(ArrayList<String> wordOptions) {
+		this.wordOptions = wordOptions;
 	}
 	
 	
