@@ -8,7 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.io.util.TrpProperties;
+import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescriptor;
 import eu.transkribus.core.model.beans.job.KwsParameters;
+import eu.transkribus.core.model.beans.rest.JobParameters;
 import eu.transkribus.core.model.beans.rest.ParameterMap;
 import eu.transkribus.core.rest.JobConst;
 import eu.transkribus.core.util.JaxbUtils;
@@ -47,6 +49,18 @@ public class ParameterMapTest {
 		Assert.assertTrue(testMap.equals(map));
 	}
 	
+	@Test 
+	public void testJobParameters() throws JAXBException {
+		final String key = "testKey";
+		final String value = "testValue";
+		JobParameters p = buildJobParameters(key, value);
+		final String test = JaxbUtils.marshalToString(p);
+		System.out.println(test);
+		
+		JobParameters result = JaxbUtils.unmarshal(test, JobParameters.class);
+		Assert.assertTrue(result.getParams().getParameterValue(key).equals(value));
+	}
+	
 	private static KwsParameters buildKwsParameters() {
 		KwsParameters map = new KwsParameters();
 		map.setExpert(true);
@@ -57,4 +71,15 @@ public class ParameterMapTest {
 		map.setCustomParameter("SomeUndefinedParam", "someArbitraryValue");
 		return map;
 	}
+	
+	private static JobParameters buildJobParameters(final String key, final String value) {
+		JobParameters p = new JobParameters();
+		DocumentSelectionDescriptor d = new DocumentSelectionDescriptor(1);
+		PageDescriptor pd = new PageDescriptor(2, 3);
+		d.addPage(pd);
+		p.getDescriptors().add(d);
+		p.getParams().addParameter(key, value);
+		return p;		
+	}
+	
 }
