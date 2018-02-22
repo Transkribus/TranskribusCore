@@ -79,6 +79,10 @@ public class ParameterMap extends AJaxbMap {
 		return Boolean.parseBoolean(propStr);
 	}
 	
+	public String remove(final String key) {
+		return map.remove(key);
+	}
+	
 	public Map<String, String> getParamMap() {
 		return map;
 	}
@@ -94,7 +98,7 @@ public class ParameterMap extends AJaxbMap {
 	protected String convertToString(Object o) {
 		if(o == null || o instanceof String) {
 			return (String)o;
-		} else if (o instanceof Number || o instanceof Boolean) {
+		} else if (o instanceof Number || o instanceof Boolean || o instanceof Enum) {
 			return ""+o;
 		} else {
 			logger.warn("Type " + o.getClass() + " not yet supported here.");
