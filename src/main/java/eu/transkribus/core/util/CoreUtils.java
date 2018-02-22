@@ -227,19 +227,7 @@ public class CoreUtils {
 		
 		return Arrays.asList(array);
 	}
-	
-	public static void loadTranskribusInterfacesLib() {
-		SebisStopWatch sw = new SebisStopWatch();
-		String libName = "TranskribusInterfacesWrapper";
-		try {
-			sw.start();
-			System.loadLibrary(libName);
-			sw.stop(true, "Loaded transkribus interfaces lib in ", logger);
-		} catch (UnsatisfiedLinkError e) {
-			throw new RuntimeException("Could not load "+libName+".so: " + e.getMessage(), e);
-		}
-	}
-	
+
 	public static File getFileFromPossiblePaths(String... paths) throws FileNotFoundException {
 		for (String path : paths) {
 			File f = new File(path);

@@ -13,11 +13,15 @@ import java.util.Properties;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.io.util.TrpProperties;
 import eu.transkribus.core.model.beans.rest.ParameterMap;
 
 public class JobDataUtils {
+	private static final Logger logger = LoggerFactory.getLogger(JobDataUtils.class);
+	
 	private static final String LIST_SEP = ".";
 	
 	/**
@@ -131,6 +135,16 @@ public class JobDataUtils {
 		return setParameterMap(props, key, (ParameterMap)object);
 	}
 	
+	
+	/**
+	 * Sets the parameter map object to the properties using prefixes for the acutal keys,
+	 * so that it can be extracted later via {@link #getParameterMap(Properties, String)} using the specified key argument
+	 * 
+	 * @param props
+	 * @param key the key to be the prefix for the actual new keys
+	 * @param map
+	 * @return
+	 */
 	public static Properties setParameterMap(Properties props, final String key, ParameterMap map) {
 		return JobDataUtils.setStringMap(props, key, map.getParamMap());
 	}
@@ -200,6 +214,9 @@ public class JobDataUtils {
 		if(StringUtils.isEmpty(key)) {
 			throw new IllegalArgumentException("key must not be empty.");
 		}
+		if(key.contains(LIST_SEP)) {
+			throw new IllegalArgumentException("The key must not include the seperator char: '" + LIST_SEP + "'");
+		}
 		return key + LIST_SEP + i;
 	}
 	
@@ -213,5 +230,31 @@ public class JobDataUtils {
 			throw new IllegalArgumentException("Suffix must not be empty.");
 		}
 		return buildKey(key, i) + LIST_SEP + suffix;
+	}
+	
+	/**
+	 * Merges parameter map entries into the Properties object's map. 
+	 * In contrast to {@link #setParameterMap(Properties, String, ParameterMap)} the original ParameterMap can't be retrieved from the properties later on.
+	 * 
+	 * @param props
+	 * @param params
+	 * @param doOverwrite if true, then entries will be overwritten in props in case the same key occurs in props and params!
+	 * @return
+	 */
+	public static Properties putEntriesFromMap(Properties props, ParameterMap params, final boolean doOverwrite) {
+		if(props == null) {
+			props = new Properties();
+		}
+		if(params == null || params.isEmpty()) {
+			return props;
+		}
+		for(Entry<String, String> e : params.getParamMap().entrySet()) {
+			if(!doOverwrite && props.containsKey(e.getKey())) {
+				logger.debug("Omitting existing key: " + e.getKey() + " -> " + e.getValue());
+				continue;
+			}
+			props.put(e.getKey(), e.getValue());
+		}
+		return props;
 	}
 }

@@ -99,28 +99,28 @@ public class CustomTagFactory {
 			// add some custom tags to the registry:
 			
 			// non-indexed:
-			CustomTagFactory.addToRegistry(new StructureTag(), null);
-			CustomTagFactory.addToRegistry(new ReadingOrderTag(), null);
-			CustomTagFactory.addToRegistry(new RegionTypeTag(), null);
+			CustomTagFactory.addToRegistry(new StructureTag(), null, true);
+			CustomTagFactory.addToRegistry(new ReadingOrderTag(), null, true);
+			CustomTagFactory.addToRegistry(new RegionTypeTag(), null, true);
 			
 			// indexed:
-			CustomTagFactory.addToRegistry(new TextStyleTag(), null);
-			CustomTagFactory.addToRegistry(new AbbrevTag(), null);
-			CustomTagFactory.addToRegistry(new PersonTag(), null);
-			CustomTagFactory.addToRegistry(new OrganizationTag(), null);
-			CustomTagFactory.addToRegistry(new PlaceTag(), null);
-			CustomTagFactory.addToRegistry(new SpeechTag(), null);
-			CustomTagFactory.addToRegistry(new DateTag(), null);
-			CustomTagFactory.addToRegistry(new WorkTag(), null);
-			CustomTagFactory.addToRegistry(new SicTag(), null);
-			CustomTagFactory.addToRegistry(new GapTag(), null);
-			CustomTagFactory.addToRegistry(new DivTag(), null);
-			CustomTagFactory.addToRegistry(new UnclearTag(), null);
-			CustomTagFactory.addToRegistry(new BlackeningTag(), null);
-			CustomTagFactory.addToRegistry(new SuppliedTag(), null);
-			CustomTagFactory.addToRegistry(new AdditionTag(), null);
+			CustomTagFactory.addToRegistry(new TextStyleTag(), null, true);
+			CustomTagFactory.addToRegistry(new AbbrevTag(), null, true);
+			CustomTagFactory.addToRegistry(new PersonTag(), null, true);
+			CustomTagFactory.addToRegistry(new OrganizationTag(), null, true);
+			CustomTagFactory.addToRegistry(new PlaceTag(), null, true);
+			CustomTagFactory.addToRegistry(new SpeechTag(), null, true);
+			CustomTagFactory.addToRegistry(new DateTag(), null, true);
+			CustomTagFactory.addToRegistry(new WorkTag(), null, true);
+			CustomTagFactory.addToRegistry(new SicTag(), null, true);
+			CustomTagFactory.addToRegistry(new GapTag(), null, true);
+			CustomTagFactory.addToRegistry(new DivTag(), null, true);
+			CustomTagFactory.addToRegistry(new UnclearTag(), null, true);
+			CustomTagFactory.addToRegistry(new BlackeningTag(), null, true);
+			CustomTagFactory.addToRegistry(new SuppliedTag(), null, true);
+			CustomTagFactory.addToRegistry(new AdditionTag(), null, true);
 			
-			CustomTagFactory.addToRegistry(new CommentTag(), null); // no color needed since extra rendering is done!
+			CustomTagFactory.addToRegistry(new CommentTag(), null, true); // no color needed since extra rendering is done!
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -228,7 +228,7 @@ public class CustomTagFactory {
 				}
 			
 			try {
-				addToRegistry(CustomTagFactory.create(tagName, attributes), color);
+				addToRegistry(CustomTagFactory.create(tagName, attributes), color, true);
 			} catch (Exception e1) {
 				logger.warn(e1.getMessage());
 			}
@@ -257,13 +257,14 @@ public class CustomTagFactory {
 	 * Register the given tag in the tag registry. If it is already present, attributes are merged.
 	 * @param ct The tag to register
 	 * @param color The color for the tag. Set to <code>null</code> to use default color (CustomTag::getDefaultColor).<br>
+	 * @param mergeAttributesIfAlreadyRegistered If the tag is already registered, attributes from ct will be merged into the existing registered tag.
 	 * If no default color is set a new one is generated automatically.
 	 */
-	public static void addToRegistry(CustomTag ct, String color) throws NoSuchMethodException, SecurityException, IllegalAccessException, InvocationTargetException {		
+	public static void addToRegistry(CustomTag ct, String color, boolean mergeAttributesIfAlreadyRegistered) throws NoSuchMethodException, SecurityException, IllegalAccessException, InvocationTargetException {		
 		if (!registry.containsKey(ct.getTagName())) {
 			
 			CustomTag ctCopy = ct.copy();
-			ctCopy.setAttributes(ct, true, false); // clear all attributes!
+			ctCopy.setAttributes(ct, true, false); // clear all attribute values
 			logger.debug("registering new tag: "+ct+" copy: "+ctCopy);
 
 			// register the class for this custom tag: 
@@ -284,11 +285,14 @@ public class CustomTagFactory {
 			registryObserver.setChangedAndNotifyObservers(e);
 		} else {
 			CustomTag t = objectRegistry.get(ct.getTagName());
-			boolean addedAttributes = t.setAttributes(ct, false, false); // add attributes (without values!!!)
 			
-			if (addedAttributes) {
-				TagRegistryChangeEvent e = new TagRegistryChangeEvent(TagRegistryChangeEvent.ADDED_TAG_ATTRIBUTES, t);
-				registryObserver.setChangedAndNotifyObservers(e);
+			if (mergeAttributesIfAlreadyRegistered) {
+				boolean addedAttributes = t.setAttributes(ct, false, false); // add attributes (without values!!!)
+				
+				if (addedAttributes) {
+					TagRegistryChangeEvent e = new TagRegistryChangeEvent(TagRegistryChangeEvent.ADDED_TAG_ATTRIBUTES, t);
+					registryObserver.setChangedAndNotifyObservers(e);
+				}
 			}
 			
 			setTagColor(ct.getTagName(), color);

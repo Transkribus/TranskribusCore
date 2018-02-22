@@ -298,7 +298,7 @@ public class LocalDocReader {
 		File altoInputDir = getAltoXmlInputDir(inputDir);
 		
 		//alto XML search path
-		File txtInputDir = getTxtInputDir(altoInputDir);
+		File txtInputDir = getTxtInputDir(inputDir);
 		
 		//backupfolder for outdated page format files, if any
 		final String backupFolderName = XmlFormat.PAGE_2010.toString().toLowerCase()

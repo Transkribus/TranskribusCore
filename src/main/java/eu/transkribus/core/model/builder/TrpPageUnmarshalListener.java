@@ -82,7 +82,8 @@ final public class TrpPageUnmarshalListener extends Unmarshaller.Listener {
 			// try registering (possibly new) tags:
 			for (CustomTag t : st.getCustomTagList().getTags()) {
 				try {
-					CustomTagFactory.addToRegistry(t, null);
+					boolean mergeAttributes = false;
+					CustomTagFactory.addToRegistry(t, null, mergeAttributes);
 				} catch (NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e) {
 					logger.error("Could not register the tag: "+t.getCssStr()+", reason: "+e.getMessage(), e);
 				}
