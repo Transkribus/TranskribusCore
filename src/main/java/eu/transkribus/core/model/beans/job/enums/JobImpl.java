@@ -111,4 +111,13 @@ public enum JobImpl {
 	public static void main(String[] args) {
 		System.out.println(JobImpl.valueOf(null)); 
 	}
+
+	public static JobImpl getBaseLaJob(JobImpl impl) {
+		if(impl == null || !JobType.layoutAnalysis.equals(impl.getTask().getJobType())) {
+			throw new IllegalArgumentException("No Layout Analysis job type: " + impl);
+		}
+		//Normalize to base job name (MultiThread suffix should only occur on server)
+		final String baseImplStr = impl.toString().endsWith("MultiThread") ? impl.toString().replace("MultiThread", "") : impl.toString();
+		return JobImpl.valueOf(baseImplStr);
+	}
 }
