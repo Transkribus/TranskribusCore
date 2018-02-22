@@ -232,6 +232,15 @@ public class JobDataUtils {
 		return buildKey(key, i) + LIST_SEP + suffix;
 	}
 	
+	/**
+	 * Merges parameter map entries into the Properties object's map. 
+	 * In contrast to {@link #setParameterMap(Properties, String, ParameterMap)} the original ParameterMap can't be retrieved from the properties later on.
+	 * 
+	 * @param props
+	 * @param params
+	 * @param doOverwrite if true, then entries will be overwritten in props in case the same key occurs in props and params!
+	 * @return
+	 */
 	public static Properties putEntriesFromMap(Properties props, ParameterMap params, final boolean doOverwrite) {
 		if(props == null) {
 			props = new Properties();
