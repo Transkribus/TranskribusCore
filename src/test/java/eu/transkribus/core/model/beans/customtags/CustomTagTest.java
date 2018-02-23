@@ -4,15 +4,49 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.transkribus.core.model.beans.customtags.CustomTag;
-
 public class CustomTagTest {
 	private final static Logger logger = LoggerFactory.getLogger(CustomTagTest.class);
+	
+//	@Test
+//	public void testSetAttributes() throws Exception {
+//		
+//		
+//		List<CustomTag> tags = new ArrayList<>();
+//		int NTags = 100;
+//		for (int i=0; i<NTags; ++i) {
+//			CustomTag pTag = CustomTagFactory.create(PersonTag.TAG_NAME);
+//			tags.add(pTag);
+//		}
+//		
+//		for (int i=0; i<1000; ++i) {
+//			int index = ThreadLocalRandom.current().nextInt(0, NTags);
+//			index = 0;
+//			PersonTag t = (PersonTag) tags.get(index);
+//			
+////			String attName = UUID.randomUUID().toString();
+////			String attName = ""+i;
+//			String attName = "abbrev";
+//			String attValue = "sebi";
+//			t.setAttribute(attName, attValue, true);
+////			t.setFirstname("sebi");
+//			
+//			System.out.println("i = "+i+" index = "+index+" Natts = "+t.getAttributes().size());
+//			
+////			Assert.assertTrue("1 attribute not set!", t.getFirstname().equals("sebi"));
+//			
+//			Assert.assertTrue("2 attribute not set!", t.getAttributeValue(attName).equals(attValue));
+//		}
+//	}
 
 	@Test public void testSetAndMergeAttributes() throws IOException {
 //		fail("Not yet implemented");

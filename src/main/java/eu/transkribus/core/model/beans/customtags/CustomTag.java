@@ -362,8 +362,9 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 
 	public CustomTagAttribute getAttribute(String name) {
 		for (CustomTagAttribute a : getAttributes()) {
-			if (a.getName().equals(name))
+			if (a.getName().equals(name)) {
 				return a;
+			}
 		}
 		return null;
 	}

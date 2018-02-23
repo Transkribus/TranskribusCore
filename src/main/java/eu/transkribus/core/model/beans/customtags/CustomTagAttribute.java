@@ -129,7 +129,7 @@ public class CustomTagAttribute {
 		if (other == null || !(other instanceof CustomTagAttribute))
 			return false;
 		
-		return this.getNameToCompare().equals( ((CustomTagAttribute)other).getName() );
+		return this.getNameToCompare().equals( ((CustomTagAttribute)other).getNameToCompare() );
 	}
 
 	@Override public String toString() {
