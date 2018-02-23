@@ -51,6 +51,6 @@ public class LaCITlabUtils {
 		 * text could be oriented heterogenious, a mix of 0°, 90°, 180° and 270° is possible 
          * -> TextLines with the same orientation are clustered in same TextRegions
 		 */
-		hetero;
+		het;
 	}
 }

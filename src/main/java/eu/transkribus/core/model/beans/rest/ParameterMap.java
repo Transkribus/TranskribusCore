@@ -38,6 +38,13 @@ public class ParameterMap extends AJaxbMap {
 	public void addParameter(final String name, Object value) {
 		if(StringUtils.isEmpty(name)) {
 			logger.warn("Ignoring noname parameter with value: " + value);
+		} else if (value == null) {
+			if(map.containsKey(name)) {
+				logger.debug("Removing existing parameter value as null value was passed: " + name + " -> old = " + value + " | new = null");
+				map.remove(name);
+			} else {
+				logger.debug("Ommiting null value to be set in parameter map: " + name + " -> " + value);
+			}
 		} else {
 			this.getParamMap().put(name, convertToString(value));
 		}
