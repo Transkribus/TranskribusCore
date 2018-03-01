@@ -217,6 +217,26 @@ public class CssSyntaxTag {
 		return attrs;
 	}
 	
+	public Integer getIntegerAttribute(String attribute) {
+		try {
+			return getAttributeValueAsInt(attribute);
+//			Object value = getAttributeValue(attribute);
+//			return Integer.parseInt((String) value);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	public int getOffset() {
+		Integer offset = getIntegerAttribute("offset");
+		return offset!=null ? offset : -1;
+	}
+	
+	public int getLength() {
+		Integer length = getIntegerAttribute("length");
+		return length!=null ? length : -1;
+	}
+	
 	public boolean isSameTag(CssSyntaxTag tag) {
 		return getTagName().equals(tag.getTagName());
 	}
