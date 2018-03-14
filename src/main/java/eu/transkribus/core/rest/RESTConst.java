@@ -375,6 +375,8 @@ public final class RESTConst {
 	public static final String TAGS_PATH = "tags";
 	public static final String TAG_NAME_PARAM = "tagName";
 	public static final String TAG_VALUE_PARAM = "tagValue";
+	public static final String TAG_DEF_PARAM = "tagDefs";
+	public static final String LIST_TAG_DEFS_PARAM = "listTagDefs";
 	public static final String REGION_TYPE_PARAM = "regionType";
 	public static final String ATTRIBUTES_PARAM = "attributes";
 	public static final String PARS_PARAM = "pars";
