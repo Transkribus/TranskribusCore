@@ -5,34 +5,39 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.transkribus.core.model.beans.pagecontent.OrderedGroupIndexedType;
 import eu.transkribus.core.model.beans.pagecontent.OrderedGroupType;
-import eu.transkribus.core.model.beans.pagecontent.PageType;
-import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.ReadingOrderType;
 import eu.transkribus.core.model.beans.pagecontent.RegionRefIndexedType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
-import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextTypeSimpleType;
-import eu.transkribus.core.model.beans.pagecontent.WordType;
 import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
-import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpReadingOrderChangedEvent;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpStructureChangedEvent;
 import eu.transkribus.core.util.CoreUtils;
-import eu.transkribus.core.util.PAGETypeFactory;
 
 public class CustomTagUtil {
 	private final static Logger logger = LoggerFactory.getLogger(CustomTagUtil.class);
+	
+	public static void applyForAllTagsAndContinuations(CustomTag tag, Consumer<CustomTag> c) {
+		if (tag==null || tag.getCustomTagList()==null) {
+			return;
+		}
+		
+		for (Pair<CustomTagList, CustomTag> p : tag.getCustomTagList().getCustomTagAndContinuations(tag)) {
+			c.accept(p.getRight());
+		}
+	}
 	
 	public static <T extends CustomTag> List<T> getIndexedCustomTagsForLines(TrpPageType page, String tagName) {
 		List<T> tags = new ArrayList<>();
