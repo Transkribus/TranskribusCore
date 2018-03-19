@@ -10,6 +10,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -163,6 +164,10 @@ public class TrpJobStatus implements Serializable {
 	
 	@Column(name="TOTAL_WORK")
 	private Integer totalWork;
+	
+	@Transient
+	@Column
+	private int nrOfErrors;
 
 	/**
 	 * Empty, public constructor for Jaxb and DbUtils
@@ -663,6 +668,14 @@ public class TrpJobStatus implements Serializable {
 		this.totalWork = totalWork;
 	}
 	
+	public int getNrOfErrors() {
+		return nrOfErrors;
+	}
+
+	public void setNrOfErrors(int nrOfErrors) {
+		this.nrOfErrors = nrOfErrors;
+	}
+
 	public String getJobDataOld() {
 		return jobDataOld;
 	}
