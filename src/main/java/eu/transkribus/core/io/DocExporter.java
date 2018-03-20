@@ -33,7 +33,7 @@ import eu.transkribus.core.model.beans.mets.Mets;
 import eu.transkribus.core.model.beans.pagecontent.MetadataType;
 import eu.transkribus.core.model.beans.pagecontent.TranskribusMetadataType;
 import eu.transkribus.core.model.builder.CommonExportPars;
-import eu.transkribus.core.model.builder.ExportUtils;
+import eu.transkribus.core.model.builder.ExportCache;
 import eu.transkribus.core.model.builder.alto.AltoExporter;
 import eu.transkribus.core.model.builder.docx.DocxBuilder;
 import eu.transkribus.core.model.builder.mets.TrpMetsBuilder;
@@ -50,6 +50,16 @@ import eu.transkribus.core.util.JaxbUtils;
 public class DocExporter extends APassthroughObservable {
 	private static final Logger logger = LoggerFactory.getLogger(DocExporter.class);
 
+	private final ExportCache cache;
+	
+	public DocExporter() {
+		cache = new ExportCache();
+	}
+	
+	public DocExporter(ExportCache cache) {
+		this.cache = cache;
+	}
+	
 	/**
 	 * Export raw document to local directory according to set parameters
 	 * @param doc raw document to export
@@ -92,32 +102,33 @@ public class DocExporter extends APassthroughObservable {
 		return exportDoc(doc, pars);
 	}
 	
-	public void writePDF(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean addTextPages, final boolean imagesOnly, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, boolean createTitle) throws MalformedURLException, DocumentException, IOException, JAXBException, URISyntaxException, InterruptedException{
+	public void writePDF(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean addTextPages, final boolean imagesOnly, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, boolean createTitle, ExportCache cache) throws MalformedURLException, DocumentException, IOException, JAXBException, URISyntaxException, InterruptedException{
 		PdfExporter pdfWriter = new PdfExporter();
-		pdfWriter.export(doc, path, pageIndices, wordBased, addTextPages, imagesOnly, highlightTags, doBlackening, createTitle);
+		pdfWriter.export(doc, path, pageIndices, wordBased, addTextPages, imagesOnly, highlightTags, doBlackening, createTitle, cache);
 	}
 	
 	public void writeTEI(final TrpDoc doc, final String path, CommonExportPars commonPars, final TeiExportPars pars) throws Exception{
 		ATeiBuilder builder = new TrpTeiStringBuilder(doc, commonPars, pars, null);
+		builder.addTranscriptsFromCache(cache);
 		builder.buildTei();
 		builder.writeTeiXml(new File(path));
 	}
 	
 	public void writeDocx(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, final boolean createTitle, boolean doDocxMarkUnclear, boolean doDocxExpandAbbrevs, boolean doDocxSubstituteAbbrevs, boolean doDocxPreserveLineBreaks) throws MalformedURLException, DocumentException, IOException, JAXBException, URISyntaxException, InterruptedException, Docx4JException{
 		//last two params are for supplied handling, needs to be added to server esport as well. In the meanwhile args are false by default
-		DocxBuilder.writeDocxForDoc(doc, wordBased, highlightTags, doBlackening, new File(path), pageIndices, null, createTitle, doDocxMarkUnclear, doDocxExpandAbbrevs, doDocxSubstituteAbbrevs, doDocxPreserveLineBreaks, false, false);
+		DocxBuilder.writeDocxForDoc(doc, wordBased, highlightTags, doBlackening, new File(path), pageIndices, null, createTitle, doDocxMarkUnclear, doDocxExpandAbbrevs, doDocxSubstituteAbbrevs, doDocxPreserveLineBreaks, false, false, cache);
 	}
 	
 	public void writeTxt(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean createTitle, final boolean wordBased, boolean preserveLineBreaks) throws MalformedURLException, DocumentException, IOException, JAXBException, URISyntaxException, InterruptedException, Docx4JException{
-		TrpTxtBuilder.writeTxtForDoc(doc, createTitle, wordBased, preserveLineBreaks, new File(path), pageIndices, null);
+		TrpTxtBuilder.writeTxtForDoc(doc, createTitle, wordBased, preserveLineBreaks, new File(path), pageIndices, null, cache);
 	}
 	
 	public void writeTagExcel(final TrpDoc doc, final String path, Set<Integer> pageIndices, boolean wordBased) throws Exception{
-		TrpXlsxBuilder.writeXlsxForDoc(doc, wordBased, new File(path), pageIndices, null);
+		TrpXlsxBuilder.writeXlsxForDoc(doc, wordBased, new File(path), pageIndices, null, cache);
 	}
 	
 	public void writeTableExcel(final TrpDoc doc, final String path, Set<Integer> pageIndices) throws Exception{
-		TrpXlsxTableBuilder.writeXlsxForTables(doc, new File(path), pageIndices, null);
+		TrpXlsxTableBuilder.writeXlsxForTables(doc, new File(path), pageIndices, null, cache);
 	}
 
 	/**
@@ -238,7 +249,7 @@ public class DocExporter extends APassthroughObservable {
 					 * new: to get the previously stored chosen version
 					 */
 					TrpTranscriptMetadata transcriptMd;
-					JAXBPageTranscript transcript = ExportUtils.getPageTranscriptAtIndex(i);
+					JAXBPageTranscript transcript = cache.getPageTranscriptAtIndex(i);
 					
 					// set up transcript metadata
 					if(transcript == null) {
@@ -296,7 +307,7 @@ public class DocExporter extends APassthroughObservable {
 					imgFile = LocalDocWriter.copyImgFile(p, p.getUrl(), imgOutputDir.getAbsolutePath(), baseFileName + imgExt);
 				}
 				if(pars.isDoExportPageXml()) {
-					xmlFile = LocalDocWriter.copyTranscriptFile(p, pageOutputDir.getAbsolutePath(), baseFileName + xmlExt);
+					xmlFile = LocalDocWriter.copyTranscriptFile(p, pageOutputDir.getAbsolutePath(), baseFileName + xmlExt, cache);
 				}
 			}
 			// export alto:
@@ -343,6 +354,10 @@ public class DocExporter extends APassthroughObservable {
 		}
 		
 		return outputDir;
+	}
+	
+	public ExportCache getCache() {
+		return cache;
 	}
 		
 	public static void main(String[] args){

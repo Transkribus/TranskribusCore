@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
@@ -30,11 +31,11 @@ public class JobError {
 	@Column
 	private int docId;
 	@Column
-	private int pageId;
+	private Integer pageId;
 	@Column
-	private int pageNr;
+	private Integer pageNr;
 	@Column
-	private int tsId;
+	private Integer tsId;
 	@Column(name="MSG")
 	private String message;
 	@Column(name="EX_CLASS")
@@ -45,7 +46,7 @@ public class JobError {
 	
 	public JobError() {}
 	
-	public JobError(int jobId, int docId, int pageId, int pageNr, int tsId, Throwable throwable) {
+	public JobError(int jobId, int docId, Integer pageId, Integer pageNr, Integer tsId, Throwable throwable) {
 		this.jobId = jobId;
 		this.docId = docId;
 		this.pageId = pageId;
@@ -74,22 +75,22 @@ public class JobError {
 	public void setDocId(int docId) {
 		this.docId = docId;
 	}
-	public int getPageId() {
+	public Integer getPageId() {
 		return pageId;
 	}
-	public void setPageId(int pageId) {
+	public void setPageId(Integer pageId) {
 		this.pageId = pageId;
 	}
-	public int getPageNr() {
+	public Integer getPageNr() {
 		return pageNr;
 	}
-	public void setPageNr(int pageNr) {
+	public void setPageNr(Integer pageNr) {
 		this.pageNr = pageNr;
 	}
-	public int getTsId() {
+	public Integer getTsId() {
 		return tsId;
 	}
-	public void setTsId(int tsId) {
+	public void setTsId(Integer tsId) {
 		this.tsId = tsId;
 	}
 	public int getPageIndex() {
@@ -126,7 +127,9 @@ public class JobError {
 		} else {
 			errorMsg = t.getMessage();
 		}
-		this.setMessage(errorMsg);
+		if(StringUtils.isEmpty(this.getMessage())) {
+			this.setMessage(errorMsg);
+		}
 		this.setExceptionClass(t.getClass().getName());
 		final String stacktrace = ExceptionUtils.getStackTrace(t);
 		this.setStacktrace(stacktrace);
