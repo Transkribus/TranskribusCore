@@ -1,9 +1,5 @@
 package eu.transkribus.core.model.builder;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -11,8 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import javax.xml.bind.JAXBException;
 
@@ -37,135 +31,27 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
-import eu.transkribus.core.util.CoreUtils;
 
-/**
- * Do not use deprecated methods as it is not thread-safe!
- *
- */
-public class ExportUtils {
+public class ExportCache {
 	private final static Logger logger = LoggerFactory.getLogger(ExportUtils.class);
 	
-	@Deprecated
-	static boolean exportTags = true;
-	@Deprecated
-	static boolean doBlackening = false;
-	@Deprecated
-	static List<JAXBPageTranscript> pageTranscripts = null;
+	protected boolean doBlackening = false;
+	protected List<JAXBPageTranscript> pageTranscripts = null;
 	
-	@Deprecated
-	static LinkedHashMap<CustomTag, String> tags = new LinkedHashMap<CustomTag, String>();
-	@Deprecated
-	static Set<String> selectedTags = new HashSet<String>();
+	protected LinkedHashMap<CustomTag, String> tags;
+	protected Set<String> selectedTags;
 	
-	@Deprecated
-	public static Set<String> getSelectedTags() {
-		return selectedTags;
-	}
-	@Deprecated
-	public static void setSelectedTags(Set<String> selectedTags) {
-		ExportUtils.selectedTags = selectedTags;
-	}
-	@Deprecated
-	static List<String> persons = new ArrayList<String>();
-	@Deprecated
-	static List<String> places = new ArrayList<String>();
-
+	protected List<String> persons;
+	protected List<String> places;
 	
-	public static LinkedHashMap<CustomTag, String> getAllTagsForShapeElement(ITrpShapeType element) throws IOException{
-
-		LinkedHashMap<CustomTag, String> elementTags = new LinkedHashMap<CustomTag, String>();
-		String textStr = element.getUnicodeText();
-		CustomTagList cl = element.getCustomTagList();
-//		if (textStr == null || cl == null)
-//			throw new IOException("Element has no text or custom tag list: "+element+", class: "+element.getClass().getName());
-			
-		for (CustomTag nonIndexedTag : cl.getNonIndexedTags()) {
-			
-			if (!nonIndexedTag.getTagName().equals(TextStyleTag.TAG_NAME) && !nonIndexedTag.getTagName().equals(BlackeningTag.TAG_NAME)){
-				//logger.debug("nonindexed tag found ");
-				elementTags.put(nonIndexedTag, textStr);
-			}
-
-		}
-		for (CustomTag indexedTag : cl.getIndexedTags()) {
-			
-			if (!indexedTag.getTagName().equals(TextStyleTag.TAG_NAME) && !indexedTag.getTagName().equals(BlackeningTag.TAG_NAME) && !indexedTag.getTagName().equals(ReadingOrderTag.TAG_NAME)){
-				//logger.debug("indexed tag found ");
-				elementTags.put(indexedTag, textStr);
-			}
-
-		}
-		return elementTags;
-
-	}
-	
-	public static LinkedHashMap<CustomTag, String> getAllTagsOfThisTypeForShapeElement(ITrpShapeType element, String type) throws IOException{
-
-		LinkedHashMap<CustomTag, String> elementTags = new LinkedHashMap<CustomTag, String>();
-		String textStr = element.getUnicodeText();
-		CustomTagList cl = element.getCustomTagList();
-//		if (textStr == null || cl == null)
-//			throw new IOException("Element has no text or custom tag list: "+element+", class: "+element.getClass().getName());
-			
-		for (CustomTag nonIndexedTag : cl.getNonIndexedTags()) {
-			
-			if (nonIndexedTag.getTagName().equals(type)){
-				//logger.debug("nonindexed tag found ");
-				elementTags.put(nonIndexedTag, textStr);
-			}
-
-		}
-		for (CustomTag indexedTag : cl.getIndexedTags()) {
-			
-			if (indexedTag.getTagName().equals(type)){
-				//logger.debug("indexed tag found ");
-				elementTags.put(indexedTag, textStr);
-			}
-
-		}
-		return elementTags;
-	}
-	
-	
-	public static Set<String> getOnlyWantedTagnames(Set<String> regTagNames) {
-		Set<String> tagnames = new HashSet<String>();
-		for (String currTagname : regTagNames){
-			if (!currTagname.equals(ReadingOrderTag.TAG_NAME) && !currTagname.equals(StructureTag.TAG_NAME) 
-					&& !currTagname.equals(TextStyleTag.TAG_NAME) && !currTagname.equals(BlackeningTag.TAG_NAME)){
-				tagnames.add(currTagname);
-			}
-		}
-		return tagnames;
-		
-	}
-	
-	public static String blackenString(CustomTag blackeningTag, String lineText) {
-		int beginIndex = blackeningTag.getOffset();
-		int endIndex = beginIndex + blackeningTag.getLength();
-		
-//		logger.debug("lineText before : " + lineText);
-//		logger.debug("lineText length : " + lineText.length());
-//		logger.debug("begin : " + beginIndex);
-//		logger.debug("end : " + endIndex);
-		
-		String beginString = "";
-		if (beginIndex > 0)
-			beginString = lineText.substring(0, beginIndex);
-		String tagString = lineText.substring(beginIndex, endIndex);
-		tagString = tagString.replaceAll(".", "*");
-		String postString = lineText.substring(endIndex);
-		
-		return beginString.concat(tagString).concat(postString);	
+	public ExportCache() {
+		tags = new LinkedHashMap<CustomTag, String>();
+		selectedTags = new HashSet<String>();
+		persons = new ArrayList<String>();
+		places = new ArrayList<String>();
 	}
 
-	public static String getAdjustedDocTitle(String title) {
-		return CoreUtils.replaceInvalidPathChars(title, "_");
-	}
-	
-	
-	@Deprecated
-	public static void storePageTranscripts4Export(TrpDoc doc, Set<Integer> pageIndices, IProgressMonitor monitor, String versionStatus, int pageIdx, TrpTranscriptMetadata loadedTranscript) throws Exception{
+	public void storePageTranscripts4Export(TrpDoc doc, Set<Integer> pageIndices, IProgressMonitor monitor, String versionStatus, int pageIdx, TrpTranscriptMetadata loadedTranscript) throws Exception{
 		
 		pageTranscripts = new ArrayList<JAXBPageTranscript>();
 
@@ -248,8 +134,7 @@ public class ExportUtils {
 	 * @throws IOException
 	 * @throws InterruptedException 
 	 */
-	@Deprecated
-	public static void storeCustomTagMapForDoc(TrpDoc doc, boolean wordBased, Set<Integer> pageIndices, IProgressMonitor monitor, boolean blackening) throws JAXBException, IOException, InterruptedException {
+	public void storeCustomTagMapForDoc(TrpDoc doc, boolean wordBased, Set<Integer> pageIndices, IProgressMonitor monitor, boolean blackening) throws JAXBException, IOException, InterruptedException {
 		
 		doBlackening = blackening;
 		tags.clear();
@@ -324,8 +209,7 @@ public class ExportUtils {
 	 * @param currTagname
 	 * @return get all tags with the given tag name
 	 */
-	@Deprecated
-	public static LinkedHashMap<CustomTag, String> getTags(String currTagname) {
+	public LinkedHashMap<CustomTag, String> getTags(String currTagname) {
 		
 		LinkedHashMap<CustomTag, String> resultTags = new LinkedHashMap<CustomTag, String>();
 		for (Map.Entry<CustomTag, String> currEntry : tags.entrySet()){
@@ -337,8 +221,8 @@ public class ExportUtils {
 		}
 		return resultTags;
 	}
-	@Deprecated
-	private static void getTagsForShapeElement(ITrpShapeType element) throws IOException{
+
+	private void getTagsForShapeElement(ITrpShapeType element) throws IOException{
 
 		String textStr = element.getUnicodeText();
 		CustomTagList cl = element.getCustomTagList();
@@ -361,7 +245,7 @@ public class ExportUtils {
 			for (CustomTag indexedTag : cl.getIndexedTags()) {
 				if (indexedTag instanceof BlackeningTag){
 					//logger.debug("blackening found " + textStr);
-					textStr = blackenString(indexedTag, textStr);
+					textStr = ExportUtils.blackenString(indexedTag, textStr);
 				}
 			}
 		}
@@ -373,9 +257,8 @@ public class ExportUtils {
 		}
 
 	}
-
-	@Deprecated
-	private static void storeCustomTag(CustomTag currTag, String textStr) {
+	
+	private void storeCustomTag(CustomTag currTag, String textStr) {
 		if (!currTag.getTagName().equals(TextStyleTag.TAG_NAME)){
 			
 			if (currTag.getOffset() != -1 && currTag.getLength() != -1 && (currTag.getOffset()+currTag.getLength() <= textStr.length())){
@@ -410,16 +293,26 @@ public class ExportUtils {
 		
 	}
 
-	@Deprecated
-	public static void setTags(LinkedHashMap<CustomTag, String> tags) {
-		ExportUtils.tags = tags;
-	}	
+	public void setTags(LinkedHashMap<CustomTag, String> tags) {
+		this.tags = tags;
+	}
+
+	public Set<String> getOnlyWantedTagnames(Set<String> regTagNames) {
+		Set<String> tagnames = new HashSet<String>();
+		for (String currTagname : regTagNames){
+			if (!currTagname.equals(ReadingOrderTag.TAG_NAME) && !currTagname.equals(StructureTag.TAG_NAME) 
+					&& !currTagname.equals(TextStyleTag.TAG_NAME) && !currTagname.equals(BlackeningTag.TAG_NAME)){
+				tagnames.add(currTagname);
+			}
+		}
+		return tagnames;
+		
+	}
 	
 	/*
 	 * return the selected tagnames or, if nothing selected, all registered tagnames (except text style, reading order etc.)
 	 */
-	@Deprecated
-	public static Set<String> getOnlySelectedTagnames(Set<String> registeredTagNames) {
+	public Set<String> getOnlySelectedTagnames(Set<String> registeredTagNames) {
 		// TODO Auto-generated method stub
 		Set<String> usefulTagsnames = getOnlyWantedTagnames(registeredTagNames);
 		if (selectedTags != null && selectedTags.size() > 0){
@@ -428,22 +321,31 @@ public class ExportUtils {
 		return usefulTagsnames;
 	}
 	
-	@Deprecated
-	public static LinkedHashMap<CustomTag, String> getCustomTagMapForDoc() {
+
+	public LinkedHashMap<CustomTag, String> getCustomTagMapForDoc() {
 		// TODO Auto-generated method stub
 		return tags;
 	}
-	@Deprecated
-	public static List<JAXBPageTranscript> getPageTranscripts() {
+
+	public List<JAXBPageTranscript> getPageTranscripts() {
 		return pageTranscripts;
 	}
 	
-	@Deprecated
-	public static JAXBPageTranscript getPageTranscriptAtIndex(int index) {
+	public JAXBPageTranscript getPageTranscriptAtIndex(int index) {
 //		return pageTranscripts.get(index);
 		if (pageTranscripts != null && pageTranscripts.size() > index)
 			return pageTranscripts.get(index);
 		else	
 			return null;
 	}
+
+	public Set<String> getSelectedTags() {
+		return selectedTags;
+	}
+
+	public void setSelectedTags(Set<String> selectedTags) {
+		this.selectedTags = selectedTags;
+	}
+
+
 }
