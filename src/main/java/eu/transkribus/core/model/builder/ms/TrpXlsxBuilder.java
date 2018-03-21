@@ -37,9 +37,9 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
+import eu.transkribus.core.model.builder.ExportCache;
 import eu.transkribus.core.model.builder.ExportUtils;
 import eu.transkribus.core.model.builder.NoTagsException;
-import eu.transkribus.core.model.builder.rtf.TrpRtfBuilder;
 
 
 public class TrpXlsxBuilder {
@@ -233,9 +233,13 @@ public class TrpXlsxBuilder {
 		
 	}
 
-	public static void writeXlsxForDoc(TrpDoc doc, boolean wordBased, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor) throws NoTagsException, Exception {
+	public static void writeXlsxForDoc(TrpDoc doc, boolean wordBased, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor, ExportCache cache) throws NoTagsException, Exception {
 		
-		if (ExportUtils.getCustomTagMapForDoc().isEmpty()) {
+		if(cache == null) {
+			throw new IllegalArgumentException("ExportCache must not be null.");
+		}
+		
+		if (cache.getCustomTagMapForDoc().isEmpty()) {
 			logger.info("No tags to store -> Xlsx export cancelled");
 			throw new NoTagsException("No tags available to store into Xlsx");
 		}
@@ -243,8 +247,9 @@ public class TrpXlsxBuilder {
 		List<TrpPage> pages = doc.getPages();
 		String exportPath = exportFile.getPath();
 		
-		Set<String> selectedTags = ExportUtils.getOnlySelectedTagnames(ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames()));
 		
+		Set<String> selectedTags = cache.getOnlySelectedTagnames(ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames()));
+				
 		int totalPages = pageIndices==null ? pages.size() : pageIndices.size();
 		if (monitor!=null) {
 			monitor.beginTask("Exporting to Excel", totalPages);
@@ -267,7 +272,10 @@ public class TrpXlsxBuilder {
 			
 			TrpPage page = pages.get(i);
 			//try to get previously loaded JAXB transcript
-			JAXBPageTranscript tr = ExportUtils.getPageTranscriptAtIndex(i);
+			JAXBPageTranscript tr = null;
+			if(cache != null) {
+				tr = cache.getPageTranscriptAtIndex(i);
+			}
 			if (tr == null){
 				TrpTranscriptMetadata md = page.getCurrentTranscript();
 				tr = new JAXBPageTranscript(md);
@@ -419,7 +427,7 @@ public class TrpXlsxBuilder {
 		
 		TrpDoc doc = LocalDocReader.load("C:/Users/Administrator/OCR_Sample_Document_-_Gothic_letter/");
 		TrpXlsxBuilder txslx = new TrpXlsxBuilder();
-		writeXlsxForDoc(doc, true, new File("C:/Users/Administrator/test.xlsx"), null, null);
+		writeXlsxForDoc(doc, true, new File("C:/Users/Administrator/test.xlsx"), null, null, new ExportCache());
 		//ExcelTest("C:/Users/Administrator/test.xlsx");
 		System.out.println("finished");
 	}

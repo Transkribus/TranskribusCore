@@ -9,18 +9,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.util.HSSFCellUtil;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.WorkbookUtil;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
@@ -34,7 +30,7 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableCellType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableRegionType;
-import eu.transkribus.core.model.builder.ExportUtils;
+import eu.transkribus.core.model.builder.ExportCache;
 import eu.transkribus.core.model.builder.NoTablesException;
 
 
@@ -47,7 +43,7 @@ public class TrpXlsxTableBuilder {
 		
 	}
 	
-	public static void writeXlsxForTables(TrpDoc doc, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor) throws NoTablesException, IOException, InterruptedException {
+	public static void writeXlsxForTables(TrpDoc doc, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor, ExportCache cache) throws NoTablesException, IOException, InterruptedException {
 		//TrpTableRegionType is contained in the regions too
 
 		List<TrpPage> pages = doc.getPages();
@@ -76,7 +72,10 @@ public class TrpXlsxTableBuilder {
 			
 			TrpPage page = pages.get(i);
 			//try to get previously loaded JAXB transcript
-			JAXBPageTranscript tr = ExportUtils.getPageTranscriptAtIndex(i);
+			JAXBPageTranscript tr = null;
+			if(cache != null) {
+				tr = cache.getPageTranscriptAtIndex(i);
+			}
 			if (tr == null){
 				TrpTranscriptMetadata md = page.getCurrentTranscript();
 				tr = new JAXBPageTranscript(md);
