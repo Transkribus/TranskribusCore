@@ -16,6 +16,7 @@ import java.util.zip.ZipOutputStream;
 
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -424,7 +425,12 @@ public class ExportUtils {
 	}
 	
 	public static String getAdjustedDocTitle(String title) {
-		return CoreUtils.replaceInvalidPathChars(title, "_");
+		if (StringUtils.isEmpty(title)) {
+			return "UNKNOWN_TITLE";
+		} 
+		else {
+			return CoreUtils.replaceInvalidPathChars(title, "_");	
+		}
 	}
 
 }
