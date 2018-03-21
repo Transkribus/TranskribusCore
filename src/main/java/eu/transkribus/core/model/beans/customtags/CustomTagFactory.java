@@ -148,6 +148,9 @@ public class CustomTagFactory {
 	
 	/**
 	 * Constructs a String for the config.properties file that stores non-predefined tags and additionals properties from predefined tags
+	 * also stores if predfined color has changed
+	 * 
+	 * New: We store these values to the DB as user specific tag definitions
 	 */
 	public static String createTagDefPropertyForConfigFile() {
 		String p = "";
@@ -233,6 +236,24 @@ public class CustomTagFactory {
 				logger.warn(e1.getMessage());
 			}
 		}
+	}
+	
+	public static List<CustomTag> getCustomTagListFromProperties(String tagNamesProp) {		
+		//logger.info("adding local tags to registry, tagNamesProp = "+tagNamesProp);
+		List<CustomTag> cts = new ArrayList<CustomTag>();
+		
+		Matcher m = RegexPattern.TAG_DEFINITIONS_PATTERN.matcher(tagNamesProp);
+		while (m.find()) {
+			String tag = tagNamesProp.substring(m.start(), m.end());
+			logger.debug("found tag: '"+tag+"'");
+			
+			String tagName = m.group(1);
+			logger.debug("tagname = "+tagName);
+			
+			CustomTag ct = objectRegistry.get(tagName);
+		    cts.add(ct);
+		}
+		return cts;
 	}
 	
 	public static void removeFromRegistry(String tagName) throws IOException {
