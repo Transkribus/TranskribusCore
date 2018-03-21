@@ -25,11 +25,10 @@ import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.builder.CommonExportPars;
-import eu.transkribus.core.model.builder.ExportUtils;
+import eu.transkribus.core.model.builder.ExportCache;
 import eu.transkribus.core.util.CoreUtils;
 
 public abstract class ATeiBuilder {
-	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(ATeiBuilder.class);
 	
 	public static final String TEI_NS = "http://www.tei-c.org/ns/1.0";
@@ -91,6 +90,19 @@ public abstract class ATeiBuilder {
 		Assert.assertNotNull("tei pars is null!", this.pars);
 	}
 	
+	public void addTranscriptsFromCache(ExportCache cache) {
+		if(cache == null || cache.getPageTranscripts().isEmpty()) {
+			logger.debug("null or empty cache was passed.");
+			return;
+		}
+		for(int i = 0; i < cache.getPageTranscripts().size(); i++) {
+			JAXBPageTranscript pt = cache.getPageTranscripts().get(i);
+			if(pt != null) {
+				transcrBuffer.put(i+1, pt.getPageData());
+			}
+		}
+	}
+	
 	public IProgressMonitor getMonitor() {
 		return monitor;
 	}
@@ -143,22 +155,9 @@ public abstract class ATeiBuilder {
 		} else {
 			TrpTranscriptMetadata tMd = p.getCurrentTranscript();
 			try{
-//				JAXBPageTranscript tr = new JAXBPageTranscript(tMd);
-//				tr.build();
-//				pc = tr.getPageData();
-				
-				//replaces previous loading (3 lines above) to avoid double unmarshalling
-				JAXBPageTranscript pt = ExportUtils.getPageTranscriptAtIndex(p.getPageNr()-1);
-				if (pt != null){
-					pc = pt.getPageData();
-				}
-				else{
-					JAXBPageTranscript tr = new JAXBPageTranscript(tMd);
-					tr.build();
-					pc = tr.getPageData();
-				}
-				
-				
+				JAXBPageTranscript tr = new JAXBPageTranscript(tMd);
+				tr.build();
+				pc = tr.getPageData();	
 			} catch (IOException je){
 				throw new JAXBException("Could not unmarshal page " + p.getPageNr(), je);
 			}
