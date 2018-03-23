@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
 import eu.transkribus.core.model.beans.customtags.BlackeningTag;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
 import eu.transkribus.core.model.beans.customtags.CustomTagList;
@@ -104,6 +106,11 @@ public class ExportUtils {
 	}
 
 	public static String getAdjustedDocTitle(String title) {
-		return CoreUtils.replaceInvalidPathChars(title, "_");
+		if (StringUtils.isEmpty(title)) {
+			return "UNKNOWN_TITLE";
+		} 
+		else {
+			return CoreUtils.replaceInvalidPathChars(title, "_");	
+		}
 	}
 }
