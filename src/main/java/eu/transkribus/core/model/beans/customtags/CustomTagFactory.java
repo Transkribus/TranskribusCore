@@ -146,6 +146,10 @@ public class CustomTagFactory {
 		registryObserver.addObserver(o);
 	}
 	
+	public static void deleteObserver(Observer o) {
+		registryObserver.deleteObserver(o);
+	}
+	
 	/**
 	 * Constructs a String for the config.properties file that stores non-predefined tags and additionals properties from predefined tags
 	 */
