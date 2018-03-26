@@ -30,7 +30,13 @@ public class CustomTagUtil {
 	private final static Logger logger = LoggerFactory.getLogger(CustomTagUtil.class);
 	
 	public static void applyForAllTagsAndContinuations(CustomTag tag, Consumer<CustomTag> c) {
-		if (tag==null || tag.getCustomTagList()==null) {
+		if (tag==null) {
+			return;
+		}
+		
+		// only apply to this tag if it is not linked in a CustomTagList
+		if (tag.getCustomTagList()==null || !tag.getCustomTagList().hasTag(tag)) {
+			c.accept(tag);
 			return;
 		}
 		
