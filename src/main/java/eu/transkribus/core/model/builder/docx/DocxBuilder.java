@@ -456,7 +456,7 @@ public class DocxBuilder {
 		wordMLPackage.save( file );
 		
 
-		System.out.println("Saved " + file.getAbsolutePath());
+		logger.info("Saved " + file.getAbsolutePath());
 		
 	}
 	
