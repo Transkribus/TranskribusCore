@@ -260,30 +260,45 @@ public class LocalDocReader {
 		}
 		
 		TrpDocMetadata docMd = null;
+		boolean doRefresh = true;
 		//try to read doc structure from disk
 		if(docXml.isFile()) {
 			doc = loadDocXml(docXml);
 			if(isValid(doc, pageMap.size(), config.isForceCreatePageXml())) {
 				logger.info("Loaded document structure from disk.");
-				return doc;
-			} else {
-				logger.info("Removing faulty doc XML from disk and doing reload.");
 				docMd = doc.getMd();
-				//fix localFolder in case it has changed
-				docMd.setLocalFolder(inputDir);
+				doRefresh = false;
+			} else {
+				if(doc != null && doc.getMd() != null) {
+					//keep any existing metadata if invalid doc structure was found
+					docMd = doc.getMd();
+				}
+				logger.info("Removing faulty doc XML from disk and doing reload.");
 				docXml.delete();
 				doc = new TrpDoc();
 			}
 		}
-		
+
 		logger.info("Reading document at " + inputDir.getAbsolutePath());
 
 		//find metadata file if not extracted from doc.xml =============================================
 		if(docMd == null) {
-			docMd = findOrCreateDocMd(inputDir);
+			try {
+				docMd = loadDocMd(inputDir);
+			} catch(IOException ioe) {
+				docMd = new TrpDocMetadata();
+			}
 		}
+		
+		initDocMd(docMd, inputDir, config.isStripServerRelatedMetadata());
+		
 		//Set the docMd
 		doc.setMd(docMd);
+		
+		if(!doRefresh) {
+			//Stop now and reuse doc structure from file
+			return doc;
+		}
 
 		//Construct the input dir with pageXml Files. 
 		File pageInputDir = getPageXmlInputDir(inputDir);
@@ -933,7 +948,7 @@ public class LocalDocReader {
 	 * @throws IOException
 	 *             If more than one mdFile is on the path
 	 */
-	public static TrpDocMetadata findDocMd(File inputDir) throws IOException {
+	public static TrpDocMetadata loadDocMd(File inputDir) throws IOException {
 		final File[] mdFiles = inputDir.listFiles(new MdFileFilter());
 
 		if (mdFiles == null || mdFiles.length == 0) {
@@ -958,29 +973,36 @@ public class LocalDocReader {
 		}
 	}
 	
-	public static TrpDocMetadata findDocMd2(File docDir) {
-		try {
-			return findDocMd(docDir);
-		} catch (IOException ioe) {
-			return null;
+	/**
+	 * Initiates the metadata object. E.g. Doc ID is set to -1 and the local folder is set to input dir.
+	 * If no title is included, then the input dir name is used.
+	 * @param docMd
+	 * @param inputDir
+	 * @param stripAllServerRelatedMetadata if true, then all server related data is removed from the metadata object: collections, symbolic image links, etc.
+	 */
+	private static void initDocMd(TrpDocMetadata docMd, File inputDir, boolean stripAllServerRelatedMetadata) {
+		if(inputDir == null) {
+			throw new IllegalArgumentException("Input dir must not be null.");
 		}
-	}
-	
-	public static TrpDocMetadata findOrCreateDocMd(File inputDir) {
-		TrpDocMetadata docMd;
-		try {
-			docMd = findDocMd(inputDir);
-		} catch (IOException e) {
+		if(docMd == null) {
 			docMd = new TrpDocMetadata();
 		}
-		
 		docMd.setLocalFolder(inputDir);
 		docMd.setDocId(-1);
 		if (StringUtils.isEmpty(docMd.getTitle())) {
 			docMd.setTitle(inputDir.getName());
 		}
-		
-		return docMd;
+		if(stripAllServerRelatedMetadata) {
+			docMd.getColList().clear();
+			docMd.setFimgStoreColl(null);
+			docMd.setOrigDocId(null);
+			docMd.setPageId(null);
+			docMd.setThumbUrl(null);
+			docMd.setUrl(null);
+			docMd.setUploaderId(-1);
+			docMd.setUploader(null);
+			docMd.setUploadTimestamp(0);
+		}
 	}
 
 	public static TrpDoc load(TrpUpload upload) throws IOException {
@@ -1105,6 +1127,10 @@ public class LocalDocReader {
 		protected boolean replaceBadChars; //false
 		protected boolean forceCreatePageXml; //true
 		protected boolean enableSyncWithoutImages; //false
+		/**
+		 * If set to true, then all server-related data is removed from the TrpDocMetadata if existent
+		 */
+		protected boolean stripServerRelatedMetadata; //false
 		
 		/**
 		 * build the default loadConfig
@@ -1115,6 +1141,7 @@ public class LocalDocReader {
 			this.replaceBadChars = false;
 			this.forceCreatePageXml = true;
 			this.enableSyncWithoutImages = false;
+			this.stripServerRelatedMetadata = false;
 		}
 		/**
 		 * @param preserveOcrTxtStyles when creating the pageXML from alto/finereader XMLs, preserve the text style information
@@ -1126,6 +1153,7 @@ public class LocalDocReader {
 		public DocLoadConfig(boolean preserveOcrTxtStyles, 
 				boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml,
 				boolean enableSyncWithoutImages) {
+			this();
 			this.preserveOcrTxtStyles = preserveOcrTxtStyles;
 			this.preserveOcrFontFamily = preserveOcrFontFamily;
 			this.replaceBadChars = replaceBadChars;
@@ -1171,6 +1199,12 @@ public class LocalDocReader {
 
 		public void setEnableSyncWithoutImages(boolean enableSyncWithoutImages) {
 			this.enableSyncWithoutImages = enableSyncWithoutImages;
+		}
+		public boolean isStripServerRelatedMetadata() {
+			return stripServerRelatedMetadata;
+		}
+		public void setStripServerRelatedMetadata(boolean stripServerRelatedMetadata) {
+			this.stripServerRelatedMetadata = stripServerRelatedMetadata;
 		}
 	}
 	

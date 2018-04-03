@@ -43,7 +43,7 @@ public class FatBuilder {
 		
 		//needs a local doc! Read files separately because we don't want to create Page XMLs
 		Map<String, File> imgFiles = LocalDocReader.findImgFiles(outputDir);
-		TrpDocMetadata docMd = LocalDocReader.findDocMd(outputDir);
+		TrpDocMetadata docMd = LocalDocReader.loadDocMd(outputDir);
 		
 //		final DocType docType = doc.getMd().getType();
 //		if(!DocType.PRINT.equals(docType)){

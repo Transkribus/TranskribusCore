@@ -96,7 +96,6 @@ public final class RESTConst {
 	
 	public static final String WORDGRAPHS_PATH = "wordgraphs";
 	public static final String LIST_USERS_PATH = "userlist";
-	public static final String LIST_LOGINS_PATH = "loginlist";
 	public static final String REGISTER_PATH = "register";
 	public static final String BUG_REPORT_PATH = "bugReport";
 	public static final String SERVER_VERSION_INFO_PATH = "serverVersion";
