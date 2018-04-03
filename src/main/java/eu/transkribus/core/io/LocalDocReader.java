@@ -267,6 +267,7 @@ public class LocalDocReader {
 			if(isValid(doc, pageMap.size(), config.isForceCreatePageXml())) {
 				logger.info("Loaded document structure from disk.");
 				docMd = doc.getMd();
+				//no refresh is necessary as doc structure matches the input dir content
 				doRefresh = false;
 			} else {
 				if(doc != null && doc.getMd() != null) {
@@ -1121,6 +1122,30 @@ public class LocalDocReader {
 		return true;
 	}
 	
+	/**
+	 * Quick access to docMd without loading and checking all the stuff which load() would do.
+	 * 
+	 * @param dir
+	 * @return existing metadata if found, a freshly initiated instance otherwise
+	 */
+	public static TrpDocMetadata findDocMd(File dir) {
+		final File docXml = new File(dir.getAbsolutePath() + File.separator + LocalDocConst.DOC_XML_FILENAME);
+		TrpDocMetadata docMd = null;
+		TrpDoc doc;
+		if(docXml.isFile() && (doc = loadDocXml(docXml)) != null) {
+			docMd = doc.getMd();
+		}
+		//try find legacy metadata.xml
+		if(docMd == null) {
+			try {
+				docMd = loadDocMd(dir);
+			} catch(IOException ioe) {}
+		}
+		//init object as load() would do
+		initDocMd(docMd, dir, false);
+		return docMd;
+	}
+	
 	public static class DocLoadConfig {
 		protected boolean preserveOcrTxtStyles; //true
 		protected boolean preserveOcrFontFamily; //true
@@ -1207,5 +1232,4 @@ public class LocalDocReader {
 			this.stripServerRelatedMetadata = stripServerRelatedMetadata;
 		}
 	}
-	
 }
