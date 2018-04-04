@@ -606,10 +606,10 @@ public class DocxBuilder {
 					e.printStackTrace();
 				}
 
-				Br br = factory.createBr(); // this Br element is used break the current and go for next line
+				//Br br = factory.createBr(); // this Br element is used break the current and go for next line
 				org.docx4j.wml.P  p = factory.createP();
 				mdp.addObject(p);
-				p.getContent().add(br);
+				//p.getContent().add(br);
 
 			}
 			else if (r instanceof TrpTextRegionType){
@@ -626,14 +626,14 @@ public class DocxBuilder {
 				
 				if (!helper.equals("")){
 					
-					exportTextRegion(tr, wordBased, null, mdp);
+					exportTextRegion(tr, wordBased, null, null, mdp);
 		
 				}
 			}
 		}				
 	}
 	
-	private static void exportTextRegion(TrpTextRegionType tr, boolean wordBased, P p, MainDocumentPart mdp) {
+	private static void exportTextRegion(TrpTextRegionType tr, boolean wordBased, P p, Tc cell, MainDocumentPart mdp) {
 		
 		if (p == null){
 			p = factory.createP();
@@ -663,8 +663,15 @@ public class DocxBuilder {
 			 */
 			if (trpL.getCustomTagList().containsParagraphTag()){
 				//then new paragraph should be used;
+				//logger.debug("paragraph sign detected ");
 				p = factory.createP();
-				mdp.addObject(p);
+				if (cell != null){
+					cell.getContent().add(p);
+				}
+				else{
+					mdp.addObject(p);
+				}
+				
 			}
 			/*add line break after each text line
 			 * or omit this if explicitely wished to have dense lines
@@ -758,19 +765,19 @@ public class DocxBuilder {
 	            //P columnPara = (P) column.getContent().get(0);
 	            
 	            cell.getContent().add(columnPara);
-	            d++;
-	            Text tx = factory.createText();
-	            R run = factory.createR();
+//	            d++;
+//	            Text tx = factory.createText();
+//	            R run = factory.createR();
 
 	            if (entry.get(key) != null){            	
 	            	//old solution till now: tx.setValue(entry.get(key).getUnicodeTextFromLines());
 	            	if(entry.get(key).getUnicodeTextFromLines() != ""){
-	            		exportTextRegion(entry.get(key), isWordBased, columnPara, mdp);
+	            		exportTextRegion(entry.get(key), isWordBased, columnPara, cell, mdp);
 	            	}
 
 	            }
-	            run.getContent().add(tx);
-	            columnPara.getContent().add(run);
+//	            run.getContent().add(tx);
+//	            columnPara.getContent().add(run);
 	            
 	        }
 	    }
