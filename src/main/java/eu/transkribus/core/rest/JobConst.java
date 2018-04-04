@@ -73,4 +73,6 @@ public class JobConst {
 	
 	public static final String PROP_KEY = "key";
 	public static final String PROP_IMG_FILE = "imgKey";
+
+	public static final String PROP_TITLE_PREFIX = "titlePrefix";
 }

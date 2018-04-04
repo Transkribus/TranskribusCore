@@ -19,7 +19,8 @@ import javax.xml.bind.annotation.XmlSeeAlso;
  * See {@link TrpKwsQueryList} for example.<br/>
  * <br/>
  * TODO: try to use {@link ContextResolver} instead of XmlSeeAlso annotation as it might be faster. 
- * 
+ * FIXME & WTF: Jersey can't unmarshal this type from JSON correctly!?! The list will contain elements of type com.sun.org.apache.xerces.internal.dom.ElementNSImpl containing the attributes!
+ * This might be caused by XmlAnyElement(lax=true) but without that it does not work at all... stick to XML for now with Java
  * @author philip
  *
  * @param <T>

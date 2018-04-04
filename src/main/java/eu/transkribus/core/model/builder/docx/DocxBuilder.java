@@ -89,9 +89,9 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableCellType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
+import eu.transkribus.core.model.builder.ExportCache;
 import eu.transkribus.core.model.builder.ExportUtils;
 import eu.transkribus.core.util.CoreUtils;
-import eu.transkribus.core.util.PageXmlUtils;
 
 public class DocxBuilder {
 	
@@ -264,14 +264,14 @@ public class DocxBuilder {
 //		System.out.println("Done.");
 	}
 	
-	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackeningSensibleData, File file, Set<Integer> pageIndices, IProgressMonitor monitor, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean replaceAbbrevs, boolean keepLineBreaks, boolean showSuppliedInBrackets, boolean ignoreSuppliedTags) throws JAXBException, IOException, Docx4JException, InterruptedException {
+	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackeningSensibleData, File file, Set<Integer> pageIndices, IProgressMonitor monitor, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean replaceAbbrevs, boolean keepLineBreaks, boolean showSuppliedInBrackets, boolean ignoreSuppliedTags, ExportCache cache) throws JAXBException, IOException, Docx4JException, InterruptedException {
 		
 	    //ch.qos.logback.classic.Logger root = logger.getClass().get(ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
 	    ((ch.qos.logback.classic.Logger) logger).setLevel(ch.qos.logback.classic.Level.DEBUG);
 	    
 		exportTags = writeTags;
 		doBlackening = doBlackeningSensibleData;
-		tagnames = ExportUtils.getOnlySelectedTagnames(ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames()));
+		tagnames = cache.getOnlySelectedTagnames(ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames()));
 		markUnclearWords = markUnclear;
 		expandAbbrevs = expandAbbreviations;
 		preserveLineBreaks = keepLineBreaks;
@@ -329,8 +329,10 @@ public class DocxBuilder {
 //			TrpTranscriptMetadata md = page.getCurrentTranscript();
 //			JAXBPageTranscript tr = new JAXBPageTranscript(md);
 //			tr.build();
-			
-			JAXBPageTranscript tr = ExportUtils.getPageTranscriptAtIndex(i);
+			JAXBPageTranscript tr = null;
+			if(cache != null) {
+				tr = cache.getPageTranscriptAtIndex(i);
+			}
 			if (tr == null){
 				TrpPage page = pages.get(i);
 				TrpTranscriptMetadata md = page.getCurrentTranscript();
@@ -390,7 +392,7 @@ public class DocxBuilder {
 			for (String currTagname : tagnames){
 				//logger.debug("curr tagname " + currTagname);
 				//get all custom tags with currTagname and text
-				HashMap<CustomTag, String> allTagsOfThisTagname = ExportUtils.getTags(currTagname);
+				HashMap<CustomTag, String> allTagsOfThisTagname = cache.getTags(currTagname);
 				
 				//one paragraph for each tagname
 				org.docx4j.wml.P  p4Tag = factory.createP();
@@ -454,7 +456,7 @@ public class DocxBuilder {
 		wordMLPackage.save( file );
 		
 
-		System.out.println("Saved " + file.getAbsolutePath());
+		logger.info("Saved " + file.getAbsolutePath());
 		
 	}
 	

@@ -30,8 +30,6 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.io.IOUtils;
 import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
 import org.dea.util.pdf.APdfDocument;
-import org.docx4j.wml.Br;
-import org.docx4j.wml.Tbl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +47,6 @@ import eu.transkribus.core.model.beans.EdFeature;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.customtags.AbbrevTag;
-import eu.transkribus.core.model.beans.customtags.BlackeningTag;
 import eu.transkribus.core.model.beans.customtags.CommentTag;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
 import eu.transkribus.core.model.beans.customtags.CustomTagFactory;
@@ -73,9 +70,9 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
+import eu.transkribus.core.model.builder.ExportCache;
 import eu.transkribus.core.model.builder.ExportUtils;
 import eu.transkribus.core.util.CoreUtils;
-import eu.transkribus.core.util.PageXmlUtils;
 import eu.transkribus.core.util.PointStrUtils;
 
 
@@ -150,7 +147,7 @@ public class TrpPdfDocument extends APdfDocument {
 	
 
 	@SuppressWarnings("unused")
-	public void addPage(URL imgUrl, TrpDoc doc, PcGtsType pc, boolean addAdditionalPlainTextPage, boolean imageOnly, FimgStoreImgMd md, boolean doBlackening) throws MalformedURLException, IOException, DocumentException, JAXBException, URISyntaxException {
+	public void addPage(URL imgUrl, TrpDoc doc, PcGtsType pc, boolean addAdditionalPlainTextPage, boolean imageOnly, FimgStoreImgMd md, boolean doBlackening, ExportCache cache) throws MalformedURLException, IOException, DocumentException, JAXBException, URISyntaxException {
 		
 		imgOnly = imageOnly;
 		extraTextPage = addAdditionalPlainTextPage;
@@ -162,19 +159,15 @@ public class TrpPdfDocument extends APdfDocument {
 //		}
 		
 		BufferedImage imgBuffer = null;
-		InputStream input;
-		try {
-			input = imgUrl.openStream();
-			
+		try (InputStream input = imgUrl.openStream()) {			
 			imgBuffer = ImageIO.read(input);
 		} catch (FileNotFoundException e) {
-	
 			logger.error("File was not found at url " + imgUrl);
 			URL origUrl = new URL(imgUrl.getProtocol(), imgUrl.getHost(), imgUrl.getFile().replace("view", "orig"));			
 			logger.debug("try orig file location " + origUrl);
-			input = origUrl.openStream();
-			imgBuffer = ImageIO.read(input);
-			
+			try (InputStream input = origUrl.openStream()) {
+				imgBuffer = ImageIO.read(input);
+			}
 		}
 		
 	    Graphics2D graph = imgBuffer.createGraphics();
@@ -322,21 +315,21 @@ public class TrpPdfDocument extends APdfDocument {
 		}
 		
 		document.newPage();
-		addTextAndImage(pc ,cutoffLeft,cutoffTop, img, imageOnly);	
+		addTextAndImage(pc ,cutoffLeft,cutoffTop, img, imageOnly, cache);	
 		
 		if(addAdditionalPlainTextPage){
 
 			if (nrOfTextRegions > 0){
 				logger.debug("add uniform text");
 				document.newPage();			
-				addUniformText(pc ,cutoffLeft,cutoffTop);
+				addUniformText(pc ,cutoffLeft,cutoffTop, cache);
 			}
 		}
 	}
 	
 
 
-	private void addTextAndImage(PcGtsType pc, int cutoffLeft, int cutoffTop, Image img, boolean imageOnly) throws DocumentException, IOException {
+	private void addTextAndImage(PcGtsType pc, int cutoffLeft, int cutoffTop, Image img, boolean imageOnly, ExportCache cache) throws DocumentException, IOException {
 		lineAndColorList.clear();
 		
 		PdfContentByte cb = writer.getDirectContentUnder();
@@ -360,13 +353,13 @@ public class TrpPdfDocument extends APdfDocument {
 				//TODO add paths for tables etc.
 				if (r instanceof TrpTableRegionType){
 					
-					exportTable(r, cb, cutoffLeft, cutoffTop, false);
+					exportTable(r, cb, cutoffLeft, cutoffTop, false, cache);
 
 				}
 				else if(r instanceof TextRegionType){
 					TextRegionType tr = (TextRegionType)r;
 					//PageXmlUtils.buildPolygon(tr.getCoords().getPoints()).getBounds().getMinX();
-					addTextFromTextRegion(tr, cb, cutoffLeft, cutoffTop, bfArial);
+					addTextFromTextRegion(tr, cb, cutoffLeft, cutoffTop, bfArial, cache);
 				}
 			}
 			
@@ -394,7 +387,7 @@ public class TrpPdfDocument extends APdfDocument {
 //		addTocLinks(doc, page,cutoffTop);
 	}
 	
-	private void exportTable(RegionType r, PdfContentByte cb, int cutoffLeft, int cutoffTop, boolean addUniformText) throws IOException, DocumentException {
+	private void exportTable(RegionType r, PdfContentByte cb, int cutoffLeft, int cutoffTop, boolean addUniformText, ExportCache cache) throws IOException, DocumentException {
 		logger.debug("is table");
 		TrpTableRegionType table = (TrpTableRegionType) r;
 		
@@ -437,10 +430,10 @@ public class TrpPdfDocument extends APdfDocument {
         		if (addUniformText){
 					float textBlockXStart = getAverageBeginningOfBaselines(entry.get(key));
 					textBlockXStart += 40;
-					addUniformTextFromTextRegion(entry.get(key), cb, cutoffLeft, cutoffTop, bfArial, textBlockXStart);
+					addUniformTextFromTextRegion(entry.get(key), cb, cutoffLeft, cutoffTop, bfArial, textBlockXStart, cache);
 				}
         		else{
-        			addTextFromTextRegion(entry.get(key), cb, cutoffLeft, cutoffTop, bfArial);
+        			addTextFromTextRegion(entry.get(key), cb, cutoffLeft, cutoffTop, bfArial, cache);
         		}
 
         	}
@@ -448,7 +441,7 @@ public class TrpPdfDocument extends APdfDocument {
 		
 	}
 
-	private void addUniformText(PcGtsType pc, int cutoffLeft, int cutoffTop) throws DocumentException, IOException {
+	private void addUniformText(PcGtsType pc, int cutoffLeft, int cutoffTop, ExportCache cache) throws DocumentException, IOException {
 		PdfContentByte cb = writer.getDirectContentUnder();
 		cb.setColorFill(BaseColor.BLACK);
 		cb.setColorStroke(BaseColor.BLACK);
@@ -477,7 +470,7 @@ public class TrpPdfDocument extends APdfDocument {
 		for(TrpRegionType r : regions){
 			//TODO add paths for tables etc.			
 			if (r instanceof TrpTableRegionType){
-				exportTable(r, cb, cutoffLeft, cutoffTop, true);
+				exportTable(r, cb, cutoffLeft, cutoffTop, true, cache);
 			}
 			else if(r instanceof TrpTextRegionType){
 				TrpTextRegionType tr = (TrpTextRegionType) r;
@@ -530,7 +523,7 @@ public class TrpPdfDocument extends APdfDocument {
 
 				}
 				//logger.debug("textBlockXStart " + textBlockXStart);
-				addUniformTextFromTextRegion(tr, cb, cutoffLeft, cutoffTop, bfArial, textBlockXStart);
+				addUniformTextFromTextRegion(tr, cb, cutoffLeft, cutoffTop, bfArial, textBlockXStart, cache);
 			}
 		}
 		
@@ -740,7 +733,7 @@ public class TrpPdfDocument extends APdfDocument {
     }	
 	
 
-	private void addUniformTextFromTextRegion(final TextRegionType tr, final PdfContentByte cb, int cutoffLeft, int cutoffTop, BaseFont bf, float lineStartX) throws IOException, DocumentException {
+	private void addUniformTextFromTextRegion(final TextRegionType tr, final PdfContentByte cb, int cutoffLeft, int cutoffTop, BaseFont bf, float lineStartX, ExportCache cache) throws IOException, DocumentException {
 		List<TextLineType> lines = tr.getTextLine();
 		if(lines != null && !lines.isEmpty()){
 			int i = 0;
@@ -1035,7 +1028,7 @@ public class TrpPdfDocument extends APdfDocument {
 								
 								String currentCharacter = wordText.substring(j, j+1);
 
-								chunkList.add(chunkIndex, formatText(currentCharacter, styleTags, j, w));
+								chunkList.add(chunkIndex, formatText(currentCharacter, styleTags, j, w, cache));
 								chunkIndex++;
 
 							}
@@ -1052,7 +1045,7 @@ public class TrpPdfDocument extends APdfDocument {
 						
 						String currentCharacter = lineText.substring(j, j+1);
 
-						chunkList.add(j, formatText(currentCharacter, styleTags, j, l));
+						chunkList.add(j, formatText(currentCharacter, styleTags, j, l, cache));
 
 					}
 				}
@@ -1254,7 +1247,7 @@ public class TrpPdfDocument extends APdfDocument {
 		return rotation;
 	}
 
-	private Chunk formatText(String currCharacter, List<TextStyleTag> styleTags, int currentIndex, ITrpShapeType currShape) throws IOException {
+	private Chunk formatText(String currCharacter, List<TextStyleTag> styleTags, int currentIndex, ITrpShapeType currShape, ExportCache cache) throws IOException {
 		
 		//first blacken char if needed
 		Set<Entry<CustomTag, String>> blackSet = ExportUtils.getAllTagsOfThisTypeForShapeElement(currShape, RegionTypeUtil.BLACKENING_REGION.toLowerCase()).entrySet();
@@ -1363,7 +1356,7 @@ public class TrpPdfDocument extends APdfDocument {
 			for (Map.Entry<CustomTag, String> currEntry : entrySet){
 				
 				//Set<String> wantedTags = ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames());
-				Set<String> wantedTags = ExportUtils.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
+				Set<String> wantedTags = cache.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
 				
 				if (wantedTags.contains(currEntry.getKey().getTagName())){
 
@@ -1494,7 +1487,7 @@ public class TrpPdfDocument extends APdfDocument {
 		return countOverlaps;
 	}
 
-	private void addTextFromTextRegion(final TextRegionType tr, final PdfContentByte cb, int cutoffLeft, int cutoffTop, BaseFont bf) throws IOException {
+	private void addTextFromTextRegion(final TextRegionType tr, final PdfContentByte cb, int cutoffLeft, int cutoffTop, BaseFont bf, ExportCache cache) throws IOException {
 		List<TextLineType> lines = tr.getTextLine();
 		
 		boolean firstLine;
@@ -1605,11 +1598,11 @@ public class TrpPdfDocument extends APdfDocument {
 						List<WordType> words = l.getWord();
 						for(WordType wt : words){
 							TrpWordType w = (TrpWordType)wt;
-							highlightTagsForShape(w, rtl);
+							highlightTagsForShape(w, rtl, cache);
 						}
 					}
 					else{
-						highlightTagsForShape(l, rtl);
+						highlightTagsForShape(l, rtl, cache);
 					}
 					
 				}
@@ -1633,13 +1626,13 @@ public class TrpPdfDocument extends APdfDocument {
 	}
 		
 
-	private void highlightTagsForShape(ITrpShapeType shape, boolean rtl) throws IOException {
+	private void highlightTagsForShape(ITrpShapeType shape, boolean rtl, ExportCache cache) throws IOException {
 		int tagId = 0;
 		int k = 1;
 		Set<Entry<CustomTag, String>> entrySet = ExportUtils.getAllTagsForShapeElement(shape).entrySet();
 		
 		//Set<String> wantedTags = ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames());
-		Set<String> wantedTags = ExportUtils.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
+		Set<String> wantedTags = cache.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
 		
 		//logger.debug("wanted tags in TRPPDFDOC " + wantedTags.size());
 
@@ -1916,7 +1909,7 @@ public class TrpPdfDocument extends APdfDocument {
 
 	}
 
-	public void addTags(TrpDoc doc, Set<Integer> pageIndices, boolean useWordLevel2) throws DocumentException, IOException {
+	public void addTags(TrpDoc doc, Set<Integer> pageIndices, boolean useWordLevel2, ExportCache cache) throws DocumentException, IOException {
 		PdfContentByte cb = writer.getDirectContentUnder();
 		document.newPage();
 				
@@ -1924,7 +1917,7 @@ public class TrpPdfDocument extends APdfDocument {
 		float posY;
 		//BaseFont bf = BaseFont.createFont(BaseFont.TIMES_ROMAN, "UTF-8", BaseFont.NOT_EMBEDDED, true, null, null);
 		
-		Set<String> wantedTags = ExportUtils.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
+		Set<String> wantedTags = cache.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
 		
 		//logger.debug("selectedTags Size " + selectedTags.size());
 		for (String currTagname : wantedTags){
@@ -1932,7 +1925,7 @@ public class TrpPdfDocument extends APdfDocument {
 			double lineGap = 4/scaleFactorY;
 			//logger.debug("currTagname " + currTagname);
 			//get all custom tags with currTagname and text
-			HashMap<CustomTag, String> allTagsOfThisTagname = ExportUtils.getTags(currTagname);
+			HashMap<CustomTag, String> allTagsOfThisTagname = cache.getTags(currTagname);
 			//logger.debug("all Tags Of This Tagname " + currTagname);
 			if(allTagsOfThisTagname.size()>0){
 				

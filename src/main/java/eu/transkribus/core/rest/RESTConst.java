@@ -96,7 +96,6 @@ public final class RESTConst {
 	
 	public static final String WORDGRAPHS_PATH = "wordgraphs";
 	public static final String LIST_USERS_PATH = "userlist";
-	public static final String LIST_LOGINS_PATH = "loginlist";
 	public static final String REGISTER_PATH = "register";
 	public static final String BUG_REPORT_PATH = "bugReport";
 	public static final String SERVER_VERSION_INFO_PATH = "serverVersion";
@@ -375,6 +374,8 @@ public final class RESTConst {
 	public static final String TAGS_PATH = "tags";
 	public static final String TAG_NAME_PARAM = "tagName";
 	public static final String TAG_VALUE_PARAM = "tagValue";
+	public static final String TAG_DEF_PARAM = "tagDefs";
+	public static final String LIST_TAG_DEFS_PARAM = "listTagDefs";
 	public static final String REGION_TYPE_PARAM = "regionType";
 	public static final String ATTRIBUTES_PARAM = "attributes";
 	public static final String PARS_PARAM = "pars";

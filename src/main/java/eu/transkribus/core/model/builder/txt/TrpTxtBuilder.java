@@ -11,11 +11,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
 import javax.xml.bind.JAXBException;
 
-import org.apache.xmlbeans.impl.store.Path;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
-import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +36,7 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
+import eu.transkribus.core.model.builder.ExportCache;
 import eu.transkribus.core.model.builder.ExportUtils;
 
 public class TrpTxtBuilder {
@@ -52,7 +52,7 @@ public class TrpTxtBuilder {
 		
 		try {
 			TrpDoc doc = LocalDocReader.load(path);
-			writeTxtForDoc(doc, true, false, true, new File("TxtExportTest.txt"), null, null);
+			writeTxtForDoc(doc, true, false, true, new File("TxtExportTest.txt"), null, null, new ExportCache());
 		} catch (JAXBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -69,7 +69,7 @@ public class TrpTxtBuilder {
 
 	}
 	
-	public static void writeTxtForDoc(TrpDoc doc, boolean addTitle, boolean wordBased, boolean preserveLineBreaks, File file, Set<Integer> pageIndices, IProgressMonitor monitor) throws JAXBException, IOException, Docx4JException, InterruptedException {
+	public static void writeTxtForDoc(TrpDoc doc, boolean addTitle, boolean wordBased, boolean preserveLineBreaks, File file, Set<Integer> pageIndices, IProgressMonitor monitor, ExportCache cache) throws JAXBException, IOException, Docx4JException, InterruptedException {
 	
 		//delete file if already exists
 		Files.deleteIfExists(Paths.get(file.getAbsolutePath()));
@@ -98,7 +98,10 @@ public class TrpTxtBuilder {
 				monitor.subTask("Processing page "+(c+1));
 			}
 			
-			JAXBPageTranscript tr = ExportUtils.getPageTranscriptAtIndex(i);
+			JAXBPageTranscript tr = null;
+			if(cache != null) {
+				tr = cache.getPageTranscriptAtIndex(i);
+			}
 			if (tr == null){
 				TrpPage page = pages.get(i);
 				TrpTranscriptMetadata md = page.getCurrentTranscript();

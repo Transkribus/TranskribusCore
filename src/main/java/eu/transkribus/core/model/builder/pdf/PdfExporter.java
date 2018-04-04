@@ -5,25 +5,23 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.List;
 import java.util.Observable;
 import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.dea.fimgstoreclient.FimgStoreGetClient;
 import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.itextpdf.text.DocumentException;
 
-import eu.transkribus.core.model.beans.EdFeature;
 import eu.transkribus.core.model.beans.JAXBPageTranscript;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
-import eu.transkribus.core.model.builder.ExportUtils;
+import eu.transkribus.core.model.builder.ExportCache;
 import eu.transkribus.core.util.PageXmlUtils;
 
 public class PdfExporter extends Observable {
@@ -34,19 +32,22 @@ public class PdfExporter extends Observable {
 	public PdfExporter(){}
 	
 	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, boolean extraTextPages, boolean highlightTags, boolean wordBased, boolean doBlackening, boolean createTitle) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
-		return export(doc, path, pageIndices, false, false, true, true, false, false);
+		return export(doc, path, pageIndices, false, false, true, true, false, false, null);
 	}
 	
-	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
-		return export(doc, path, pageIndices, false, true, false, true, true, true);
+	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, ExportCache cache) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
+		return export(doc, path, pageIndices, false, true, false, true, true, true, cache);
 	}
 		
-	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean useWordLevel, final boolean addTextPages, final boolean imagesOnly, final boolean highlightTags, final boolean doBlackening, boolean createTitle) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
+	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean useWordLevel, final boolean addTextPages, final boolean imagesOnly, final boolean highlightTags, final boolean doBlackening, boolean createTitle, ExportCache cache) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
 		if(doc == null){
 			throw new IllegalArgumentException("TrpDoc is null!");
 		}
 		if(path == null){
 			throw new IllegalArgumentException("path is null!");
+		}
+		if(cache == null) {
+			cache = new ExportCache();
 		}
 //		if(startPage == null || startPage < 1) startPage = 1;
 //		final int nrOfPages = doc.getPages().size();
@@ -90,8 +91,13 @@ public class PdfExporter extends Observable {
 			//PcGtsType pc = PageXmlUtils.unmarshal(xmlUrl);
 			
 			//should be the same as above
+			
+			JAXBPageTranscript pt = null;
+			if(cache != null) {
+				pt = cache.getPageTranscriptAtIndex(i);
+			}
+			
 			PcGtsType pc;
-			JAXBPageTranscript pt = ExportUtils.getPageTranscriptAtIndex(i);
 			if (pt != null){
 				pc = pt.getPageData();
 			}
@@ -101,11 +107,11 @@ public class PdfExporter extends Observable {
 
 			if (!onePagePrinted){
 				//add first page and previously add a title page with doc metadata and editorial declarations (if this option is set)
-				pdf.addPage(imgUrl, doc, pc, addTextPages, imagesOnly, md, doBlackening);
+				pdf.addPage(imgUrl, doc, pc, addTextPages, imagesOnly, md, doBlackening, cache);
 				onePagePrinted = true;
 			}
 			else{
-				pdf.addPage(imgUrl, null, pc, addTextPages, imagesOnly, md, doBlackening);
+				pdf.addPage(imgUrl, null, pc, addTextPages, imagesOnly, md, doBlackening, cache);
 			}
 			
 			setChanged();
@@ -121,7 +127,7 @@ public class PdfExporter extends Observable {
 			}
 		}
 		if (highlightTags){
-			pdf.addTags(doc, pageIndices, useWordLevel);
+			pdf.addTags(doc, pageIndices, useWordLevel, cache);
 		}
 		pdf.close();
 		
