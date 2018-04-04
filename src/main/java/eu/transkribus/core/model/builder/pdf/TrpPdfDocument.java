@@ -159,19 +159,15 @@ public class TrpPdfDocument extends APdfDocument {
 //		}
 		
 		BufferedImage imgBuffer = null;
-		InputStream input;
-		try {
-			input = imgUrl.openStream();
-			
+		try (InputStream input = imgUrl.openStream()) {			
 			imgBuffer = ImageIO.read(input);
 		} catch (FileNotFoundException e) {
-	
 			logger.error("File was not found at url " + imgUrl);
 			URL origUrl = new URL(imgUrl.getProtocol(), imgUrl.getHost(), imgUrl.getFile().replace("view", "orig"));			
 			logger.debug("try orig file location " + origUrl);
-			input = origUrl.openStream();
-			imgBuffer = ImageIO.read(input);
-			
+			try (InputStream input = origUrl.openStream()) {
+				imgBuffer = ImageIO.read(input);
+			}
 		}
 		
 	    Graphics2D graph = imgBuffer.createGraphics();
