@@ -105,6 +105,7 @@ public class DocxBuilder {
 	static boolean expandAbbrevs = false;
 	static boolean substituteAbbrevs = false;
 	static boolean preserveLineBreaks = false;
+	static boolean forcePageBreaks = false;
 	static boolean showSuppliedWithBrackets = false;
 	static boolean ignoreSupplied = false;
 	
@@ -264,7 +265,9 @@ public class DocxBuilder {
 //		System.out.println("Done.");
 	}
 	
-	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackeningSensibleData, File file, Set<Integer> pageIndices, IProgressMonitor monitor, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean replaceAbbrevs, boolean keepLineBreaks, boolean showSuppliedInBrackets, boolean ignoreSuppliedTags, ExportCache cache) throws JAXBException, IOException, Docx4JException, InterruptedException {
+	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackeningSensibleData, File file, Set<Integer> pageIndices, 
+			IProgressMonitor monitor, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean replaceAbbrevs, boolean keepLineBreaks, 
+			boolean forcePagebreaks, boolean showSuppliedInBrackets, boolean ignoreSuppliedTags, ExportCache cache) throws JAXBException, IOException, Docx4JException, InterruptedException {
 		
 	    //ch.qos.logback.classic.Logger root = logger.getClass().get(ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
 	    ((ch.qos.logback.classic.Logger) logger).setLevel(ch.qos.logback.classic.Level.DEBUG);
@@ -275,6 +278,7 @@ public class DocxBuilder {
 		markUnclearWords = markUnclear;
 		expandAbbrevs = expandAbbreviations;
 		preserveLineBreaks = keepLineBreaks;
+		forcePageBreaks = forcePagebreaks;
 		substituteAbbrevs = replaceAbbrevs;
 		showSuppliedWithBrackets = showSuppliedInBrackets;
 		ignoreSupplied = ignoreSuppliedTags;
@@ -354,12 +358,11 @@ public class DocxBuilder {
 			 * page break after first page for each page except the last one
 			 * 
 			 * New:
-			 * no page break - lets do this automatically
+			 * let user choose if he wants to have a new page in docx for each doc page
 			 */
-//			if (atLeastOnePageWritten && c < pageIndices.size()){
-//				mdp.addObject(pageBreakP);
-//			}
-			
+			if (forcePageBreaks && atLeastOnePageWritten && c < pageIndices.size()){
+				mdp.addObject(pageBreakP);
+			}			
 			
 			if (monitor!=null) {
 				monitor.worked(c);

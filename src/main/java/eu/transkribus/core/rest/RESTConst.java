@@ -412,6 +412,7 @@ public final class RESTConst {
 	public static final String DO_TEI_LINE_BREAKS_PARAM = "doTeiWithLineBreaks";
 	public static final String DO_DOCX_EXPORT_TAGS = "doDocxWithTags";
 	public static final String DO_DOCX_PRESERVE_BREAKS_PARAM = "doDocxPreserveLineBreaks";
+	public static final String DO_DOCX_FORCE_PAGEBREAKS_PARAM = "doDocxForcePageBreaks";
 	public static final String DO_DOCX_MARK_UNCLEAR_PARAM = "doDocxMarkUnclear";
 	public static final String DO_DOCX_KEEP_ABBREVS_PARAM = "doDocxKeepAbbrevs";
 	public static final String DO_DOCX_EXPAND_ABBREVS_PARAM = "doDocxExpandAbbrevs";

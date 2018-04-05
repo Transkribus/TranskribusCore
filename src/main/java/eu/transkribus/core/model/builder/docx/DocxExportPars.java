@@ -5,6 +5,7 @@ public class DocxExportPars {
 	
 	boolean doDocxWithTags=false;
 	boolean doDocxPreserveLineBreaks=false;
+	boolean doDocxForcePageBreaks=false;
 	boolean doDocxMarkUnclear=false;
 	boolean doDocxKeepAbbrevs=true;
 	boolean doDocxExpandAbbrevs=false;
@@ -13,11 +14,12 @@ public class DocxExportPars {
 	public DocxExportPars() {
 	}
 
-	public DocxExportPars(boolean doDocxWithTags, boolean doDocxPreserveLineBreaks, boolean doDocxMarkUnclear,
+	public DocxExportPars(boolean doDocxWithTags, boolean doDocxPreserveLineBreaks, boolean doDocxForcePageBreaks, boolean doDocxMarkUnclear,
 			boolean doDocxKeepAbbrevs, boolean doDocxExpandAbbrevs, boolean doDocxSubstituteAbbrevs) {
 		super();
 		this.doDocxWithTags = doDocxWithTags;
 		this.doDocxPreserveLineBreaks = doDocxPreserveLineBreaks;
+		this.doDocxForcePageBreaks = doDocxForcePageBreaks;
 		this.doDocxMarkUnclear = doDocxMarkUnclear;
 		this.doDocxKeepAbbrevs = doDocxKeepAbbrevs;
 		this.doDocxExpandAbbrevs = doDocxExpandAbbrevs;
@@ -38,6 +40,14 @@ public class DocxExportPars {
 
 	public void setDoDocxPreserveLineBreaks(boolean doDocxPreserveLineBreaks) {
 		this.doDocxPreserveLineBreaks = doDocxPreserveLineBreaks;
+	}
+
+	public boolean isDoDocxForcePageBreaks() {
+		return doDocxForcePageBreaks;
+	}
+
+	public void setDoDocxForcePageBreaks(boolean doDocxForcePageBreaks) {
+		this.doDocxForcePageBreaks = doDocxForcePageBreaks;
 	}
 
 	public boolean isDoDocxMarkUnclear() {
@@ -75,9 +85,9 @@ public class DocxExportPars {
 	@Override
 	public String toString() {
 		return "DocxExportPars [doDocxWithTags=" + doDocxWithTags + ", doDocxPreserveLineBreaks="
-				+ doDocxPreserveLineBreaks + ", doDocxMarkUnclear=" + doDocxMarkUnclear + ", doDocxKeepAbbrevs="
-				+ doDocxKeepAbbrevs + ", doDocxExpandAbbrevs=" + doDocxExpandAbbrevs + ", doDocxSubstituteAbbrevs="
-				+ doDocxSubstituteAbbrevs + "]";
+				+ doDocxPreserveLineBreaks + ", doDocxForcePageBreaks=" + doDocxForcePageBreaks + ", doDocxMarkUnclear="
+				+ doDocxMarkUnclear + ", doDocxKeepAbbrevs=" + doDocxKeepAbbrevs + ", doDocxExpandAbbrevs="
+				+ doDocxExpandAbbrevs + ", doDocxSubstituteAbbrevs=" + doDocxSubstituteAbbrevs + "]";
 	}
 	
 	
