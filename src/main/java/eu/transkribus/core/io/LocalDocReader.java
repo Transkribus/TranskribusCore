@@ -981,7 +981,7 @@ public class LocalDocReader {
 	 * @param inputDir
 	 * @param stripAllServerRelatedMetadata if true, then all server related data is removed from the metadata object: collections, symbolic image links, etc.
 	 */
-	private static void initDocMd(TrpDocMetadata docMd, File inputDir, boolean stripAllServerRelatedMetadata) {
+	private static TrpDocMetadata initDocMd(TrpDocMetadata docMd, File inputDir, boolean stripAllServerRelatedMetadata) {
 		if(inputDir == null) {
 			throw new IllegalArgumentException("Input dir must not be null.");
 		}
@@ -1004,6 +1004,7 @@ public class LocalDocReader {
 			docMd.setUploader(null);
 			docMd.setUploadTimestamp(0);
 		}
+		return docMd;
 	}
 
 	public static TrpDoc load(TrpUpload upload) throws IOException {
@@ -1142,8 +1143,7 @@ public class LocalDocReader {
 			} catch(IOException ioe) {}
 		}
 		//init object as load() would do
-		initDocMd(docMd, dir, false);
-		return docMd;
+		return initDocMd(docMd, dir, false);
 	}
 	
 	public static class DocLoadConfig {
