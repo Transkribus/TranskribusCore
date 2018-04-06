@@ -255,6 +255,11 @@ public class LocalDocReader {
 		TreeMap<String, File> pageMap = findImgFiles(inputDir);
 		logger.info("Found " + pageMap.entrySet().size() + " page images.");
 		
+		// need a special variable to test whether we are in sync mode (only then do the following!!!!)
+		if (pageMap.isEmpty() && config.isEnableSyncWithoutImages()) {
+			pageMap = createDummyImgFiles(inputDir);
+		}
+		
 		if(pageMap.isEmpty()) {
 			throw new FileNotFoundException("The directory does not contain any images: " + inputDir.getAbsolutePath());
 		}
@@ -326,10 +331,6 @@ public class LocalDocReader {
 		int pageNr = 1;
 		List<TrpPage> pages = new ArrayList<TrpPage>(pageMap.entrySet().size());
 		
-		// need a special variable to test whether we are in sync mode (only then do the following!!!!)
-		if (pageMap.entrySet().size() == 0 && config.isEnableSyncWithoutImages()) {
-			pageMap = createDummyImgFilesForXmls(inputDir, pageInputDir);
-		}
 		
 		for (Entry<String, File> e : pageMap.entrySet()) {
 			
@@ -361,7 +362,8 @@ public class LocalDocReader {
 			Dimension dim = null;
 			String imageRemark = null;
 			try {
-				dim = ImgUtils.readImageDimensions(imgFile);
+				if (!config.isEnableSyncWithoutImages())
+					dim = ImgUtils.readImageDimensions(imgFile);
 			} catch(CorruptImageException cie) {
 				logger.error("Image is corrupt: " + imgFile.getAbsolutePath(), cie);
 				imageRemark = getCorruptImgMsg(imgFile.getName());
@@ -845,14 +847,18 @@ public class LocalDocReader {
 	}
 	
 	/**
-	 * Check existence of PAGE XML files and return tree map of (fake) image filenames and files
+	 * Check existence of PAGE XML or txt files and return tree map of (fake) image filenames and files
 	 * @param baseDir folder in which images should be found
-	 * @param xmlDir folder holding all existing xml files - by default named "page"
 	 * @return
 	 * @throws IOException
 	 */
-	public static TreeMap<String, File> createDummyImgFilesForXmls(File baseDir, File xmlDir) throws IOException {
-		File[] xmlArr = xmlDir.listFiles();
+	public static TreeMap<String, File> createDummyImgFiles(File baseDir) throws IOException {
+		File xmlDir = getPageXmlInputDir(baseDir);
+		File txtDir = getTxtInputDir(baseDir);
+		
+		// check whether xml directory contains files, if not, assume txt directory has content
+		File workingDir = (xmlDir==null || xmlDir.listFiles().length == 0)?txtDir:xmlDir;
+		File[] fileArr = workingDir.listFiles();
 		
 		//Use number sensitive ordering so that:		
 		//img1 -> img2 -> ... -> img9 -> img10 -> etc.
@@ -860,14 +866,14 @@ public class LocalDocReader {
 		Comparator<String> naturalOrderComp = new NaturalOrderComparator();
 		TreeMap<String, File> pageMap = new TreeMap<>(naturalOrderComp);
 
-		if (xmlArr == null || xmlArr.length == 0){
-			logger.debug("Folder " + xmlDir.getAbsolutePath() + " does not contain any XML files!");
-			logger.debug("No PAGE XML files found - returning empty TreeMap");
+		if (fileArr == null || fileArr.length == 0){
+			logger.debug("Folder " + workingDir.getAbsolutePath() + " does not contain any files!");
+			logger.debug("No PAGE XML nor txt files found - returning empty TreeMap");
 			return pageMap;
 		}
 		
-		for (File xml : xmlArr) {
-			final String pageName = FilenameUtils.getBaseName(xml.getName());
+		for (File page : fileArr) {
+			final String pageName = FilenameUtils.getBaseName(page.getName());
 			if (!pageMap.containsKey(pageName)) {
 				//new page. add this xml
 				File img = new File(baseDir, pageName+".png");
@@ -876,6 +882,19 @@ public class LocalDocReader {
 			} 
 		}
 		return pageMap;
+	}
+	
+	/**
+	 * Check existence of PAGE XML files and return tree map of (fake) image filenames and files
+	 * @param baseDir folder in which images should be found
+	 * @param xmlDir folder holding all existing xml files - by default named "page"
+	 * @return
+	 * @throws IOException
+	 */
+	@Deprecated 
+	public static TreeMap<String, File> createDummyImgFilesForXmls(File baseDir, File xmlDir) throws IOException {
+
+		return createDummyImgFiles(baseDir);
 	}
 	
 	/**
