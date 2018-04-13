@@ -110,7 +110,7 @@ public class DocumentSelectionDescriptor implements Serializable {
 		private static final long serialVersionUID = -6203294525504243123L;
 		
 		private int pageId;
-		private int tsId;
+		private Integer tsId;
 		
 		private Set<String> regionIds = new HashSet<>();
 		
@@ -121,7 +121,7 @@ public class DocumentSelectionDescriptor implements Serializable {
 			this.pageId = pageId;
 		}
 		
-		public PageDescriptor(int pageId, int tsId) {
+		public PageDescriptor(int pageId, Integer tsId) {
 			this.pageId = pageId;
 			this.tsId = tsId;
 		}
@@ -132,10 +132,10 @@ public class DocumentSelectionDescriptor implements Serializable {
 		public void setPageId(int pageId) {
 			this.pageId = pageId;
 		}
-		public int getTsId() {
+		public Integer getTsId() {
 			return tsId;
 		}
-		public void setTsId(int tsId) {
+		public void setTsId(Integer tsId) {
 			this.tsId = tsId;
 		}
 

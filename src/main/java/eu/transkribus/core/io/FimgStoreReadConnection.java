@@ -19,7 +19,6 @@ public class FimgStoreReadConnection {
 	private static final Logger logger = LoggerFactory.getLogger(FimgStoreReadConnection.class);
 	
 	protected static FimgStoreGetClient getter = null;
-	protected static FimgStoreUriBuilder uriBuilder = null;
 	
 	public static FimgStoreGetClient getGetClient(){
 		if(getter == null){
@@ -58,11 +57,8 @@ public class FimgStoreReadConnection {
 	}
 	
 	public static FimgStoreUriBuilder getUriBuilder() {
-		if(uriBuilder == null){
-			uriBuilder = new FimgStoreUriBuilder(
+		return new FimgStoreUriBuilder(
 				Scheme.https.toString(), TrpFimgStoreConf.STORE_HOST, 
 				TrpFimgStoreConf.STORE_PORT, TrpFimgStoreConf.STORE_CONTEXT);
-		}
-		return uriBuilder;
 	}
 }

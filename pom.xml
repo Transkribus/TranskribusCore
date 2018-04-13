@@ -123,52 +123,35 @@
 		</dependency>
 
 		<!-- FOR LOGGING:  -->
+		
+		<!-- slf4j api already is pulled by logback below. -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.10</version>
-		</dependency>		
-		
-		 <!-- Next 2 are for log4j 1.2 logging with sl4j: -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>log4j</groupId> -->
-<!-- 			<artifactId>log4j</artifactId> -->
-<!-- 			<version>1.2.17</version> -->
-<!-- 		</dependency>		 -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.slf4j</groupId> -->
-<!-- 			<artifactId>slf4j-log4j12</artifactId> -->
-<!-- 			<version>1.7.10</version> -->
-<!-- 		</dependency>		 -->
-	
-		<!-- Next 2 are for logback logging via sl4j: -->
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>1.1.2</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-core</artifactId>
-			<version>1.1.2</version>
-		</dependency>
+			<version>1.7.25</version>
+		</dependency>	
 		
 		<!--  redirect all log4j stuff to slf4j -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>log4j-over-slf4j</artifactId>
-			<version>1.7.16</version>
+			<version>1.7.25</version>
 		</dependency>
-		
-		<!-- This is for supporting conditions in logback.xml: -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.codehaus.janino</groupId> -->
-<!-- 			<artifactId>janino</artifactId> -->
-<!-- 			<version>2.6.1</version> -->
-<!-- 		</dependency>		 -->
-		<!-- END FOR LOGGING  -->
+	
+		<!-- Logback logging via sl4j: -->
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.2.3</version>
+		</dependency>
 
+		<!-- This is for supporting conditions in logback.xml: -->
+		<dependency>
+			<groupId>org.codehaus.janino</groupId>
+			<artifactId>janino</artifactId>
+			<version>3.0.8</version>
+		</dependency>		
+		<!-- END FOR LOGGING  -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>

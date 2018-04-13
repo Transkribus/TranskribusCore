@@ -44,6 +44,9 @@ public abstract class AJaxbMap {
     }
      
     public void setMap(MapEntry[] arr) {
+    	if(arr == null) {
+    		return;
+    	}
         for(MapEntry entry : arr) {
             this.map.put(entry.key, entry.value);
         }
