@@ -44,6 +44,7 @@ public class CommonExportPars {
 	
 	// from ExportOptions:
 	String dir=null;
+	String font = "FreeSerif";
 	
 	boolean splitIntoWordsInAltoXml=false;
 	
@@ -57,12 +58,23 @@ public class CommonExportPars {
 			
 	public CommonExportPars() {
 	}
-
+	
+	//TODO: for backward compatibility - old export document job, delete when replaced
 	public CommonExportPars(String pages, boolean doWriteMets, boolean doWriteImages, boolean doExportPageXml,
 			boolean doExportAltoXml, boolean doWritePdf, boolean doWriteTei, boolean doWriteDocx, 
 			boolean doWriteTxt, boolean doWriteTagsXlsx, boolean doWriteTablesXlsx,
 			boolean doCreateTitle, String useVersionStatus, boolean writeTextOnWordLevel, 
 			boolean doBlackening, Set<String> selectedTags) {
+		
+		this(pages, doWriteMets, doWriteImages, doExportPageXml, doExportAltoXml, doWritePdf, doWriteTei, doWriteDocx, 
+				doWriteTxt, doWriteTagsXlsx, doWriteTablesXlsx, doCreateTitle, useVersionStatus, writeTextOnWordLevel, doBlackening, null, null);
+	}
+
+	public CommonExportPars(String pages, boolean doWriteMets, boolean doWriteImages, boolean doExportPageXml,
+			boolean doExportAltoXml, boolean doWritePdf, boolean doWriteTei, boolean doWriteDocx, 
+			boolean doWriteTxt, boolean doWriteTagsXlsx, boolean doWriteTablesXlsx,
+			boolean doCreateTitle, String useVersionStatus, boolean writeTextOnWordLevel, 
+			boolean doBlackening, Set<String> selectedTags, String font) {
 		super();
 		this.pages = pages;
 		this.doWriteMets = doWriteMets;
@@ -80,6 +92,7 @@ public class CommonExportPars {
 		this.writeTextOnWordLevel = writeTextOnWordLevel;
 		this.doBlackening = doBlackening;
 		this.selectedTags = selectedTags;
+		this.font = font;
 	}
 	
 	
@@ -139,6 +152,14 @@ public class CommonExportPars {
 //	}
 	
 	
+
+	public String getFont() {
+		return font;
+	}
+
+	public void setFont(String font) {
+		this.font = font;
+	}
 
 	public Set<String> getSelectedTags() {
 		return selectedTags;

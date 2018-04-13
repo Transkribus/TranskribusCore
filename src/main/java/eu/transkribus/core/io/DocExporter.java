@@ -102,9 +102,9 @@ public class DocExporter extends APassthroughObservable {
 		return exportDoc(doc, pars);
 	}
 	
-	public void writePDF(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean addTextPages, final boolean imagesOnly, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, boolean createTitle, ExportCache cache) throws MalformedURLException, DocumentException, IOException, JAXBException, URISyntaxException, InterruptedException{
+	public void writePDF(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean addTextPages, final boolean imagesOnly, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, boolean createTitle, ExportCache cache, final String font) throws MalformedURLException, DocumentException, IOException, JAXBException, URISyntaxException, InterruptedException{
 		PdfExporter pdfWriter = new PdfExporter();
-		pdfWriter.export(doc, path, pageIndices, wordBased, addTextPages, imagesOnly, highlightTags, doBlackening, createTitle, cache);
+		pdfWriter.export(doc, path, pageIndices, wordBased, addTextPages, imagesOnly, highlightTags, doBlackening, createTitle, cache, font);
 	}
 	
 	public void writeTEI(final TrpDoc doc, final String path, CommonExportPars commonPars, final TeiExportPars pars) throws Exception{
