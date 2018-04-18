@@ -72,6 +72,7 @@ public final class RESTConst {
 	public static final String DISALLOW_PATH = "disallow";
 	public static final String REFRESH_PATH = "refresh";
 	public static final String LIST_PATH = "list";
+	public static final String LIST_COL_PATH = "listCols";
 	public static final String LIST_BY_NAME_PATH = "listByName";
 	public static final String LIST_MY_DOCS_PATH = "listMyDocs";
 	public static final String COUNT_MY_DOCS_PATH = "countMyDocs";
