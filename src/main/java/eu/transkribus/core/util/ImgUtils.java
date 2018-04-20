@@ -25,6 +25,7 @@ import javax.imageio.stream.ImageInputStream;
 
 import javax.imageio.stream.MemoryCacheImageInputStream;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +90,13 @@ public class ImgUtils {
 		String heightStr = tags.get("ImageHeight");
 		
 		if (widthStr==null || heightStr==null) {
-			throw new IOException("Could not parse width or height");
+			//Exiftool returns error description on stderr and stdout
+			String error = tags.get("Error");
+			String msg = "Could not read file " + imgFile.getName(); 
+			if(!StringUtils.isEmpty(error)) {
+				msg += ": " + error;
+			}
+			throw new IOException(msg);
 		}
 		logger.debug("success reading img dims with exiftool!");
 		return new Dimension(Integer.valueOf(widthStr), Integer.valueOf(heightStr));

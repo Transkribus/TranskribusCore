@@ -1072,8 +1072,13 @@ public class LocalDocReader {
 				if(!pageXml.isFile()){
 					throw new FileNotFoundException("PAGE XML for page " + pageNr + " does not exist: " + img.getAbsolutePath());
 				}
-			} else if (StringUtils.isEmpty(imageRemark)) {
-				//if a problem occured when reading the image
+			} else {
+				
+				if(!StringUtils.isEmpty(imageRemark)) {
+					//if a problem occured when reading the image dimension create PAGE with zero dimension
+					dim = new Dimension(0, 0);
+				}
+				
 				File pageOutFile = new File(xmlDir.getAbsolutePath() + File.separatorChar + imgBaseName
 						+ ".xml");
 				
@@ -1084,7 +1089,7 @@ public class LocalDocReader {
 					logger.error(je.getMessage(), je);
 					throw new IOException("Could not create empty PageXml on disk!", je);
 				}
-			} 
+			}
 			TrpPage page = buildPage(baseDir, pageNr, img, pageXml, thumb, dim, imageRemark);
 			doc.getPages().add(page);
 		}
