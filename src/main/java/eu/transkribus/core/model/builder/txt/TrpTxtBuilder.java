@@ -52,7 +52,8 @@ public class TrpTxtBuilder {
 		
 		try {
 			TrpDoc doc = LocalDocReader.load(path);
-			writeTxtForDoc(doc, true, false, true, new File("TxtExportTest.txt"), null, null, new ExportCache());
+			TrpTxtBuilder txtBuilder = new TrpTxtBuilder();
+			txtBuilder.writeTxtForDoc(doc, true, false, true, new File("TxtExportTest.txt"), null, null, new ExportCache());
 		} catch (JAXBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -69,7 +70,7 @@ public class TrpTxtBuilder {
 
 	}
 	
-	public static void writeTxtForDoc(TrpDoc doc, boolean addTitle, boolean wordBased, boolean preserveLineBreaks, File file, Set<Integer> pageIndices, IProgressMonitor monitor, ExportCache cache) throws JAXBException, IOException, Docx4JException, InterruptedException {
+	public void writeTxtForDoc(TrpDoc doc, boolean addTitle, boolean wordBased, boolean preserveLineBreaks, File file, Set<Integer> pageIndices, IProgressMonitor monitor, ExportCache cache) throws JAXBException, IOException, Docx4JException, InterruptedException {
 	
 		//delete file if already exists
 		Files.deleteIfExists(Paths.get(file.getAbsolutePath()));
@@ -126,7 +127,7 @@ public class TrpTxtBuilder {
 		
 	}
 	
-	private static void writeTxtForSinglePage(File file, TrpPageType trpPage, boolean wordBased, boolean preserveLineBreaks) {
+	private void writeTxtForSinglePage(File file, TrpPageType trpPage, boolean wordBased, boolean preserveLineBreaks) {
 		boolean rtl = false;
 		
 		//TrpTableRegionType is contained in the regions too
@@ -194,7 +195,7 @@ public class TrpTxtBuilder {
 				
 	}
 	
-	public static void addTitlePage(TrpDoc doc, File file) {
+	public void addTitlePage(TrpDoc doc, File file) {
 		
 		List<String> titleContent = new ArrayList<String>();
 		

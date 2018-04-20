@@ -116,19 +116,23 @@ public class DocExporter extends APassthroughObservable {
 	
 	public void writeDocx(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, final boolean createTitle, boolean doDocxMarkUnclear, boolean doDocxExpandAbbrevs, boolean doDocxSubstituteAbbrevs, boolean doDocxPreserveLineBreaks, boolean doDocxForcePageBreaks) throws MalformedURLException, DocumentException, IOException, JAXBException, URISyntaxException, InterruptedException, Docx4JException{
 		//last two params are for supplied handling, needs to be added to server esport as well. In the meanwhile args are false by default
-		DocxBuilder.writeDocxForDoc(doc, wordBased, highlightTags, doBlackening, new File(path), pageIndices, null, createTitle, doDocxMarkUnclear, doDocxExpandAbbrevs, doDocxSubstituteAbbrevs, doDocxPreserveLineBreaks, doDocxForcePageBreaks, false, false, cache);
+		DocxBuilder docxBuilder = new DocxBuilder();
+		docxBuilder.writeDocxForDoc(doc, wordBased, highlightTags, doBlackening, new File(path), pageIndices, null, createTitle, doDocxMarkUnclear, doDocxExpandAbbrevs, doDocxSubstituteAbbrevs, doDocxPreserveLineBreaks, doDocxForcePageBreaks, false, false, cache);
 	}
 	
 	public void writeTxt(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean createTitle, final boolean wordBased, boolean preserveLineBreaks) throws MalformedURLException, DocumentException, IOException, JAXBException, URISyntaxException, InterruptedException, Docx4JException{
-		TrpTxtBuilder.writeTxtForDoc(doc, createTitle, wordBased, preserveLineBreaks, new File(path), pageIndices, null, cache);
+		TrpTxtBuilder txtBuilder = new TrpTxtBuilder();
+		txtBuilder.writeTxtForDoc(doc, createTitle, wordBased, preserveLineBreaks, new File(path), pageIndices, null, cache);
 	}
 	
 	public void writeTagExcel(final TrpDoc doc, final String path, Set<Integer> pageIndices, boolean wordBased) throws Exception{
-		TrpXlsxBuilder.writeXlsxForDoc(doc, wordBased, new File(path), pageIndices, null, cache);
+		TrpXlsxBuilder xlsxBuilder = new TrpXlsxBuilder();
+		xlsxBuilder.writeXlsxForDoc(doc, wordBased, new File(path), pageIndices, null, cache);
 	}
 	
 	public void writeTableExcel(final TrpDoc doc, final String path, Set<Integer> pageIndices) throws Exception{
-		TrpXlsxTableBuilder.writeXlsxForTables(doc, new File(path), pageIndices, null, cache);
+		TrpXlsxTableBuilder xlsxTableBuilder = new TrpXlsxTableBuilder();
+		xlsxTableBuilder.writeXlsxForTables(doc, new File(path), pageIndices, null, cache);
 	}
 
 	/**
@@ -342,7 +346,8 @@ public class DocExporter extends APassthroughObservable {
 			//set local folder or else TrpMetsBuilder will treat this as remote doc!
 			doc2.getMd().setLocalFolder(outputDir);
 			//write mets with file pointers to local files
-			Mets mets = TrpMetsBuilder.buildMets(doc2, pars.isDoExportPageXml(), pars.isDoExportAltoXml(), pars.isDoWriteImages(), pageIndices);
+			TrpMetsBuilder metsBuilder = new TrpMetsBuilder();
+			Mets mets = metsBuilder.buildMets(doc2, pars.isDoExportPageXml(), pars.isDoExportAltoXml(), pars.isDoWriteImages(), pageIndices);
 			File metsFile = new File(outputDir.getAbsolutePath() + File.separator
 					+ TrpMetsBuilder.METS_FILE_NAME);
 	

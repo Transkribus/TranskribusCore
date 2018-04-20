@@ -37,13 +37,13 @@ import eu.transkribus.core.model.builder.NoTablesException;
 
 public class TrpXlsxTableBuilder {
 	private final static Logger logger = LoggerFactory.getLogger(TrpXlsxTableBuilder.class);
-	static Workbook wb;
+	Workbook wb;
 	
 	public TrpXlsxTableBuilder() {
 		
 	}
 	
-	public static void writeXlsxForTables(TrpDoc doc, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor, ExportCache cache) throws NoTablesException, IOException, InterruptedException {
+	public void writeXlsxForTables(TrpDoc doc, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor, ExportCache cache) throws NoTablesException, IOException, InterruptedException {
 		//TrpTableRegionType is contained in the regions too
 
 		List<TrpPage> pages = doc.getPages();
@@ -192,7 +192,7 @@ public class TrpXlsxTableBuilder {
 		logger.info("wrote xlsx to: "+ exportPath);
 	}
 	
-	private static void createTable(int rows, int cols, List<HashMap<Integer, TrpTableCellType>> allRows, int tableID) {
+	private void createTable(int rows, int cols, List<HashMap<Integer, TrpTableCellType>> allRows, int tableID) {
 
 		String tableName = "table_"+tableID;
 		Sheet currSheet = wb.createSheet(WorkbookUtil.createSafeSheetName(tableName));

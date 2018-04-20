@@ -68,8 +68,8 @@ public class ScalePageCoordinatesToImageDimension {
 	}
 	
 	private static void heldenbuch600to300dpi() throws JAXBException, IOException {
-		File input = new File("/tmp/Heldenbuch_600dpi/Heldenbuch_600dpi/page");
-		File output = new File("/tmp/Heldenbuch_600dpi/page_edited");
+		File input = new File("C:/01_Projekte/READ/Projekte/Tengnagel/export_job_309921/page");
+		File output = new File("C:/01_Projekte/READ/Projekte/Tengnagel/export_job_309921/page_edited");
 		if (!output.isDirectory()) {
 			output.mkdirs();
 		}

@@ -361,7 +361,7 @@ public class CommonExportPars {
 				+ ", splitIntoWordsInAltoXml=" + splitIntoWordsInAltoXml + ", pageDirName=" + pageDirName
 				+ ", fileNamePattern=" + fileNamePattern + ", useHttps=" + useHttps + ", remoteImgQuality="
 				+ remoteImgQuality + ", doOverwrite=" + doOverwrite + ", useOcrMasterDir=" + useOcrMasterDir
-				+ ", exportTranscriptMetadata=" + exportTranscriptMetadata + "]";
+				+ ", exportTranscriptMetadata=" + exportTranscriptMetadata + ", font=" + font + "]";
 	}
 
 	public static CommonExportPars getDefaultParSetForHtrTraining() {

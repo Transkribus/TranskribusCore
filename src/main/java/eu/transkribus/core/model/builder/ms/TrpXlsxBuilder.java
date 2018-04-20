@@ -50,7 +50,7 @@ public class TrpXlsxBuilder {
 		
 	}
 	
-	private static void writeTagsForShapeElement(ITrpShapeType element, String context, String doc, String page, String regionID, String lineID, String wordId, Set<String> selectedTags) throws IOException{
+	private void writeTagsForShapeElement(ITrpShapeType element, String context, String doc, String page, String regionID, String lineID, String wordId, Set<String> selectedTags) throws IOException{
 
 		String textStr = element.getUnicodeText();
 		CustomTagList cl = element.getCustomTagList();
@@ -197,7 +197,7 @@ public class TrpXlsxBuilder {
 
 	}
 	
-	private static void fillFirstOverviewRow(Sheet firstSheet) {
+	private void fillFirstOverviewRow(Sheet firstSheet) {
 		Row firstRow = firstSheet.createRow(0);
 		
 		int idx = 0;
@@ -212,7 +212,7 @@ public class TrpXlsxBuilder {
 				
 	}
 
-	private static void fillFirstRow(Sheet currSheet, Map<String, Object> attributes, CreationHelper crHelper) {
+	private void fillFirstRow(Sheet currSheet, Map<String, Object> attributes, CreationHelper crHelper) {
 		Row firstRow = currSheet.createRow(0);
 		
 		int idx = 0;
@@ -233,7 +233,7 @@ public class TrpXlsxBuilder {
 		
 	}
 
-	public static void writeXlsxForDoc(TrpDoc doc, boolean wordBased, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor, ExportCache cache) throws NoTagsException, Exception {
+	public void writeXlsxForDoc(TrpDoc doc, boolean wordBased, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor, ExportCache cache) throws NoTagsException, Exception {
 		
 		if(cache == null) {
 			throw new IllegalArgumentException("ExportCache must not be null.");
@@ -363,7 +363,7 @@ public class TrpXlsxBuilder {
 		logger.info("wrote xlsx to: "+ exportPath);
 	}
 	
-	private static void ExcelTest(String Path) {
+	private void ExcelTest(String Path) {
 		Workbook wb = new XSSFWorkbook();
 		Sheet employees = wb.createSheet(WorkbookUtil.createSafeSheetName("Mitarbeiter"));
 		
@@ -427,7 +427,7 @@ public class TrpXlsxBuilder {
 		
 		TrpDoc doc = LocalDocReader.load("C:/Users/Administrator/OCR_Sample_Document_-_Gothic_letter/");
 		TrpXlsxBuilder txslx = new TrpXlsxBuilder();
-		writeXlsxForDoc(doc, true, new File("C:/Users/Administrator/test.xlsx"), null, null, new ExportCache());
+		txslx.writeXlsxForDoc(doc, true, new File("C:/Users/Administrator/test.xlsx"), null, null, new ExportCache());
 		//ExcelTest("C:/Users/Administrator/test.xlsx");
 		System.out.println("finished");
 	}

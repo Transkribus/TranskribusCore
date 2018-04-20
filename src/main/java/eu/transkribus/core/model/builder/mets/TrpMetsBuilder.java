@@ -72,7 +72,7 @@ public class TrpMetsBuilder extends Observable {
 	 * @return
 	 * @throws IOException if image/xml files can't be accessed for reading the mimetype etc.
 	 */
-	public static Mets buildMets(TrpDoc doc, boolean exportPage, boolean exportAlto, boolean exportImages, Set<Integer> pageIndices) throws IOException {
+	public Mets buildMets(TrpDoc doc, boolean exportPage, boolean exportAlto, boolean exportImages, Set<Integer> pageIndices) throws IOException {
 		
 		Mets mets = new Mets();
 		TrpDocMetadata md = doc.getMd();
@@ -253,7 +253,7 @@ public class TrpMetsBuilder extends Observable {
 		
 	}
 	
-	private static MetsHdr buildMetsHdr(TrpDocMetadata md) {
+	private MetsHdr buildMetsHdr(TrpDocMetadata md) {
 		MetsHdr hdr = new MetsHdr();
 		
 		XMLGregorianCalendar xmlCal = JaxbUtils.getXmlCalendar(new Date());
@@ -271,7 +271,8 @@ public class TrpMetsBuilder extends Observable {
 		hdr.getAgent().add(agent);
 		return hdr;
 	}
-	private static MdSecType buildSourceMdSec(TrpDocMetadata md) {
+	
+	private MdSecType buildSourceMdSec(TrpDocMetadata md) {
 		MdWrap wrap = new MdWrap();
 		wrap.setMDTYPE("OTHER");
 		wrap.setID(TRP_DOC_MD_TYPE_CONST);
@@ -301,7 +302,7 @@ public class TrpMetsBuilder extends Observable {
 	 * @return
 	 * @throws IOException
 	 */
-	private static FileType buildFileType(File localFolder, String id, ITrpFile o, final int seq, FimgStoreGetClient client) throws IOException {
+	private FileType buildFileType(File localFolder, String id, ITrpFile o, final int seq, FimgStoreGetClient client) throws IOException {
 		FileType fType = new FileType();
 		fType.setID(id);
 		String mime = null;
@@ -356,7 +357,7 @@ public class TrpMetsBuilder extends Observable {
 		return fType;
 	}
 	
-	private static Fptr buildFptr(FileType img) {
+	private Fptr buildFptr(FileType img) {
 		Fptr ptr = new Fptr();
 		AreaType area = new AreaType();
 		area.setFILEID(img);
