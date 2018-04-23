@@ -23,7 +23,15 @@ public class TrpErrorRate {
 	
 	// Char Accuracy
 	private String cAcc;
+	
+	// Bag of Tokens Precison
+	private String bagTokensPrec;
+	
+	// Bag of Tokens Recall
+	private String bagTokensRec;
 	 
+	// Bag of Tokens F-measure
+	private String bagTokensF;
 
 	public TrpErrorRate() {}
 	
@@ -65,6 +73,30 @@ public class TrpErrorRate {
 
 	public void setcAcc(String cAcc) {
 		this.cAcc = cAcc;
+	}
+
+	public String getBagTokensPrec() {
+		return bagTokensPrec;
+	}
+
+	public void setBagTokensPrec(String bagTokensPrec) {
+		this.bagTokensPrec = bagTokensPrec;
+	}
+
+	public String getBagTokensRec() {
+		return bagTokensRec;
+	}
+
+	public void setBagTokensRec(String bagTokensRec) {
+		this.bagTokensRec = bagTokensRec;
+	}
+
+	public String getBagTokensF() {
+		return bagTokensF;
+	}
+
+	public void setBagTokensF(String bagTokensF) {
+		this.bagTokensF = bagTokensF;
 	}
 	
 }
