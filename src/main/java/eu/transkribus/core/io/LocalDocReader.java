@@ -656,9 +656,14 @@ public class LocalDocReader {
 		}
 	}
 
+	/*
+	 * Todo: This works only if the text file to read is UTF-8. So we should add a check to get the txtFile encoding to read in
+	 * different encodings!?
+	 */
 	private static PcGtsType createPageFromTxt(final String imgFileName, Dimension dim, File txtFile) throws IOException {
 		logger.debug("creating PAGE file from text file");
 		String text = FileUtils.readFileToString(txtFile, "utf-8");
+		//String text = FileUtils.readFileToString(txtFile, "ISO-8859-4");
 		logger.debug("text = "+text);
 		
 		return PageXmlUtils.createPcGtsTypeFromText(imgFileName, dim, text, TranscriptionLevel.LINE_BASED, false);
