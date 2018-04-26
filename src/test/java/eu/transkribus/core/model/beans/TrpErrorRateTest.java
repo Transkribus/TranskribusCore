@@ -18,6 +18,10 @@ public class TrpErrorRateTest {
 		map.addBoolParam("test", true);
 		e.setParams(map);
 		e.setwAcc("1213421%");
+		e.setBagTokensF("122");
+		e.setBagTokensPrec("1");
+		e.setBagTokensRec("45");
+		
 		
 		logger.info(JaxbUtils.marshalToString(e, ParameterMap.class));
 	}
