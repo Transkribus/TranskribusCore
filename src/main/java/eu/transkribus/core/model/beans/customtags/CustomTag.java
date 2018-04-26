@@ -416,10 +416,14 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 		return (a1.size() == a2.size() && a1.containsAll(a2));
 	}
 	
-	public List<String> getAttributeNamesSortedByName() {
+	public List<String> getAttributeNamesSortedByName(boolean caseSensitive) {
 		List<String> attNamesSorted = new ArrayList<>();
 		attNamesSorted.addAll(getAttributeNames());
-		Collections.sort(attNamesSorted);
+		if (caseSensitive) {
+			Collections.sort(attNamesSorted);
+		} else {
+			Collections.sort(attNamesSorted, String.CASE_INSENSITIVE_ORDER);
+		}
 		return attNamesSorted;
 	}
 	
