@@ -583,7 +583,7 @@ public class GoobiMetsImporter extends APassthroughObservable
 				String typeAttribute = act.getAttribute("type");
 				//NAF uses type="CatalogueIdentifier"
 				if (typeAttribute!=null && typeAttribute.equals("CatalogueIdentifier")){
-					final String extId = act.getNodeValue();
+					final String extId = act.getTextContent();
 					result.setExternalId(extId);
 				}
 			}
