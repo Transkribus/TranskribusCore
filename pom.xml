@@ -63,7 +63,7 @@
 		<dependency>
 			<groupId>org.dea.util</groupId>
 			<artifactId>PdfUtils</artifactId>
-			<version>0.0.1</version>
+			<version>0.0.2</version>
 <!-- 			<scope>compile</scope> -->
 		</dependency>
 		<dependency>
