@@ -862,7 +862,7 @@ public class LocalDocReader {
 		File txtDir = getTxtInputDir(baseDir);
 		
 		// check whether xml directory contains files, if not, assume txt directory has content
-		File workingDir = (xmlDir==null || xmlDir.listFiles().length == 0)?txtDir:xmlDir;
+		File workingDir = (xmlDir==null || !xmlDir.exists())?txtDir:xmlDir;
 		File[] fileArr = workingDir.listFiles();
 		
 		//Use number sensitive ordering so that:		
@@ -872,6 +872,10 @@ public class LocalDocReader {
 		TreeMap<String, File> pageMap = new TreeMap<>(naturalOrderComp);
 
 		if (fileArr == null || fileArr.length == 0){
+			if (!workingDir.exists()) {
+				logger.debug("Could not find directory " +workingDir.getName() + " holding files for synchronisation!");
+			}
+
 			logger.debug("Folder " + workingDir.getAbsolutePath() + " does not contain any files!");
 			logger.debug("No PAGE XML nor txt files found - returning empty TreeMap");
 			return pageMap;
@@ -883,7 +887,7 @@ public class LocalDocReader {
 				//new page. add this xml
 				File img = new File(baseDir, pageName+".png");
 				pageMap.put(pageName, img);
-				logger.debug(pageName + ": created fake image for: " + img.getName());
+				logger.debug(pageName + ": created fake image " + img.getName());
 			} 
 		}
 		return pageMap;
