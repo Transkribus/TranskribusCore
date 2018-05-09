@@ -362,8 +362,11 @@ public class LocalDocReader {
 			Dimension dim = null;
 			String imageRemark = null;
 			try {
-				if (!config.isEnableSyncWithoutImages())
+				if (!config.isEnableSyncWithoutImages()) {
 					dim = ImgUtils.readImageDimensions(imgFile);
+				} else if (config.getDimensionMap() != null){
+					dim = config.getDimensionMap().get(FilenameUtils.getBaseName(imgFileName));
+				}
 			} catch(CorruptImageException cie) {
 				logger.error("Image is corrupt: " + imgFile.getAbsolutePath(), cie);
 				imageRemark = getCorruptImgMsg(imgFile.getName());
@@ -1190,6 +1193,8 @@ public class LocalDocReader {
 		 */
 		protected boolean stripServerRelatedMetadata; //false
 		
+		protected TreeMap<String, Dimension> dimensionMap;
+		
 		/**
 		 * build the default loadConfig
 		 */
@@ -1200,7 +1205,20 @@ public class LocalDocReader {
 			this.forceCreatePageXml = true;
 			this.enableSyncWithoutImages = false;
 			this.stripServerRelatedMetadata = false;
+			dimensionMap = null;
 		}
+		
+		public DocLoadConfig(boolean preserveOcrTxtStyles, 
+				boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml,
+				boolean enableSyncWithoutImages) {
+			this(preserveOcrTxtStyles,
+					preserveOcrFontFamily,
+					replaceBadChars,
+					forceCreatePageXml,
+					enableSyncWithoutImages, 
+					null);
+		}
+		
 		/**
 		 * @param preserveOcrTxtStyles when creating the pageXML from alto/finereader XMLs, preserve the text style information
 		 * @param preserveOcrFontFamily when creating the pageXML from alto/finereader XMLs, preserve the font information
@@ -1210,13 +1228,15 @@ public class LocalDocReader {
 		 */
 		public DocLoadConfig(boolean preserveOcrTxtStyles, 
 				boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml,
-				boolean enableSyncWithoutImages) {
+				boolean enableSyncWithoutImages, TreeMap<String, Dimension> dimensionMap) {
 			this();
 			this.preserveOcrTxtStyles = preserveOcrTxtStyles;
 			this.preserveOcrFontFamily = preserveOcrFontFamily;
 			this.replaceBadChars = replaceBadChars;
 			this.forceCreatePageXml = forceCreatePageXml;
 			this.enableSyncWithoutImages = enableSyncWithoutImages;
+			this.dimensionMap = dimensionMap;
+
 		}
 		
 		public boolean isPreserveOcrTxtStyles() {
@@ -1263,6 +1283,25 @@ public class LocalDocReader {
 		}
 		public void setStripServerRelatedMetadata(boolean stripServerRelatedMetadata) {
 			this.stripServerRelatedMetadata = stripServerRelatedMetadata;
+		}
+		
+		public TreeMap<String, Dimension> getDimensionMap() {
+			return dimensionMap;
+		}
+		
+		public void setDimensionMap(TreeMap<String, Dimension> dimensionMap) {
+			this.dimensionMap = dimensionMap;
+		}
+		
+		public void setDimensionMapFromDoc(TrpDoc source) {
+			TreeMap<String, Dimension> dims = new TreeMap<>(new NaturalOrderComparator ());
+			
+			for (TrpPage page : source.getPages()) {
+				dims.put(FilenameUtils.getBaseName(page.getImgFileName()), 
+						new Dimension(page.getWidth(), page.getHeight()));
+			}
+			
+			this.dimensionMap = dims;
 		}
 	}
 }

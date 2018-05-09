@@ -1,7 +1,6 @@
 package eu.transkribus.core.util;
 
 import java.io.File;
-import java.net.InetAddress;
 import java.util.Date;
 import java.util.Properties;
 
@@ -20,12 +19,12 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class SendMail {
-	private static Logger logger = LoggerFactory.getLogger(SendMail.class);
-
+	/**
+	 * If DEBUG == true the javax.mail.Session object will log transport data to System.out
+	 */
+	private static final boolean DEBUG = false;
+	
 	private static final String MAIL_SMTP_AUTH_KEY = "mail.smtp.auth";
 
 	String smtp;
@@ -164,7 +163,7 @@ public class SendMail {
 	public void sendMailSSL(String toAddress, String subject, String messageText, File[] attachment, String replyTo,
 			boolean doAuthentication) throws MessagingException {
 		Session session = createSession(doAuthentication);
-
+		session.setDebug(DEBUG);
 		Message message = new MimeMessage(session);
 		message.setFrom(new InternetAddress(email));
 		if (replyTo != null && !replyTo.isEmpty())
@@ -178,22 +177,6 @@ public class SendMail {
 			Multipart multipart = createMultiPartMessage(messageText, attachment);
 			message.setContent(multipart);
 		}
-
 		Transport.send(message);
 	}
-
-	public static void main(String[] args) {
-		try {
-			System.out.println(InetAddress.getLocalHost().getHostName());
-
-			// SendMail sm = new SendMail("smtp.xxx.xxx", 1234, "whatever@whatever.com",
-			// "password", "whatever@whatever.com");
-			// sm.sendMailSSL(sm.getEmail(), "test", "tttttttttttttadsfasdf",
-			// "bla@bla.com");
-			logger.info("DONE");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 }
