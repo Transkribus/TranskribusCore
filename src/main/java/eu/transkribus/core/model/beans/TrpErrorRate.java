@@ -1,5 +1,7 @@
 package eu.transkribus.core.model.beans;
 
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -11,6 +13,8 @@ import eu.transkribus.core.model.beans.rest.ParameterMap;
 public class TrpErrorRate {
 	
 	private ParameterMap params;
+	
+	List<TrpErrorList> list;
 	
 	// Word Error Rate
 	private String wer;
