@@ -363,7 +363,7 @@ public class PageXmlUtils {
 	}
 
 	public static PcGtsType createEmptyPcGtsType(final File imgFile, Dimension dim) {
-		return createEmptyPcGtsType(imgFile.getName(), dim.width, dim.height);
+		return createEmptyPcGtsType(imgFile.getName(), dim);
 	}
 	
 	public static PcGtsType createEmptyPcGtsType(final String imgFileName, Dimension dim) {

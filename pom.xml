@@ -287,6 +287,15 @@
 			<scope>provided</scope>
 		</dependency>
 		
+		<!-- https://mvnrepository.com/artifact/com.googlecode.juniversalchardet/juniversalchardet 
+		for reading text files with unknown encoding-->
+		<dependency>
+		    <groupId>com.googlecode.juniversalchardet</groupId>
+		    <artifactId>juniversalchardet</artifactId>
+		    <version>1.0.3</version>
+		</dependency>
+		
+		
 		<!-- for case insenstive map: -->
 		<dependency>
 			<groupId>com.cedarsoftware</groupId>

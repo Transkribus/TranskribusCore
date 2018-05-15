@@ -19,13 +19,13 @@ public class CitLabSemiSupervisedHtrTrainConfig extends CitLabHtrTrainConfig {
 	public final static int DEFAULT_TRAIN_SIZE_PER_EPOCH = 1000;
 	
 	// this parameter defines the number of training epochs per iteration of the semi-supervised training divided by semicolons
-	public final static String DEFAULT_TRAINING_EPOCHS = "1;1;2;3;5;8;13;21;34;55";
+	public final static String DEFAULT_TRAINING_EPOCHS = "";//"1;1;2;3;5;8;13;21;34;55";
 	private String trainEpochs=DEFAULT_TRAINING_EPOCHS;
 	public final static String TRAINING_EPOCHS_KEY = "Training epochs";
 
 	// the subsets parameter defines into how much subsets the training document is split to avoid overfitting.
 	// Important: the parameter cannot exceed the number of input training pages (should be checked in TrpCITlabSemiSupervisedHtrTrainer)  
-	public final static int DEFAULT_SUBSETS = 1;
+	public final static int DEFAULT_SUBSETS = 4;
 	private int subSets = DEFAULT_SUBSETS;
 	public final static String SUBSETS_KEY = "Subsets";
 	

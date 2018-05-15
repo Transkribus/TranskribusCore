@@ -3,6 +3,7 @@ package eu.transkribus.core.io;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -24,6 +25,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dea.util.pdf.PageImageWriter;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.mozilla.universalchardet.UniversalDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -362,8 +364,11 @@ public class LocalDocReader {
 			Dimension dim = null;
 			String imageRemark = null;
 			try {
-				if (!config.isEnableSyncWithoutImages())
+				if (!config.isEnableSyncWithoutImages()) {
 					dim = ImgUtils.readImageDimensions(imgFile);
+				} else if (config.getDimensionMap() != null){
+					dim = config.getDimensionMap().get(FilenameUtils.getBaseName(imgFileName));
+				}
 			} catch(CorruptImageException cie) {
 				logger.error("Image is corrupt: " + imgFile.getAbsolutePath(), cie);
 				imageRemark = getCorruptImgMsg(imgFile.getName());
@@ -657,14 +662,42 @@ public class LocalDocReader {
 	}
 
 	/*
-	 * Todo: This works only if the text file to read is UTF-8. So we should add a check to get the txtFile encoding to read in
-	 * different encodings!?
+	 * use this library to detect the text file encoding automatically
+	 * previously we imported utf-8 as default which often brought errors if the encoding was different
 	 */
 	private static PcGtsType createPageFromTxt(final String imgFileName, Dimension dim, File txtFile) throws IOException {
 		logger.debug("creating PAGE file from text file");
-		String text = FileUtils.readFileToString(txtFile, "utf-8");
-		//String text = FileUtils.readFileToString(txtFile, "ISO-8859-4");
-		logger.debug("text = "+text);
+		
+		byte[] buf = new byte[4096]; 
+		java.io.FileInputStream fis = new FileInputStream(txtFile);
+
+		// (1)
+		UniversalDetector detector = new UniversalDetector(null);
+
+		// (2)
+		int nread;
+		while ((nread = fis.read(buf)) > 0 && !detector.isDone()) {
+		  detector.handleData(buf, 0, nread);
+		}
+		fis.close();
+		// (3)
+		detector.dataEnd();
+
+		// (4)
+		String encoding = detector.getDetectedCharset();
+		if (encoding != null) {
+		  logger.debug("Detected encoding = " + encoding);
+		} else {
+		  logger.debug("No encoding detected - use utf-8");
+		  encoding = "utf-8";
+		}
+
+		// (5)
+		detector.reset();
+
+		String text = FileUtils.readFileToString(txtFile, encoding);
+		//String text = FileUtils.readFileToString(txtFile, "ISO-8859-1");
+		//logger.debug("text = "+text);
 		
 		return PageXmlUtils.createPcGtsTypeFromText(imgFileName, dim, text, TranscriptionLevel.LINE_BASED, false);
 	}
@@ -1190,6 +1223,8 @@ public class LocalDocReader {
 		 */
 		protected boolean stripServerRelatedMetadata; //false
 		
+		protected TreeMap<String, Dimension> dimensionMap;
+		
 		/**
 		 * build the default loadConfig
 		 */
@@ -1200,7 +1235,20 @@ public class LocalDocReader {
 			this.forceCreatePageXml = true;
 			this.enableSyncWithoutImages = false;
 			this.stripServerRelatedMetadata = false;
+			dimensionMap = null;
 		}
+		
+		public DocLoadConfig(boolean preserveOcrTxtStyles, 
+				boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml,
+				boolean enableSyncWithoutImages) {
+			this(preserveOcrTxtStyles,
+					preserveOcrFontFamily,
+					replaceBadChars,
+					forceCreatePageXml,
+					enableSyncWithoutImages, 
+					null);
+		}
+		
 		/**
 		 * @param preserveOcrTxtStyles when creating the pageXML from alto/finereader XMLs, preserve the text style information
 		 * @param preserveOcrFontFamily when creating the pageXML from alto/finereader XMLs, preserve the font information
@@ -1210,13 +1258,15 @@ public class LocalDocReader {
 		 */
 		public DocLoadConfig(boolean preserveOcrTxtStyles, 
 				boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml,
-				boolean enableSyncWithoutImages) {
+				boolean enableSyncWithoutImages, TreeMap<String, Dimension> dimensionMap) {
 			this();
 			this.preserveOcrTxtStyles = preserveOcrTxtStyles;
 			this.preserveOcrFontFamily = preserveOcrFontFamily;
 			this.replaceBadChars = replaceBadChars;
 			this.forceCreatePageXml = forceCreatePageXml;
 			this.enableSyncWithoutImages = enableSyncWithoutImages;
+			this.dimensionMap = dimensionMap;
+
 		}
 		
 		public boolean isPreserveOcrTxtStyles() {
@@ -1263,6 +1313,25 @@ public class LocalDocReader {
 		}
 		public void setStripServerRelatedMetadata(boolean stripServerRelatedMetadata) {
 			this.stripServerRelatedMetadata = stripServerRelatedMetadata;
+		}
+		
+		public TreeMap<String, Dimension> getDimensionMap() {
+			return dimensionMap;
+		}
+		
+		public void setDimensionMap(TreeMap<String, Dimension> dimensionMap) {
+			this.dimensionMap = dimensionMap;
+		}
+		
+		public void setDimensionMapFromDoc(TrpDoc source) {
+			TreeMap<String, Dimension> dims = new TreeMap<>(new NaturalOrderComparator ());
+			
+			for (TrpPage page : source.getPages()) {
+				dims.put(FilenameUtils.getBaseName(page.getImgFileName()), 
+						new Dimension(page.getWidth(), page.getHeight()));
+			}
+			
+			this.dimensionMap = dims;
 		}
 	}
 }

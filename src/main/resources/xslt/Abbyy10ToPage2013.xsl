@@ -293,8 +293,11 @@
                         <xsl:with-param name="formatting" select="./abbyy:formatting"/>
                     </xsl:call-template>
                 </xsl:attribute>
-                <xsl:call-template name="writeCoords"/>                
-                <Baseline points="{./@l},{./@baseline} {./@r},{./@baseline}"/>
+                <xsl:call-template name="writeCoords"/>
+                <xsl:call-template name="generateBaselineCoords">  
+                    <xsl:with-param name="wordstarts" select=".//abbyy:charParams[1] | .//abbyy:charParams[string-length(normalize-space((text()[$textIndex]))) = 0]/following-sibling::charParams[1]"/>
+                </xsl:call-template>           
+<!--                 <Baseline points="{./@l},{./@baseline} {./@r},{./@baseline}"/> -->
                 
                 <!-- produce Word nodes -->
                 <!-- FIXME This does not work when charRecVariants and wordRecVariants are present!!! -->
@@ -445,6 +448,69 @@
                 </Word>
             </xsl:if>
         </xsl:for-each>
+    </xsl:template>
+    
+    <!-- creates baseline for a line: Abbyy has only defined one point for baseline - on oblique lines this
+    means that the basline is not correct. So we create the baseline from the beginning of a word to each end of a word respectively
+    the last charparams of all words-->
+    <xsl:template name="generateBaselineCoords">
+        <xsl:param name="wordstarts"/>
+        <xsl:variable name="coordPoints">
+	        <xsl:for-each select="$wordstarts">
+	            <xsl:variable name="actpos" select="position()"/>
+	            <xsl:variable name="wordlenght">
+	                <xsl:choose>
+	                    <xsl:when test="position()=last()">
+	                        <xsl:value-of select="count(./following-sibling::abbyy:charParams) + 1"/>
+	                    </xsl:when>
+	                    <xsl:otherwise>
+	                        <xsl:value-of
+	                            select="count(./following-sibling::abbyy:charParams) - count($wordstarts[$actpos+1]/following-sibling::charParams) - 1"
+	                        />
+	                    </xsl:otherwise>
+	                </xsl:choose>
+	            </xsl:variable>	            
+	            <xsl:variable name="wordChars"
+	                select=". | (./following-sibling::*)[$wordlenght > position()]"/>	            
+	            <xsl:variable name="value">
+	                <xsl:for-each select="$wordChars">
+	                    <xsl:value-of select="normalize-space((./text())[$textIndex])"/>
+	                </xsl:for-each>
+	            </xsl:variable>
+	            <xsl:variable name="leftCoord">
+	                <xsl:value-of select="$wordChars[1]//@l"/>
+	            </xsl:variable>
+	            <xsl:variable name="leftBottom">
+	                <xsl:value-of select="$wordChars[1]//@b"/>
+	            </xsl:variable>
+	            <xsl:variable name="rightCoord">
+	                <xsl:value-of select="$wordChars[last()]//@r"/>
+	            </xsl:variable>
+	           	<xsl:variable name="rightBottom">
+	                <xsl:value-of select="$wordChars[last()]//@b"/>
+	            </xsl:variable>
+	            <xsl:if test="string-length($value) > 0">
+	            	<xsl:choose>
+	            		<xsl:when test="position()=1">
+	            			<xsl:value-of select="$leftCoord"/>
+	                		<xsl:value-of>,</xsl:value-of>
+			                <xsl:value-of select="$leftBottom"/>
+			                <xsl:text> </xsl:text>
+		                	<xsl:value-of select="$rightCoord"/>
+		                	<xsl:value-of>,</xsl:value-of>
+	                		<xsl:value-of select="$rightBottom"/>
+	            		</xsl:when>
+	            		<xsl:otherwise>
+	            			<xsl:text> </xsl:text>
+		                	<xsl:value-of select="$rightCoord"/>
+		                	<xsl:value-of>,</xsl:value-of>
+	                		<xsl:value-of select="$rightBottom"/>
+	            		</xsl:otherwise>
+	            	</xsl:choose>
+	            </xsl:if>
+	        </xsl:for-each>
+        </xsl:variable>
+        <Baseline points="{$coordPoints}"/>
     </xsl:template>
     
     <!-- Helper for writing rectangle coordinates with points-string -->
