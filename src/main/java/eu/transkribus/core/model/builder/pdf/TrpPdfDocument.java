@@ -60,6 +60,7 @@ import eu.transkribus.core.model.beans.customtags.TextStyleTag;
 import eu.transkribus.core.model.beans.pagecontent.BaselineType;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
+import eu.transkribus.core.model.beans.pagecontent.TableRegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.UnknownRegionType;
@@ -226,8 +227,8 @@ public class TrpPdfDocument extends APdfDocument {
 		for(RegionType r : regions){
 			//TODO add paths for tables etc.
 			
-			//used later to decide if new page is necessary if there is at least one text region 
-			if(r instanceof TextRegionType){
+			//used later to decide if new page is necessary if there is at least one text OR table region 
+			if(r instanceof TextRegionType || r instanceof TableRegionType){
 				nrOfTextRegions++;
 			}
 			else if (r instanceof UnknownRegionType && doBlackening){
