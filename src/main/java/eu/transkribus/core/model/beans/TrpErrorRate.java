@@ -15,7 +15,7 @@ public class TrpErrorRate {
 	private ParameterMap params;
 	
 	List<TrpErrorList> list;
-	
+
 	// Word Error Rate
 	private String wer;
 	
@@ -38,6 +38,15 @@ public class TrpErrorRate {
 	private String bagTokensF;
 
 	public TrpErrorRate() {}
+
+	
+	public List<TrpErrorList> getList() {
+		return list;
+	}
+
+	public void setList(List<TrpErrorList> list) {
+		this.list = list;
+	}
 	
 	public ParameterMap getParams() {
 		return params;
