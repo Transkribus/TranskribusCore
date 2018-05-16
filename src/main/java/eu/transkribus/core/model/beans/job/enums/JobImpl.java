@@ -62,8 +62,8 @@ public enum JobImpl {
 	//for testing
 	DummyJob(JobTask.CreateDocument, "Dummy Job", "DummyJob", null),
 //	DummyJob2(JobTask.CreateDocument, "Dummy Job 2", "DummyJob2", null),
-	DummyMailJob(JobTask.CreateDocument, "Dummy Mail Job", "DummyMailJob", null);
-	;
+	DummyMailJob(JobTask.CreateDocument, "Dummy Mail Job", "DummyMailJob", null), 
+	ErrorRateJob(JobTask.Htr , "Error Rate Computation", "ErrorRateJob", null);
 	
 	private final static Logger logger = LoggerFactory.getLogger(JobImpl.class);
 	public final static String MULTI_THREAD_LA_JOB_SUFFIX = "MultiThread";
