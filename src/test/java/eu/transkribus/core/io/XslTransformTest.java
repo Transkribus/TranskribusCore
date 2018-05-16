@@ -20,12 +20,13 @@ public class XslTransformTest {
 	private static final String ABBY_TO_PAGE_XSLT = "xslt/Abbyy10ToPage2013.xsl";
 	
 	public static void main(String[] args){
-		final File abbyyXml = new File("C:/01_Projekte/READ/Projekte/newseye_testdata/newseye_testdata/ocr/744641.xml");
+		//final File abbyyXml = new File("C:/01_Projekte/READ/Projekte/newseye_testdata/newseye_testdata/ocr/744641.xml");
+		final File abbyyXml = new File("C:/01_Projekte/READ/Programmierung/ConvertAbbyyTableToPageTable/2304896.xml");
 		
 		//final File abbyyXml = new File("C:/01_Projekte/READ/Projekte/Xslt_Test/OCRmaster/ocr/2239047.xml");
 		
 		//File pageOutFile = new File("C:/01_Projekte/READ/Projekte/Xslt_Test/OCRmaster/page/2239047.xml");
-		File pageOutFile = new File("C:/01_Projekte/READ/Projekte/newseye_testdata/newseye_testdata/page/744641.xml");
+		File pageOutFile = new File("C:/01_Projekte/READ/Programmierung/ConvertAbbyyTableToPageTable/2304896_page.xml");
 		
 		final String TEXT_STYLE_PARAM_NAME = "preserveTextStyles";
 		Map<String, Object> params = new HashMap<>();
@@ -35,7 +36,7 @@ public class XslTransformTest {
 		try {
 			pc = JaxbUtils.transformToObject(abbyyXml, ABBY_TO_PAGE_XSLT, params, PcGtsType.class);
 		
-			pc.getPage().setImageFilename("744641.tiff");
+			//pc.getPage().setImageFilename("744641.tiff");
 			File pageXml = JaxbUtils.marshalToFile(pc, pageOutFile);
 			
 			PcGtsType result = PageXmlUtils.unmarshal(pageOutFile);
