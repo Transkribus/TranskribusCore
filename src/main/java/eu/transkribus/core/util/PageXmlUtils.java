@@ -893,7 +893,9 @@ public class PageXmlUtils {
 					&& !r.getTextEquiv().getUnicode().trim().isEmpty()) {
 				nrOfTranscribedRegions += 1;
 				//TODO use tokenizer here
-				nrOfWordsInRegions += r.getTextEquiv().getUnicode().split(" ").length;
+				//next line is needed for non-breaking whitespace characters; that are excluded from the Character.isWhitespace() method
+				String tmp = r.getTextEquiv().getUnicode().replaceAll("[\\u00A0\\u2007\\u202F]+", " ");
+				nrOfWordsInRegions += tmp.split(" ").length;
 			}
 			List<TextLineType> lines = r.getTextLine();
 			nrOfLines += lines.size();
@@ -902,7 +904,9 @@ public class PageXmlUtils {
 						&& !l.getTextEquiv().getUnicode().trim().isEmpty()) {
 					nrOfTranscribedLines += 1;
 					//TODO use tokenizer here
-					nrOfWordsInLines += l.getTextEquiv().getUnicode().split(" ").length;
+					//next line is needed for non-breaking whitespace characters; that are excluded from the Character.isWhitespace() method
+					String tmp = l.getTextEquiv().getUnicode().replaceAll("[\\u00A0\\u2007\\u202F]+", " ");
+					nrOfWordsInLines += tmp.split(" ").length;
 				}
 				List<WordType> words = l.getWord();
 				nrOfWords += words.size();
