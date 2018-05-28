@@ -581,11 +581,11 @@ public class LocalDocReader {
 		return doc;
 	}
 	
-	public static List<TrpDocDir> listDocDirs(final String path) throws IOException{
+	public static List<TrpDocDir> listDocDirs(final String path) throws FileNotFoundException {
 		return listDocDirs(path, null);
 	}
 	
-	public static List<TrpDocDir> listDocDirs(final String path, IProgressMonitor monitor) throws IOException{
+	public static List<TrpDocDir> listDocDirs(final String path, IProgressMonitor monitor) throws FileNotFoundException {
 		if(path == null || path.isEmpty()){
 			throw new IllegalArgumentException("Path is null or empty!");
 		}
@@ -623,6 +623,7 @@ public class LocalDocReader {
 			docDir.setName(name);
 			docDir.setNrOfFiles(d.list().length);
 			docDir.setCreateDate(date);
+			docDir.setDocDir(d);
 //			TrpDocMetadata md = findOrCreateDocMd(d);
 //			md.setLocalFolder(null); // delete local folder s.t. server dir is not visible for clients!
 //			docDir.setMetadata(md);

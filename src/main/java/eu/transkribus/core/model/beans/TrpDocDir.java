@@ -1,10 +1,12 @@
 package eu.transkribus.core.model.beans;
 
+import java.io.File;
 import java.util.Date;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -18,6 +20,9 @@ public class TrpDocDir {
 	private Date createDate;
 	@Deprecated
 	private TrpDocMetadata metadata;
+	
+	@XmlTransient
+	private File docDir;
 
 	public TrpDocDir() {
 	}
@@ -70,4 +75,11 @@ public class TrpDocDir {
 		this.nrOfFiles = nrOfFiles;
 	}
 	
+	public File getDocDir() {
+		return docDir;
+	}
+	
+	public void setDocDir(File docDir) {
+		this.docDir = docDir;
+	}
 }
