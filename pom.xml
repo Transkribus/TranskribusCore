@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -15,7 +16,7 @@
 	</properties>
 
 	<repositories>
-		<!-- dea artifactory: -->		
+		<!-- dea artifactory: -->
 		<repository>
 			<id>dea-artifactory</id>
 			<name>dea-artifactory-releases</name>
@@ -24,25 +25,26 @@
 		<repository>
 			<id>swt-repo</id>
 			<url>https://swt-repo.googlecode.com/svn/repo/</url>
-		</repository>		
-<!-- 		<repository> -->
-<!-- 			<id>com.springsource.repository.bundles.external</id> -->
-<!-- 			<name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name> -->
-<!-- 			<url>http://repository.springsource.com/maven/bundles/external</url> -->
-<!-- 		</repository> -->
-<!--     <repository> -->
-<!--         <id>www.dcm4che.org</id> -->
-<!--         <name>dcm4che Repository</name> -->
-<!--         <url>http://www.dcm4che.org/maven2</url> -->
-<!--     </repository>		 -->
-		</repositories>
+		</repository>
+		<!-- <repository> -->
+		<!-- <id>com.springsource.repository.bundles.external</id> -->
+		<!-- <name>SpringSource Enterprise Bundle Repository - External Bundle 
+			Releases</name> -->
+		<!-- <url>http://repository.springsource.com/maven/bundles/external</url> -->
+		<!-- </repository> -->
+		<!-- <repository> -->
+		<!-- <id>www.dcm4che.org</id> -->
+		<!-- <name>dcm4che Repository</name> -->
+		<!-- <url>http://www.dcm4che.org/maven2</url> -->
+		<!-- </repository> -->
+	</repositories>
 	<distributionManagement>
-	    <repository>
-	        <id>dbis-halvar-artifactory</id>
-	        <name>dbis-halvar-releases</name>
-	        <url>http://dbis-halvar.uibk.ac.at/artifactory/libs-release-local</url>
-	    </repository>
-	    <site>
+		<repository>
+			<id>dbis-halvar-artifactory</id>
+			<name>dbis-halvar-releases</name>
+			<url>http://dbis-halvar.uibk.ac.at/artifactory/libs-release-local</url>
+		</repository>
+		<site>
 			<id>website</id>
 			<name>transkribus.eu</name>
 			<url>scp://read01.uibk.ac.at/var/www/html/TranskribusCore</url>
@@ -53,8 +55,8 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
-		</dependency>	    
-	    
+		</dependency>
+
 		<dependency>
 			<groupId>org.dea</groupId>
 			<artifactId>fimagestoreClient</artifactId>
@@ -64,13 +66,31 @@
 			<groupId>org.dea.util</groupId>
 			<artifactId>PdfUtils</artifactId>
 			<version>0.0.2</version>
-<!-- 			<scope>compile</scope> -->
+			<!-- <scope>compile</scope> -->
 		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>javax.xml.bind</groupId> -->
+		<!-- <artifactId>jaxb-api</artifactId> -->
+		<!-- <version>2.2.7</version> -->
+		<!-- </dependency> -->
+
+		<!-- add jaxb dependencies for Java < v10 -->
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>
-			<version>2.2.7</version>
+			<version>2.2.11</version>
 		</dependency>
+		<dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-core</artifactId>
+			<version>2.2.11</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-impl</artifactId>
+			<version>2.2.11</version>
+		</dependency>
+
 		<dependency>
 			<groupId>commons-net</groupId>
 			<artifactId>commons-net</artifactId>
@@ -122,22 +142,22 @@
 			<version>1.0.2</version>
 		</dependency>
 
-		<!-- FOR LOGGING:  -->
-		
+		<!-- FOR LOGGING: -->
+
 		<!-- slf4j api already is pulled by logback below. -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.25</version>
-		</dependency>	
-		
-		<!--  redirect all log4j stuff to slf4j -->
+		</dependency>
+
+		<!-- redirect all log4j stuff to slf4j -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>log4j-over-slf4j</artifactId>
 			<version>1.7.25</version>
 		</dependency>
-	
+
 		<!-- Logback logging via sl4j: -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
@@ -150,32 +170,32 @@
 			<groupId>org.codehaus.janino</groupId>
 			<artifactId>janino</artifactId>
 			<version>3.0.8</version>
-		</dependency>		
-		<!-- END FOR LOGGING  -->
+		</dependency>
+		<!-- END FOR LOGGING -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.0</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-exec</artifactId>
 			<version>1.2</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
-<!-- 			<version>3.10-FINAL</version> -->
+			<!-- <version>3.10-FINAL</version> -->
 			<version>3.14</version>
 		</dependency>
-		
+
 		<dependency>
-		    <groupId>org.apache.poi</groupId>
-		    <artifactId>poi-ooxml</artifactId>
-<!-- 		    <version>3.9</version> -->
-		    <version>3.14</version>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<!-- <version>3.9</version> -->
+			<version>3.14</version>
 			<exclusions>
 				<exclusion> <!-- stax is not needed since it is included since java 6 -->
 					<groupId>stax</groupId>
@@ -183,66 +203,66 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<!-- more robust image readers for ImageIO -->
 		<dependency>
-	        <groupId>com.twelvemonkeys.imageio</groupId>
-	        <artifactId>imageio-jpeg</artifactId>
-	        <version>3.3.2</version> 
-	    </dependency>
-	    
-	    <dependency>
-	        <groupId>com.twelvemonkeys.imageio</groupId>
-	        <artifactId>imageio-tiff</artifactId>
-	        <version>3.3.2</version>
-	    </dependency>
-		
+			<groupId>com.twelvemonkeys.imageio</groupId>
+			<artifactId>imageio-jpeg</artifactId>
+			<version>3.3.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.twelvemonkeys.imageio</groupId>
+			<artifactId>imageio-tiff</artifactId>
+			<version>3.3.2</version>
+		</dependency>
+
 		<!-- ImageJ for Image IO: -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>gov.nih.imagej</groupId> -->
-<!-- 			<artifactId>imagej</artifactId> -->
-<!-- 			<version>1.47</version> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>gov.nih.imagej</groupId> -->
+		<!-- <artifactId>imagej</artifactId> -->
+		<!-- <version>1.47</version> -->
+		<!-- </dependency> -->
 
 		<!-- JAI for Image IO: -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>javax.media</groupId> -->
-<!-- 			<artifactId>jai_codec</artifactId> -->
-<!-- 			<version>1.1.3</version> -->
-<!-- 		</dependency> -->
-		
-<!-- 		<dependency> -->
-<!-- 			<groupId>javax.media</groupId> -->
-<!-- 			<artifactId>jai_core</artifactId> -->
-<!-- 			<version>1.1.3</version> -->
-<!-- 		</dependency> -->
-	
-<!-- 		<dependency> -->
-<!-- 			<groupId>com.sun.media</groupId> -->
-<!-- 			<artifactId>jai_imageio</artifactId> -->
-<!-- 			<version>1.1</version> -->
-<!-- 		</dependency> -->
-		
-<!-- 			<dependency> -->
-<!-- 			    <groupId>com.github.jai-imageio</groupId> -->
-<!-- 			    <artifactId>jai-imageio-jpeg2000</artifactId> -->
-<!-- 			    <version>1.3.0</version> -->
-<!-- </dependency> -->
-	
+		<!-- <dependency> -->
+		<!-- <groupId>javax.media</groupId> -->
+		<!-- <artifactId>jai_codec</artifactId> -->
+		<!-- <version>1.1.3</version> -->
+		<!-- </dependency> -->
+
+		<!-- <dependency> -->
+		<!-- <groupId>javax.media</groupId> -->
+		<!-- <artifactId>jai_core</artifactId> -->
+		<!-- <version>1.1.3</version> -->
+		<!-- </dependency> -->
+
+		<!-- <dependency> -->
+		<!-- <groupId>com.sun.media</groupId> -->
+		<!-- <artifactId>jai_imageio</artifactId> -->
+		<!-- <version>1.1</version> -->
+		<!-- </dependency> -->
+
+		<!-- <dependency> -->
+		<!-- <groupId>com.github.jai-imageio</groupId> -->
+		<!-- <artifactId>jai-imageio-jpeg2000</artifactId> -->
+		<!-- <version>1.3.0</version> -->
+		<!-- </dependency> -->
+
 		<!-- Saxon HE for XSLT 2.0 support -->
 		<dependency>
 			<groupId>net.sf.saxon</groupId>
 			<artifactId>Saxon-HE</artifactId>
 			<version>9.5.1-5</version>
 		</dependency>
-			
+
 		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
 			<version>1.9.1</version>
 		</dependency>
-		
-		<!-- For IProgressMonitor  -->
+
+		<!-- For IProgressMonitor -->
 		<dependency>
 			<groupId>org.eclipse.equinox</groupId>
 			<artifactId>org.eclipse.equinox.common</artifactId>
@@ -255,11 +275,11 @@
 			<version>1.4</version>
 		</dependency>
 
-<!-- 		<dependency> -->
-<!-- 			<groupId>com.lowagie</groupId> -->
-<!-- 			<artifactId>itext-rtf</artifactId> -->
-<!-- 			<version>2.1.7</version> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>com.lowagie</groupId> -->
+		<!-- <artifactId>itext-rtf</artifactId> -->
+		<!-- <version>2.1.7</version> -->
+		<!-- </dependency> -->
 
 		<dependency>
 			<groupId>jrtf</groupId>
@@ -272,30 +292,30 @@
 			<artifactId>gson</artifactId>
 			<version>2.3.1</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>net.sf.json-lib</groupId>
 			<artifactId>json-lib</artifactId>
 			<version>2.4</version>
 			<classifier>jdk15</classifier>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>javax</groupId>
 			<artifactId>javaee-api</artifactId>
 			<version>7.0</version>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/com.googlecode.juniversalchardet/juniversalchardet 
-		for reading text files with unknown encoding-->
+			for reading text files with unknown encoding -->
 		<dependency>
-		    <groupId>com.googlecode.juniversalchardet</groupId>
-		    <artifactId>juniversalchardet</artifactId>
-		    <version>1.0.3</version>
+			<groupId>com.googlecode.juniversalchardet</groupId>
+			<artifactId>juniversalchardet</artifactId>
+			<version>1.0.3</version>
 		</dependency>
-		
-		
+
+
 		<!-- for case insenstive map: -->
 		<dependency>
 			<groupId>com.cedarsoftware</groupId>
@@ -315,20 +335,20 @@
 					<groupId>org.apache.logging.log4j</groupId>
 				</exclusion>
 			</exclusions>
-		</dependency>		
-				
-<!-- 		<dependency> -->
-<!-- 			<groupId>json-lib</groupId> -->
-<!-- 			<artifactId>json-lib</artifactId> -->
-<!-- 			<version>2.4</version> -->
-<!-- 			<classifier>jdk15</classifier> -->
-<!-- 		</dependency> -->
-		
-<!-- 		<dependency> -->
-<!-- 	<groupId>com.google.code.gson</groupId> -->
-<!-- 	<artifactId>gson</artifactId> -->
-<!-- 	<version>2.2.4</version> -->
-<!-- </dependency> -->
+		</dependency>
+
+		<!-- <dependency> -->
+		<!-- <groupId>json-lib</groupId> -->
+		<!-- <artifactId>json-lib</artifactId> -->
+		<!-- <version>2.4</version> -->
+		<!-- <classifier>jdk15</classifier> -->
+		<!-- </dependency> -->
+
+		<!-- <dependency> -->
+		<!-- <groupId>com.google.code.gson</groupId> -->
+		<!-- <artifactId>gson</artifactId> -->
+		<!-- <version>2.2.4</version> -->
+		<!-- </dependency> -->
 
 		<dependency>
 			<groupId>org.docx4j</groupId>
@@ -345,7 +365,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>math.geom2d</groupId>
 			<artifactId>javaGeom</artifactId>
@@ -356,8 +376,38 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
+				<version>3.7.0</version>
+				<executions>
+					<execution>
+						<id>default-compile</id>
+						<configuration>
+							<!-- compile everything to ensure module-info contains right entries -->
+							<!-- required when JAVA_HOME is JDK 8 or below -->
+							<jdkToolchain>
+								<version>9</version>
+							</jdkToolchain>
+							<release>9</release>
+						</configuration>
+					</execution>
+					<execution>
+						<id>base-compile</id>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+						<!-- recompile everything for target VM except the module-info.java -->
+						<configuration>
+							<excludes>
+								<exclude>module-info.java</exclude>
+							</excludes>
+						</configuration>
+					</execution>
+				</executions>
+				<!-- defaults for compile and testCompile -->
 				<configuration>
+					<!-- jdkToolchain required when JAVA_HOME is JDK 9 or above -->
+					<jdkToolchain>
+						<version>[1.8,9)</version>
+					</jdkToolchain>
 					<source>1.8</source>
 					<target>1.8</target>
 				</configuration>
@@ -370,9 +420,9 @@
 					<additionalparam>-Xdoclint:none</additionalparam>
 					<show>private</show>
 					<nohelp>true</nohelp>
-<!-- 					<failOnError>false</failOnError>				 -->
+					<!-- <failOnError>false</failOnError> -->
 				</configuration>
-			</plugin>	
+			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
