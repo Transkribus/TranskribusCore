@@ -38,6 +38,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import com.sun.xml.bind.v2.runtime.unmarshaller.UnmarshallerImpl;
+
 import eu.transkribus.core.io.FimgStoreReadConnection;
 import eu.transkribus.core.io.formats.XmlFormat;
 import eu.transkribus.core.model.beans.TrpPage;
@@ -95,17 +97,22 @@ public class PageXmlUtils {
 		return JAXBContext.newInstance("eu.transkribus.core.model.beans.pagecontent");
 	}
 	
-	public static Unmarshaller createUnmarshaller() throws JAXBException {
+	public static Unmarshaller createUnmarshaller(ValidationEventCollector vec) throws JAXBException {
 		JAXBContext jc = createPageJAXBContext();
 
 		Unmarshaller u = jc.createUnmarshaller();
-		u.setProperty("com.sun.xml.internal.bind.ObjectFactory", new TrpObjectFactory());
+		u.setProperty(UnmarshallerImpl.FACTORY, new TrpObjectFactory());
 		u.setListener(new TrpPageUnmarshalListener());
+
+		if(vec != null) {
+			u.setEventHandler(vec);
+		}
+		
 		return u;
 	}
 	
-	private static Marshaller createMarshaller() throws JAXBException {
-		return createMarshaller(new ValidationEventCollector());
+	public static Unmarshaller createUnmarshaller() throws JAXBException {
+		return createUnmarshaller(null);
 	}
 	
 	private static Marshaller createMarshaller(ValidationEventCollector vec) throws JAXBException {
@@ -167,7 +174,11 @@ public class PageXmlUtils {
 	}
 	
 	public static PcGtsType unmarshal(InputStream is) throws JAXBException {
-		Unmarshaller u = createUnmarshaller();
+		return unmarshal(is, null);
+	}
+	
+	public static PcGtsType unmarshal(InputStream is, ValidationEventCollector vec) throws JAXBException {
+		Unmarshaller u = createUnmarshaller(vec);
 
 		@SuppressWarnings("unchecked")
 		PcGtsType pageData = ((JAXBElement<PcGtsType>) u.unmarshal(is)).getValue();
