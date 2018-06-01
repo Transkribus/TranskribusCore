@@ -94,14 +94,23 @@ public class PageXmlUtils {
 	public static JAXBContext createPageJAXBContext() throws JAXBException {
 		return JAXBContext.newInstance("eu.transkribus.core.model.beans.pagecontent");
 	}
-	
-	public static Unmarshaller createUnmarshaller() throws JAXBException {
+
+	public static Unmarshaller createUnmarshaller(ValidationEventCollector vec) throws JAXBException {
 		JAXBContext jc = createPageJAXBContext();
 
 		Unmarshaller u = jc.createUnmarshaller();
 		u.setProperty("com.sun.xml.internal.bind.ObjectFactory", new TrpObjectFactory());
 		u.setListener(new TrpPageUnmarshalListener());
+
+		if(vec != null) {
+			u.setEventHandler(vec);
+		}
+		
 		return u;
+	}
+	
+	public static Unmarshaller createUnmarshaller() throws JAXBException {
+		return createUnmarshaller(null);
 	}
 	
 	private static Marshaller createMarshaller() throws JAXBException {
@@ -167,7 +176,11 @@ public class PageXmlUtils {
 	}
 	
 	public static PcGtsType unmarshal(InputStream is) throws JAXBException {
-		Unmarshaller u = createUnmarshaller();
+		return unmarshal(is, null);
+	}
+	
+	public static PcGtsType unmarshal(InputStream is, ValidationEventCollector vec) throws JAXBException {
+		Unmarshaller u = createUnmarshaller(vec);
 
 		@SuppressWarnings("unchecked")
 		PcGtsType pageData = ((JAXBElement<PcGtsType>) u.unmarshal(is)).getValue();
