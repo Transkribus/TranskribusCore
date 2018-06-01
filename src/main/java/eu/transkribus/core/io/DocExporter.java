@@ -155,11 +155,8 @@ public class DocExporter extends APassthroughObservable {
 
 		if (doc.isRemoteDoc()) {
 			//FIXME fimagestore path should be read from docMd!
-			getter = new FimgStoreGetClient("dbis-thure.uibk.ac.at", "f");
-			final String scheme = pars.isUseHttps() ? "https" : "http";
-			final int port = pars.isUseHttps() ? 443 : 80;
-			uriBuilder = new FimgStoreUriBuilder(scheme, getter.getHost(), port,
-					getter.getServerContext());
+			getter = FimgStoreReadConnection.getGetClient();
+			uriBuilder = getter.getUriBuilder();
 		}
 		
 		//create copy of object, as we alter it here while exporting
@@ -208,6 +205,12 @@ public class DocExporter extends APassthroughObservable {
 
 		// check and write metadata
 		if (doc2.getMd() != null) {
+			
+			/*
+			 * TODO this should not write the metadata file but the doc.xml in the end.
+			 * Correct save can be checked with LocalDocReader which should then pick up the doc.xml and not import the doc again.
+			 */
+			
 			File fileOut = new File(outputDir.getAbsolutePath() + File.separatorChar
 					+ LocalDocConst.METADATA_FILENAME);
 			try {
@@ -264,6 +267,9 @@ public class DocExporter extends APassthroughObservable {
 					} else {
 						transcriptMd = transcript.getMd();
 					}
+					
+					//fix the image file name attribute in the Page element in case there was another name set for the export
+					transcript.getPageData().getPage().setImageFilename(baseFileName + imgExt);
 					
 					URL xmlUrl = transcriptMd.getUrl();
 					
