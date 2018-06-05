@@ -14,24 +14,57 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.TrpFimgStoreConf;
+import eu.transkribus.core.model.beans.TrpFImagestore;
 
 public class FimgStoreReadConnection {
 	private static final Logger logger = LoggerFactory.getLogger(FimgStoreReadConnection.class);
 	
+	private static FimgStoreReadConnection instance = null;
+	
+	protected TrpFImagestore store = null;
+	
 	protected static FimgStoreGetClient getter = null;
+	
+	protected FimgStoreReadConnection() {
+		store = loadFImagestoreConfig();
+	}
+	
+	public static FimgStoreReadConnection getInstance() {
+		if(instance == null) {
+			instance = new FimgStoreReadConnection();
+		}
+		return instance;
+	}
+
+	private TrpFImagestore loadFImagestoreConfig() {
+		return TrpFimgStoreConf.getFImagestore();
+	}
+	
+	public static void loadConfig(String dbConfig) {
+		TrpFimgStoreConf.loadConfig(dbConfig);
+		instance = null;
+		getter = null;
+		logger.debug("Reload FImagestore config: " + FimgStoreReadConnection.getInstance().loadFImagestoreConfig());
+	}
+	
+	/**
+	 * Returned config will never include username and password for storing files!
+	 */
+	public TrpFImagestore getFImagestore() {
+		return store;
+	}
 	
 	public static FimgStoreGetClient getGetClient(){
 		if(getter == null){
-			getter = new FimgStoreGetClient(TrpFimgStoreConf.STORE_HOST, 
-					TrpFimgStoreConf.STORE_PORT, TrpFimgStoreConf.STORE_CONTEXT);
+			TrpFImagestore store = FimgStoreReadConnection.getInstance().getFImagestore();
+			getter = new FimgStoreGetClient(store.getHostName(), 
+					store.getPort(), store.getContext());
 		}
 		return getter;
 	}
 	
 	public static void logCreds(){
-		logger.debug(TrpFimgStoreConf.STORE_HOST + " - " +
-				TrpFimgStoreConf.STORE_PORT + " - " + 
-				TrpFimgStoreConf.STORE_CONTEXT);
+		logger.debug(TrpFimgStoreConf.getFImagestore().toString());
 	}
 	
 	public static FimgStoreFileMd getFileMd(URL url) throws IOException {
@@ -57,8 +90,20 @@ public class FimgStoreReadConnection {
 	}
 	
 	public static FimgStoreUriBuilder getUriBuilder() {
+		TrpFImagestore store = FimgStoreReadConnection.getInstance().getFImagestore();
 		return new FimgStoreUriBuilder(
-				Scheme.https.toString(), TrpFimgStoreConf.STORE_HOST, 
-				TrpFimgStoreConf.STORE_PORT, TrpFimgStoreConf.STORE_CONTEXT);
+				Scheme.https.toString(), store.getHostName(), 
+				store.getPort(), store.getContext());
+	}
+	
+	public static String getFimgStoreUrl(){
+		FimgStoreUriBuilder uriBuilder = getUriBuilder();
+		String fimgStoreUrl;
+		try {
+			fimgStoreUrl = uriBuilder.getBaseUri().toString();
+		} catch(URISyntaxException e){
+			throw new IllegalStateException("fimagstore settings in properties are not correct! TRP will not function correctly!!", e);
+		}
+		return fimgStoreUrl;
 	}
 }

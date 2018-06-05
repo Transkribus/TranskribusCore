@@ -1,43 +1,56 @@
 package eu.transkribus.core;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-import org.dea.fimgstoreclient.utils.FimgStoreUriBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import eu.transkribus.core.model.beans.TrpFImagestore;
 
 public class TrpFimgStoreConf {
 		private static final Logger logger = LoggerFactory.getLogger(TrpFimgStoreConf.class);
 		
-		protected static Properties props = new Properties();
-		protected static String fimgStoreUrl = null;
-		public static String STORE_HOST;
-		public static String STORE_CONTEXT;		
-		public static Integer STORE_PORT;
+		protected static Properties props = loadProps("fimgstore.properties");
+		protected static String dbConfig = "trpProd";
+		protected static TrpFImagestore fImagestore = null; 
 		
 		static{
-			props = loadProps("fimgstore.properties");
-			//initialize fimagestore client vars
-			STORE_HOST = TrpFimgStoreConf.getString("store_hostname");
-			STORE_CONTEXT = TrpFimgStoreConf.getString("store_context");		
-			STORE_PORT = TrpFimgStoreConf.getInt("store_port");
+			//initialize fimagestore client settings
+			init();
+		}
+
+		public static void loadConfig(String newDbConfig) {
+			if(newDbConfig == null) {
+				logger.warn("Ignoring null value argument and keeping config: " + dbConfig);
+				return;
+			}
+			if(newDbConfig.equals(dbConfig)) {
+				logger.debug("Config already loaded: " + newDbConfig);
+				return;
+			}
+			dbConfig = newDbConfig;
+			try {
+				init();
+			} catch (IllegalStateException e) {
+				throw new IllegalArgumentException("Not a valid config name: " + dbConfig, e);
+			}
 		}
 		
-		public static String getFimgStoreUrl(){
-			if(fimgStoreUrl == null){
-				FimgStoreUriBuilder uriBuilder = new FimgStoreUriBuilder("https", STORE_HOST, STORE_PORT, STORE_CONTEXT);
-				try {
-					fimgStoreUrl = uriBuilder.getBaseUri().toString();
-				} catch(URISyntaxException e){
-					logger.error("fimagstore settings in trp.properties are not correct! TRP will not function correctly!!");
-					e.printStackTrace();
-				}
+		private static void init() {
+			fImagestore = new TrpFImagestore();
+			fImagestore.setHostName(TrpFimgStoreConf.getString(dbConfig + ".store_hostname"));
+			fImagestore.setContext(TrpFimgStoreConf.getString(dbConfig + ".store_context"));		
+			fImagestore.setPort(TrpFimgStoreConf.getInt(dbConfig + ".store_port"));
+			if(StringUtils.isEmpty(fImagestore.getHostName())) {
+				 throw new IllegalStateException("No filestore hostname found in config!");
 			}
-			return fimgStoreUrl;
+			if(StringUtils.isEmpty(fImagestore.getContext())) {
+				fImagestore.setContext("/");
+			}
+			logger.debug("Initiated FImagestore config: " + fImagestore);
 		}
 
 		public static String getString(String name){
@@ -72,24 +85,21 @@ public class TrpFimgStoreConf {
 
 		protected static Properties loadProps(String filename){
 			logger.debug("Load properties file: " + filename);
-//			if(props == null){
-			props = new Properties();
-//			}
-			InputStream is = null;
-			try{
-				is = TrpFimgStoreConf.class.getClassLoader().getResourceAsStream(filename);
+			Properties props = new Properties();
+			try (InputStream is = TrpFimgStoreConf.class.getClassLoader().getResourceAsStream(filename);) {
 				props.load(is);
 			} catch (Exception e) {
 				logger.debug("Could not find properties file: " + filename);
 			}
-			finally{
-				try {
-					is.close();
-				} catch (IOException e) {
-					logger.warn("Could not close resource stream");
-					//ignore
-				}
-			}
 			return props;
+		}
+
+		public static TrpFImagestore getFImagestore() {
+			return fImagestore;
+		}
+
+		public static TrpFImagestore getFImagestore(String dbConfigName) {
+			loadConfig(dbConfigName);
+			return fImagestore;
 		}
 }

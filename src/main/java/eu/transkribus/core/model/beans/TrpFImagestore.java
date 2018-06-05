@@ -9,17 +9,18 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 @Entity
 @Table(name="FIMGSTORE")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpStore implements Serializable {
+public class TrpFImagestore implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	@Column
-	private int storeid;
+	private Integer storeId;
 	@Column(name="host")
 	private String hostName;
 	@Column
@@ -27,20 +28,25 @@ public class TrpStore implements Serializable {
 	@Column
 	private Integer port = null;
 	@Column
-	private String userName = null;
+	@XmlTransient
+	private String username = null;
 	@Column
-	private String passWord = null;
+	@XmlTransient
+	private String password = null;
+	@XmlTransient
+	@Column(name="STORE_LOCATION")
+	private String storeLocation = null;
 	
-	public TrpStore(){}
+	public TrpFImagestore(){}
 	
 	
-	public int getStoreid() {
-		return storeid;
+	public int getStoreId() {
+		return storeId;
 	}
 
 
-	public void setStoreid(int storeid) {
-		this.storeid = storeid;
+	public void setStoreId(int storeId) {
+		this.storeId = storeId;
 	}
 
 
@@ -72,13 +78,39 @@ public class TrpStore implements Serializable {
 		this.context = context;
 	}
 
-	@Override
-	public String toString(){
-		StringBuffer sb = new StringBuffer(this.getClass().getSimpleName() + " {");
-		sb.append(this.getStoreid() + " - ");
-		sb.append(this.getHostName());
-		sb.append((this.getPort() != null) ? ":" + this.getPort() : "");
-		sb.append((this.getContext() != null) ? "/" + this.getContext() + " }" : "/ }");
-		return sb.toString();
+
+	public String getUsername() {
+		return username;
 	}
+
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+
+	public String getPassword() {
+		return password;
+	}
+
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getStoreLocation() {
+		return storeLocation;
+	}
+
+
+	public void setStoreLocation(String storeLocation) {
+		this.storeLocation = storeLocation;
+	}
+	
+	@Override
+	public String toString() {
+		return "TrpFImagestore [storeId=" + storeId + ", hostName=" + hostName + ", context=" + context + ", port=" + port
+				+ ", username=" + username + ", password=" + (password == null ? "null" : "[is set from DB]") + "]";
+	}
+	
 }
