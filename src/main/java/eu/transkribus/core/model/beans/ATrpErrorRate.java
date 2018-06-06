@@ -55,7 +55,7 @@ public class ATrpErrorRate {
 		return cAcc;
 	}
 	
-	public Double getwcAccDouble() {
+	public Double getcAccDouble() {
 		return Double.parseDouble(cAcc.replaceAll("%", "").replaceAll(",", "."));
 	}
 
