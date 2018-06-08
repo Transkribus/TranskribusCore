@@ -99,40 +99,4 @@ public class ATrpErrorRate {
 	public void setBagTokensF(String bagTokensF) {
 		this.bagTokensF = bagTokensF;
 	}
-	
-	public Double getWerDouble() {
-		// FIXME Dummy method for fixing build of GUI. Add correct impl.
-		return Double.valueOf(-1);
-	}
-
-	public Double getwAccDouble() {
-		// FIXME Dummy method for fixing build of GUI. Add correct impl.
-		return Double.valueOf(-1);
-	}
-
-	public Double getCerDouble() {
-		// FIXME Dummy method for fixing build of GUI. Add correct impl.
-		return Double.valueOf(-1);
-	}
-
-	public Double getcAccDouble() {
-		// FIXME Dummy method for fixing build of GUI. Add correct impl.
-		return Double.valueOf(-1);
-	}
-
-	public Double getBagTokensPrecDouble() {
-		// FIXME Dummy method for fixing build of GUI. Add correct impl.
-		return Double.valueOf(-1);
-	}
-
-	public Double getBagTokensRecDouble() {
-		// FIXME Dummy method for fixing build of GUI. Add correct impl.
-		return Double.valueOf(-1);
-	}
-
-	public Double getBagTokensFDouble() {
-		// FIXME Dummy method for fixing build of GUI. Add correct impl.
-		return Double.valueOf(-1);
-	}
-
 }
