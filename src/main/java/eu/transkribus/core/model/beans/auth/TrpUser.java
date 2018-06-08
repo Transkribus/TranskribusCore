@@ -229,7 +229,7 @@ public class TrpUser implements Serializable {
 		retValue += TAB + "lastname = " + this.lastname;
 		retValue += TAB + "gender = " + this.gender;
 		retValue += TAB + "orcid = " + this.orcid;
-		retValue += TAB + "isAvtive = " + this.isActive;
+		retValue += TAB + "isActive = " + this.isActive;
 		retValue += TAB + "created = " + ((created==null) ? "null" : created.toString());
 		retValue += " )";
 	    return retValue;
