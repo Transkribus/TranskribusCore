@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,8 +98,55 @@ public class TrpDoc implements Serializable, Comparable<TrpDoc> {
 		this.pages = pages;
 	}
 	
+	/**
+	 * This method will check occurrence of the object in the list using the {@link TrpPage#equals(Object)} method and won't work if the number of transcripts differs!
+	 * <br>
+	 * Equivalent to {@link TrpDoc#getPages()} and {@link List#indexOf(TrpPage)}.
+	 * 
+	 * @param p a page object
+	 * @return the index of the equal object in the list
+	 */
+	public int getPageIndexByEquality(TrpPage p) {
+		if(p == null) {
+			logger.warn("getPageIndex(): given page is null!");
+			return -1;
+		}
+		logger.debug("Finding page in pageList:\n" + p.toString());
+		final int index = pages.indexOf(p);
+		logger.debug("Correct page would be:\n" + getPageWithId(p.getPageId()).toString());
+		logger.debug("Index in pagelist of doc using equals(): " + index);
+		return index;
+	}
+	
+	/**
+	 * Returns the index of a page in this doc's pagelist or -1 if it is not found.<br>
+	 * Occurence is checked by equality of page nr. and image URL for local docs (filestore key == null).<br>
+	 * Only the pageId is compared on remote docs.
+	 * 
+	 * @param p
+	 * @return
+	 */
 	public int getPageIndex(TrpPage p) {
-		return pages.indexOf(p);
+		if(p == null) {
+			logger.warn("getPageIndex(): given page is null!");
+			return -1;
+		}
+		if(StringUtils.isEmpty(p.getKey())) {
+			//local doc: search by equivalence of pageNr and image URL
+			for(int i = 0; i < pages.size(); i++) {
+				if(p.getPageNr() == pages.get(i).getPageNr() && p.getUrl().equals(pages.get(i).getUrl())) {
+					return i;
+				}
+			}
+		} else {
+			//remote doc: search by equivalence of pageId
+			for(int i = 0; i < pages.size(); i++) {
+				if(p.getPageId() == pages.get(i).getPageId()) {
+					return i;
+				}
+			}
+		}
+		return -1;
 	}
 	
 	public boolean isLocalDoc() {
