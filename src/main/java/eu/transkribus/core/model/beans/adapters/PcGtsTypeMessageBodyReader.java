@@ -22,7 +22,7 @@ import eu.transkribus.core.util.SebisStopWatch;
 public class PcGtsTypeMessageBodyReader implements MessageBodyReader<PcGtsType> {
 	private final static Logger logger = LoggerFactory.getLogger(PcGtsTypeMessageBodyReader.class);
 
-	static SebisStopWatch sw = new SebisStopWatch();
+	private SebisStopWatch sw = new SebisStopWatch();
 	
 	@Override
 	public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
