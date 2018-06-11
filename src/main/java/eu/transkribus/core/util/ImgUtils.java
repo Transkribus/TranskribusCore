@@ -34,10 +34,22 @@ import eu.transkribus.core.io.exec.util.ExiftoolUtil;
 
 public class ImgUtils {
 	private final static Logger logger = LoggerFactory.getLogger(ImgUtils.class);
+
+	private static boolean isExiftoolAvailable = isExiftoolAvailable();
 	
-//	static {
-//		ImageIO.scanForPlugins();
-//	}
+	private static boolean isExiftoolAvailable() {
+		boolean isExiftoolAvailable = false;
+		try {
+			File f = SysUtils.findFileInPath(ExiftoolUtil.exiftool);
+			if(f != null) {
+				isExiftoolAvailable = true;
+			}
+		} catch (FileNotFoundException e) {
+			isExiftoolAvailable = false;
+		}
+		logger.debug("Exiftool is available on Path");
+		return isExiftoolAvailable;
+	}
 	
 	/** Reads image in the specified image file. For multiimage tiff files, the first image is read. */
 	public static BufferedImage readImage(byte[] data) throws IOException {
@@ -118,15 +130,18 @@ public class ImgUtils {
 		if(!imgFile.isFile()) {
 			throw new FileNotFoundException("Could not find file: " + imgFile.getAbsolutePath());
 		}
-		//try to read with exiftool first:
+		
 		Dimension dim = null;
-		try {
-			dim = readImageDimensionsWithExiftool(imgFile);			
-		} catch (Exception e1) {
-			logger.warn("Could not read image dimensions with exiftool: " + e1.getMessage(), e1);
+		if(isExiftoolAvailable) {
+			//try to read with exiftool first:
+			try {
+				dim = readImageDimensionsWithExiftool(imgFile);			
+			} catch (Exception e1) {
+				logger.warn("Could not read image dimensions with exiftool: " + e1.getMessage(), e1);
+			}
 		}
 		
-		//if exiftool is not installed or failed try imageIO
+		//if exiftool is not installed or failed. Try imageIO
 		if(dim == null) {
 			try {
 				dim = readImageDimensionsWithImageIO(imgFile);

@@ -1,8 +1,12 @@
 package eu.transkribus.core.util;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-import org.apache.poi.hdgf.pointers.Pointer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,6 +96,27 @@ public class SysUtils {
 		return null;
 	}
 
+	public static File findFileInPath(String file, String... additionalPaths) throws FileNotFoundException {
+		// first add the paths that are given:
+		List<String> allPaths = new ArrayList<String>();
+		allPaths.addAll(Arrays.asList(additionalPaths));
+		// then add all paths from the system PATH:
+		String paths = System.getenv("PATH");
+		String pathSep = isWin() ? ";" : ":";
+		allPaths.addAll(Arrays.asList(paths.split(pathSep)));
+		// then search the path:
+		for (String path : allPaths) {
+			path = path.trim();
+			File f = new File(path+"/"+file);
+			if (f.exists() && f.isFile()) {
+				return f;
+			} else {
+				logger.info("Could not find file '" + file + "' in path: " + path);
+			}
+		}
+		throw new FileNotFoundException("Cannot find file: "+ file);
+	}
+	
 //	/**
 //	 * @see http://www.golesny.de/p/code/javagetpid
 //	 *
