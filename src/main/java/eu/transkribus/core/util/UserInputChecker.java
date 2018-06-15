@@ -92,7 +92,7 @@ public class UserInputChecker {
 	}
 	
 	public static void checkCollectionName(String collName) throws InvalidUserInputException {
-		if (StringUtils.isEmpty(collName)) {
+		if (collName == null || collName.trim().length() < 1) {
 			String msg = "Collection name is empty!";
 			throw new InvalidUserInputException(msg);
 		}
