@@ -98,7 +98,7 @@ public class ImgUtilsTest {
 		sw.stop(true);
 	}
 	
-	@Test
+//	@Test
 	public void testReadDimension() throws FileNotFoundException, IOException, TimeoutException, InterruptedException {
 		File imgFile = new File("/mnt/dea_scratch/TRP/test/I._ZvS_1902_4.Q/ZS-I-1902-198 (1).jpg");
 		SSW sw = new SSW();
