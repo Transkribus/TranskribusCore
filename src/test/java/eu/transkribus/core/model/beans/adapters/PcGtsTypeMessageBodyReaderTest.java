@@ -18,7 +18,7 @@ import eu.transkribus.core.util.PageXmlUtils;
 
 public class PcGtsTypeMessageBodyReaderTest {
 	private static final Logger logger = LoggerFactory.getLogger(PcGtsTypeMessageBodyReaderTest.class);
-	@Test
+//	@Test
 	public void testDamagedXml() throws FileNotFoundException, IOException, JAXBException {
 		File f = new File("/media/daten/Dokumente/Bentham_batch2_test/page/116_630_001.xml");
 		
