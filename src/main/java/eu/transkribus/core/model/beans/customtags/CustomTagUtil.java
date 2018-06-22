@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -331,8 +332,8 @@ public class CustomTagUtil {
 		
 		logger.trace("setting structure: "+structureType+" id: "+shape.getId()+" type: "+shape.getClass().getSimpleName()+" recursive: "+recursive);
 		
-		if (!isTextregionOrLineOrWord(shape))
-			return;
+//		if (!isTextregionOrLineOrWord(shape))
+//			return;
 		
 		if (shape instanceof TrpTextRegionType) { // if this is a text region, also set PAGE structure field if possible
 			TextTypeSimpleType s = StructureTag.parseTextType(structureType);
@@ -340,11 +341,14 @@ public class CustomTagUtil {
 		}
 						
 		// set custom tag:
-		if (structureType == null || structureType.equals(""))
+		if (StringUtils.isEmpty(structureType)) {
 			shape.getCustomTagList().removeTags(StructureTag.TAG_NAME);
+		}
 		else {
 			shape.getCustomTagList().addOrMergeTag(new StructureTag(structureType), null);
 		}
+		
+		logger.trace("structure afterwards: "+shape.getStructure());
 		
 		if (recursive) {
 			for (ITrpShapeType c : shape.getChildren(recursive)) {
@@ -360,8 +364,8 @@ public class CustomTagUtil {
 	}
 		
 	public static String getStructure(ITrpShapeType shape) {
-		if (!isTextregionOrLineOrWord(shape))
-			return "";
+//		if (!isTextregionOrLineOrWord(shape))
+//			return "";
 		
 		if (shape instanceof TrpTextRegionType) { // if this is a region, try to parse the PAGE struct element
 			TextTypeSimpleType tt = ((TrpTextRegionType) shape).getType();
