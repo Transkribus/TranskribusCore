@@ -79,6 +79,8 @@ public enum TextTypeSimpleType {
     ENDNOTE("endnote"),
     @XmlEnumValue("TOC-entry")
     TOC_ENTRY("TOC-entry"),
+    @XmlEnumValue("book-binding")
+    BOOK_BINDING("book-binding"),
     @XmlEnumValue("other")
     OTHER("other");
     private final String value;

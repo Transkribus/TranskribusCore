@@ -327,8 +327,9 @@ public class CustomTagUtil {
 	}
 	
 	public static void setStructure(ITrpShapeType shape, String structureType, boolean recursive, Object who) {
-		if (shape == null)
+		if (shape == null || shape.getCustomTagList() == null) {
 			return;
+		}
 		
 		logger.trace("setting structure: "+structureType+" id: "+shape.getId()+" type: "+shape.getClass().getSimpleName()+" recursive: "+recursive);
 		
@@ -367,14 +368,19 @@ public class CustomTagUtil {
 //		if (!isTextregionOrLineOrWord(shape))
 //			return "";
 		
+		if (shape == null || shape.getCustomTagList()==null) {
+			return "";
+		}
+		
 		if (shape instanceof TrpTextRegionType) { // if this is a region, try to parse the PAGE struct element
 			TextTypeSimpleType tt = ((TrpTextRegionType) shape).getType();
-			if (tt != null)
+			if (tt != null) {
 				return tt.value();
+			}
 		}
-				
+		
 		StructureTag t = shape.getCustomTagList().getNonIndexedTag(StructureTag.TAG_NAME);
-		return t==null ? "" : t.getType();
+		return t==null ? "" : t.getType();			
 	}
 
 	public static void setReadingOrder(ITrpShapeType shape, Integer readingOrder, Object who) {
