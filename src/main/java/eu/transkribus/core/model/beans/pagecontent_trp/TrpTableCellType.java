@@ -42,10 +42,10 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
  	
 	@XmlTransient private TrpTableRegionType table;
 	
- 	@XmlTransient
-	protected CustomTagList customTagList;
+// 	@XmlTransient
+//	protected CustomTagList customTagList;
  	
- 	@XmlTransient Object data;
+// 	@XmlTransient Object data;
  	
  	public static final Comparator<TableCellType> TABLE_CELL_COMPARATOR = new Comparator<TableCellType>() {
 		@Override public int compare(TableCellType o1, TableCellType o2) {
@@ -70,7 +70,7 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 	};	
  		
 	public TrpTableCellType() {	
-		customTagList = new CustomTagList(this);
+//		customTagList = new CustomTagList(this);
 	}
 	
 	public TrpTableCellType(TrpTableRegionType parent) {
@@ -93,32 +93,34 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 		if (!(src instanceof TrpTableCellType))
 			throw new RuntimeException("copyFields - not a TrpTableCellType!");
 		
+		super.copyFields(src);
+		
 		TrpTableCellType srcCell = (TrpTableCellType) src;
 		
 		this.id = TrpPageType.getUniqueId(getName());
-		this.coords = BeanCopyUtils.copyCoordsType(srcCell.coords);
+//		this.coords = BeanCopyUtils.copyCoordsType(srcCell.coords);
 		
-		if (srcCell.textLine!=null)
-			textLine = new ArrayList<>(srcCell.textLine);
+//		if (srcCell.textLine!=null)
+//			textLine = new ArrayList<>(srcCell.textLine);
 		
 		this.row = srcCell.row;
 		this.col = srcCell.col;
 		this.rowSpan = srcCell.rowSpan;
 		this.colSpan = srcCell.colSpan;
 		
-	    if (srcCell.getCustomTagList() != null)
-	    	srcCell.getCustomTagList().writeToCustomTag();
-	    if (srcCell.custom != null)
-	    	custom = new String(srcCell.custom);
-	    
-	    if (srcCell.comments != null)
-	    	comments = new String(srcCell.comments);
+//	    if (srcCell.getCustomTagList() != null)
+//	    	srcCell.getCustomTagList().writeToCustomTag();
+//	    if (srcCell.custom != null)
+//	    	custom = new String(srcCell.custom);
+//	    
+//	    if (srcCell.comments != null)
+//	    	comments = new String(srcCell.comments);
 			
 		// copy new fields:
 		table = srcCell.table;
-		data = srcCell.data;
+//		data = srcCell.data;
 		
-		customTagList = new CustomTagList(this);
+//		customTagList = new CustomTagList(this);
 	}
 
 	@Override public String getName() {
@@ -160,13 +162,13 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 		return table;
 	}
 
-	@Override public Object getData() {
-		return data;
-	}
-
-	@Override public void setData(Object data) {
-		this.data = data;
-	}
+//	@Override public Object getData() {
+//		return data;
+//	}
+//
+//	@Override public void setData(Object data) {
+//		this.data = data;
+//	}
 
 	@Override public void setStructure(String structureType, boolean recursive, Object who) {
 		CustomTagUtil.setStructure(this, structureType, recursive, who);
