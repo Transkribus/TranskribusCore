@@ -15,6 +15,7 @@ import org.apache.bcel.generic.INSTANCEOF;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,7 +120,7 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 	}
 	
 	public String getTextOfShape() {
-		if (customTagList == null)
+		if (customTagList == null || customTagList.getShape()==null)
 			return "";
 		
 		return customTagList.getShape().getUnicodeText();
@@ -134,10 +135,10 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 	}
 
 	public String getNeighborText(boolean before, int N) {
-		if (customTagList == null)
+		String txtOfShape = getTextOfShape();
+		if (StringUtils.isEmpty(txtOfShape)) {
 			return "";
-		
-		String txtOfShape = customTagList.getShape().getUnicodeText();
+		}
 		
 		// first get neighboring text of same shape
 		String txt = "";
@@ -178,10 +179,10 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 	}
 
 	public String getContainedText() {
-		if (customTagList == null)
+		String txt = getTextOfShape();
+		if (StringUtils.isEmpty(txt)) {
 			return "";
-		
-		String txt = customTagList.getShape().getUnicodeText();
+		}
 		
 		int o = CoreUtils.bound(offset, 0, txt.length());
 		int e = CoreUtils.bound(offset+length, 0, txt.length());
