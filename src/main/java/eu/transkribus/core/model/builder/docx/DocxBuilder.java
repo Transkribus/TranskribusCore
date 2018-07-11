@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.xml.bind.JAXBElement;
@@ -1064,15 +1065,25 @@ public class DocxBuilder {
 	
 		}
 		
+//		for (Entry<Integer, AbbrevTag> at : substituteAbbrevList.entrySet()){
+//			logger.debug("index " + at.getKey());
+//			logger.debug("substitution  " + at.getValue().getExpansion());
+//			
+//		}
+		
+		//System.in.read();
+		
 		
 		List<TextStyleTag> textStylesTags = element.getTextStyleTags();
 		
 		//ArrayList<R> runs = new ArrayList<R>();
 		
 		boolean shapeEnded = false;
+		boolean indexChangedManually = false;
 		
 		for (int i=0; i<=textStr.length(); ++i) {
-			
+			indexChangedManually = false;
+						
 			//use of abbrevIdx: this is necessary for the appearance at the end of a textline
 			//otherwise the abbrev expansion would not appear at the end of a line because then the index i would be too small
 
@@ -1083,7 +1094,12 @@ public class DocxBuilder {
 			 * so if the start of the abbrev was found the expansion is written and we can break the writing of the abbrev
 			 */
 			if(substituteAbbrevList.containsKey(i)){
+
 				String exp = substituteAbbrevList.get(i).getExpansion();
+				
+//				logger.debug("exp: " + exp);
+//				logger.debug("i: " + i);
+//				logger.debug("length: " + AbbrevList.get(i).getLength());
 				
 				if(rtl){
 					exp = reverseString(exp);
@@ -1097,8 +1113,14 @@ public class DocxBuilder {
 				abbrevRun.getContent().add(abbrevText);
 				
 				listOfallRuns.add(abbrevRun);
-				//go to end of the abbreviation and proceed with remaining text
-				i += substituteAbbrevList.get(i).getLength();
+				/*
+				 * go to end of the abbreviation and proceed with remaining text
+				 * next two lines occured through a bug fix when two abbrevs are in one word without a space
+				 * e.g. Bndci with Bn=Bene and dci=dicti as expansions
+				 * previously i was set to the length - now we need length-1 and have to stop adding an additional char later on.
+				 */
+				i += substituteAbbrevList.get(i).getLength()-1;
+				indexChangedManually = true;
 				shapeEnded = (i == textStr.length() ? true : false);
 			}
 			
@@ -1237,7 +1259,11 @@ public class DocxBuilder {
 			 */
 			if ( (currText.equals("¬") || currText.equals("­") || currText.equals("-") ) && !preserveLineBreaks && shapeEnded){
 				break;
-			}				
+			}	
+			
+			if (indexChangedManually){
+				continue;
+			}
 			
 			org.docx4j.wml.Text  t = factory.createText();
 			t.setValue(currText);

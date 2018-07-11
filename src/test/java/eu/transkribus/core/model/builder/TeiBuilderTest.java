@@ -1,24 +1,48 @@
 package eu.transkribus.core.model.builder;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.xml.bind.JAXBException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.io.LocalDocReader;
 import eu.transkribus.core.model.beans.TrpDoc;
+import eu.transkribus.core.model.beans.TrpDocMetadata;
+import eu.transkribus.core.model.beans.TrpPage;
+import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
+import eu.transkribus.core.model.beans.mets.Mets;
+import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
+import eu.transkribus.core.model.builder.mets.util.MetsUtil;
 import eu.transkribus.core.model.builder.tei.TeiExportPars;
 import eu.transkribus.core.model.builder.tei.TrpTeiStringBuilder;
+import eu.transkribus.core.util.JaxbUtils;
+import eu.transkribus.core.util.PageXmlUtils;
 import eu.transkribus.core.util.SebisStopWatch;
+import eu.transkribus.core.util.XslTransformer;
 
 public class TeiBuilderTest {
 	private static final Logger logger = LoggerFactory.getLogger(TeiBuilderTest.class);
 	
 //	final static String docPath = "/mnt/dea_scratch/TRP/test/bsb00089816_textRegion_from_par";
-	final static String docPath = "/mnt/dea_scratch/TRP/TrpTestDoc_20140508"; // has words!
-//	final static String docPath = "/home/sebastianc/Dokumente/Bentham_box_035";
+	//final static String docPath = "/mnt/dea_scratch/TRP/TrpTestDoc_20140508"; // has words!
+	final static String docPath = "C:/Neuer Ordner/Grimmen/Grimmen";
+	final static String metsPath = "C:/Neuer Ordner/Grimmen/Grimmen/mets.xml";
+	private static final String PAGE_TO_TEI_XSLT = "xslt/page2tei-0.xsl";
 	
 	static SebisStopWatch sw = new SebisStopWatch();
 	
@@ -111,6 +135,59 @@ public class TeiBuilderTest {
 //		sw.stop(true, "zone per par: ", null);
 	}
 	
+	public static void page2Tei(TrpDoc doc) throws Exception {
+		Mets mets;
+		File metsFile = new File(metsPath);
+		try {
+			mets = JaxbUtils.unmarshal(metsFile, Mets.class, TrpDocMetadata.class);
+			transformTei(mets);
+		} catch (JAXBException e) {
+			throw new IOException("Could not unmarshal METS file!", e);
+		}
+		
+		
+		
+	}
+	
+	/*
+	 * first shot to get the TEI export as a transformation of the page XML with a predefined XSLT
+	 * test and make it available via the rest API for the server export 
+	 */
+	public static File transformTei(Mets mets) throws JAXBException, FileNotFoundException, TransformerException {
+		if(mets == null){
+			throw new IllegalArgumentException("An argument is null!");
+		}
+				
+		StreamSource mySrc = new StreamSource();
+		mySrc.setInputStream(new ByteArrayInputStream(JaxbUtils.marshalToBytes(mets)));
+		
+		InputStream is = XslTransformer.class.getClassLoader().getResourceAsStream(PAGE_TO_TEI_XSLT);
+		
+//		InputStream xslIS = new BufferedInputStream(new FileInputStream(xslID));
+		InputStream xslIS = new BufferedInputStream(is);
+		StreamSource xslSource = new StreamSource(xslIS);
+
+        // das Factory-Pattern unterstützt verschiedene XSLT-Prozessoren
+        TransformerFactory transFact =
+                TransformerFactory.newInstance();
+        Transformer trans;
+//		try {
+			trans = transFact.newTransformer(xslSource);
+			
+			File teiFile = new File(new File(docPath).getParentFile().getAbsolutePath()+"/tei.xml");			
+			trans.transform(mySrc, new StreamResult(new FileOutputStream(teiFile)));
+			
+			return teiFile;
+//		} catch (TransformerConfigurationException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (TransformerException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+	}
+	
 	public static void main(String[] args){
 		SebisStopWatch sw = new SebisStopWatch();
 
@@ -120,7 +197,8 @@ public class TeiBuilderTest {
 			doc = LocalDocReader.load(docPath);
 			
 //			test1(doc);
-			test2(doc);
+			//test2(doc);
+			page2Tei(doc);
 		
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
