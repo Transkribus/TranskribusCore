@@ -40,7 +40,7 @@ public class TeiBuilderTest {
 	
 //	final static String docPath = "/mnt/dea_scratch/TRP/test/bsb00089816_textRegion_from_par";
 	//final static String docPath = "/mnt/dea_scratch/TRP/TrpTestDoc_20140508"; // has words!
-	final static String docPath = "C:/Neuer Ordner/Grimmen/Grimmen";
+	final static String docPath = "C:/Neuer Ordner/Grimmen/Grimmen/";
 	final static String metsPath = "C:/Neuer Ordner/Grimmen/Grimmen/mets.xml";
 	private static final String PAGE_TO_TEI_XSLT = "xslt/page2tei-0.xsl";
 	
@@ -139,7 +139,7 @@ public class TeiBuilderTest {
 		Mets mets;
 		File metsFile = new File(metsPath);
 		try {
-			mets = JaxbUtils.unmarshal(metsFile, Mets.class, TrpDocMetadata.class);
+			mets = JaxbUtils.unmarshal(metsFile, Mets.class, null);
 			transformTei(mets);
 		} catch (JAXBException e) {
 			throw new IOException("Could not unmarshal METS file!", e);
@@ -161,6 +161,9 @@ public class TeiBuilderTest {
 		StreamSource mySrc = new StreamSource();
 		mySrc.setInputStream(new ByteArrayInputStream(JaxbUtils.marshalToBytes(mets)));
 		
+		//necessary to use the relative paths in the xslt
+		mySrc.setSystemId(docPath);
+		
 		InputStream is = XslTransformer.class.getClassLoader().getResourceAsStream(PAGE_TO_TEI_XSLT);
 		
 //		InputStream xslIS = new BufferedInputStream(new FileInputStream(xslID));
@@ -174,7 +177,7 @@ public class TeiBuilderTest {
 //		try {
 			trans = transFact.newTransformer(xslSource);
 			
-			File teiFile = new File(new File(docPath).getParentFile().getAbsolutePath()+"/tei.xml");			
+			File teiFile = new File(new File(docPath).getParentFile().getAbsolutePath()+"/gh_tei.xml");			
 			trans.transform(mySrc, new StreamResult(new FileOutputStream(teiFile)));
 			
 			return teiFile;

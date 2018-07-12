@@ -1,7 +1,12 @@
 package eu.transkribus.core.io;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -10,7 +15,11 @@ import java.util.List;
 import java.util.Set;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -46,11 +55,14 @@ import eu.transkribus.core.model.builder.tei.TrpTeiStringBuilder;
 import eu.transkribus.core.model.builder.txt.TrpTxtBuilder;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.JaxbUtils;
+import eu.transkribus.core.util.XslTransformer;
 
 public class DocExporter extends APassthroughObservable {
 	private static final Logger logger = LoggerFactory.getLogger(DocExporter.class);
 
 	private final ExportCache cache;
+	
+	private static final String PAGE_TO_TEI_XSLT = "xslt/page2tei-0.xsl";
 	
 	public DocExporter() {
 		cache = new ExportCache();
@@ -107,11 +119,81 @@ public class DocExporter extends APassthroughObservable {
 		pdfWriter.export(doc, path, pageIndices, wordBased, addTextPages, imagesOnly, highlightTags, doBlackening, createTitle, cache, font);
 	}
 	
-	public void writeTEI(final TrpDoc doc, final String path, CommonExportPars commonPars, final TeiExportPars pars) throws Exception{
-		ATeiBuilder builder = new TrpTeiStringBuilder(doc, commonPars, pars, null);
-		builder.addTranscriptsFromCache(cache);
-		builder.buildTei();
-		builder.writeTeiXml(new File(path));
+	public void writeTEI(final TrpDoc doc, final String exportDir, CommonExportPars commonPars, final TeiExportPars pars) throws Exception{
+//		ATeiBuilder builder = new TrpTeiStringBuilder(doc, commonPars, pars, null);
+//		builder.addTranscriptsFromCache(cache);
+//		builder.buildTei();
+//		builder.writeTeiXml(new File(path));
+		
+		/*
+		 * from now on we take the 'TEI base export' from Dario Kampaskar 'https://github.com/dariok/page2tei'
+		 * 
+		 * either read the already exported mets or temporarly export a mets with page files
+		 */
+		Mets mets;
+//		if (commonPars.isDoWriteMets() && new File(commonPars.getDir()).exists()){
+//			
+//			File metsFile = new File(commonPars.getDir() + File.separator
+//					+ TrpMetsBuilder.METS_FILE_NAME);
+//			//File metsFile = new File(metsPath);
+//			try {
+//				mets = JaxbUtils.unmarshal(metsFile, Mets.class, null);
+//				//transformTei(mets);
+//			} catch (JAXBException e) {
+//				throw new IOException("Could not unmarshal METS file!", e);
+//			}
+//		}
+//		else{
+			/*
+			 * use temporary mets
+			 */
+			TrpMetsBuilder metsBuilder = new TrpMetsBuilder();
+			
+			Set<Integer> pageIndices= commonPars.getPageIndices(doc.getNPages());
+			mets = metsBuilder.buildMets(doc, true, false, false, pageIndices);
+			
+			File tmpDir = new File(new File(exportDir).getParentFile().getAbsolutePath() + "/tmpDirForTeiExport_"+doc.getId());
+			tmpDir.mkdirs();
+			
+			// do export for all defined pages
+			for (int i=0; i<doc.getNPages(); ++i) {
+				if (pageIndices!=null && !pageIndices.contains(i)) {
+					continue;
+				}
+				
+				TrpPage p = doc.getPages().get(i);
+				File imgFile = null, xmlFile = null, altoFile = null;
+				
+				URL imgUrl = p.getUrl(); 
+				
+				final String baseFileName = ExportFilePatternUtils.buildBaseFileName(commonPars.getFileNamePattern(), p);
+				final String xmlExt = ".xml";
+				
+				TrpTranscriptMetadata transcriptMd;
+				JAXBPageTranscript transcript = cache.getPageTranscriptAtIndex(i);
+				
+				// set up transcript metadata
+				if(transcript == null) {
+					transcriptMd = p.getCurrentTranscript();
+					logger.warn("Have to unmarshall transcript in DocExporter for transcript "+transcriptMd+" - should have been built before using ExportUtils::storePageTranscripts4Export!");
+					transcript = new JAXBPageTranscript(transcriptMd);
+					transcript.build();
+				}
+				
+				xmlFile = new File(FilenameUtils.normalizeNoEndSeparator(tmpDir.getAbsolutePath())+File.separator+baseFileName + xmlExt);
+				logger.debug("PAGE XMl output file: "+xmlFile.getAbsolutePath());
+				transcript.write(xmlFile);
+			}
+
+//		}
+		
+		transformTei(mets, exportDir);
+		for (File file : tmpDir.listFiles()){
+			file.delete();
+		}
+		tmpDir.delete();
+		
+		
 	}
 	
 	public void writeDocx(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, final boolean createTitle, boolean doDocxMarkUnclear, boolean doDocxExpandAbbrevs, boolean doDocxSubstituteAbbrevs, boolean doDocxPreserveLineBreaks, boolean doDocxForcePageBreaks) throws MalformedURLException, DocumentException, IOException, JAXBException, URISyntaxException, InterruptedException, Docx4JException{
@@ -133,6 +215,45 @@ public class DocExporter extends APassthroughObservable {
 	public void writeTableExcel(final TrpDoc doc, final String path, Set<Integer> pageIndices) throws Exception{
 		TrpXlsxTableBuilder xlsxTableBuilder = new TrpXlsxTableBuilder();
 		xlsxTableBuilder.writeXlsxForTables(doc, new File(path), pageIndices, null, cache);
+	}
+	
+	/*
+	 * first shot to get the TEI export as a transformation of the page XML with a predefined XSLT
+	 * test and make it available via the rest API for the server export 
+	 */
+	public static File transformTei(Mets mets, String workDir) throws JAXBException, FileNotFoundException, TransformerException {
+		if(mets == null){
+			throw new IllegalArgumentException("An argument is null!");
+		}
+		
+		File tmpDir = new File(new File(workDir).getParentFile().getAbsolutePath() + "/tmpDirForTeiExport");
+		tmpDir.mkdirs();
+				
+		StreamSource mySrc = new StreamSource();
+		mySrc.setInputStream(new ByteArrayInputStream(JaxbUtils.marshalToBytes(mets)));
+		
+		//necessary to use the relative paths of the mets in the xslt
+		//mySrc.setSystemId(docPath);
+		
+		InputStream is = XslTransformer.class.getClassLoader().getResourceAsStream(PAGE_TO_TEI_XSLT);
+		
+//		InputStream xslIS = new BufferedInputStream(new FileInputStream(xslID));
+		InputStream xslIS = new BufferedInputStream(is);
+		StreamSource xslSource = new StreamSource(xslIS);
+
+        // das Factory-Pattern unterstützt verschiedene XSLT-Prozessoren
+        TransformerFactory transFact =
+                TransformerFactory.newInstance();
+        Transformer trans;
+
+		trans = transFact.newTransformer(xslSource);
+		
+		File teiFile = new File(workDir);			
+		trans.transform(mySrc, new StreamResult(new FileOutputStream(teiFile)));
+		
+		return teiFile;
+
+		
 	}
 
 	/**
