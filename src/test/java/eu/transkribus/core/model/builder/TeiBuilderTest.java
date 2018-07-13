@@ -20,6 +20,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.io.DocExporter;
 import eu.transkribus.core.io.LocalDocReader;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
@@ -41,6 +42,7 @@ public class TeiBuilderTest {
 //	final static String docPath = "/mnt/dea_scratch/TRP/test/bsb00089816_textRegion_from_par";
 	//final static String docPath = "/mnt/dea_scratch/TRP/TrpTestDoc_20140508"; // has words!
 	final static String docPath = "C:/Neuer Ordner/Grimmen/Grimmen/";
+	final static String exportFilename = "C:/Neuer Ordner/Grimmen/Grimmen.xml";
 	final static String metsPath = "C:/Neuer Ordner/Grimmen/Grimmen/mets.xml";
 	private static final String PAGE_TO_TEI_XSLT = "xslt/page2tei-0.xsl";
 	
@@ -139,8 +141,11 @@ public class TeiBuilderTest {
 		Mets mets;
 		File metsFile = new File(metsPath);
 		try {
-			mets = JaxbUtils.unmarshal(metsFile, Mets.class, null);
-			transformTei(mets);
+			mets = JaxbUtils.unmarshal(metsFile, Mets.class, TrpDocMetadata.class);
+			DocExporter docExp = new DocExporter();
+			docExp.writeTEI(doc, exportFilename, new CommonExportPars("1-4", false, false, true, false, false, true, false, false, false, false, false, "Latest", false, false, null), null);
+			//DocExporter.transformTei(mets, docPath);
+			//transformTei(mets);
 		} catch (JAXBException e) {
 			throw new IOException("Could not unmarshal METS file!", e);
 		}
@@ -159,7 +164,7 @@ public class TeiBuilderTest {
 		}
 				
 		StreamSource mySrc = new StreamSource();
-		mySrc.setInputStream(new ByteArrayInputStream(JaxbUtils.marshalToBytes(mets)));
+		mySrc.setInputStream(new ByteArrayInputStream(JaxbUtils.marshalToBytes(mets, TrpDocMetadata.class)));
 		
 		//necessary to use the relative paths in the xslt
 		mySrc.setSystemId(docPath);
@@ -202,6 +207,8 @@ public class TeiBuilderTest {
 //			test1(doc);
 			//test2(doc);
 			page2Tei(doc);
+			
+			
 		
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
