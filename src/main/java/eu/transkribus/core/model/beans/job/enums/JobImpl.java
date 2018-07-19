@@ -36,6 +36,7 @@ public enum JobImpl {
 	CITlabLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", null),
 	CITlabAdvancedLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", null),
 	CvlLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", null),
+	CvlTableJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", null),
 	UpvlcLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", null),
 	
 	//FIXME this could be reduced by stating one impl while the wrapper is merely a job-parameter
@@ -44,6 +45,7 @@ public enum JobImpl {
 	CITlabLaJobMultiThread(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "MultiThreadLaJob", null),
 	CITlabAdvancedLaJobMultiThread(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "MultiThreadLaJob", null),
 	CvlLaJobMultiThread(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "MultiThreadLaJob", null),
+	CvlTableJobMultiThread(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "MultiThreadLaJob", null),
 	UpvlcLaJobMultiThread(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "MultiThreadLaJob", null),
 	
 //	NcsrLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "SinglePageLaJob", "libNCSR_TextLineSegmentation.so"),
