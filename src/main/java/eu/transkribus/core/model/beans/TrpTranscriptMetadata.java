@@ -96,28 +96,28 @@ public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrp
 	private String md5Sum = "";
 
 	@Column(name=N_REGIONS_COL_NAME)
-	private Integer nrOfRegions;
+	private Integer nrOfRegions = 0;
 
 	@Column(name=N_TRANSCRIBED_REGIONS_COL_NAME)
-	private Integer nrOfTranscribedRegions;
+	private Integer nrOfTranscribedRegions = 0;
 
 	@Column(name=N_WORDS_IN_REGIONS_COL_NAME)
-	private Integer nrOfWordsInRegions;
+	private Integer nrOfWordsInRegions = 0;
 	
 	@Column(name=N_LINES_COL_NAME)
-	private Integer nrOfLines;
+	private Integer nrOfLines = 0;
 
 	@Column(name=N_TRANSCRIBED_LINES_COL_NAME)
-	private Integer nrOfTranscribedLines;
+	private Integer nrOfTranscribedLines = 0;
 
 	@Column(name=N_WORDS_IN_LINES_COL_NAME)
-	private Integer nrOfWordsInLines;
+	private Integer nrOfWordsInLines = 0;
 
 	@Column(name=N_WORDS_COL_NAME)
-	private Integer nrOfWords;
+	private Integer nrOfWords = 0;
 
 	@Column(name=N_TRANSCRIBED_WORDS_COL_NAME)
-	private Integer nrOfTranscribedWords;
+	private Integer nrOfTranscribedWords = 0;
 	
 	//TODO tags
 	//TODO annotations
