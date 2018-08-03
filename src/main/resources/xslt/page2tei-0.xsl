@@ -23,7 +23,7 @@
     </xd:doc>
     
     <!-- use extended string functions from https://github.com/dariok/XStringUtils -->
-    <xsl:include href="../string-pack.xsl"/>
+    <xsl:include href="xslt/string-pack.xsl"/>
     
     <xsl:param name="debug" select="false()" />
     

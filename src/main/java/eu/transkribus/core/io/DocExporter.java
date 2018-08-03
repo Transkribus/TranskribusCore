@@ -15,9 +15,15 @@ import java.util.List;
 import java.util.Set;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.URIResolver;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -30,6 +36,9 @@ import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.eclipse.core.runtime.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import com.itextpdf.text.DocumentException;
 
@@ -65,9 +74,21 @@ public class DocExporter extends APassthroughObservable {
 	private final ExportCache cache;
 	
 	private static final String PAGE_TO_TEI_XSLT = "xslt/page2tei-0.xsl";
+	private static final String XSLT_HOME = "xslt";
+	
+	static DocumentBuilder dBuilder;
 	
 	public DocExporter() {
 		cache = new ExportCache();
+		
+		DocumentBuilderFactory dFactory = DocumentBuilderFactory.newInstance();
+		dFactory.setNamespaceAware(true);
+        try {
+			dBuilder = dFactory.newDocumentBuilder();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public DocExporter(ExportCache cache) {
@@ -116,9 +137,9 @@ public class DocExporter extends APassthroughObservable {
 		return exportDoc(doc, pars);
 	}
 	
-	public void writePDF(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean addTextPages, final boolean imagesOnly, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, boolean createTitle, ExportCache cache, final String font) throws MalformedURLException, DocumentException, IOException, JAXBException, URISyntaxException, InterruptedException{
+	public void writePDF(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean addTextPages, final boolean imagesOnly, final boolean highlightTags, final boolean wordBased, final boolean doBlackening, boolean createTitle, ExportCache cache, final String font, final ImgType pdfImgType) throws MalformedURLException, DocumentException, IOException, JAXBException, URISyntaxException, InterruptedException{
 		PdfExporter pdfWriter = new PdfExporter();
-		pdfWriter.export(doc, path, pageIndices, wordBased, addTextPages, imagesOnly, highlightTags, doBlackening, createTitle, cache, font);
+		pdfWriter.export(doc, path, pageIndices, wordBased, addTextPages, imagesOnly, highlightTags, doBlackening, createTitle, cache, font, pdfImgType);
 	}
 	
 	public void writeTEI(final TrpDoc doc, final String exportFilename, CommonExportPars commonPars, final TeiExportPars pars) throws Exception{
@@ -193,6 +214,7 @@ public class DocExporter extends APassthroughObservable {
 
 //		}
 		
+		logger.debug("workDir = " + workDir.getAbsolutePath());
 		transformTei(mets, workDir.getAbsolutePath()+"/", exportFilename);
 		
 		for (File file : new File(pageDir.getAbsolutePath()+"/").listFiles()){
@@ -231,7 +253,7 @@ public class DocExporter extends APassthroughObservable {
 	 * first shot to get the TEI export as a transformation of the page XML with a predefined XSLT
 	 * test and make it available via the rest API for the server export 
 	 */
-	public static File transformTei(Mets mets, String workDir, String exportFilename) throws JAXBException, FileNotFoundException, TransformerException {
+	public static File transformTei(Mets mets, String workDir, String exportFilename) throws JAXBException, TransformerException, IOException, SAXException, ParserConfigurationException {
 		if(mets == null){
 			throw new IllegalArgumentException("An argument is null!");
 		}
@@ -242,16 +264,30 @@ public class DocExporter extends APassthroughObservable {
 		//necessary to use the relative paths of the mets in the xslt
 		mySrc.setSystemId(workDir);
 		
-		InputStream is = XslTransformer.class.getClassLoader().getResourceAsStream(PAGE_TO_TEI_XSLT);
+		InputStream is = DocExporter.class.getClassLoader().getResourceAsStream(PAGE_TO_TEI_XSLT);
+		
 		InputStream xslIS = new BufferedInputStream(is);
-		StreamSource xslSource = new StreamSource(xslIS);
+//		StreamSource xslSource = new StreamSource(xslIS);	
+//		File xsltFile = new File(is.toString());
 
-        // das Factory-Pattern unterstützt verschiedene XSLT-Prozessoren
-        TransformerFactory transFact =
-                TransformerFactory.newInstance();
+        InputSource xslInputSource = new InputSource(xslIS);
+        Document xslDoc = dBuilder.parse(xslInputSource);
+        DOMSource xslDomSource = new DOMSource(xslDoc);
+		
+        TransformerFactory transFact = TransformerFactory.newInstance();
+        
+        DocExporter docEx = new DocExporter();
+        //may? this is the only way to dynamically include a xsl in the xsl-source
+        transFact.setURIResolver(docEx.new MyURIResolver());
+
+        //would be the short way from MyURIResolver: lambda expression
+//        transFact.setURIResolver((href, base) -> {
+//            final InputStream s = DocExporter.class.getClassLoader().getResourceAsStream("xslt/" + href);
+//            return new StreamSource(s);
+//        });
+                
         Transformer trans;
-
-		trans = transFact.newTransformer(xslSource);
+		trans = transFact.newTransformer(xslDomSource);
 				
 		File teiFile = new File(exportFilename);			
 		trans.transform(mySrc, new StreamResult(new FileOutputStream(teiFile)));
@@ -500,5 +536,31 @@ public class DocExporter extends APassthroughObservable {
 		final String p = "${filename}_${${pageId}_${pageNr}";
 		System.out.println(ExportFilePatternUtils.isFileNamePatternValid(p));
 		System.out.println(ExportFilePatternUtils.buildBaseFileName(p, "test.jpg", 123, 456, "AAAAA", 7));
+	}
+	
+	class MyURIResolver implements URIResolver {
+		@Override
+		public Source resolve(String href, String base) throws TransformerException {
+
+			//logger.debug("href " + href);
+		    ClassLoader cl = this.getClass().getClassLoader();
+		    java.io.InputStream in = cl.getResourceAsStream(href);
+		    InputSource xslInputSource = new InputSource(in);
+		    Document xslDoc;
+			try {
+				if (dBuilder != null && href.startsWith("xslt")){
+					xslDoc = dBuilder.parse(xslInputSource);
+				    DOMSource xslDomSource = new DOMSource(xslDoc);
+				    xslDomSource.setSystemId(href);
+				    return xslDomSource;
+				}
+			} catch (SAXException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		    return null;
+		 
+		}
 	}
 }
