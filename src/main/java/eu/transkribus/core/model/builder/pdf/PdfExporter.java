@@ -3,6 +3,7 @@ package eu.transkribus.core.model.builder.pdf;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Observable;
@@ -12,11 +13,14 @@ import javax.xml.bind.JAXBException;
 
 import org.dea.fimgstoreclient.FimgStoreGetClient;
 import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
+import org.dea.fimgstoreclient.beans.ImgType;
+import org.dea.fimgstoreclient.utils.FimgStoreUriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.itextpdf.text.DocumentException;
 
+import eu.transkribus.core.io.FimgStoreReadConnection;
 import eu.transkribus.core.model.beans.JAXBPageTranscript;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpPage;
@@ -32,14 +36,15 @@ public class PdfExporter extends Observable {
 	public PdfExporter(){}
 	
 	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, boolean extraTextPages, boolean highlightTags, boolean wordBased, boolean doBlackening, boolean createTitle) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
-		return export(doc, path, pageIndices, false, false, true, true, false, false, null, "FreeSerif");
+		return export(doc, path, pageIndices, false, false, true, true, false, false, null, "FreeSerif", null);
 	}
 	
-	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, ExportCache cache) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
-		return export(doc, path, pageIndices, false, true, false, true, true, true, cache, "FreeSerif");
+	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, ExportCache cache, boolean origFile) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
+		ImgType imgType = (origFile ? ImgType.orig : ImgType.view);
+		return export(doc, path, pageIndices, false, true, false, true, true, true, cache, "FreeSerif", imgType);
 	}
 		
-	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean useWordLevel, final boolean addTextPages, final boolean imagesOnly, final boolean highlightTags, final boolean doBlackening, boolean createTitle, ExportCache cache, String exportFontname) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
+	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean useWordLevel, final boolean addTextPages, final boolean imagesOnly, final boolean highlightTags, final boolean doBlackening, boolean createTitle, ExportCache cache, String exportFontname, ImgType imgType) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
 		if(doc == null){
 			throw new IllegalArgumentException("TrpDoc is null!");
 		}
@@ -57,9 +62,17 @@ public class PdfExporter extends Observable {
 //			throw new IllegalArgumentException("Start page must be smaller than end page!");
 //		}
 		
+		FimgStoreGetClient getter = null;
+		FimgStoreUriBuilder uriBuilder = null;
+
+		if (doc.isRemoteDoc()) {
+			//FIXME fimagestore path should be read from docMd!
+			getter = FimgStoreReadConnection.getGetClient();
+			uriBuilder = getter.getUriBuilder();
+		}
 	
 		File pdfFile = new File(path);
-		TrpPdfDocument pdf = new TrpPdfDocument(pdfFile, useWordLevel, highlightTags, doBlackening, createTitle, exportFontname);
+		TrpPdfDocument pdf = new TrpPdfDocument(pdfFile, useWordLevel, highlightTags, doBlackening, createTitle, exportFontname, imgType);
 		
 		setChanged();
 		notifyObservers("Creating PDF document...");
@@ -73,7 +86,15 @@ public class PdfExporter extends Observable {
 
 			logger.info("Processing page " + (i+1));			
 			TrpPage p = doc.getPages().get(i);
-			URL imgUrl = p.getUrl();	
+			
+			/*
+			 * new: get img URL dependent on the chosen imgType - default is viewing image (JPG)
+			 */
+//			logger.debug("img type " + imgType);
+//			logger.debug("p.getKey() " + p.getKey());
+			final URI imgUri = uriBuilder.getImgUri(p.getKey(), imgType);
+			URL imgUrl = imgUri.toURL();
+			//URL imgUrl = p.getUrl();	
 
 			/*
 			 * md is only needed for getting resolution because in the image it may be missing
@@ -81,8 +102,8 @@ public class PdfExporter extends Observable {
 			 */
 			FimgStoreImgMd md = null;
 			if(doc.isRemoteDoc()){
-				FimgStoreGetClient getter = new FimgStoreGetClient(p.getUrl());
-				md = (FimgStoreImgMd)getter.getFileMd(p.getKey());
+				FimgStoreGetClient getter2 = new FimgStoreGetClient(imgUrl);
+				md = (FimgStoreImgMd)getter2.getFileMd(p.getKey());
 			}
 		
 			URL xmlUrl = p.getCurrentTranscript().getUrl();

@@ -31,6 +31,7 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.IOUtils;
 import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
+import org.dea.fimgstoreclient.beans.ImgType;
 import org.dea.util.pdf.APdfDocument;
 import org.docx4j.fonts.microsoft.MicrosoftFonts.Font.Bolditalic;
 import org.slf4j.Logger;
@@ -125,6 +126,8 @@ public class TrpPdfDocument extends APdfDocument {
 	BaseFont italicBaseFont;
 	BaseFont boldItalicBaseFont;
 	
+	ImgType imgType = ImgType.view;
+	
 	/*
 	 * divide page into twelth * twelth regions to have a nice print
 	 * first column is divisions
@@ -148,16 +151,20 @@ public class TrpPdfDocument extends APdfDocument {
 //		this(pdfFile, 0, 0, 0, 0, false, false, false, false);
 //	}
 	
-	public TrpPdfDocument(final File pdfFile, boolean useWordLevel, boolean highlightTags, boolean doBlackening, boolean createTitle, String exportFontname) throws DocumentException, IOException {
-		this(pdfFile, 0, 0, 0, 0, useWordLevel, highlightTags, doBlackening, createTitle, exportFontname);
+	public TrpPdfDocument(final File pdfFile, boolean useWordLevel, boolean highlightTags, boolean doBlackening, boolean createTitle, String exportFontname, ImgType pdfImgType) throws DocumentException, IOException {
+		this(pdfFile, 0, 0, 0, 0, useWordLevel, highlightTags, doBlackening, createTitle, exportFontname, pdfImgType);
 	}
 	
-	public TrpPdfDocument(final File pdfFile, final int marginLeft, final int marginTop, final int marginBottom, final int marginRight, final boolean useWordLevel, final boolean highlightTags, final boolean doBlackening, boolean createTitle, final String exportFontname) throws DocumentException, IOException {
+	public TrpPdfDocument(final File pdfFile, final int marginLeft, final int marginTop, final int marginBottom, final int marginRight, final boolean useWordLevel, final boolean highlightTags, final boolean doBlackening, boolean createTitle, final String exportFontname, ImgType pdfImgType) throws DocumentException, IOException {
 		super(pdfFile, marginLeft, marginTop, marginBottom, marginRight);
 		this.useWordLevel = useWordLevel;
 		this.highlightTags = highlightTags;
 		this.doBlackening = doBlackening;
 		this.createTitle = createTitle;
+		
+		if (pdfImgType != null){
+			this.imgType = pdfImgType;
+		}
 		
 		//logger.debug(" path to fonts : " + this.getClass().getClassLoader().getResource("fonts").getPath());
 		FontFactory.registerDirectory(this.getClass().getClassLoader().getResource("fonts").getPath());

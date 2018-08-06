@@ -22,7 +22,7 @@ public class PdfExporterTest {
 		
 		TrpDoc doc = LocalDocReader.load(path);
 		
-		(new PdfExporter()).export(doc, "/tmp/test.pdf",  null, false, false, false, false, false, false, null, null);
+		//(new PdfExporter()).export(doc, "/tmp/test.pdf",  null, false, false, false, false, false, false, null, null, null);
 		
 		//(new PdfExporter()).export(doc, "C:/Neuer Ordner/t2i_test_with_font/no_font_set.pdf", null, false, true, false, false, false, true, null, null);
 		//(new PdfExporter()).export(doc, "C:/Neuer Ordner/t2i_test_with_font/arial.pdf",  null, false, true, false, false, false, true, null, "arial");

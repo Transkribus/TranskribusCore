@@ -1,5 +1,7 @@
 package eu.transkribus.core.model.builder.pdf;
 
+import org.dea.fimgstoreclient.beans.ImgType;
+
 public class PdfExportPars {
 	public static final String PARAMETER_KEY = "pdfPars";
 	
@@ -7,6 +9,8 @@ public class PdfExportPars {
 	boolean doPdfImagesPlusText=true;
 	boolean doPdfWithTextPages=false;
 	boolean doPdfWithTags=false; 
+	
+	ImgType pdfImgQuality = ImgType.view;
 	
 	public PdfExportPars() {
 		
@@ -54,11 +58,20 @@ public class PdfExportPars {
 	public void setDoPdfWithTags(boolean doPdfWithTags) {
 		this.doPdfWithTags = doPdfWithTags;
 	}
+	
+	public ImgType getPdfImgQuality() {
+		return pdfImgQuality;
+	}
+
+	public void setPdfImgQuality(ImgType pdfImgQuality) {
+		this.pdfImgQuality = pdfImgQuality;
+	}
 
 	@Override
 	public String toString() {
 		return "PdfExportPars [doPdfImagesOnly=" + doPdfImagesOnly + ", doPdfImagesPlusText=" + doPdfImagesPlusText
-				+ ", doPdfWithTextPages=" + doPdfWithTextPages + ", doPdfWithTags=" + doPdfWithTags + "]";
+				+ ", doPdfWithTextPages=" + doPdfWithTextPages + ", doPdfWithTags=" + doPdfWithTags + ", pdfImgQuality="
+				+ pdfImgQuality + "]";
 	}
 	
 	
