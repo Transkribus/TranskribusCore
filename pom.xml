@@ -12,6 +12,10 @@
 	</organization>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		
+		<!-- Transkribus components' version numbers -->
+		<fimagestoreClient.version>0.2</fimagestoreClient.version>
+		<pdfUtils.version>0.0.2</pdfUtils.version>
 	</properties>
 
 	<repositories>
@@ -64,13 +68,12 @@
 		<dependency>
 			<groupId>org.dea</groupId>
 			<artifactId>fimagestoreClient</artifactId>
-			<version>0.2</version>
+			<version>${fimagestoreClient.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dea.util</groupId>
 			<artifactId>PdfUtils</artifactId>
-			<version>0.0.2</version>
-<!-- 			<scope>compile</scope> -->
+			<version>${pdfUtils.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
