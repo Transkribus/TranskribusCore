@@ -676,7 +676,7 @@ public class TrpPdfDocument extends APdfDocument {
 
 		for (TextLineType l : tr.getTextLine()){
 			TrpBaselineType bl = (TrpBaselineType) l.getBaseline();
-			if (bl.getBoundingBox().getMinX() <= firstTenth){
+			if (bl != null && bl.getBoundingBox().getMinX() <= firstTenth){
 				avgStartOfLines += bl.getBoundingBox().getMinX();
 				nrOfLines += 1;
 			}
