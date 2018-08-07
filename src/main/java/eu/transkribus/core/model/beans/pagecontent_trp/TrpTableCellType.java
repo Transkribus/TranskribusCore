@@ -108,6 +108,15 @@ public class TrpTableCellType extends TableCellType implements ITrpShapeType {
 		this.rowSpan = srcCell.rowSpan;
 		this.colSpan = srcCell.colSpan;
 		
+		// copy visibility flags
+		this.bottomBorderVisible = srcCell.bottomBorderVisible;
+		this.topBorderVisible = srcCell.topBorderVisible;
+		this.leftBorderVisible = srcCell.leftBorderVisible;
+		this.rightBorderVisible = srcCell.rightBorderVisible;
+		
+		// copy label flag
+		this.label = srcCell.label;
+		
 //	    if (srcCell.getCustomTagList() != null)
 //	    	srcCell.getCustomTagList().writeToCustomTag();
 //	    if (srcCell.custom != null)
