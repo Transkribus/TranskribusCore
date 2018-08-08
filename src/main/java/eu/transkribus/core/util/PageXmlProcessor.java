@@ -102,6 +102,26 @@ public abstract class PageXmlProcessor extends TrpXPathProcessor {
 		return super.getNode(doc, exp);
 	}
 
+	public List<String> getAllLineIds(final String xmlKey) throws MalformedURLException, IllegalArgumentException, SAXException, IOException, XPathExpressionException {
+		Document doc = getDocument(xmlKey);
+		final String xPath = "//TextLine";
+		XPathExpression exp = super.compile(xPath);
+		NodeList lines = super.getNodeList(doc, exp);
+		List<String> ids = new ArrayList<>(lines.getLength());
+		for(int i = 0; i < lines.getLength(); i++) {
+			final String id = lines.item(i)
+					.getAttributes()
+					.getNamedItem("id")
+					.getTextContent();
+			if(StringUtils.isEmpty(id)) {
+				logger.error("A line ID is empty!");
+			} else {
+				ids.add(id);
+			}
+		}
+		return ids;
+	}
+	
 	public List<String> getLineIdsByRegion(final String xmlKey, final String regionId) throws MalformedURLException, IllegalArgumentException, SAXException, IOException, XPathExpressionException {
 		NodeList lines = getLinesByRegion(xmlKey, regionId);
 		List<String> ids = new ArrayList<>(lines.getLength());
