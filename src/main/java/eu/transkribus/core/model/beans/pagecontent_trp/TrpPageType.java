@@ -537,7 +537,7 @@ public class TrpPageType extends PageType {
 		
 		for (TrpTextRegionType r : getTextRegions(true)) {
 			r.sortLines();
-			for (TextLineType l : getLines()) {
+			for (TextLineType l : r.getTextLine()) {
 				((TrpTextLineType) l).sortWords();
 			}
 		}
