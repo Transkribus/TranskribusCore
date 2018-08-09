@@ -13,13 +13,14 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import eu.transkribus.core.catti.LocalFimagestoreClient;
+import eu.transkribus.core.io.FimgStoreReadConnection;
 import eu.transkribus.core.util.xpath.TrpXPathProcessor;
 import eu.transkribus.core.util.xpath.TrpXPathProcessor.DocBuilderFactoryImpl;
 import eu.transkribus.core.util.xpath.TrpXPathProcessor.XPathFactoryImpl;
 
 public class PageXmlProcessorFactory {
 	private static final Logger logger = LoggerFactory.getLogger(PageXmlProcessorFactory.class);
-	private static final String STORE_LOCATION = "/mnt/nmtera1/Content/fimagestore_trp";
+	private static final String STORE_LOCATION = FimgStoreReadConnection.getInstance().getFImagestore().getStoreLocation();;
 	
 	/**
 	 * Determines if fimagestore netshare is available and returns a fitting implementation 
@@ -37,8 +38,7 @@ public class PageXmlProcessorFactory {
 	
 	public static PageXmlProcessor newInstance(DocBuilderFactoryImpl docBuilderFactoryImpl, 
 			XPathFactoryImpl xPathFactoryImpl) throws XPathFactoryConfigurationException, ParserConfigurationException {
-		File store = new File(STORE_LOCATION);
-		if(store.isDirectory() && store.canRead()) {
+		if(STORE_LOCATION != null && new File(STORE_LOCATION).isDirectory() && new File(STORE_LOCATION).canRead()) {
 			logger.debug("Returning Instance with netShare access.");
 			return buildNetShareInstance(docBuilderFactoryImpl, xPathFactoryImpl);
 		} else {
