@@ -177,6 +177,14 @@ public class TrpProperties {
 			return retVal;
 		}
 		
+		/**
+		 * Get a Boolean value from the Properties.<br>
+		 * Evaluation result is based on {@link Boolean#parseBoolean(String)}. Additionally, "1" will be evaluated as "true".<br>
+		 * A missing (null) value will be interpreted as false!  
+		 * 
+		 * @param key
+		 * @return
+		 */
 		public Boolean getBoolProperty(String key) {
 			final String propStr = getProperty(key);
 			if("1".equals(propStr)) {
