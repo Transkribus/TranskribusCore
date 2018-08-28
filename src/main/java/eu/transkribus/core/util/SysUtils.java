@@ -1,7 +1,9 @@
 package eu.transkribus.core.util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -117,6 +119,37 @@ public class SysUtils {
 		throw new FileNotFoundException("Cannot find file: "+ file);
 	}
 	
+	public static JavaInfo getJavaInfo() {
+		final String javaArch = System.getProperty("sun.arch.data.model");
+		final String version = System.getProperty("java.version");
+		final String fileEnc = System.getProperty("file.encoding");
+		
+		String realArch;
+		if (SysUtils.isWin()) {
+			String arch = System.getenv("PROCESSOR_ARCHITECTURE");
+			String wow64Arch = System.getenv("PROCESSOR_ARCHITEW6432");
+
+			realArch = arch != null && arch.endsWith("64")
+			                  || wow64Arch != null && wow64Arch.endsWith("64")
+			                      ? "64" : "32";
+		} else if(SysUtils.isLinux()) {
+			Process p;
+			try {
+				p = Runtime.getRuntime().exec("lscpu");
+				BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));	
+				realArch = br.readLine().contains("64") ? "64" : "32" ;
+				logger.debug("line : "+realArch);
+			} catch (Exception e) {
+				logger.warn("Could not determine platform architecture!", e);
+				realArch = "unknown";
+			}
+		} else {
+			//TODO implement a check for mac
+			realArch = "64";
+		}
+		return new JavaInfo(javaArch, version, fileEnc, realArch);
+	}
+	
 //	/**
 //	 * @see http://www.golesny.de/p/code/javagetpid
 //	 *
@@ -143,4 +176,35 @@ public class SysUtils {
 //		}
 //		return null;
 //	}	
+	
+	
+	public static class JavaInfo {
+		private final String javaArch;
+		private final String version;
+		private final String fileEnc;
+		private final String systemArch;
+		
+		JavaInfo(String javaArch, String version, String fileEnc, String systemArch) {
+			this.javaArch = javaArch;
+			this.version = version;
+			this.fileEnc = fileEnc;
+			this.systemArch = systemArch;
+		}
+
+		public String getJavaArch() {
+			return javaArch;
+		}
+
+		public String getVersion() {
+			return version;
+		}
+
+		public String getFileEnc() {
+			return fileEnc;
+		}
+
+		public String getSystemArch() {
+			return systemArch;
+		}
+	}
 }
