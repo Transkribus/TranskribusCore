@@ -72,6 +72,9 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 	private Integer pageId;
 	
 	@Column
+	private int deleted;
+	
+	@Column
 	@Transient
 	private URL url;
 	@Column
@@ -136,6 +139,7 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		createdToTimestamp = md.getCreatedToTimestamp();
 		origDocId = md.getOrigDocId();
 		pageId = md.getPageId();
+		deleted = md.getDeleted();
 		url = md.getUrl();
 		thumbUrl = md.getThumbUrl();
 		for(TrpCollection c : md.getColList()) {
@@ -226,6 +230,14 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 
 	public String getUploader() {
 		return uploader;
+	}
+
+	public int getDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(int deleted) {
+		this.deleted = deleted;
 	}
 
 	public void setUploader(String uploader) {
@@ -407,6 +419,8 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		StringBuffer sb = new StringBuffer(this.getClass().getSimpleName() + " {");
 		sb.append(this.getTitle() + " - ");
 		sb.append(this.getAuthor() + " - ");
+		sb.append(this.getUploader() + " - ");
+		sb.append(this.getDeleted() + " - ");
 		sb.append(this.getGenre() + " - ");
 		sb.append(this.getDocId() + " - ");
 		sb.append(this.getWriter() + " - ");
@@ -462,6 +476,7 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		result = prime * result + ((colList == null) ? 0 : colList.hashCode());
 		result = prime * result + ((createdFromTimestamp == null) ? 0 : createdFromTimestamp.hashCode());
 		result = prime * result + ((createdToTimestamp == null) ? 0 : createdToTimestamp.hashCode());
+		result = prime * result + deleted;
 		result = prime * result + ((desc == null) ? 0 : desc.hashCode());
 		result = prime * result + docId;
 		result = prime * result + ((externalId == null) ? 0 : externalId.hashCode());
@@ -471,13 +486,16 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		result = prime * result + ((localFolder == null) ? 0 : localFolder.hashCode());
 		result = prime * result + nrOfPages;
 		result = prime * result + ((origDocId == null) ? 0 : origDocId.hashCode());
+		result = prime * result + ((pageId == null) ? 0 : pageId.hashCode());
 		result = prime * result + ((scriptType == null) ? 0 : scriptType.hashCode());
 		result = prime * result + ((status == null) ? 0 : status.hashCode());
+		result = prime * result + ((thumbUrl == null) ? 0 : thumbUrl.hashCode());
 		result = prime * result + ((title == null) ? 0 : title.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		result = prime * result + (int) (uploadTimestamp ^ (uploadTimestamp >>> 32));
 		result = prime * result + ((uploader == null) ? 0 : uploader.hashCode());
 		result = prime * result + uploaderId;
+		result = prime * result + ((url == null) ? 0 : url.hashCode());
 		result = prime * result + ((writer == null) ? 0 : writer.hashCode());
 		return result;
 	}
@@ -595,6 +613,8 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 				return false;
 		} else if (!createdToTimestamp.equals(other.createdToTimestamp))
 			return false;
+		if (deleted != other.deleted)
+			return false;
 		if (desc == null) {
 			if (other.desc != null)
 				return false;
@@ -634,12 +654,22 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 				return false;
 		} else if (!origDocId.equals(other.origDocId))
 			return false;
+		if (pageId == null) {
+			if (other.pageId != null)
+				return false;
+		} else if (!pageId.equals(other.pageId))
+			return false;
 		if (scriptType != other.scriptType)
 			return false;
 		if (status == null) {
 			if (other.status != null)
 				return false;
 		} else if (!status.equals(other.status))
+			return false;
+		if (thumbUrl == null) {
+			if (other.thumbUrl != null)
+				return false;
+		} else if (!thumbUrl.equals(other.thumbUrl))
 			return false;
 		if (title == null) {
 			if (other.title != null)
@@ -657,25 +687,15 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 			return false;
 		if (uploaderId != other.uploaderId)
 			return false;
-		if (writer == null) {
-			if (other.writer != null)
-				return false;
-		} else if (!writer.equals(other.writer))
-			return false;
-		if (pageId == null) {
-			if (other.pageId != null)
-				return false;
-		}else if (pageId != other.pageId)
-			return false;
-		if (thumbUrl == null) {
-			if (other.thumbUrl != null)
-				return false;
-		} else if (!thumbUrl.equals(other.thumbUrl))
-			return false;
 		if (url == null) {
 			if (other.url != null)
 				return false;
 		} else if (!url.equals(other.url))
+			return false;
+		if (writer == null) {
+			if (other.writer != null)
+				return false;
+		} else if (!writer.equals(other.writer))
 			return false;
 		return true;
 	}
