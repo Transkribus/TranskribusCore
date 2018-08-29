@@ -206,5 +206,12 @@ public class SysUtils {
 		public String getSystemArch() {
 			return systemArch;
 		}
+		
+		public String toPrettyString() {
+			return "Java version: " + version + "\n"
+				 + "Java platform architecture: " + javaArch + "\n"
+				 + "System architecture: " + systemArch + "\n"
+				 + "File encoding: " + fileEnc;
+		}
 	}
 }
