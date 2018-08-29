@@ -1,5 +1,6 @@
 package eu.transkribus.core.model.beans;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -16,8 +17,9 @@ public class TrpErrorRate extends ATrpErrorRate {
 	
 	List<TrpErrorList> list;
 
-	public TrpErrorRate() {}
-
+	public TrpErrorRate() {
+		list = new ArrayList<>();
+	}
 	
 	public List<TrpErrorList> getList() {
 		return list;

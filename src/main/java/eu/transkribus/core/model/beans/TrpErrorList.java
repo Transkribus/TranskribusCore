@@ -3,13 +3,18 @@ package eu.transkribus.core.model.beans;
 public class TrpErrorList extends ATrpErrorRate {
 		
 		// Page Number
-		private int pageNumber;
+		private Integer pageNumber;
 		
-		public int getPageNumber() {
+		public TrpErrorList() {
+			super();
+			pageNumber = null;
+		}
+		
+		public Integer getPageNumber() {
 			return pageNumber;
 		}
 
-		public void setPageNumber(int pageNumber) {
+		public void setPageNumber(Integer pageNumber) {
 			this.pageNumber = pageNumber;
 		}
 		
