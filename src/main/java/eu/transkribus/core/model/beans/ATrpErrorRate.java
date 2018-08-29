@@ -99,4 +99,65 @@ public class ATrpErrorRate {
 	public void setBagTokensF(String bagTokensF) {
 		this.bagTokensF = bagTokensF;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((bagTokensF == null) ? 0 : bagTokensF.hashCode());
+		result = prime * result + ((bagTokensPrec == null) ? 0 : bagTokensPrec.hashCode());
+		result = prime * result + ((bagTokensRec == null) ? 0 : bagTokensRec.hashCode());
+		result = prime * result + ((cAcc == null) ? 0 : cAcc.hashCode());
+		result = prime * result + ((cer == null) ? 0 : cer.hashCode());
+		result = prime * result + ((wAcc == null) ? 0 : wAcc.hashCode());
+		result = prime * result + ((wer == null) ? 0 : wer.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ATrpErrorRate other = (ATrpErrorRate) obj;
+		if (bagTokensF == null) {
+			if (other.bagTokensF != null)
+				return false;
+		} else if (!bagTokensF.equals(other.bagTokensF))
+			return false;
+		if (bagTokensPrec == null) {
+			if (other.bagTokensPrec != null)
+				return false;
+		} else if (!bagTokensPrec.equals(other.bagTokensPrec))
+			return false;
+		if (bagTokensRec == null) {
+			if (other.bagTokensRec != null)
+				return false;
+		} else if (!bagTokensRec.equals(other.bagTokensRec))
+			return false;
+		if (cAcc == null) {
+			if (other.cAcc != null)
+				return false;
+		} else if (!cAcc.equals(other.cAcc))
+			return false;
+		if (cer == null) {
+			if (other.cer != null)
+				return false;
+		} else if (!cer.equals(other.cer))
+			return false;
+		if (wAcc == null) {
+			if (other.wAcc != null)
+				return false;
+		} else if (!wAcc.equals(other.wAcc))
+			return false;
+		if (wer == null) {
+			if (other.wer != null)
+				return false;
+		} else if (!wer.equals(other.wer))
+			return false;
+		return true;
+	}
 }

@@ -175,32 +175,5 @@ public class ParameterMap extends AJaxbMap {
 		return this.toList().toArray(new String[map.size() * 2]);
 	}
 	
-	@Override
-	public boolean equals(Object other) {
-		if(other == null) {
-			return false;
-		}
-		if(!(other instanceof ParameterMap)) {
-			return false;
-		}
-		ParameterMap otherMap = (ParameterMap)other;
-		if(map.size() != otherMap.getParamMap().size()) {
-			logger.debug("Size differs!");
-			return false;
-		}
-		for(Entry<String,String> e : map.entrySet()) {
-			final String key = e.getKey();
-			final String value = e.getValue();
-			if(!otherMap.containsKey(key)) {
-				logger.debug("A key is missing: " + key);
-				return false;
-			}
-			final String otherValue = otherMap.getParameterValue(key);
-			if(!value.equals(otherValue)) {
-				logger.debug("A value does not match: " + value + " <-> " + otherValue);
-				return false;
-			}
-		}
-		return true;
-	}
+	
 }
