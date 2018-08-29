@@ -74,6 +74,13 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 	@Column
 	private int deleted;
 	
+	@Column(name="DEL_TIME")
+	private Long deletedTimestamp;
+	
+	@Column
+	@Transient
+	private Date deletedOnDate;
+
 	@Column
 	@Transient
 	private URL url;
@@ -140,6 +147,8 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		origDocId = md.getOrigDocId();
 		pageId = md.getPageId();
 		deleted = md.getDeleted();
+		deletedTimestamp = md.getDeletedTimestamp();
+		deletedOnDate = md.getDeletedOnDate();
 		url = md.getUrl();
 		thumbUrl = md.getThumbUrl();
 		for(TrpCollection c : md.getColList()) {
@@ -234,6 +243,18 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 
 	public int getDeleted() {
 		return deleted;
+	}
+
+	public Long getDeletedTimestamp() {
+		return deletedTimestamp;
+	}
+	
+	public Date getDeletedOnDate() {
+		return (deletedTimestamp == null) ? null : new Date(deletedTimestamp);
+	}
+
+	public void setDeletedTimestamp(Long deletedTimestamp) {
+		this.deletedTimestamp = deletedTimestamp;
 	}
 
 	public void setDeleted(int deleted) {
@@ -420,7 +441,8 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		sb.append(this.getTitle() + " - ");
 		sb.append(this.getAuthor() + " - ");
 		sb.append(this.getUploader() + " - ");
-		sb.append(this.getDeleted() + " - ");
+		sb.append("deleted " + this.getDeleted() + " - ");
+		sb.append("deleted on " +(getDeletedOnDate() == null ? null : getDeletedOnDate().toString()) + " - ");
 		sb.append(this.getGenre() + " - ");
 		sb.append(this.getDocId() + " - ");
 		sb.append(this.getWriter() + " - ");
@@ -477,6 +499,7 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		result = prime * result + ((createdFromTimestamp == null) ? 0 : createdFromTimestamp.hashCode());
 		result = prime * result + ((createdToTimestamp == null) ? 0 : createdToTimestamp.hashCode());
 		result = prime * result + deleted;
+		result = prime * result + ((deletedTimestamp == null) ? 0 : deletedTimestamp.hashCode());
 		result = prime * result + ((desc == null) ? 0 : desc.hashCode());
 		result = prime * result + docId;
 		result = prime * result + ((externalId == null) ? 0 : externalId.hashCode());
@@ -581,6 +604,13 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 				return false;
 		} else if (!url.equals(other.url))
 			return false;
+		if (deleted != other.deleted)
+			return false;
+		if (deletedTimestamp == null) {
+			if (other.deletedTimestamp != null)
+				return false;
+		} else if (!deletedTimestamp.equals(other.deletedTimestamp))
+			return false;
 		return true;
 	}
 
@@ -614,6 +644,11 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		} else if (!createdToTimestamp.equals(other.createdToTimestamp))
 			return false;
 		if (deleted != other.deleted)
+			return false;
+		if (deletedTimestamp == null) {
+			if (other.deletedTimestamp != null)
+				return false;
+		} else if (!deletedTimestamp.equals(other.deletedTimestamp))
 			return false;
 		if (desc == null) {
 			if (other.desc != null)
@@ -801,6 +836,10 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		} else if (!writer.equals(other.writer))
 			return false;
 		return true;
+	}
+
+	public void setDeletedOnDate(Date deletedOnDate) {
+		this.deletedOnDate = deletedOnDate;
 	}
 
 }
