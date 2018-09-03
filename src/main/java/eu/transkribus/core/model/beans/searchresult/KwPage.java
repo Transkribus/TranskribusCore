@@ -19,7 +19,7 @@ public class KwPage{
 	@XmlElement(name="transliteration")
 	private String transliteration;
 
-	@XmlElement(name="words")
+	@XmlElement(name="spots")
 	private ArrayList<KwPageWord> words;
 	
 	KwPage(){
