@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -12,6 +13,7 @@ import java.util.Set;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -22,6 +24,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.io.DocExporter;
+import eu.transkribus.core.io.LocalDocReader;
 import eu.transkribus.core.model.beans.JAXBPageTranscript;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpPage;
@@ -96,44 +100,48 @@ public class TrpXlsxTableBuilder {
 					
 					int cols = table.getNCols();
 					int rows = table.getNRows();
-					
-//		        	double maxX = PageXmlUtils.buildPolygon(table.getCoords().getPoints()).getBounds().getMaxX();
-//		        	double minX = PageXmlUtils.buildPolygon(table.getCoords().getPoints()).getBounds().getMinX();
-//		        	int tablesize = (int) (maxX - minX);
-					
+										
 					List<List<TrpTableCellType>> allRowCells = new ArrayList<List<TrpTableCellType>>();
 					for (int k = 0; k<rows; k++){
 						allRowCells.add(table.getRowCells(k));
 					}
 					
 		            List<HashMap<Integer, TrpTableCellType>> allRows = new ArrayList<HashMap<Integer, TrpTableCellType>>();
-		            
-		            HashMap<Integer, TrpTableCellType> nextRowMap = new HashMap<Integer, TrpTableCellType>();
+		            		            
+		            for (List<TrpTableCellType> rowCells : allRowCells){				          
+		            	allRows.add(new HashMap<Integer, TrpTableCellType>());
+		            }
 		           
+		            int rowIdx = 0;
 		            for (List<TrpTableCellType> rowCells : allRowCells){
-		          
-		            	HashMap<Integer, TrpTableCellType> currRowMap = new HashMap<Integer, TrpTableCellType>();
-		            	
+		            
+		            	HashMap<Integer, TrpTableCellType> currRowMap = allRows.get(rowIdx);
+
 		            	/*
-		            	 * fill up all cells which are not set in TRP (needed for vertical cell merge)
-		            	 * the nextRowMap contains already all cells which span vertically with the cells above - means they got merged 
-		            	 * in the table but have to be considered here 
-		            	 */
-	    				currRowMap.putAll(nextRowMap);
-	    				nextRowMap.clear();
-		            	
+		            	 * fill up all cells which are not set in TRP because they were merged there (needed for vertical and horizontal xslx cell merge)
+		            	 */	            	
 		            	for (TrpTableCellType cell : rowCells){
 			            	//logger.debug("table cell text " + cell.getUnicodeTextFromLines());
+		            		//logger.debug("curr row, add cell.getCol() " + cell.getCol() + " whats in the cell: " + cell.getRow());
 			            	currRowMap.put(cell.getCol(), cell);
-			            	//only one row or col span is considered -> FIXME: do it for all spans, but may happens never?
+
 			            	if (cell.getRowSpan() > 1){
-			            		nextRowMap.put(cell.getCol(), null);
+			            		for (int k = 1; k<=cell.getRowSpan(); k++){
+			            			HashMap<Integer, TrpTableCellType> tmpRowMap = allRows.get(rowIdx+k);
+			            			tmpRowMap.put(cell.getCol(), null);
+			            			allRows.remove(rowIdx+k);
+			            			allRows.add(rowIdx+k, tmpRowMap);
+			            		}
 			            	}
 			            	if (cell.getColSpan() > 1){
-			            		currRowMap.put(cell.getCol()+1, null);
+			            		for (int k = 1; k<=cell.getColSpan(); k++){
+			            			currRowMap.put(cell.getCol()+k, null);
+			            		}
 			            	}
 		            	}
-		            	allRows.add(currRowMap);
+		            	allRows.remove(rowIdx);
+		            	allRows.add(rowIdx, currRowMap);
+		            	rowIdx++;
 		            }
 
 		            createTable(rows, cols, allRows, tableId);
@@ -169,7 +177,6 @@ public class TrpXlsxTableBuilder {
                 	wb.getSheetAt(i).autoSizeColumn(j, true);
                 }
                 
-               
             }
             
 		}
@@ -178,7 +185,12 @@ public class TrpXlsxTableBuilder {
 		try {
 			//means no tables at all
 			if (wb.getNumberOfSheets() == 0){
-				throw new NoTablesException("Sorry - No tables available for export");
+				//throw new NoTablesException("Sorry - No tables available for export");
+				logger.info("Sorry - No tables available for export");
+				Sheet noTables = wb.createSheet(WorkbookUtil.createSafeSheetName("No tables found"));
+				CreationHelper crHelper = wb.getCreationHelper();
+				Row firstRow = noTables.createRow(0);
+				firstRow.createCell(0).setCellValue(crHelper.createRichTextString("Sorry - there were no tables available for your export. Please check the transcripts!"));
 			}
 			fOut = new FileOutputStream(exportPath);
 			wb.write(fOut);
@@ -248,18 +260,13 @@ public class TrpXlsxTableBuilder {
 		        	
 		        	Cell currCell = nextRow.createCell(colID);
 		        	currCell.setCellStyle(style);
-		        	currCell.setCellValue(entry.get(key).getUnicodeTextFromLines());
-		        	
-		        	
-		        	
-		        	// sheet.addMergedRegion(rowFrom,rowTo,colFrom,colTo);
-		        	if(mergedVertical){
-		        		currSheet.addMergedRegion(new CellRangeAddress(rowID,rowID+rowSpan-1,colID,colID));
-		        	}
-		        	
-		        	if(mergedHorizontal){
-		        		currSheet.addMergedRegion(new CellRangeAddress(rowID, rowID, colID, colID+colSpan-1));
-		        	}
+		        	currCell.setCellValue(entry.get(key).getUnicodeTextFromLines());        	
+
+	        		if(mergedVertical || mergedHorizontal){
+	        			//logger.debug(" row ID " + rowID + " rowSpan " + rowSpan + " merged H "+ mergedHorizontal + " colID " + colID + " colSpan " + colSpan + " merged V " + mergedVertical);
+	        			currSheet.addMergedRegion(new CellRangeAddress(rowID,rowID+rowSpan-1,colID,colID+colSpan-1));
+	        		}
+	        	
 	        	}
 	        	else{
 		        	Cell currCell = nextRow.createCell(key);
@@ -269,6 +276,29 @@ public class TrpXlsxTableBuilder {
 	        
 	        
 	    }
+	}
+	
+	public static void main(String[] args) throws Exception {
+		
+		
+		TrpDoc docWithoutTables = LocalDocReader.load("C:/01_Projekte/READ/Projekte/export_job_377290/41768/171/");
+		//TrpDoc docWithTables = LocalDocReader.load("C:/Neuer Ordner/TRAINING_TESTSET_NAF_Poll_Tax_M_5/TRAINING_TESTSET_NAF_Poll_Tax_M_5/");
+		
+		Set<Integer> pageIndices = null; // null means every page
+		
+		//pageIndices must be set here instead of being null because it gets used in ExportUtils
+		if (pageIndices == null){
+			pageIndices = new HashSet<Integer>();
+			for (int i = 0; i<docWithoutTables.getNPages(); i++){
+				pageIndices.add(i);
+			}
+		}
+		DocExporter docExporter =  new DocExporter();
+		docExporter.getCache().storePageTranscripts4Export(docWithoutTables, pageIndices, null, "Latest", -1, null);
+		
+		TrpXlsxTableBuilder txslx = new TrpXlsxTableBuilder();
+		txslx.writeXlsxForTables(docWithoutTables, new File("C:/01_Projekte/READ/Projekte/testWithoutTables.xlsx"), pageIndices, null, docExporter.getCache());
+		System.out.println("finished");
 	}
 	
 
