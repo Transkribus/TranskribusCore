@@ -13,7 +13,7 @@ public class KeywordSearchResult {
 	
 	private String params;
 	private long numResults;
-	private List<KeywordPageHit> keywordHits = new ArrayList<>();
+	private List<KeywordHit> keywordHits = new ArrayList<>();
 	
 	
 	public KeywordSearchResult(){}
@@ -29,12 +29,12 @@ public class KeywordSearchResult {
 	}
 
 
-	public List<KeywordPageHit> getKeywordHits() {
+	public List<KeywordHit> getKeywordHits() {
 		return keywordHits;
 	}
 
 
-	public void setKeywordHits(List<KeywordPageHit> keywordHits) {
+	public void setKeywordHits(List<KeywordHit> keywordHits) {
 		this.keywordHits = keywordHits;
 	}
 
