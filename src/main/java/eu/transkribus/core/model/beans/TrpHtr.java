@@ -43,7 +43,6 @@ public class TrpHtr {
 	/**
 	 * path is better created from HTR ID and DbServiceName
 	 */
-	@Deprecated
 	@XmlTransient
 	@Column
 	private String path;
@@ -126,12 +125,10 @@ public class TrpHtr {
 		this.provider = provider;
 	}
 
-	@Deprecated
 	public String getPath() {
 		return path;
 	}
 	
-	@Deprecated
 	public void setPath(String path) {
 		this.path = path;
 	}
