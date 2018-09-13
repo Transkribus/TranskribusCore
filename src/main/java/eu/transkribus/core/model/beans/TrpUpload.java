@@ -74,10 +74,16 @@ public class TrpUpload extends DocumentUploadDescriptor implements Serializable 
 		super();
 		this.md = struct.getMd();
 		this.pages = struct.getPages();
-		//sort by page index!
-		Collections.sort(this.pages);
-		TrpDocUploadBuilder.validateAndNormalize(this.pages);
-		created = new Date();
+		this.created = new Date();
+		if(this.pages == null || this.pages.isEmpty()) {
+			this.setUploadType(UploadType.VIRTUAL);
+		} else {
+			//sort by page index!
+			Collections.sort(this.pages);
+			TrpDocUploadBuilder.validateAndNormalize(this.pages);
+			this.setUploadType(UploadType.JSON);
+		}
+		
 	}
 
 	public int getUploadId() {
@@ -196,7 +202,9 @@ public class TrpUpload extends DocumentUploadDescriptor implements Serializable 
 	public enum UploadType {
 		NoStructure,
 		METS,
-		JSON;
+		JSON,
+		//archives will be create a "virtual" upload, where another user will send the files within a another upload process 
+		VIRTUAL;
 	}
 	
 	public String toXmlStr() throws JAXBException {
