@@ -23,6 +23,9 @@ public class DocumentUploadDescriptor implements Serializable {
 	@XmlElement
 	protected TrpDocMetadata md;
 	
+	@XmlElement
+	protected Integer relatedUploadId;
+	
 	@XmlElementWrapper(name="pageList")
 	@XmlElement
 	protected List<PageUploadDescriptor> pages;
@@ -48,6 +51,14 @@ public class DocumentUploadDescriptor implements Serializable {
 		this.pages = pages;
 	}
 	
+	public Integer getRelatedUploadId() {
+		return relatedUploadId;
+	}
+
+	public void setRelatedUploadId(Integer relatedUploadId) {
+		this.relatedUploadId = relatedUploadId;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if(!(obj instanceof DocumentUploadDescriptor)) {
