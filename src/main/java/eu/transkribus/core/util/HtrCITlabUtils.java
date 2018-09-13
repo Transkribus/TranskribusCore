@@ -20,12 +20,9 @@ import org.slf4j.LoggerFactory;
 public class HtrCITlabUtils {
 	private static final Logger logger = LoggerFactory.getLogger(HtrCITlabUtils.class);
 	public final static String PROVIDER_CITLAB = "CITlab";
-	public final static String CITLAB_SPRNN_FILENAME = "net.sprnn";
-	public final static String CITLAB_SPRNN_FOLDERNAME = "nets";
-	public final static String CITLAB_BEST_SPRNN_FILENAME = "best_net.sprnn";
-	public final static String CITLAB_CER_FILENAME = "CER.txt";
-	public final static String CITLAB_CER_TEST_FILENAME = "CER_test.txt";
+	public final static String PROVIDER_CITLAB_PLUS = "CITlabPlus";
 	public final static String CHAR_MAP_FILENAME = "chars.txt";
+
 	public static final String CITLAB_CM_EXT = ".cm";
 	
 	@Deprecated
@@ -37,6 +34,22 @@ public class HtrCITlabUtils {
 	public static final String TEMP_DICT_DIR_NAME = "dictTmp";
 
 	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("####0.00");
+	
+	/* 
+	 * Constants below where necessary for CITlab legacy HTR. File are handled by CITlabModule now. 
+	 * If access is needed use de.uros.citlab.module.types.Key
+	 */
+	@Deprecated
+	public final static String CITLAB_SPRNN_FILENAME = "net.sprnn";	
+	@Deprecated
+	public final static String CITLAB_SPRNN_FOLDERNAME = "nets";	
+	@Deprecated
+	public final static String CITLAB_BEST_SPRNN_FILENAME = "best_net.sprnn";	
+	@Deprecated
+	public final static String CITLAB_CER_FILENAME = "CER.txt";	
+	@Deprecated
+	public final static String CITLAB_CER_TEST_FILENAME = "CER_test.txt";	
+	
 	static {
 		DECIMAL_FORMAT.setRoundingMode(RoundingMode.UP);
 	}
