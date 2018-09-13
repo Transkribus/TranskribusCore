@@ -21,6 +21,22 @@ public class TrpErrorRate extends ATrpErrorRate {
 		list = new ArrayList<>();
 	}
 	
+	/**
+	 * FIXME Remove this when frontend is adapted and accepts a single error rate result without a list
+	 * 
+	 */
+	public TrpErrorRate(TrpErrorList res) {
+		this();
+		this.setBagTokensF(res.getBagTokensF());
+		this.setBagTokensPrec(res.getBagTokensPrec());
+		this.setBagTokensRec(res.getBagTokensRec());
+		this.setcAcc(res.getcAcc());
+		this.setCer(res.getCer());
+		this.setwAcc(res.getwAcc());
+		this.setWer(res.getWer());
+		this.getList().add(res);
+	}
+
 	public List<TrpErrorList> getList() {
 		return list;
 	}
