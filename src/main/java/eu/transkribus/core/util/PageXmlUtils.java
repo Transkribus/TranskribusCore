@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -353,6 +354,15 @@ public class PageXmlUtils {
 		Dimension dim = new Dimension(p.getWidth(), p.getHeight());
 		return createEmptyPcGtsType(fn, dim);
 	}
+	
+	public static File createEmptyPAGEFile(String imgFilename, Integer width, Integer height, File xmlFile) throws IOException {
+		PcGtsType emptyPcGtsType = PageXmlUtils.createEmptyPcGtsType(imgFilename, width, height);
+        try {
+			return PageXmlUtils.marshalToFile(emptyPcGtsType, xmlFile);
+		} catch (JAXBException e) {
+			throw new IOException("Could not create empty PAGE XML at: " + xmlFile.getAbsolutePath());
+		}
+	}
 
 	public static PcGtsType createEmptyPcGtsType(final URL imgUrl, Dimension dim) throws IOException {
 		final String prot = imgUrl.getProtocol();
@@ -388,8 +398,8 @@ public class PageXmlUtils {
 		return createEmptyPcGtsType(imgFileName, dim.width, dim.height);
 	}
 	
-	public static PcGtsType createEmptyPcGtsType(final String imgFileName, final int xDim,
-			final int yDim) {
+	public static PcGtsType createEmptyPcGtsType(final String imgFileName, final Integer xDim,
+			final Integer yDim) {
 		// create md
 		MetadataType md = new MetadataType();
 		md.setCreator("TRP");
@@ -399,9 +409,15 @@ public class PageXmlUtils {
 
 		//create TRP (!) pageType
 		TrpPageType pt = new TrpPageType();
-		pt.setImageFilename(imgFileName);
-		pt.setImageHeight(yDim);
-		pt.setImageWidth(xDim);
+		if (imgFileName != null) {
+			pt.setImageFilename(imgFileName);
+		}
+		if (yDim != null) {
+			pt.setImageHeight(yDim);
+		}
+		if (xDim != null) {
+			pt.setImageWidth(xDim);
+		}
 
 		//create root and set stuff
 		PcGtsType pc = new PcGtsType();
@@ -1017,13 +1033,19 @@ public class PageXmlUtils {
 		return matchingLines;
 	}
 	
-	public static void main(String[] args) {
-		final String path = "/mnt/dea_scratch/TRP/Bentham_box_002/page/002_080_001.xml";
-		try {
-			logger.info(""+PageXmlUtils.isValid(new File(path)));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public static void main(String[] args) throws Exception {
+//		final String path = "/mnt/dea_scratch/TRP/Bentham_box_002/page/002_080_001.xml";
+//		try {
+//			logger.info(""+PageXmlUtils.isValid(new File(path)));
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+		PcGtsType page = PageXmlUtils.createEmptyPcGtsType("imgfilename.jpg", 45, 500);
+		String str = Arrays.toString(PageXmlUtils.marshalToBytes(page));
+		System.out.println(str);
+		
+		
 	}
 }
