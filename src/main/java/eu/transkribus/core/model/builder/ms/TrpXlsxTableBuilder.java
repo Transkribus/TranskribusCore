@@ -1,8 +1,11 @@
 package eu.transkribus.core.model.builder.ms;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,9 +14,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -23,6 +28,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.twelvemonkeys.io.FileUtil;
 
 import eu.transkribus.core.io.DocExporter;
 import eu.transkribus.core.io.LocalDocReader;
@@ -280,25 +287,91 @@ public class TrpXlsxTableBuilder {
 	
 	public static void main(String[] args) throws Exception {
 		
+		convertXslxIntoCsv("Y:/DIG_auftraege_archiv/tmp/StazH/match_xslx");
 		
-		TrpDoc docWithoutTables = LocalDocReader.load("C:/01_Projekte/READ/Projekte/export_job_377290/41768/171/");
-		//TrpDoc docWithTables = LocalDocReader.load("C:/Neuer Ordner/TRAINING_TESTSET_NAF_Poll_Tax_M_5/TRAINING_TESTSET_NAF_Poll_Tax_M_5/");
 		
-		Set<Integer> pageIndices = null; // null means every page
+//		TrpDoc docWithoutTables = LocalDocReader.load("C:/01_Projekte/READ/Projekte/export_job_377290/41768/171/");
+//		//TrpDoc docWithTables = LocalDocReader.load("C:/Neuer Ordner/TRAINING_TESTSET_NAF_Poll_Tax_M_5/TRAINING_TESTSET_NAF_Poll_Tax_M_5/");
+//		
+//		Set<Integer> pageIndices = null; // null means every page
+//		
+//		//pageIndices must be set here instead of being null because it gets used in ExportUtils
+//		if (pageIndices == null){
+//			pageIndices = new HashSet<Integer>();
+//			for (int i = 0; i<docWithoutTables.getNPages(); i++){
+//				pageIndices.add(i);
+//			}
+//		}
+//		DocExporter docExporter =  new DocExporter();
+//		docExporter.getCache().storePageTranscripts4Export(docWithoutTables, pageIndices, null, "Latest", -1, null);
+//		
+//		TrpXlsxTableBuilder txslx = new TrpXlsxTableBuilder();
+//		txslx.writeXlsxForTables(docWithoutTables, new File("C:/01_Projekte/READ/Projekte/testWithoutTables.xlsx"), pageIndices, null, docExporter.getCache());
+//		System.out.println("finished");
+	}
+
+	/*
+	 * this was needed for converting xlsx files (page matching from Digitexx) into csv files for t2i matching of the StazH collection
+	 */
+	private static void convertXslxIntoCsv(String startDir) throws InvalidFormatException, IOException {
 		
-		//pageIndices must be set here instead of being null because it gets used in ExportUtils
-		if (pageIndices == null){
-			pageIndices = new HashSet<Integer>();
-			for (int i = 0; i<docWithoutTables.getNPages(); i++){
-				pageIndices.add(i);
+		
+		File startDirectory = new File(startDir);
+		String outputDir = "Y:/DIG_auftraege_archiv/tmp/StazH/match/";
+
+		for (File file : startDirectory.listFiles()){
+			if (file.isDirectory()){
+				logger.debug("dir: " + file.getAbsolutePath());
+				convertXslxIntoCsv(file.getAbsolutePath());
+			}
+			else{
+				File csvFolder = new File(outputDir + file.getParentFile().getName());
+				csvFolder.mkdir();
+				
+				String csvName = csvFolder.getAbsolutePath() + "/" + FileUtil.getBasename(file) + ".csv";
+				
+				if (new File(csvName).exists()){
+					continue;
+				}
+				
+				Workbook wb = new XSSFWorkbook(file);
+
+				DataFormatter formatter = new DataFormatter();
+
+				PrintStream out = new PrintStream(new FileOutputStream(csvName), true, "UTF-8");
+				
+				byte[] bom = {(byte)0xEF, (byte)0xBB, (byte)0xBF};
+
+				out.write(bom);
+
+				for (Sheet sheet : wb) {
+
+				    for (Row row : sheet) {
+
+				        boolean firstCell = true;
+
+				        for (Cell cell : row) {
+
+				            if ( ! firstCell ) out.print(',');
+
+				            String text = formatter.formatCellValue(cell);
+
+				            out.print(text);
+
+				            firstCell = false;
+
+				        }
+
+				        out.println();
+
+				    }
+
+				}
 			}
 		}
-		DocExporter docExporter =  new DocExporter();
-		docExporter.getCache().storePageTranscripts4Export(docWithoutTables, pageIndices, null, "Latest", -1, null);
+			
+
 		
-		TrpXlsxTableBuilder txslx = new TrpXlsxTableBuilder();
-		txslx.writeXlsxForTables(docWithoutTables, new File("C:/01_Projekte/READ/Projekte/testWithoutTables.xlsx"), pageIndices, null, docExporter.getCache());
-		System.out.println("finished");
 	}
 	
 
