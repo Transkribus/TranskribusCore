@@ -13,6 +13,7 @@ public class JobConst {
 	public static final String STATE_INGEST = "ingest";
 	
 	public static final String PROP_DOC_ID = "docId";
+	public static final String PROP_NEW_DOC_ID = "newDocId";
 	public static final String PROP_DOC_DESCS = "docDescs"; // property for list of DocumentSelectionDescriptor's
 	public static final String PROP_PAGE_NR = "pageNr";
 	public static final String PROP_JOB_ID = "jobId";
@@ -77,4 +78,6 @@ public class JobConst {
 	public static final String PROP_IMG_FILE = "imgKey";
 
 	public static final String PROP_TITLE_PREFIX = "titlePrefix";
+
+	
 }
