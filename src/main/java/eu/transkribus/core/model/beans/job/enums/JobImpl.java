@@ -61,6 +61,8 @@ public enum JobImpl {
 	
 	CITlabKwsJob(JobTask.Kws, "CITlab " + JobTask.Kws.getLabel(), "CITlabKwsJob", null),
 	
+	CITlabClusterRecognitionJob(JobTask.Htr, "CITlab Cluster Recognition", "CITlabClusterRecognition", null),
+	
 	//for testing
 	DummyJob(JobTask.CreateDocument, "Dummy Job", "DummyJob", null),
 //	DummyJob2(JobTask.CreateDocument, "Dummy Job 2", "DummyJob2", null),
