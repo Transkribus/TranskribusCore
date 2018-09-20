@@ -191,6 +191,15 @@ public class TrpDoc implements Serializable, Comparable<TrpDoc> {
 		return transcriptMd;
 	}
 	
+	public List<TrpImage> getImages() {
+		List<TrpImage> images = new LinkedList();
+		
+		for (TrpPage p : getPages()) {
+			images.add(p.getImage());
+		}
+		return images;
+	}
+	
 	public List<String> getPageImgNames() {
 		List<String> names = new ArrayList<>(getPages().size());
 		for (TrpPage p : getPages()) {
