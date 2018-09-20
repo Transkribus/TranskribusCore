@@ -73,6 +73,7 @@ public class TrpUpload extends DocumentUploadDescriptor implements Serializable 
 	public TrpUpload(DocumentUploadDescriptor struct) {
 		super();
 		this.md = struct.getMd();
+		this.relatedUploadId = struct.getRelatedUploadId();
 		this.pages = struct.getPages();
 		this.created = new Date();
 		if(this.pages == null || this.pages.isEmpty()) {
