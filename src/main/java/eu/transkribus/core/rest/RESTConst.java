@@ -181,6 +181,7 @@ public final class RESTConst {
 	public static final String LOG_FILE_PARAM = "logFile";
 	
 	public static final String IS_DELETED_FLAG = "isDeleted";
+	public static final String IS_STRAY_FLAG = "isStray";
 	public static final String IS_RELEASE_PARAM = "isRelease";
 	public static final String PACKAGE_TYPE_PARAM = "packageType";
 	

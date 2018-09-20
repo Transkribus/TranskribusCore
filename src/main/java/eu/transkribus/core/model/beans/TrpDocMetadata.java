@@ -91,6 +91,15 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 	@Column(name="EXTID")
 	private String externalId;
 	
+	@Column
+	private String authority;
+	
+	@Column
+	private String hierarchy;
+	
+	@Column
+	private String backlink;
+	
 	@Column(name="DESCRIPTION")
 	private String desc;
 	
@@ -279,6 +288,30 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 
 	public void setExternalId(String externalId) {
 		this.externalId = externalId;
+	}
+
+	public String getAuthority() {
+		return authority;
+	}
+
+	public void setAuthority(String authority) {
+		this.authority = authority;
+	}
+
+	public String getHierarchy() {
+		return hierarchy;
+	}
+
+	public void setHierarchy(String hierarchy) {
+		this.hierarchy = hierarchy;
+	}
+
+	public String getBacklink() {
+		return backlink;
+	}
+
+	public void setBacklink(String backlink) {
+		this.backlink = backlink;
 	}
 
 	public String getDesc() {
@@ -495,16 +528,20 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((author == null) ? 0 : author.hashCode());
+		result = prime * result + ((authority == null) ? 0 : authority.hashCode());
+		result = prime * result + ((backlink == null) ? 0 : backlink.hashCode());
 		result = prime * result + ((colList == null) ? 0 : colList.hashCode());
 		result = prime * result + ((createdFromTimestamp == null) ? 0 : createdFromTimestamp.hashCode());
 		result = prime * result + ((createdToTimestamp == null) ? 0 : createdToTimestamp.hashCode());
 		result = prime * result + deleted;
+		result = prime * result + ((deletedOnDate == null) ? 0 : deletedOnDate.hashCode());
 		result = prime * result + ((deletedTimestamp == null) ? 0 : deletedTimestamp.hashCode());
 		result = prime * result + ((desc == null) ? 0 : desc.hashCode());
 		result = prime * result + docId;
 		result = prime * result + ((externalId == null) ? 0 : externalId.hashCode());
 		result = prime * result + ((fimgStoreColl == null) ? 0 : fimgStoreColl.hashCode());
 		result = prime * result + ((genre == null) ? 0 : genre.hashCode());
+		result = prime * result + ((hierarchy == null) ? 0 : hierarchy.hashCode());
 		result = prime * result + ((language == null) ? 0 : language.hashCode());
 		result = prime * result + ((localFolder == null) ? 0 : localFolder.hashCode());
 		result = prime * result + nrOfPages;
@@ -628,6 +665,16 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 				return false;
 		} else if (!author.equals(other.author))
 			return false;
+		if (authority == null) {
+			if (other.authority != null)
+				return false;
+		} else if (!authority.equals(other.authority))
+			return false;
+		if (backlink == null) {
+			if (other.backlink != null)
+				return false;
+		} else if (!backlink.equals(other.backlink))
+			return false;
 		if (colList == null) {
 			if (other.colList != null)
 				return false;
@@ -644,6 +691,11 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		} else if (!createdToTimestamp.equals(other.createdToTimestamp))
 			return false;
 		if (deleted != other.deleted)
+			return false;
+		if (deletedOnDate == null) {
+			if (other.deletedOnDate != null)
+				return false;
+		} else if (!deletedOnDate.equals(other.deletedOnDate))
 			return false;
 		if (deletedTimestamp == null) {
 			if (other.deletedTimestamp != null)
@@ -671,6 +723,11 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 			if (other.genre != null)
 				return false;
 		} else if (!genre.equals(other.genre))
+			return false;
+		if (hierarchy == null) {
+			if (other.hierarchy != null)
+				return false;
+		} else if (!hierarchy.equals(other.hierarchy))
 			return false;
 		if (language == null) {
 			if (other.language != null)
