@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescriptor;
+import eu.transkribus.core.model.beans.rest.ParameterMap;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -21,6 +22,11 @@ public abstract class HtrTrainConfig implements Serializable {
 	protected String description;
 	protected String language;
 	protected int colId;
+	protected ParameterMap customParams;
+	
+	public HtrTrainConfig() {
+		customParams = null;
+	}
 	
 	@XmlElementWrapper(name="trainList")
 	@XmlElement
@@ -60,6 +66,14 @@ public abstract class HtrTrainConfig implements Serializable {
 	
 	public void setColId(int colId) {
 		this.colId = colId;
+	}
+
+	public ParameterMap getCustomParams() {
+		return customParams;
+	}
+
+	public void setCustomParams(ParameterMap customParams) {
+		this.customParams = customParams;
 	}
 
 	public List<DocumentSelectionDescriptor> getTrain() {

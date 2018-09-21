@@ -13,18 +13,21 @@ import eu.transkribus.core.io.util.TrpProperties;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable {
+
+	private static final long serialVersionUID = 6826017343706433307L;
 	
 	public final static int DEFAULT_TRAIN_SIZE_PER_EPOCH = 10000;
 	public final static String DEFAULT_NOISE = "both";
 	public final static String DEFAULT_LEARNING_RATE = "1e-3";
 	public final static int DEFAULT_NUM_EPOCHS = 20;
 
-	private static final long serialVersionUID = 6826017343706433307L;
 	protected Integer numEpochs = DEFAULT_NUM_EPOCHS;
-	protected String learningRate = DEFAULT_LEARNING_RATE;
-	protected String noise = DEFAULT_NOISE;
-	protected Integer trainSizePerEpoch = DEFAULT_TRAIN_SIZE_PER_EPOCH;
+	protected String learningRate;
+	protected String noise;
+	protected Integer trainSizePerEpoch;
 	protected Integer baseModelId;
+	
+	protected Integer htrVersion;
 	
 	public final static String NUM_EPOCHS_KEY = "Nr. of Epochs";
 	public final static String LEARNING_RATE_KEY ="Learning Rate";
@@ -32,6 +35,10 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 	public final static String TRAIN_SIZE_KEY = "Train Size per Epoch";
 	public final static String BASE_MODEL_ID_KEY = "HTR Base Model ID";
 	public final static String BASE_MODEL_NAME_KEY = "HTR Base Model Name";
+	
+	public CitLabHtrTrainConfig() {
+		super();
+	}
 	
 //	private int threads=4;
 //	private int subSampling = 4; // how many subsets are the pages divided into to reduce overfitting 
@@ -68,6 +75,14 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 		this.baseModelId = baseModelId;
 	}
 	
+
+	public Integer getHtrVersion() {
+		return htrVersion;
+	}
+
+	public void setHtrVersion(Integer htrVersion) {
+		this.htrVersion = htrVersion;
+	}
 
 	@Override
 	public String toString() {

@@ -4,7 +4,7 @@
 
 	<groupId>eu.transkribus</groupId>
 	<artifactId>TranskribusCore</artifactId>
-	<version>0.1.0</version>
+	<version>0.1.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>TranskribusCore</name>
 	<organization>
@@ -14,7 +14,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
 		<!-- Transkribus components' version numbers -->
-		<fimagestoreClient.version>0.2</fimagestoreClient.version>
+		<fimagestoreClient.version>0.3.0-SNAPSHOT</fimagestoreClient.version>
 		<pdfUtils.version>0.0.2</pdfUtils.version>
 	</properties>
 
@@ -59,15 +59,9 @@
 			<version>4.11</version>
 		</dependency>	    
 	    
-	    <!-- TODO update to fimagestore-http-client 0.3 -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.dea.fimagestore</groupId> -->
-<!-- 			<artifactId>fimagestore-http-client</artifactId> -->
-<!-- 			<version>0.3</version> -->
-<!-- 		</dependency> -->
 		<dependency>
-			<groupId>org.dea</groupId>
-			<artifactId>fimagestoreClient</artifactId>
+			<groupId>org.dea.fimagestore</groupId>
+			<artifactId>fimagestore-http-client</artifactId>
 			<version>${fimagestoreClient.version}</version>
 		</dependency>
 		<dependency>

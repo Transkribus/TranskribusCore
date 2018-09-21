@@ -7,8 +7,8 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.dea.fimgstoreclient.beans.ImgType;
-import org.dea.fimgstoreclient.utils.FimgStoreUriBuilder;
 
+import eu.transkribus.core.io.FimgStoreReadConnection;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpPage;
@@ -21,7 +21,6 @@ public class FakeDocProvider {
 	private static List<String[]> fileKeys = new ArrayList<>();
 	private static List<URL[]> localFileUrls = new ArrayList<>();
 	private static int nrOfPages;
-	private static FimgStoreUriBuilder builder = new FimgStoreUriBuilder();
 
 	//		/mnt/dea_scratch/TRP/TrpTestDoc/StAZ-Sign.2-1_001.jpg -> HCKQAWEMSBSCSQGDAYWCLEJI
 	//		/mnt/dea_scratch/TRP/TrpTestDoc/StAZ-Sign.2-1_001.xml -> BYAJAWBKUGITXMGDDLSXKVWP
@@ -94,7 +93,7 @@ public class FakeDocProvider {
 			final String imgKey = fileKeys.get(pageNum)[0];
 			page.setKey(imgKey);
 			try {
-				page.setUrl((new FimgStoreUriBuilder()).getImgUri(imgKey, ImgType.view).toURL());
+				page.setUrl(FimgStoreReadConnection.getUriBuilder().getImgUri(imgKey, ImgType.view).toURL());
 			} catch (MalformedURLException e) {
 				
 				e.printStackTrace();
@@ -128,7 +127,7 @@ public class FakeDocProvider {
 			ts.setKey(xmlKey);
 			
 			try {
-				ts.setUrl(builder.getFileUri(xmlKey).toURL());
+				ts.setUrl(FimgStoreReadConnection.getUriBuilder().getFileUri(xmlKey).toURL());
 			} catch (IllegalArgumentException | MalformedURLException e) {
 				//coffee++
 				e.printStackTrace();
