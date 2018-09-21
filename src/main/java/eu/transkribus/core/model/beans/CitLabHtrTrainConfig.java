@@ -94,6 +94,7 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 				+ ", train=" + "["+StringUtils.join(train, ", ")+"]" + ", test=" + "["+StringUtils.join(test, ", ")+"]"+ "]";
 	}
 	
+	@Hidden
 	public TrpProperties getParamProps() {
 		TrpProperties p = new TrpProperties();
 		p.setProperty(NUM_EPOCHS_KEY, ""+numEpochs);

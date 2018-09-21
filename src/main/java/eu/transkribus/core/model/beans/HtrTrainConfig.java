@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescriptor;
 import eu.transkribus.core.model.beans.rest.ParameterMap;
 import eu.transkribus.core.util.HtrCITlabUtils;
-import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @XmlRootElement
@@ -118,6 +118,7 @@ public abstract class HtrTrainConfig implements Serializable {
 		}
 	}
 	
+	@Hidden
 	public boolean isTestAndTrainOverlapping() {
 		for(DocumentSelectionDescriptor trainDsd : train) {
 			for(DocumentSelectionDescriptor testDsd : test) {
