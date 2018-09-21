@@ -35,6 +35,7 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.xml.bind.JAXBException;
 
@@ -46,8 +47,6 @@ import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import eu.transkribus.core.model.beans.DocumentSelectionDescriptor;
 
 public class CoreUtils {
 	private final static Logger logger = LoggerFactory.getLogger(CoreUtils.class);
@@ -123,40 +122,47 @@ public class CoreUtils {
 		return added;
 	}
 	
-	public static List<Path> listFilesRecursive(String Path, String[] extensions, boolean caseSensitive, String... excludeFilenames) throws IOException {
-		return Files.walk(Paths.get(Path))
-			.filter(Files::isRegularFile)
-			.filter(new Predicate<Path>() {
-				@Override
-				public boolean test(Path t) {
-					String name = caseSensitive ? t.toFile().getName() : t.toFile().getName().toLowerCase();
-					
-					for (String extension : extensions) {
-						String ext = caseSensitive ? extension : extension.toLowerCase();
+	public static List<Path> listFiles(int maxDepth, String Path, String[] extensions, boolean caseSensitive, String... excludeFilenames) throws IOException {
+		Stream<Path> stream = Files.walk(Paths.get(Path), maxDepth)
+				.filter(Files::isRegularFile);
+		if (extensions != null) {
+			stream = stream.filter(new Predicate<Path>() {
+					@Override
+					public boolean test(Path t) {
+						String name = caseSensitive ? t.toFile().getName() : t.toFile().getName().toLowerCase();
 						
-						if (!name.endsWith(ext))
-							continue;
-						
-						boolean doExcludeFile=false;
-						for (String exclude : excludeFilenames) {
-							exclude = caseSensitive ? exclude : exclude.toLowerCase();
+						for (String extension : extensions) {
+							String ext = caseSensitive ? extension : extension.toLowerCase();
 							
-							if (name.equals(exclude)) {
-								doExcludeFile=true;
-								break;
+							if (!name.endsWith(ext)) {
+								continue;
 							}
+							
+							boolean doExcludeFile=false;
+							for (String exclude : excludeFilenames) {
+								exclude = caseSensitive ? exclude : exclude.toLowerCase();
+								
+								if (name.equals(exclude)) {
+									doExcludeFile=true;
+									break;
+								}
+							}
+							if (doExcludeFile) {
+								continue;
+							}
+		
+							return true;
 						}
-						if (doExcludeFile) {
-							continue;
-						}
-	
-						return true;
+						
+						return false;
 					}
-					
-					return false;
-				}
-			})
-			.collect(Collectors.toList());
+				});
+		}
+		return stream.collect(Collectors.toList());
+	}
+	
+	public static List<Path> listFilesRecursive(String Path, String[] extensions, boolean caseSensitive, String... excludeFilenames) throws IOException {
+		return listFiles(Integer.MAX_VALUE, Path, extensions, caseSensitive, excludeFilenames);
 	}
 	
 	public static void convertDocxFilesToTxtFiles(String inputFolder, String outputFolder, boolean overwrite) throws IOException, Docx4JException, JAXBException {
@@ -1136,6 +1142,13 @@ public class CoreUtils {
 //	}
 	
 	public static void main(String[] args) throws Exception {
+		
+		List<Path> paths = CoreUtils.listFilesRecursive(".", null, false);
+		paths.stream().forEach(p -> System.out.println(p.toAbsolutePath()));
+		
+//		Files.walk(Paths.get("."), 10).
+//			filter(Files::isRegularFile).forEach(p -> System.out.println(p.toAbsolutePath()));
+		
 //		List<Integer> base = Arrays.asList(1, 3, 4, 5, 7, 10);
 //		List<Integer> search = Arrays.asList(111, 45, 3, 4, 6, 8, 12);
 //		
@@ -1149,7 +1162,7 @@ public class CoreUtils {
 //		logger.info(pageTxt);
 //		logger.info("nr of lines: "+pageTxt.split("\n").length);
 		
-		convertDocxFilesToTxtFiles("/mnt/dea_scratch/TRP/test/Ms__orient__A_2654/Ms__orient__A_2654/docx", "/mnt/dea_scratch/TRP/test/Ms__orient__A_2654/Ms__orient__A_2654/txt", true);
+//		convertDocxFilesToTxtFiles("/mnt/dea_scratch/TRP/test/Ms__orient__A_2654/Ms__orient__A_2654/docx", "/mnt/dea_scratch/TRP/test/Ms__orient__A_2654/Ms__orient__A_2654/txt", true);
 	}
 
 	public static int size(Collection<?> collection) {
