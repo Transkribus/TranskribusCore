@@ -20,7 +20,6 @@ import eu.transkribus.core.util.xpath.TrpXPathProcessor.XPathFactoryImpl;
 
 public class PageXmlProcessorFactory {
 	private static final Logger logger = LoggerFactory.getLogger(PageXmlProcessorFactory.class);
-	private static final String STORE_LOCATION = FimgStoreReadConnection.getInstance().getFImagestore().getStoreLocation();;
 	
 	/**
 	 * Determines if fimagestore netshare is available and returns a fitting implementation 
@@ -38,9 +37,10 @@ public class PageXmlProcessorFactory {
 	
 	public static PageXmlProcessor newInstance(DocBuilderFactoryImpl docBuilderFactoryImpl, 
 			XPathFactoryImpl xPathFactoryImpl) throws XPathFactoryConfigurationException, ParserConfigurationException {
-		if(STORE_LOCATION != null && new File(STORE_LOCATION).isDirectory() && new File(STORE_LOCATION).canRead()) {
+		final String storeLocation = FimgStoreReadConnection.getInstance().getFImagestore().getStoreLocation();
+		if(storeLocation != null && new File(storeLocation).isDirectory() && new File(storeLocation).canRead()) {
 			logger.debug("Returning Instance with netShare access.");
-			return buildNetShareInstance(docBuilderFactoryImpl, xPathFactoryImpl);
+			return buildNetShareInstance(storeLocation, docBuilderFactoryImpl, xPathFactoryImpl);
 		} else {
 			logger.debug("Returning Instance with HTTPS access.");
 			return buildHttpInstance(docBuilderFactoryImpl, xPathFactoryImpl);
@@ -57,12 +57,12 @@ public class PageXmlProcessorFactory {
 		};
 	}
 	
-	private static PageXmlProcessor buildNetShareInstance(DocBuilderFactoryImpl dbImpl, XPathFactoryImpl xpImpl) throws XPathFactoryConfigurationException, ParserConfigurationException {
+	private static PageXmlProcessor buildNetShareInstance(final String storeLocation, DocBuilderFactoryImpl dbImpl, XPathFactoryImpl xpImpl) throws XPathFactoryConfigurationException, ParserConfigurationException {
 		return new PageXmlProcessor(dbImpl, xpImpl) {
 			@Override
 			protected Document loadDocument(final String xmlKey)
 					throws MalformedURLException, IllegalArgumentException, SAXException, IOException {
-				File file = LocalFimagestoreClient.findFile(STORE_LOCATION, xmlKey);
+				File file = LocalFimagestoreClient.findFile(storeLocation, xmlKey);
 				return super.parse(file);
 			}
 		};
