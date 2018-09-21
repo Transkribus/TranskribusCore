@@ -12,19 +12,29 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescriptor;
 import eu.transkribus.core.model.beans.rest.ParameterMap;
+import eu.transkribus.core.util.HtrCITlabUtils;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class HtrTrainConfig implements Serializable {
 
 	private static final long serialVersionUID = 1434111712220564100L;
+	@Schema(description = "the name of the new HTR model", required=true)
 	protected String modelName;
+	@Schema(description = "textual description", required=true)
 	protected String description;
+	@Schema(description = "specifies the language of the training data's text content", required=true)
 	protected String language;
 	protected int colId;
+	@Schema(description = "the HTR techology provider", allowableValues =  {HtrCITlabUtils.PROVIDER_CITLAB, HtrCITlabUtils.PROVIDER_CITLAB_PLUS})
+	protected String provider;
+	@Schema(description = "map with custom parameters", implementation=ParameterMap.class)
 	protected ParameterMap customParams;
 	
 	public HtrTrainConfig() {
+		provider = null;
 		customParams = null;
 	}
 	
@@ -66,6 +76,14 @@ public abstract class HtrTrainConfig implements Serializable {
 	
 	public void setColId(int colId) {
 		this.colId = colId;
+	}
+
+	public String getProvider() {
+		return provider;
+	}
+
+	public void setProvider(String provider) {
+		this.provider = provider;
 	}
 
 	public ParameterMap getCustomParams() {

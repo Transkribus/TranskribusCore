@@ -84,6 +84,11 @@
 			<artifactId>javax.ws.rs-api</artifactId>
 			<version>2.0.1</version>
 		</dependency>
+		<dependency>
+			<groupId>io.swagger.core.v3</groupId>
+		    <artifactId>swagger-annotations</artifactId>
+		    <version>2.0.3</version>
+		</dependency>
 
 		<!-- primaresearch page io libs -->
 		<dependency>

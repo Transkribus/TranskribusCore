@@ -9,6 +9,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang.StringUtils;
 
 import eu.transkribus.core.io.util.TrpProperties;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -21,19 +23,28 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 	public final static String DEFAULT_LEARNING_RATE = "1e-3";
 	public final static int DEFAULT_NUM_EPOCHS = 20;
 
+	@Schema(description = "the number of epochs. A positive natural number.", required=true)
 	protected Integer numEpochs = DEFAULT_NUM_EPOCHS;
+	@Schema(description = "the learning rate. Floating point in scientific notation, e.g. 2E-3", required=false)
 	protected String learningRate;
+	@Schema(description = "noise setting", allowableValues= {"no", "preproc", "net", "both"}, required=false)
 	protected String noise;
+	@Schema(description = "train size per epoch. Positive natural number", required=false)
 	protected Integer trainSizePerEpoch;
+	@Schema(description = "Optional. Can be used to specify an existing HTR to be used as starting point for the training. Provider string must match the one given.", required=false)
 	protected Integer baseModelId;
 	
-	protected Integer htrVersion;
-	
+	@Hidden
 	public final static String NUM_EPOCHS_KEY = "Nr. of Epochs";
+	@Hidden
 	public final static String LEARNING_RATE_KEY ="Learning Rate";
+	@Hidden
 	public final static String NOISE_KEY = "Noise";
+	@Hidden
 	public final static String TRAIN_SIZE_KEY = "Train Size per Epoch";
+	@Hidden
 	public final static String BASE_MODEL_ID_KEY = "HTR Base Model ID";
+	@Hidden
 	public final static String BASE_MODEL_NAME_KEY = "HTR Base Model Name";
 	
 	public CitLabHtrTrainConfig() {
@@ -73,15 +84,6 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 	}
 	public void setBaseModelId(Integer baseModelId) {
 		this.baseModelId = baseModelId;
-	}
-	
-
-	public Integer getHtrVersion() {
-		return htrVersion;
-	}
-
-	public void setHtrVersion(Integer htrVersion) {
-		this.htrVersion = htrVersion;
 	}
 
 	@Override
