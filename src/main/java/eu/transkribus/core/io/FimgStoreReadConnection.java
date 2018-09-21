@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import org.dea.fimagestore.core.util.FilekeyUtils;
 import org.dea.fimgstoreclient.AbstractHttpClient.Scheme;
 import org.dea.fimgstoreclient.FimgStoreGetClient;
 import org.dea.fimgstoreclient.beans.FimgStoreFileMd;
 import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
 import org.dea.fimgstoreclient.utils.FimgStoreUriBuilder;
-import org.dea.fimgstoreclient.utils.FimgStoreUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +71,7 @@ public class FimgStoreReadConnection {
 		FimgStoreGetClient getter = new FimgStoreGetClient(url);
 		final String key;
 		try {
-			key = FimgStoreUtils.extractKey(url);
+			key = FilekeyUtils.extractKey(url);
 		} catch (URISyntaxException e) {
 			throw new IOException("Could not extract key from url: " + url.toString(), e);
 		}
