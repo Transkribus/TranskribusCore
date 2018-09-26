@@ -319,6 +319,14 @@ public class CoreUtils {
 		}
 	}
 	
+	public static long parseLong(String str, long errorVal) {
+		try {
+			return Long.parseLong(str);
+		} catch (Exception e) {
+			return errorVal;
+		}
+	}
+	
 	public static List<Integer> parseIntList(String str) {
 		List<Integer> result = new ArrayList<>();
 		
