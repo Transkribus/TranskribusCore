@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 public class StreamGobbler extends Thread {
     InputStream is;
     Logger logger;
+    String text;
 
     // reads everything from is until empty. 
     public StreamGobbler(InputStream is) {
@@ -20,6 +21,10 @@ public class StreamGobbler extends Thread {
         this.is = is;
         this.logger = logger;
     }
+    
+    public String getText() {
+    	return text;
+    }
 
     public void run() {
         try {
@@ -27,16 +32,21 @@ public class StreamGobbler extends Thread {
             BufferedReader br = new BufferedReader(isr);
             String line=null;
             while ( (line = br.readLine()) != null) {
-            	if (this.logger != null)
+            	if (logger != null) {
             		logger.info(line);
-            	else
+            	}
+            	else {
             		System.out.println(line);
+            	}
+            	text += line+"\n";
             }
         } catch (IOException ioe) {
-        	if (logger != null)
-        		ioe.printStackTrace();
-        	else
+        	if (logger != null) {
         		logger.error(ioe.getMessage(), ioe);
+        	}
+        	else {
+        		ioe.printStackTrace();
+        	}
         }
     }
 }
