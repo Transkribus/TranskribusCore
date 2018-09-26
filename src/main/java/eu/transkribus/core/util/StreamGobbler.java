@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 public class StreamGobbler extends Thread {
     InputStream is;
     Logger logger;
-    String text;
+    String text="";
 
     // reads everything from is until empty. 
     public StreamGobbler(InputStream is) {
