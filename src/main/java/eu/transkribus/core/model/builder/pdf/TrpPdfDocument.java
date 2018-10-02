@@ -816,7 +816,7 @@ public class TrpPdfDocument extends APdfDocument {
 			
 			//first and last line rotated -> seems to be vertical
 			//use X coords to compute the total line gap
-			if (firstLineRotation == 90 && lastLineRotation == 90){
+			if (Math.abs(firstLineRotation) == 90 && Math.abs(lastLineRotation) == 90){
 				
 				//since the reading order is not clear if the text is vertically -> could be right to left or vice versa
 				double tmpMinX1 = firstLineRect.getMinX();
@@ -1159,11 +1159,14 @@ public class TrpPdfDocument extends APdfDocument {
 								tmpLineStartX = (float) baseLineRect.getMinX();
 							}
 							
-							lineStartY = (float) baseLineRect.getMaxY();
+							lineStartY = (rotation < 0) ? (float) baseLineRect.getY() : (float) baseLineRect.getMaxY();
+//							logger.debug("bl_rect maxY " + baseLineRect.getMaxY());
+//							logger.debug("bl_rect minY " + baseLineRect.getMinY());
+//							logger.debug("bl_rect Y " + baseLineRect.getY());
 						}
 						else if(lineRect != null){
 							tmpLineStartX = lineRect.x;
-							lineStartY = (float) lineRect.getMaxY();
+							lineStartY = (float) lineRect.getY();
 						}
 						
 					}
@@ -1270,7 +1273,7 @@ public class TrpPdfDocument extends APdfDocument {
 	//		logger.debug("p2.y " + p2.y);
 	//		
 	//		logger.debug("Rotate this content? " + phrase.getContent());
-	//		logger.debug("alpha to rotate " + alpha);
+			
 			
 			// if rotation is not over this border keep it straight
 			if (Math.abs(alpha) > Math.PI/16){
@@ -1282,7 +1285,9 @@ public class TrpPdfDocument extends APdfDocument {
 			if (Math.abs(alpha) > 7*Math.PI/16){
 	//			tmpLineStartX = p1.x;
 	//			lineStartY = p1.y;
-				rotation = 90;
+				rotation = ((p1.y < p2.y)? -90 : 90);
+				
+				//logger.debug("alpha to rotate " + alpha);
 			}
 					
 	//					if (alpha > Math.PI/8 && alpha <= Math.PI/3){
