@@ -59,6 +59,8 @@ public final class RESTConst {
 	public static final String REGISTER_PARAM = "register";
 	public static final String ERROR_PATH = "errors";
 	
+	public static final String JOB_ACL_PATH = "jobAcl";
+	
 	/* SECOND TIER: Methods */
 	public static final String DB_PATH = "db";
 	public static final String CURR_MD_PATH = "curr";
