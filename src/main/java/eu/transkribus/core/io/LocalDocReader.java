@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Observer;
 import java.util.TreeMap;
 
 import javax.xml.bind.JAXBException;
@@ -116,10 +117,28 @@ public class LocalDocReader {
 	 */
 	public static TrpDoc loadPdf(final String file, final String path) 
 			throws IOException, SecurityException, DocumentException {
+		return loadPdf(file, path, null);
+	}
+	
+	/**
+	 * Extracts images from a pdf into the given directory. 
+	 * Further loads the document from the specified image directory.
+	 * @param file absolute path of the pdf document
+	 * @param path absolute path of the directory to which the pdf images should be extracted to
+	 * @param observer optional observer object to transport state of the extraction process
+	 * @return new TrpDoc
+	 * @throws IOException
+	 * @throws SecurityException
+	 * @throws DocumentException
+	 */
+	public static TrpDoc loadPdf(final String file, final String path, Observer observer) 
+			throws IOException, SecurityException, DocumentException {
 		logger.info("Extracting pdf " + file + " to folder " + path);
 		PageImageWriter imgWriter = new PageImageWriter();
+		if(observer != null) {
+			imgWriter.addObserver(observer);
+		}
 		imgWriter.extractImages(file, path);
-		
 		return load(imgWriter.getExtractDirectory());
 	}
 	
