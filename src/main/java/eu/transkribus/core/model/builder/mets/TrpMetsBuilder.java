@@ -176,7 +176,7 @@ public class TrpMetsBuilder extends Observable {
 				pageDiv.getFptr().add(xmlPtr);
 			}
 			
-			//creat ALTO fileGrp
+			//create ALTO fileGrp
 			if (exportAlto){
 				FileType altoFt = new FileType();
 				altoFt.setCHECKSUMTYPE(ChecksumUtils.ChkSumAlg.MD5.toString());
