@@ -208,7 +208,7 @@ public class DocExporter extends APassthroughObservable {
 			}
 			
 			xmlFile = new File(FilenameUtils.normalizeNoEndSeparator(pageDir.getAbsolutePath()) + File.separator + baseFileName + xmlExt);
-			//logger.debug("PAGE XMl output file: "+xmlFile.getAbsolutePath());
+			logger.debug("PAGE XMl output file: "+xmlFile.getAbsolutePath());
 			transcript.write(xmlFile);
 		}
 

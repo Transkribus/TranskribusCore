@@ -135,8 +135,8 @@ public class TrpPdfDocument extends APdfDocument {
 	 */
 	float[][] twelfthPoints = new float[13][2];
 
-	protected float scaleFactorX = 1.0f;
-	protected float scaleFactorY = 1.0f;
+	//protected float scaleFactorX = 1.0f;
+	//protected float scaleFactorY = 1.0f;
 	float lineMeanHeight = 0;
 	float prevLineMeanHeight = 0;
 	//float overallLineMeanHeight = 0;
@@ -1372,11 +1372,21 @@ public class TrpPdfDocument extends APdfDocument {
 		for (TextStyleTag styleTag : styleTags){
 			
 			if (currentIndex >= (wordOffset+styleTag.getOffset()) && currentIndex < (wordOffset+styleTag.getOffset()+styleTag.getLength())){
+				
+				if (styleTag.getFontSize() != null && styleTag.getFontSize() > 0){
+					//currChunk.setLineHeight(styleTag.getFontSize()/scaleFactorY);
+					
+					currChunk.setFont(FontFactory.getFont(BaseFont.TIMES_BOLD, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 12));
+				}
+				
+//				if (styleTag.getFontFamily() != null){
+//					currChunk.setFont(new Font();
+//				}
 								
 				if (CoreUtils.val(styleTag.getBold())) {
 					//logger.debug("BOOOOOOOOOLD");
 					
-					currChunk.setFont(boldFont);
+					//currChunk.setFont(boldFont);
 				}			
 				if (CoreUtils.val(styleTag.getItalic())) {
 					//logger.debug("ITAAAAAAAAAAAALIC");
