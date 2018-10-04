@@ -132,6 +132,7 @@ public final class RESTConst {
 	public static final String INGEST_PATH = "ingest";
 	public static final String INFO_PATH = "info";
 	public static final String CHECK_SESSION = "checkSession";
+	public static final String FIMAGESTORE_DETAILS_PATH = "fimagestore";
 	
 	@Deprecated
 	public static final String DOC_STAT_PATH = "docStat";
