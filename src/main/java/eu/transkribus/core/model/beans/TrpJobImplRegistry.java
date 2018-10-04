@@ -9,6 +9,7 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import eu.transkribus.core.util.CoreUtils;
 
@@ -31,6 +32,7 @@ public class TrpJobImplRegistry {
 	private String jobType;
 	
 	@Column
+	@XmlTransient
 	private String users;
 	
 	public TrpJobImplRegistry() {}

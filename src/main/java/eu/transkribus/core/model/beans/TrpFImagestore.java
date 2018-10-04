@@ -11,6 +11,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import io.swagger.v3.oas.annotations.Hidden;
+
 @Entity
 @Table(name="FIMGSTORE")
 @XmlRootElement
@@ -20,6 +22,8 @@ public class TrpFImagestore implements Serializable {
 
 	@Id
 	@Column
+	@XmlTransient
+	@Hidden
 	private Integer storeId;
 	@Column(name="host")
 	private String hostName;
@@ -29,12 +33,15 @@ public class TrpFImagestore implements Serializable {
 	private Integer port = null;
 	@Column
 	@XmlTransient
+	@Hidden
 	private String username = null;
 	@Column
 	@XmlTransient
+	@Hidden
 	private String password = null;
-	@XmlTransient
 	@Column(name="STORE_LOCATION")
+	@XmlTransient
+	@Hidden
 	private String storeLocation = null;
 	
 	public TrpFImagestore(){}
