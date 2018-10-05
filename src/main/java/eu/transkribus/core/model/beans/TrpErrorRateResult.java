@@ -1,6 +1,6 @@
 package eu.transkribus.core.model.beans;
 
-public class ATrpErrorRate {
+public class TrpErrorRateResult {
 
 	private String wer;
 	private String wAcc;
@@ -10,7 +10,7 @@ public class ATrpErrorRate {
 	private String bagTokensRec;
 	private String bagTokensF;
 
-	public ATrpErrorRate() {
+	public TrpErrorRateResult() {
 		super();
 	}
 
@@ -122,7 +122,7 @@ public class ATrpErrorRate {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ATrpErrorRate other = (ATrpErrorRate) obj;
+		TrpErrorRateResult other = (TrpErrorRateResult) obj;
 		if (bagTokensF == null) {
 			if (other.bagTokensF != null)
 				return false;
