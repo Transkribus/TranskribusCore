@@ -11,37 +11,21 @@ import eu.transkribus.core.model.beans.rest.ParameterMap;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpErrorRate extends ATrpErrorRate {
+public class TrpErrorRate extends TrpErrorRateResult {
 	
 	private ParameterMap params;
 	
-	List<TrpErrorList> list;
+	List<TrpErrorRateListEntry> list;
 
 	public TrpErrorRate() {
 		list = new ArrayList<>();
 	}
-	
-	/**
-	 * FIXME Remove this when frontend is adapted and accepts a single error rate result without a list
-	 * 
-	 */
-	public TrpErrorRate(TrpErrorList res) {
-		this();
-		this.setBagTokensF(res.getBagTokensF());
-		this.setBagTokensPrec(res.getBagTokensPrec());
-		this.setBagTokensRec(res.getBagTokensRec());
-		this.setcAcc(res.getcAcc());
-		this.setCer(res.getCer());
-		this.setwAcc(res.getwAcc());
-		this.setWer(res.getWer());
-		this.getList().add(res);
-	}
 
-	public List<TrpErrorList> getList() {
+	public List<TrpErrorRateListEntry> getList() {
 		return list;
 	}
 
-	public void setList(List<TrpErrorList> list) {
+	public void setList(List<TrpErrorRateListEntry> list) {
 		this.list = list;
 	}
 	

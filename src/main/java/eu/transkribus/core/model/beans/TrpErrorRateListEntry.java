@@ -3,12 +3,12 @@ package eu.transkribus.core.model.beans;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class TrpErrorList extends ATrpErrorRate {
+public class TrpErrorRateListEntry extends TrpErrorRateResult {
 		
 		// Page Number
 		private Integer pageNumber;
 		
-		public TrpErrorList() {
+		public TrpErrorRateListEntry() {
 			super();
 			pageNumber = null;
 		}
@@ -37,7 +37,7 @@ public class TrpErrorList extends ATrpErrorRate {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			TrpErrorList other = (TrpErrorList) obj;
+			TrpErrorRateListEntry other = (TrpErrorRateListEntry) obj;
 			if (pageNumber == null) {
 				if (other.pageNumber != null)
 					return false;
