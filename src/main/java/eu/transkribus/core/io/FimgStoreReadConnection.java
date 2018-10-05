@@ -96,11 +96,11 @@ public class FimgStoreReadConnection {
 				store.getPort(), store.getContext());
 	}
 	
-	public static String getFimgStoreUrl(){
+	public static String getFimgStoreGetUrl(){
 		FimgStoreUriBuilder uriBuilder = getUriBuilder();
 		String fimgStoreUrl;
 		try {
-			fimgStoreUrl = uriBuilder.getBaseUri().toString();
+			fimgStoreUrl = uriBuilder.getBaseGetUri().toString();
 		} catch(URISyntaxException e){
 			throw new IllegalStateException("fimagstore settings in properties are not correct! TRP will not function correctly!!", e);
 		}
