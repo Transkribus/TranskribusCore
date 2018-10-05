@@ -393,6 +393,14 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		}
 		return null;
 	}
+	
+	public int getFirstCollectionId() {
+		if (colList!=null && !colList.isEmpty()) {
+			return colList.get(0).getColId();
+		} else {
+			return -1;
+		}
+	}
 
 	public List<TrpCollection> getColList() {
 		return colList;
