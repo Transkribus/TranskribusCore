@@ -79,5 +79,10 @@ public class JobConst {
 
 	public static final String PROP_TITLE_PREFIX = "titlePrefix";
 
+	public static final String PROP_AUTHORITY = "authority";
+	public static final String PROP_HIERARCHY = "hierarchy";
+	public static final String PROP_BACKLINK = "backlink";
+	public static final String PROP_EXTID = "extId";
+
 	
 }
