@@ -19,7 +19,11 @@ public class TrpErrorRateResult {
 	}
 	
 	public Double getWerDouble() {
-		return Double.parseDouble(wer.replaceAll("%", "").replaceAll(",", "."));
+		Double dwer = Double.parseDouble(wer.replaceAll("%", "").replaceAll(",", "."));
+		if (dwer.isNaN() || dwer.isInfinite()) {
+			return -1.0;
+		}
+		return dwer;
 	}
 
 	public void setWer(String wer) {
@@ -31,7 +35,11 @@ public class TrpErrorRateResult {
 	}
 	
 	public Double getCerDouble() {
-		return Double.parseDouble(cer.replaceAll("%", "").replaceAll(",", "."));
+		Double cwer = Double.parseDouble(cer.replaceAll("%", "").replaceAll(",", "."));
+		if (cwer.isNaN() || cwer.isInfinite()) {
+			return -1.0;
+		}
+		return cwer;
 	}
 	
 
