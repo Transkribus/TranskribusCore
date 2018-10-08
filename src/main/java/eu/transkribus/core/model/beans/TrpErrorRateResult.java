@@ -1,5 +1,11 @@
 package eu.transkribus.core.model.beans;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class TrpErrorRateResult {
 
 	private String wer;
@@ -19,7 +25,12 @@ public class TrpErrorRateResult {
 	}
 	
 	public Double getWerDouble() {
-		return Double.parseDouble(wer.replaceAll("%", "").replaceAll(",", "."));
+		try {
+			return Double.parseDouble(wer.replaceAll("%", "").replaceAll(",", "."));
+		}
+		catch(NumberFormatException e) {
+			return -1.0;
+		}
 	}
 
 	public void setWer(String wer) {
@@ -31,7 +42,12 @@ public class TrpErrorRateResult {
 	}
 	
 	public Double getCerDouble() {
-		return Double.parseDouble(cer.replaceAll("%", "").replaceAll(",", "."));
+		try {
+			return Double.parseDouble(cer.replace("%", "").replaceAll(",", "."));
+		}
+		catch(NumberFormatException e) {
+			return -1.0;
+		}
 	}
 	
 

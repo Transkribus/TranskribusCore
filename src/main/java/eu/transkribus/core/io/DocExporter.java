@@ -157,6 +157,23 @@ public class DocExporter extends APassthroughObservable {
 		 * either read the already exported mets or temporarly export a mets with page files
 		 */
 		Mets mets;
+		
+		//create copy of object, as we alter it here while exporting
+		TrpDoc doc2;
+		doc2 = new TrpDoc(doc);
+		
+		File workDir = new File(new File(exportFilename).getParentFile().getAbsolutePath() + File.separator + "tmpDirForTeiExport_" + doc2.getId() + File.separator);
+		workDir.mkdirs();	
+		File pageDir = new File(workDir.getAbsolutePath() + File.separator + "page" );
+		pageDir.mkdir();
+		
+		logger.debug("work Dir is " + workDir);
+		
+		TrpDocMetadata dmd = doc2.getMd();
+		dmd.setLocalFolder(workDir);
+		doc2.setMd(dmd);
+		
+		Set<Integer> pageIndices= commonPars.getPageIndices(doc2.getNPages());
 //		if (commonPars.isDoWriteMets() && new File(commonPars.getDir()).exists()){
 //			
 //			File metsFile = new File(commonPars.getDir() + File.separator
@@ -174,22 +191,15 @@ public class DocExporter extends APassthroughObservable {
 		 * use temporary stored mets and page files
 		 */
 		TrpMetsBuilder metsBuilder = new TrpMetsBuilder();
-		
-		Set<Integer> pageIndices= commonPars.getPageIndices(doc.getNPages());
-		mets = metsBuilder.buildMets(doc, true, false, false, pageIndices);		
-		
-		File workDir = new File(new File(exportFilename).getParentFile().getAbsolutePath() + File.separator + "tmpDirForTeiExport_" + doc.getId() + File.separator);
-		workDir.mkdirs();	
-		File pageDir = new File(workDir.getAbsolutePath() + File.separator + "page" );
-		pageDir.mkdir();
+		mets = metsBuilder.buildMets(doc2, true, false, true, pageIndices);		
 		
 		// do export for all defined pages
-		for (int i=0; i<doc.getNPages(); ++i) {
+		for (int i=0; i<doc2.getNPages(); ++i) {
 			if (pageIndices!=null && !pageIndices.contains(i)) {
 				continue;
 			}
 			
-			TrpPage p = doc.getPages().get(i);
+			TrpPage p = doc2.getPages().get(i);
 			File xmlFile = null;
 							
 			//if filennamepattern is empty the filename is taken as name
@@ -208,7 +218,7 @@ public class DocExporter extends APassthroughObservable {
 			}
 			
 			xmlFile = new File(FilenameUtils.normalizeNoEndSeparator(pageDir.getAbsolutePath()) + File.separator + baseFileName + xmlExt);
-			//logger.debug("PAGE XMl output file: "+xmlFile.getAbsolutePath());
+			logger.debug("PAGE XMl output file: "+xmlFile.getAbsolutePath());
 			transcript.write(xmlFile);
 		}
 

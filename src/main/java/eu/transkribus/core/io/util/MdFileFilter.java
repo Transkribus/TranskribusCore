@@ -3,7 +3,7 @@ package eu.transkribus.core.io.util;
 import java.io.File;
 import java.io.FileFilter;
 
-import org.dea.fimgstoreclient.utils.MimeTypes;
+import org.dea.fimagestore.core.util.MimeTypes;
 
 import eu.transkribus.core.io.LocalDocConst;
 
