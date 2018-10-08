@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
-import org.dea.fimgstoreclient.utils.MimeTypes;
+import org.dea.fimagestore.core.util.MimeTypes;
 
 public class ImgPriority {
 	// this map will be used to prioritize different images for one page on the path
