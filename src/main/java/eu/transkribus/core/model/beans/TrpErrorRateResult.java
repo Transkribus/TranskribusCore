@@ -25,11 +25,12 @@ public class TrpErrorRateResult {
 	}
 	
 	public Double getWerDouble() {
-		Double dwer = Double.parseDouble(wer.replaceAll("%", "").replaceAll(",", "."));
-		if (dwer.isNaN() || dwer.isInfinite()) {
+		try {
+			return Double.parseDouble(wer.replaceAll("%", "").replaceAll(",", "."));
+		}
+		catch(NumberFormatException e) {
 			return -1.0;
 		}
-		return dwer;
 	}
 
 	public void setWer(String wer) {
@@ -41,11 +42,12 @@ public class TrpErrorRateResult {
 	}
 	
 	public Double getCerDouble() {
-		Double cwer = Double.parseDouble(cer.replaceAll("%", "").replaceAll(",", "."));
-		if (cwer.isNaN() || cwer.isInfinite()) {
+		try {
+			return Double.parseDouble(cer.replace("%", "").replaceAll(",", "."));
+		}
+		catch(NumberFormatException e) {
 			return -1.0;
 		}
-		return cwer;
 	}
 	
 
