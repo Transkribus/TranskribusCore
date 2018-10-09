@@ -187,11 +187,7 @@ public class DocExporter extends APassthroughObservable {
 //			}
 //		}
 //		else{
-		/*
-		 * use temporary stored mets and page files
-		 */
-		TrpMetsBuilder metsBuilder = new TrpMetsBuilder();
-		mets = metsBuilder.buildMets(doc2, true, false, true, pageIndices);		
+		
 		
 		// do export for all defined pages
 		for (int i=0; i<doc2.getNPages(); ++i) {
@@ -206,12 +202,11 @@ public class DocExporter extends APassthroughObservable {
 			final String baseFileName = ExportFilePatternUtils.buildBaseFileName("", p);
 			final String xmlExt = ".xml";
 			
-			TrpTranscriptMetadata transcriptMd;
+			TrpTranscriptMetadata transcriptMd = p.getCurrentTranscript();
 			JAXBPageTranscript transcript = cache.getPageTranscriptAtIndex(i);
 			
 			// set up transcript metadata
 			if(transcript == null) {
-				transcriptMd = p.getCurrentTranscript();
 				logger.warn("Have to unmarshall transcript in DocExporter for transcript "+transcriptMd+" - should have been built before using ExportUtils::storePageTranscripts4Export!");
 				transcript = new JAXBPageTranscript(transcriptMd);
 				transcript.build();
@@ -220,7 +215,26 @@ public class DocExporter extends APassthroughObservable {
 			xmlFile = new File(FilenameUtils.normalizeNoEndSeparator(pageDir.getAbsolutePath()) + File.separator + baseFileName + xmlExt);
 			logger.debug("PAGE XMl output file: "+xmlFile.getAbsolutePath());
 			transcript.write(xmlFile);
+			
+			/*
+			 * section for setting the relative path to the image instead of the (remote) filestore URL 
+			 */
+			File imgFile = new File(workDir.getAbsolutePath() + File.separator + p.getImgFileName());
+			p.setUrl(imgFile.toURI().toURL());
+			p.setKey(null);
+			
+			// make sure (for other exports) that the transcript that is exported is the only one set in the transcripts list of TrpPage
+			p.getTranscripts().clear();
+			TrpTranscriptMetadata tCopy = new TrpTranscriptMetadata(transcriptMd, p);
+			tCopy.setUrl(xmlFile.toURI().toURL());
+			p.getTranscripts().add(tCopy);
 		}
+		
+		/*
+		 * use temporary stored mets and page files
+		 */
+		TrpMetsBuilder metsBuilder = new TrpMetsBuilder();
+		mets = metsBuilder.buildMets(doc2, true, false, true, pageIndices);
 
 //		}
 		
