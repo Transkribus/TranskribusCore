@@ -83,6 +83,8 @@ public class JobConst {
 	public static final String PROP_HIERARCHY = "hierarchy";
 	public static final String PROP_BACKLINK = "backlink";
 	public static final String PROP_EXTID = "extId";
+	public static final String PROP_FROMDATE = "fromDate";
+	public static final String PROP_TODATE = "toDate";
 
 	
 }

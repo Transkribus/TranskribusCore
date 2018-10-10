@@ -221,7 +221,7 @@ public class TrpPdfDocument extends APdfDocument {
 				imgBuffer = ImageIO.read(input);
 			}
 		}
-		
+				
 	    Graphics2D graph = imgBuffer.createGraphics();
 	    graph.setColor(Color.BLACK);
 	    
@@ -1373,25 +1373,64 @@ public class TrpPdfDocument extends APdfDocument {
 			
 			if (currentIndex >= (wordOffset+styleTag.getOffset()) && currentIndex < (wordOffset+styleTag.getOffset()+styleTag.getLength())){
 				
-				if (styleTag.getFontSize() != null && styleTag.getFontSize() > 0){
-					//currChunk.setLineHeight(styleTag.getFontSize()/scaleFactorY);
-					
-					currChunk.setFont(FontFactory.getFont(BaseFont.TIMES_BOLD, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 12));
+				boolean bold = CoreUtils.val(styleTag.getBold());
+				boolean italic = CoreUtils.val(styleTag.getItalic());
+				
+				Font styleFont = null;
+				if (bold && italic){
+					styleFont = boldItalicFont;
 				}
+				else if (bold){
+					styleFont = boldFont;
+				}
+				else if (italic){
+					styleFont = italicFont;
+				}
+				
+				if (styleFont != null){
+					currChunk.setFont(styleFont);
+				}
+				
+				/*
+				 * idea was to take the user set font size but it destroys the overall uniformity - the generated size is normally bigger then the set size (e.g. 9.5 is rather small)
+				 * use case: It would help a lot if at least bold, italics and font-size where represented properly in the PDF produced by Transkribus, 
+				 * because we use GROBID-dictionaries for entry segmentation, a tool that wants PDF as input and extracts features like font-style from the text layer; 
+				 * these features are then used to train the tool so it learns where to insert segmentation markup. (docId 53351, page 1)
+				 * 
+				 * bodl and italics is contained
+				 */
+//				if (styleTag.getFontSize() != null && styleTag.getFontSize() > 0){
+//					//currChunk.setLineHeight(styleTag.getFontSize()/scaleFactorY);
+//					//logger.debug("SIIIIIIIZE" + styleTag.getFontSize());
+//					//currChunk.setFont(FontFactory.getFont(BaseFont.TIMES_BOLD, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 12));
+//					Font fontToUse = styleFont != null ? new Font(styleFont.getBaseFont(), styleTag.getFontSize()) : new Font(mainExportFont.getBaseFont(), styleTag.getFontSize());
+//					currChunk.setFont(fontToUse);
+//				}
 				
 //				if (styleTag.getFontFamily() != null){
 //					currChunk.setFont(new Font();
 //				}
 								
-				if (CoreUtils.val(styleTag.getBold())) {
-					//logger.debug("BOOOOOOOOOLD");
-					
-					//currChunk.setFont(boldFont);
-				}			
-				if (CoreUtils.val(styleTag.getItalic())) {
-					//logger.debug("ITAAAAAAAAAAAALIC");
-					currChunk.setFont(italicFont);
-				}
+//				if (CoreUtils.val(styleTag.getBold())) {
+//					//logger.debug("BOOOOOOOOOLD");
+//					if (styleTag.getFontSize() != null && styleTag.getFontSize() > 0){
+//						currChunk.setFont(new Font(bfSerifBold, styleTag.getFontSize()));
+//					}
+//					else{
+//						currChunk.setFont(boldFont);
+//					}
+//					
+//				}			
+//				if (CoreUtils.val(styleTag.getItalic())) {
+//					//logger.debug("ITAAAAAAAAAAAALIC");
+//					if (styleTag.getFontSize() != null && styleTag.getFontSize() > 0){
+//						currChunk.setFont(new Font(bfSerifItalic, styleTag.getFontSize()));
+//					}
+//					else{
+//						currChunk.setFont(italicFont);
+//					}
+//					
+//				}
 				if (CoreUtils.val(styleTag.getStrikethrough())) {
 					//logger.debug("Striiiiiiiiikethrough");
 					currChunk.setUnderline(0.2f, 3f);

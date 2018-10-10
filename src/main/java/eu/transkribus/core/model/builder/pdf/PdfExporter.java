@@ -92,9 +92,15 @@ public class PdfExporter extends Observable {
 			 */
 //			logger.debug("img type " + imgType);
 //			logger.debug("p.getKey() " + p.getKey());
-			final URI imgUri = uriBuilder.getImgUri(p.getKey(), imgType);
-			URL imgUrl = imgUri.toURL();
-			//URL imgUrl = p.getUrl();	
+			URL imgUrl;
+			if (doc.isRemoteDoc()) {
+				final URI imgUri = uriBuilder.getImgUri(p.getKey(), imgType);
+				imgUrl = imgUri.toURL();
+			}
+			else{
+				logger.debug("image url " + p.getUrl());
+				imgUrl = p.getUrl();
+			}
 
 			/*
 			 * md is only needed for getting resolution because in the image it may be missing
