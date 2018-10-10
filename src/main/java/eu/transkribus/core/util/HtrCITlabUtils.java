@@ -21,7 +21,6 @@ public class HtrCITlabUtils {
 	private static final Logger logger = LoggerFactory.getLogger(HtrCITlabUtils.class);
 	public final static String PROVIDER_CITLAB = "CITlab";
 	public final static String PROVIDER_CITLAB_PLUS = "CITlabPlus";
-	public final static String CHAR_MAP_FILENAME = "chars.txt";
 
 	public static final String CITLAB_CM_EXT = ".cm";
 	
@@ -49,6 +48,8 @@ public class HtrCITlabUtils {
 	public final static String CITLAB_CER_FILENAME = "CER.txt";	
 	@Deprecated
 	public final static String CITLAB_CER_TEST_FILENAME = "CER_test.txt";	
+	@Deprecated
+	public final static String CHAR_MAP_FILENAME = "chars.txt";
 	
 	static {
 		DECIMAL_FORMAT.setRoundingMode(RoundingMode.UP);

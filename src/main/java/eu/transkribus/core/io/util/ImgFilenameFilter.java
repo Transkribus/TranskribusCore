@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 import org.apache.commons.io.FilenameUtils;
-import org.dea.fimgstoreclient.utils.MimeTypes;
+import org.dea.fimagestore.core.util.MimeTypes;
 
 public class ImgFilenameFilter implements FilenameFilter {
 

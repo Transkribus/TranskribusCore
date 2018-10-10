@@ -13,9 +13,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.dea.fimagestore.core.util.MimeTypes;
 import org.dea.fimgstoreclient.FimgStoreGetClient;
 import org.dea.fimgstoreclient.beans.FimgStoreFileMd;
-import org.dea.fimgstoreclient.utils.MimeTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
