@@ -23,12 +23,9 @@ public class HtrCITlabUtils {
 	public final static String PROVIDER_CITLAB_PLUS = "CITlabPlus";
 
 	public static final String CITLAB_CM_EXT = ".cm";
-	
-	@Deprecated
-	public static final String NET_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/net";
-	public static final String DICT_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/dict";
+
 	/**
-	 * this will located in the virtual FTP user storage
+	 * this will be located in the virtual FTP user storage
 	 */
 	public static final String TEMP_DICT_DIR_NAME = "dictTmp";
 
@@ -55,10 +52,6 @@ public class HtrCITlabUtils {
 		DECIMAL_FORMAT.setRoundingMode(RoundingMode.UP);
 	}
 	
-	public static File resolveDict(String dictName) throws FileNotFoundException {
-		return resolveDict(HtrCITlabUtils.DICT_PATH, dictName);
-	}
-	
 	public static File resolveDict(final File baseDir, String dictName) throws FileNotFoundException {
 		return resolveDict(baseDir.getAbsolutePath(), dictName);
 	}
@@ -67,59 +60,25 @@ public class HtrCITlabUtils {
 		if (StringUtils.isEmpty(dictName)) {
 			return null;
 		}
-		File dict = new File(baseDir + File.separator + dictName);
+		File dict = new File(baseDir, dictName);
 		if (!dict.isFile()) {
 			throw new FileNotFoundException("A dictionary by this name could not be found: " + dictName);
 		}
 		return dict;
 	}
-
-	@Deprecated
-	public static File[] getNetList() {
-		File[] models = new File(HtrCITlabUtils.NET_PATH).listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				return pathname.isFile() && pathname.getName().endsWith(".sprnn");
-			}
-		});
-		return models;
-	}
-
-	@Deprecated
-	public static String getNetListStr() {
-		File[] models = getNetList();
-
-		String modelStr = "";
-		boolean isFirst = true;
-		for (File model : models) {
-			if (isFirst) {
-				modelStr += model.getName();
-				isFirst = false;
-			} else {
-				modelStr += "\n" + model.getName();
-			}
+	
+	public static List<String> getDictList(final String baseDirPath) {
+		if(baseDirPath == null) {
+			throw new IllegalArgumentException("baseDirPath argument is null.");
 		}
-		return modelStr;
-	}
-
-	public static String getDictListStr() {
-		File[] dicts = new File(HtrCITlabUtils.DICT_PATH).listFiles(new DictFileFilter());
-
-		String modelStr = "";
-		boolean isFirst = true;
-		for (File dict : dicts) {
-			if (isFirst) {
-				modelStr += dict.getName();
-				isFirst = false;
-			} else {
-				modelStr += "\n" + dict.getName();
-			}
-		}
-		return modelStr;
+		return getDictList(new File(baseDirPath));
 	}
 	
-	public static List<String> getDictList() {
-		File[] dicts = new File(HtrCITlabUtils.DICT_PATH).listFiles(new DictFileFilter());
+	public static List<String> getDictList(final File baseDir) {
+		if(baseDir == null || !baseDir.isDirectory()) {
+			throw new IllegalArgumentException("baseDir argument is null or not a directory.");
+		}
+		File[] dicts = baseDir.listFiles(new DictFileFilter());
 		List<String> dictList = new ArrayList<>(dicts.length);
 		
 		for (File dict : dicts) {
