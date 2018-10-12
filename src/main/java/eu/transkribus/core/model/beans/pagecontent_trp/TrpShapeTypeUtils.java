@@ -14,6 +14,28 @@ import eu.transkribus.core.util.SebisStopWatch;
 public class TrpShapeTypeUtils {
 	private final static Logger logger = LoggerFactory.getLogger(TrpShapeTypeUtils.class);
 	
+	public static boolean removeShape(ITrpShapeType s) {
+		if (s == null) {
+			return false;
+		}
+		
+		s.removeFromParent();
+		
+		// FIXME: what about the links on undo??
+		// remove all links related to this shape:
+		if (s.getPage() != null) {
+			s.getPage().removeLinks(s);
+			s.getPage().removeDeadLinks();
+		}
+		
+		//sort children: means create new reading order without the deleted shape
+		if (s.getParentShape() != null) {
+			s.getParentShape().sortChildren(true);
+		}
+		
+		return true;
+	}
+	
 
 	/**
 	 * Currently only implemented for TrpWordType, TrpTextLineType and TrpTextRegionType
