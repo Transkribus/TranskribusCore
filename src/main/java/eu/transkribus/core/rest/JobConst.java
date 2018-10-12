@@ -86,5 +86,6 @@ public class JobConst {
 	public static final String PROP_FROMDATE = "fromDate";
 	public static final String PROP_TODATE = "toDate";
 
+	public static final String PROP_GPU_DEVICE_ENV_VAR = "GPU_DEVICE";
 	
 }
