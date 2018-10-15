@@ -69,12 +69,9 @@ public class TrpHtr {
 	
 	private String cerTestString;
 	
-	private double[] cerLog = null;
-	private double[] cerTestLog = null;
-	
 	private String charList;
 	
-	private boolean bestNetStored;
+	private boolean bestNetStored = true;
 	
 	@Column(name="NR_OF_LINES")
 	private int nrOfLines;
@@ -92,6 +89,10 @@ public class TrpHtr {
 	@Transient
 	@Column
 	private int userId;
+	
+	//those fields just cache the split result from cerString and cerTestString
+	private double[] cerLog = null;
+	private double[] cerTestLog = null;
 
 	public int getHtrId() {
 		return htrId;
