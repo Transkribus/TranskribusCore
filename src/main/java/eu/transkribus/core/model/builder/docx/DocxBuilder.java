@@ -484,7 +484,7 @@ public class DocxBuilder {
 		addParagraph("Writer: ", docMd.getWriter(), mdp, "Subtitle");
 		
 		if (docMd.getScriptType() != null){
-			addParagraph("Sripttype: ", docMd.getScriptType().toString(), mdp, "Subtitle");
+			addParagraph("Scripttype: ", docMd.getScriptType().toString(), mdp, "Subtitle");
 		}
 		
 		addParagraph("Language: ", docMd.getLanguage(), mdp, "Subtitle");
