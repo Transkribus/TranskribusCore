@@ -253,11 +253,13 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	public List<ITrpShapeType> getChildren(boolean recursive) {
 		ArrayList<ITrpShapeType> c = new ArrayList<ITrpShapeType>();
 		// add baseline:
-		if (getBaseline() != null)
-			c.add((TrpBaselineType)getBaseline());
+		logger.trace("baseline: "+getBaseline()+" line = "+getId());
+		if (getTrpBaseline() != null) {
+			c.add(getTrpBaseline());
+		}
 		// add words:
-		for (WordType w : getWord()) {
-			c.add((TrpWordType)w);
+		for (TrpWordType w : getTrpWord()) {
+			c.add(w);
 		}
 
 		return c;
