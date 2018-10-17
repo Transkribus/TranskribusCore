@@ -60,12 +60,10 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	@Override
 	public TrpTextLineType copy() { return new TrpTextLineType(this); }	
 	
-	@Override public void setCustom(String custom) {
-		// TODO: catch exceptions (index out of bounds!)
-//		logger.debug("setting custom tag to: "+custom);
-		this.custom = custom;
-		customTagList = new CustomTagList(this);
-	}
+//	@Override public void setCustom(String custom) {
+//		this.custom = custom;
+//		customTagList = new CustomTagList(this);
+//	}
 	
 	@Override public void copyFields(ITrpShapeType srcShape) {
 		if (!(srcShape instanceof TrpTextLineType))
@@ -89,7 +87,7 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	    primaryLanguage = src.primaryLanguage;
 	    production = src.production;
 	    	    
-	    src.getCustomTagList().writeToCustomTag();
+//	    src.getCustomTagList().writeToCustomTag();
 	    if (src.custom != null)
 	    	custom = new String(src.custom);
 	    if (src.comments != null)

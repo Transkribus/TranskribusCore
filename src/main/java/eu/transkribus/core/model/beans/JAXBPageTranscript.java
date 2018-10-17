@@ -2,12 +2,14 @@ package eu.transkribus.core.model.beans;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
@@ -16,6 +18,8 @@ import eu.transkribus.core.util.PageXmlUtils;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class JAXBPageTranscript extends AbstractPageTranscript<PcGtsType> {
+	private static final Logger logger = LoggerFactory.getLogger(JAXBPageTranscript.class);
+	
 	public JAXBPageTranscript(){}
 	
 	public JAXBPageTranscript(TrpTranscriptMetadata md) {
@@ -49,6 +53,7 @@ public class JAXBPageTranscript extends AbstractPageTranscript<PcGtsType> {
 	}
 		
 	@Override public void setPageData(PcGtsType page) {
+		logger.debug("setting page data!");
 		super.setPageData(page);
 		updateMdOnTrpPageType();
 	}

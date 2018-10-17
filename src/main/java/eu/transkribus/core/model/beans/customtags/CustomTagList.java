@@ -41,10 +41,28 @@ public class CustomTagList {
 	public CustomTagList(ITrpShapeType shape) {
 		Assert.assertNotNull(shape);
 		this.shape = shape;
-
+		
+		initFromCustomTagString(shape.getCustom());
+//		List<CustomTag> cts = CustomTagUtil.getCustomTags(shape.getCustom());
+//		logger.trace("nr of custom tags: " + cts.size() + " id: " + shape.getId());
+//		for (CustomTag ct : CustomTagUtil.getCustomTags(shape.getCustom())) {
+//			logger.trace("adding custom tag: " + ct);
+//			try {
+//				addOrMergeTag(ct, null);
+//			} catch (IndexOutOfBoundsException e) {
+//				logger.error(e.getMessage(), e);
+//			}
+//		}
+	}
+	
+	public void initFromCustomTagString(String customTag) {
+		if (!tags.isEmpty()) {
+			logger.warn("Warning - taglist not empty on initFromCustomTagString -> this can cause major trouble!");
+			removeTags();
+		}
+		
 		List<CustomTag> cts = CustomTagUtil.getCustomTags(shape.getCustom());
 		logger.trace("nr of custom tags: " + cts.size() + " id: " + shape.getId());
-
 		for (CustomTag ct : CustomTagUtil.getCustomTags(shape.getCustom())) {
 			logger.trace("adding custom tag: " + ct);
 			try {
@@ -500,6 +518,15 @@ public class CustomTagList {
 		sortTags();
 		notifyTagsChanged();
 	}
+	
+	public void removeTags() {
+		List<CustomTag> tagsCopy = new ArrayList<>(tags);
+		for (CustomTag t : tagsCopy) {
+			removeCustomTagFromList(t);
+		}
+		sortTags();
+		notifyTagsChanged();
+	}
 
 	/**
 	 * Return the custom tag as a list of css-styled tags
@@ -950,10 +977,14 @@ public class CustomTagList {
 		return str;
 	}
 
-	public void writeToCustomTag() {
-		logger.trace("writeToCustomTag, shape = " + shape);
-		shape.setCustom(this.getCustomTag());
-	}
+	/**
+	 * @deprecated
+	 * @param tag
+	 */
+//	public void writeToCustomTag() {
+//		logger.debug("writeToCustomTag, shape = " + shape);
+//		shape.setCustom(this.getCustomTag());
+//	}
 
 	private void addCustomTagToList(CustomTag tag) {
 		tags.add(tag);

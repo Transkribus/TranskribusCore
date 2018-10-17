@@ -313,8 +313,9 @@ public class CustomTagUtil {
 			}
 		}
 		
-		if (readingOrderSet)
+		if (readingOrderSet) {
 			page.setReadingOrder(ro);
+		}
 	}
 	
 	public static Integer getReadingOrder(ITrpShapeType shape) {
@@ -399,10 +400,13 @@ public class CustomTagUtil {
 		// write CustomTagList tags to the custom tag:
 //		if (st instanceof TrpTextRegionType || st instanceof TrpTextLineType || st instanceof TrpWordType) {
 		if (st instanceof RegionType || st instanceof TrpTextLineType || st instanceof TrpWordType) {
-    		if (st.getCustomTagList()!=null)
-    			st.getCustomTagList().writeToCustomTag();
-    		else
+    		if (st.getCustomTagList()!=null) {
+    			String customTagStr = st.getCustomTagList().getCustomTag();
+    			st.setCustom(customTagStr);
+    		}
+    		else {
     			logger.error("Warning: CustomTagList of "+st.getId()+" was null while marshalling file!");
+    		}
 		}
 		
 		st.getObservable().setActive(true);

@@ -74,12 +74,15 @@ final public class TrpPageUnmarshalListener extends Unmarshaller.Listener {
 		}
 		
 		ITrpShapeType st = (ITrpShapeType) target;
-		st.setCustom(st.getCustom()); // manually call setter method for custom tag as JAXB does not call setters!
+		if (st.getCustomTagList() != null) {
+			st.getCustomTagList().initFromCustomTagString(st.getCustom());
+		}
+//		st.setCustom(st.getCustom()); // manually call setter method for custom tag as JAXB does not call setters!
 		
 //			TextStyleTypeUtils.applyTextStyleToCustomTag(st);
 		
+		// try registering (possibly new) tags:
 		if (st.getCustomTagList()!=null) {
-			// try registering (possibly new) tags:
 			for (CustomTag t : st.getCustomTagList().getTags()) {
 				try {
 					boolean mergeAttributes = false;
