@@ -245,8 +245,11 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		return deletedOnDate != null;
 	}
 	
-	public void setDeleted() {
-		setDeletedOnDate(new Date());
+	public void setDeleted(boolean deleted) {
+		if(deleted && getDeletedOnDate() != null) {
+			return;
+		}
+		setDeletedOnDate(deleted ? new Date() : null);
 	}
 	
 	public void setDeletedOnDate(Date deletedOnDate) {
