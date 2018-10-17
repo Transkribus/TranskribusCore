@@ -480,6 +480,9 @@ public class TrpPdfDocument extends APdfDocument {
         
         for (HashMap<Integer, TrpTableCellType> entry : allRows) {
         	for (Integer key : entry.keySet()) {
+        		if (entry.get(key) == null){
+        			continue;
+        		}
         		if (addUniformText){
 					float textBlockXStart = getAverageBeginningOfBaselines(entry.get(key));
 					textBlockXStart += 40;
@@ -670,6 +673,9 @@ public class TrpPdfDocument extends APdfDocument {
 		//logger.debug("calculate average beginning of baselines ");
 		
 		float avgStartOfLines = 0;
+		if (tr == null){
+			return -1;
+		}
 		double width = tr.getBoundingBox().getWidth();
 		float firstTenth = (float) (width/10);
 		int nrOfLines = 0;
@@ -1596,7 +1602,7 @@ public class TrpPdfDocument extends APdfDocument {
 	}
 
 	private void addTextFromTextRegion(final TextRegionType tr, final PdfContentByte cb, int cutoffLeft, int cutoffTop, BaseFont bf, ExportCache cache) throws IOException {
-		List<TextLineType> lines = tr.getTextLine();
+		List<TextLineType> lines = (tr != null ? tr.getTextLine() : null);
 		
 		boolean firstLine;
 		if(lines != null && !lines.isEmpty()){
@@ -1714,10 +1720,7 @@ public class TrpPdfDocument extends APdfDocument {
 					}
 					
 				}
-			}
-			
-
-			
+			}		
 		}	
 	}
 
