@@ -71,14 +71,7 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 	@Column(name="PAGE_ID")
 	private Integer pageId;
 	
-	@Column
-	private int deleted;
-	
 	@Column(name="DEL_TIME")
-	private Long deletedTimestamp;
-	
-	@Column
-	@Transient
 	private Date deletedOnDate;
 
 	@Column
@@ -155,8 +148,6 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		createdToTimestamp = md.getCreatedToTimestamp();
 		origDocId = md.getOrigDocId();
 		pageId = md.getPageId();
-		deleted = md.getDeleted();
-		deletedTimestamp = md.getDeletedTimestamp();
 		deletedOnDate = md.getDeletedOnDate();
 		url = md.getUrl();
 		thumbUrl = md.getThumbUrl();
@@ -250,26 +241,22 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		return uploader;
 	}
 
-	public int getDeleted() {
-		return deleted;
+	public boolean isDeleted() {
+		return deletedOnDate != null;
 	}
-
-	public Long getDeletedTimestamp() {
-		return deletedTimestamp;
+	
+	public void setDeleted() {
+		setDeletedOnDate(new Date());
+	}
+	
+	public void setDeletedOnDate(Date deletedOnDate) {
+		this.deletedOnDate = deletedOnDate;
 	}
 	
 	public Date getDeletedOnDate() {
-		return (deletedTimestamp == null) ? null : new Date(deletedTimestamp);
+		return deletedOnDate;
 	}
-
-	public void setDeletedTimestamp(Long deletedTimestamp) {
-		this.deletedTimestamp = deletedTimestamp;
-	}
-
-	public void setDeleted(int deleted) {
-		this.deleted = deleted;
-	}
-
+	
 	public void setUploader(String uploader) {
 		this.uploader = uploader;
 	}
@@ -482,7 +469,6 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		sb.append(this.getTitle() + " - ");
 		sb.append(this.getAuthor() + " - ");
 		sb.append(this.getUploader() + " - ");
-		sb.append("deleted " + this.getDeleted() + " - ");
 		sb.append("deleted on " +(getDeletedOnDate() == null ? null : getDeletedOnDate().toString()) + " - ");
 		sb.append(this.getGenre() + " - ");
 		sb.append(this.getDocId() + " - ");
@@ -529,43 +515,6 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		} catch (CloneNotSupportedException e) {
 			throw new AssertionError(); //can't happen
 		}
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((author == null) ? 0 : author.hashCode());
-		result = prime * result + ((authority == null) ? 0 : authority.hashCode());
-		result = prime * result + ((backlink == null) ? 0 : backlink.hashCode());
-		result = prime * result + ((colList == null) ? 0 : colList.hashCode());
-		result = prime * result + ((createdFromTimestamp == null) ? 0 : createdFromTimestamp.hashCode());
-		result = prime * result + ((createdToTimestamp == null) ? 0 : createdToTimestamp.hashCode());
-		result = prime * result + deleted;
-		result = prime * result + ((deletedOnDate == null) ? 0 : deletedOnDate.hashCode());
-		result = prime * result + ((deletedTimestamp == null) ? 0 : deletedTimestamp.hashCode());
-		result = prime * result + ((desc == null) ? 0 : desc.hashCode());
-		result = prime * result + docId;
-		result = prime * result + ((externalId == null) ? 0 : externalId.hashCode());
-		result = prime * result + ((fimgStoreColl == null) ? 0 : fimgStoreColl.hashCode());
-		result = prime * result + ((genre == null) ? 0 : genre.hashCode());
-		result = prime * result + ((hierarchy == null) ? 0 : hierarchy.hashCode());
-		result = prime * result + ((language == null) ? 0 : language.hashCode());
-		result = prime * result + ((localFolder == null) ? 0 : localFolder.hashCode());
-		result = prime * result + nrOfPages;
-		result = prime * result + ((origDocId == null) ? 0 : origDocId.hashCode());
-		result = prime * result + ((pageId == null) ? 0 : pageId.hashCode());
-		result = prime * result + ((scriptType == null) ? 0 : scriptType.hashCode());
-		result = prime * result + ((status == null) ? 0 : status.hashCode());
-		result = prime * result + ((thumbUrl == null) ? 0 : thumbUrl.hashCode());
-		result = prime * result + ((title == null) ? 0 : title.hashCode());
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		result = prime * result + (int) (uploadTimestamp ^ (uploadTimestamp >>> 32));
-		result = prime * result + ((uploader == null) ? 0 : uploader.hashCode());
-		result = prime * result + uploaderId;
-		result = prime * result + ((url == null) ? 0 : url.hashCode());
-		result = prime * result + ((writer == null) ? 0 : writer.hashCode());
-		return result;
 	}
 
 	/**
@@ -649,14 +598,48 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 				return false;
 		} else if (!url.equals(other.url))
 			return false;
-		if (deleted != other.deleted)
-			return false;
-		if (deletedTimestamp == null) {
-			if (other.deletedTimestamp != null)
+		if (deletedOnDate == null) {
+			if (other.deletedOnDate != null)
 				return false;
-		} else if (!deletedTimestamp.equals(other.deletedTimestamp))
+		} else if (!deletedOnDate.equals(other.deletedOnDate))
 			return false;
 		return true;
+	}
+
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((author == null) ? 0 : author.hashCode());
+		result = prime * result + ((authority == null) ? 0 : authority.hashCode());
+		result = prime * result + ((backlink == null) ? 0 : backlink.hashCode());
+		result = prime * result + ((colList == null) ? 0 : colList.hashCode());
+		result = prime * result + ((createdFromTimestamp == null) ? 0 : createdFromTimestamp.hashCode());
+		result = prime * result + ((createdToTimestamp == null) ? 0 : createdToTimestamp.hashCode());
+		result = prime * result + ((deletedOnDate == null) ? 0 : deletedOnDate.hashCode());
+		result = prime * result + ((desc == null) ? 0 : desc.hashCode());
+		result = prime * result + docId;
+		result = prime * result + ((externalId == null) ? 0 : externalId.hashCode());
+		result = prime * result + ((fimgStoreColl == null) ? 0 : fimgStoreColl.hashCode());
+		result = prime * result + ((genre == null) ? 0 : genre.hashCode());
+		result = prime * result + ((hierarchy == null) ? 0 : hierarchy.hashCode());
+		result = prime * result + ((language == null) ? 0 : language.hashCode());
+		result = prime * result + ((localFolder == null) ? 0 : localFolder.hashCode());
+		result = prime * result + nrOfPages;
+		result = prime * result + ((origDocId == null) ? 0 : origDocId.hashCode());
+		result = prime * result + ((pageId == null) ? 0 : pageId.hashCode());
+		result = prime * result + ((scriptType == null) ? 0 : scriptType.hashCode());
+		result = prime * result + ((status == null) ? 0 : status.hashCode());
+		result = prime * result + ((thumbUrl == null) ? 0 : thumbUrl.hashCode());
+		result = prime * result + ((title == null) ? 0 : title.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + (int) (uploadTimestamp ^ (uploadTimestamp >>> 32));
+		result = prime * result + ((uploader == null) ? 0 : uploader.hashCode());
+		result = prime * result + uploaderId;
+		result = prime * result + ((url == null) ? 0 : url.hashCode());
+		result = prime * result + ((writer == null) ? 0 : writer.hashCode());
+		return result;
 	}
 
 	@Override
@@ -698,17 +681,10 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 				return false;
 		} else if (!createdToTimestamp.equals(other.createdToTimestamp))
 			return false;
-		if (deleted != other.deleted)
-			return false;
 		if (deletedOnDate == null) {
 			if (other.deletedOnDate != null)
 				return false;
 		} else if (!deletedOnDate.equals(other.deletedOnDate))
-			return false;
-		if (deletedTimestamp == null) {
-			if (other.deletedTimestamp != null)
-				return false;
-		} else if (!deletedTimestamp.equals(other.deletedTimestamp))
 			return false;
 		if (desc == null) {
 			if (other.desc != null)
@@ -799,7 +775,7 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 			return false;
 		return true;
 	}
-	
+
 	/**
 	 * Just for testing new Dao that includes the symbolic image. Remove when done.
 	 * @param obj
@@ -901,10 +877,6 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		} else if (!writer.equals(other.writer))
 			return false;
 		return true;
-	}
-
-	public void setDeletedOnDate(Date deletedOnDate) {
-		this.deletedOnDate = deletedOnDate;
 	}
 
 }
