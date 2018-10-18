@@ -23,14 +23,6 @@ public enum JobImpl {
 	NcsrDetectBlocksJob(JobTask.DetectBlocks, JobTask.DetectBlocks.getLabel(), "NcsrDetectBlocksJob", null),
 	NcsrBatchLaJob(JobTask.DetectBlocks, "Block/Line Segmentation", "NcsrBatchLaJob", null),
 	
-	// old and obsolete LA jobs:
-	@Deprecated NcsrDetectWordsJob(JobTask.DetectWords, JobTask.DetectWords.getLabel(), "NcsrDetectWordsJob", null),
-	@Deprecated NcsrDetectBaselinesJob(JobTask.DetectBaselines, JobTask.DetectBaselines.getLabel(), "NcsrDetectBaselinesJob", null),
-	
-	// new experimental NCSR jobs:
-	@Deprecated NcsrSinglePageLineSegmentationJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "SinglePageLaJob", "libNCSR_TextLineSegmentation.so"),
-	@Deprecated NcsrSinglePageWordSegmentationJob(JobTask.DetectWords, JobTask.DetectWords.getLabel(), "SinglePageLaJob", "libNCSR_WordSegmentation.so"),
-	
 	NcsrOldLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", null),
 	NcsrLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", "libNCSR_TextLineSegmentation.so"),
 	CITlabLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", null),
@@ -47,13 +39,9 @@ public enum JobImpl {
 	CvlLaJobMultiThread(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "MultiThreadLaJob", null),
 	CvlTableJobMultiThread(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "MultiThreadLaJob", null),
 	UpvlcLaJobMultiThread(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "MultiThreadLaJob", null),
-	
-//	NcsrLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "SinglePageLaJob", "libNCSR_TextLineSegmentation.so"),
 	// ---------------------
-	HmmHtrJob(JobTask.UpvlcHtr, "PRHLT " + JobTask.Htr.getLabel(), "HmmHtrJob", null),
-	HmmHtrTrainingJob(JobTask.UpvlcHtrTraining, "PRHLT " + JobTask.HtrTraining.getLabel(), "HmmHtrTrainingJob", null),
-	RnnHtrJob(JobTask.Htr, "CITlab " + JobTask.Htr.getLabel(), "RnnHtrJob", null),
-	RnnHtrTrainingJob(JobTask.HtrTraining, "CITlab " + JobTask.HtrTraining.getLabel(), "RnnHtrTrainingJob", null),
+	
+	// --- Text recognition jobs ---
 	CITlabHtrTrainingJob(JobTask.HtrTraining, "CITlab " + JobTask.HtrTraining.getLabel(), "CITlabHtrTrainingJob", null),
 	CITlabHtrPlusTrainingJob(JobTask.HtrTraining, "CITlab " + JobTask.HtrTraining.getLabel(), "CITlabHtrPlusTrainingJob", null),
 	CITlabSemiSupervisedHtrTrainingJob(JobTask.HtrTraining, "CITlab Text2Image", "CITlabSemiSupervisedHtrTrainingJob", null),
@@ -66,9 +54,8 @@ public enum JobImpl {
 	
 	//for testing
 	DummyJob(JobTask.CreateDocument, "Dummy Job", "DummyJob", null),
-//	DummyJob2(JobTask.CreateDocument, "Dummy Job 2", "DummyJob2", null),
 	DummyMailJob(JobTask.CreateDocument, "Dummy Mail Job", "DummyMailJob", null), 
-	ErrorRateJob(JobTask.Htr , "Error Rate Computation", "ErrorRateJob", null);
+	ErrorRateJob(JobTask.Htr, "Error Rate Computation", "ErrorRateJob", null);
 	
 	private final static Logger logger = LoggerFactory.getLogger(JobImpl.class);
 	public final static String MULTI_THREAD_LA_JOB_SUFFIX = "MultiThread";
