@@ -177,13 +177,13 @@ public class TrpXlsxTableBuilder {
             if (rowIterator.hasNext())
             {
                 Row headerRow = (Row) rowIterator.next();
-                
+                               
                 //get the number of cells in the header row
                 numberOfCells = headerRow.getPhysicalNumberOfCells();
                 for (int j = 0; j<numberOfCells; j++){
                 	wb.getSheetAt(i).autoSizeColumn(j, true);
                 }
-                
+                              
             }
             
 		}
@@ -221,6 +221,7 @@ public class TrpXlsxTableBuilder {
 		style.setBorderTop(HSSFCellStyle.BORDER_THIN);
 		style.setBorderRight(HSSFCellStyle.BORDER_THIN);
 		style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		style.setWrapText(true);
 		
 		CellStyle rowStyle = (CellStyle) wb.createCellStyle();
 		rowStyle.setWrapText(true);	
