@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class HtrTrainConfig implements Serializable {
+public class HtrTrainConfig implements Serializable {
 
 	private static final long serialVersionUID = 1434111712220564100L;
 	@Schema(description = "the name of the new HTR model", required=true)
