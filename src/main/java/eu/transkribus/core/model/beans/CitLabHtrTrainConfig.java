@@ -18,9 +18,25 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 
 	private static final long serialVersionUID = 6826017343706433307L;
 	
+	/**
+	 * Default parameters are only needed in UI and are defined there now
+	 */
+	@Deprecated
 	public final static int DEFAULT_TRAIN_SIZE_PER_EPOCH = 10000;
+	/**
+	 * Default parameters are only needed in UI and are defined there now
+	 */
+	@Deprecated
 	public final static String DEFAULT_NOISE = "both";
+	/**
+	 * Default parameters are only needed in UI and are defined there now
+	 */
+	@Deprecated
 	public final static String DEFAULT_LEARNING_RATE = "1e-3";
+	/**
+	 * Default parameters are only needed in UI and are defined there now
+	 */
+	@Deprecated
 	public final static int DEFAULT_NUM_EPOCHS = 20;
 
 	@Schema(description = "the number of epochs. A positive natural number.", required=true)
