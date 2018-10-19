@@ -396,7 +396,8 @@ public class CustomTagUtil {
 	}
 	
 	public static void writeCustomTagListToCustomTag(ITrpShapeType st) {
-		SebisStopWatch sw = new SebisStopWatch();
+//		logger.debug("custom before: "+st.getCustom());
+//		SebisStopWatch sw = new SebisStopWatch();
 		st.getObservable().setActive(false);
 				
 		// write CustomTagList tags to the custom tag:
@@ -412,8 +413,8 @@ public class CustomTagUtil {
 		}
 		
 		st.getObservable().setActive(true);
-		sw.stop(true, "writeCustomTAgListToCustomTag: ", logger);
-		logger.debug("custom: "+st.getCustom());
+//		sw.stop(true, "writeCustomTAgListToCustomTag: ", logger);
+//		logger.debug("custom: "+st.getCustom());
 	}
 	
 	public static void writeCustomTagsToPage(TrpPageType page) {
