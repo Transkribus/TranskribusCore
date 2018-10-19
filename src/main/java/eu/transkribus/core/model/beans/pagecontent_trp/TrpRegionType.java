@@ -191,8 +191,8 @@ public class TrpRegionType extends RegionType implements ITrpShapeType {
 		else if (parent instanceof TrpRegionType) {
 			return ((TrpRegionType)parent).getPage();
 		}
-		else
-			return null;
+		
+		return null;
 	}
 	
 	@Override public ITrpShapeType getSiblingShape(boolean previous) {

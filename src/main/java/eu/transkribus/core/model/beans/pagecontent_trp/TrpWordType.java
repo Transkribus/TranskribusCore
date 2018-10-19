@@ -221,7 +221,9 @@ public class TrpWordType extends WordType implements ITrpShapeType {
 	public void setData(Object data) { this.data = data; }
 	
 	@Override
-	public TrpPageType getPage() { return getLine().getPage(); }
+	public TrpPageType getPage() {
+		return getLine() != null ? getLine().getPage() : null;
+	}
 	
 	@Override 
 	public ITrpShapeType getParentShape() { return getLine(); }

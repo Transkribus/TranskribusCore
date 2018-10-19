@@ -56,6 +56,11 @@ public class CustomTagList {
 	}
 	
 	public void initFromCustomTagString(String customTag) {
+		if (shape == null) { // cannot happen, but just to be sure...
+			return;
+		}
+		shape.getObservable().setActive(false);
+		
 		if (!tags.isEmpty()) {
 			logger.warn("Warning - taglist not empty on initFromCustomTagString -> this can cause major trouble!");
 			removeTags();
@@ -71,6 +76,8 @@ public class CustomTagList {
 				logger.error(e.getMessage(), e);
 			}
 		}
+		
+		shape.getObservable().setActive(true);
 	}
 
 	// public CustomTagList(CustomTagList src) {
@@ -478,7 +485,7 @@ public class CustomTagList {
 	}
 
 	void notifyTagsChanged() {
-		// if (true) return;
+		CustomTagUtil.writeCustomTagListToCustomTag(shape);
 		shape.getObservable().setChangedAndNotifyObservers(new TrpTagsChangedEvent(shape, this, Type.CHANGED));
 	}
 	
