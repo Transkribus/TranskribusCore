@@ -359,6 +359,7 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 
 	public TrpImage getImage() {
 		TrpImage i = new TrpImage();
+		i.setImageId(imageId);
 		i.setImgFileName(imgFileName);
 		i.setKey(key);
 		i.setCreated(created);
