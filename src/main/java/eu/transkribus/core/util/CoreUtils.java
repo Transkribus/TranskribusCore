@@ -79,6 +79,10 @@ public class CoreUtils {
 //		
 //	}
 	
+	public static String toTimeString(long time) {
+		return DATE_FORMAT_USER_FRIENDLY.format(time);
+	}
+	
 	public static <T> T getNeighborElement(List<T> list, Object object, boolean previous, boolean wrap) {
 		if (list == null || list.isEmpty() || list.size()==1) {
 			return null;

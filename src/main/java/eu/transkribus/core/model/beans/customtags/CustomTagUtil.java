@@ -398,6 +398,7 @@ public class CustomTagUtil {
 	public static void writeCustomTagListToCustomTag(ITrpShapeType st) {
 //		logger.debug("custom before: "+st.getCustom());
 //		SebisStopWatch sw = new SebisStopWatch();
+		boolean wasObserverActiveBefore = st.getObservable().isActive();
 		st.getObservable().setActive(false);
 				
 		// write CustomTagList tags to the custom tag:
@@ -412,7 +413,7 @@ public class CustomTagUtil {
     		}
 		}
 		
-		st.getObservable().setActive(true);
+		st.getObservable().setActive(wasObserverActiveBefore);
 //		sw.stop(true, "writeCustomTAgListToCustomTag: ", logger);
 //		logger.debug("custom: "+st.getCustom());
 	}

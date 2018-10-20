@@ -59,7 +59,10 @@ public class CustomTagList {
 		if (shape == null) { // cannot happen, but just to be sure...
 			return;
 		}
-		shape.getObservable().setActive(false);
+		
+		if (shape.getObservable()!=null) { // is this check really needed??
+			shape.getObservable().setActive(false);
+		}
 		
 		if (!tags.isEmpty()) {
 			logger.warn("Warning - taglist not empty on initFromCustomTagString -> this can cause major trouble!");
@@ -77,7 +80,9 @@ public class CustomTagList {
 			}
 		}
 		
-		shape.getObservable().setActive(true);
+		if (shape.getObservable()!=null) {
+			shape.getObservable().setActive(true);
+		}
 	}
 
 	// public CustomTagList(CustomTagList src) {
@@ -485,7 +490,7 @@ public class CustomTagList {
 	}
 
 	void notifyTagsChanged() {
-		CustomTagUtil.writeCustomTagListToCustomTag(shape);
+//		CustomTagUtil.writeCustomTagListToCustomTag(shape); // FIXME: may not be a good idea here!! --> probably in TranscriptObserver!
 		shape.getObservable().setChangedAndNotifyObservers(new TrpTagsChangedEvent(shape, this, Type.CHANGED));
 	}
 	
@@ -984,10 +989,6 @@ public class CustomTagList {
 		return str;
 	}
 
-	/**
-	 * @deprecated
-	 * @param tag
-	 */
 //	public void writeToCustomTag() {
 //		logger.debug("writeToCustomTag, shape = " + shape);
 //		shape.setCustom(this.getCustomTag());

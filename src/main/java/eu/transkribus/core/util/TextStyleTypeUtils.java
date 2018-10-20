@@ -285,9 +285,10 @@ public class TextStyleTypeUtils {
 		
 		if (recursive) {
 			for (ITrpShapeType c : shape.getChildren(recursive)) {
+				boolean wasObserverActiveBefore = c.getObservable().isActive();
 				c.getObservable().setActive(false);
 				c.setTextStyle(s, recursive, who);
-				c.getObservable().setActive(true);
+				c.getObservable().setActive(wasObserverActiveBefore);
 			}
 		}
 		shape.getObservable().setChangedAndNotifyObservers(new TrpTextStyleChangedEvent(who));

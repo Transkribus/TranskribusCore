@@ -171,6 +171,7 @@ public class TrpShapeTypeUtils {
 			else
 				logger.trace("deleting reading order from: "+st.getId());
 			
+			boolean wasObserverActiveBefore = st.getObservable().isActive();
 			if (!fireEvents)
 				st.getObservable().setActive(false);
 			
@@ -180,7 +181,7 @@ public class TrpShapeTypeUtils {
 				st.setReadingOrder(i++, st);
 			
 			if (!fireEvents) 
-				st.getObservable().setActive(true);
+				st.getObservable().setActive(wasObserverActiveBefore);
 		}
 	}
 	
