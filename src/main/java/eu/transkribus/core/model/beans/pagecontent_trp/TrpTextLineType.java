@@ -132,7 +132,8 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	}
 		
 	public TrpPageType getPage() {
-		return getRegion().getPage();
+		return getRegion() != null ? getRegion().getPage() : null;
+//		return getRegion().getPage();
 	}
 	
 	public int getWordCount() { return getWord().size(); }

@@ -1,33 +1,26 @@
 package eu.transkribus.core.model.beans.pagecontent_trp;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.customtags.CustomTagUtil;
-import eu.transkribus.core.model.beans.pagecontent.LayerType;
-import eu.transkribus.core.model.beans.pagecontent.OrderedGroupIndexedType;
-import eu.transkribus.core.model.beans.pagecontent.OrderedGroupType;
 import eu.transkribus.core.model.beans.pagecontent.PageType;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.RegionRefType;
 import eu.transkribus.core.model.beans.pagecontent.RelationType;
 import eu.transkribus.core.model.beans.pagecontent.RelationsType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
-import eu.transkribus.core.model.beans.pagecontent.UnorderedGroupIndexedType;
-import eu.transkribus.core.model.beans.pagecontent.UnorderedGroupType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
-import eu.transkribus.core.util.SebisStopWatch;
 
 public class TrpPageType extends PageType {
 	private final static Logger logger = LoggerFactory.getLogger(TrpPageType.class);
@@ -35,11 +28,12 @@ public class TrpPageType extends PageType {
 	PcGtsType pcGtsType;
 	
 	boolean edited=false;
+	Long lastEditTime=null;
 	
 //	Set<String> tagNames=new HashSet<>();	
 	TrpTranscriptMetadata md;
 	
-	Map<String, Object> idRegistry = new HashMap<>(); // TEST
+//	Map<String, Object> idRegistry = new HashMap<>(); // TEST
 
 	public TrpPageType() {
 	}
@@ -49,54 +43,56 @@ public class TrpPageType extends PageType {
 		
 		// new elements
 		this.edited = src.edited;
+		this.lastEditTime = src.lastEditTime;
 		this.pcGtsType = src.pcGtsType;
+//		this.md = new TrpTranscriptMetadata(src.md); // TODO - copy TrpTranscriptMetadata??
 	}
 	
-	public boolean registerObjectId(Object o) {
-		if (o instanceof ITrpShapeType) {
-			idRegistry.put(((ITrpShapeType)o).getId(), o);
-			return true;
-		}		
-		if (o instanceof PcGtsType) {
-			idRegistry.put(((PcGtsType)o).getPcGtsId(), o);
-			return true;
-		}
-		if (o instanceof OrderedGroupIndexedType) {
-			idRegistry.put(((OrderedGroupIndexedType)o).getId(), o);
-			return true;
-		}
-		if (o instanceof UnorderedGroupIndexedType) {
-			idRegistry.put(((UnorderedGroupIndexedType)o).getId(), o);
-			return true;
-		}
-		if (o instanceof OrderedGroupType) {
-			idRegistry.put(((OrderedGroupType)o).getId(), o);
-			return true;
-		}
-		if (o instanceof UnorderedGroupType) {
-			idRegistry.put(((UnorderedGroupType)o).getId(), o);
-			return true;
-		}
-		if (o instanceof LayerType) {
-			idRegistry.put(((LayerType)o).getId(), o);
-			return true;
-		}
-		
-		return false;
-	}
+//	public boolean registerObjectId(Object o) {
+//		if (o instanceof ITrpShapeType) {
+//			idRegistry.put(((ITrpShapeType)o).getId(), o);
+//			return true;
+//		}		
+//		if (o instanceof PcGtsType) {
+//			idRegistry.put(((PcGtsType)o).getPcGtsId(), o);
+//			return true;
+//		}
+//		if (o instanceof OrderedGroupIndexedType) {
+//			idRegistry.put(((OrderedGroupIndexedType)o).getId(), o);
+//			return true;
+//		}
+//		if (o instanceof UnorderedGroupIndexedType) {
+//			idRegistry.put(((UnorderedGroupIndexedType)o).getId(), o);
+//			return true;
+//		}
+//		if (o instanceof OrderedGroupType) {
+//			idRegistry.put(((OrderedGroupType)o).getId(), o);
+//			return true;
+//		}
+//		if (o instanceof UnorderedGroupType) {
+//			idRegistry.put(((UnorderedGroupType)o).getId(), o);
+//			return true;
+//		}
+//		if (o instanceof LayerType) {
+//			idRegistry.put(((LayerType)o).getId(), o);
+//			return true;
+//		}
+//		
+//		return false;
+//	}
 	
-	public void printIdRegistry() {
-		logger.trace("nr of elements with id: "+idRegistry.size());
-		for (String id : idRegistry.keySet()) {
-			logger.trace("id: "+id+" element: "+idRegistry.get(id));
-		}
-		
-//		SebisStopWatch.SW.start();
-		for (int i=0; i<10000; ++i) {
-			idRegistry.containsKey("tc_"+i);
-		}
-//		SebisStopWatch.SW.stop(true);
-	}
+//	public void printIdRegistry() {
+//		logger.trace("nr of elements with id: "+idRegistry.size());
+//		for (String id : idRegistry.keySet()) {
+//			logger.trace("id: "+id+" element: "+idRegistry.get(id));
+//		}
+//		
+////		SebisStopWatch.SW.start();
+//		for (int i=0; i<10000; ++i) {
+//			idRegistry.containsKey("tc_"+i);
+//		}
+////		SebisStopWatch.SW.stop(true);
+//	}
 	
 //	public void replaceLinkId(String idOld, String idNew) {
 //		List<RelationType> links = getLinks(idOld);
@@ -595,8 +591,20 @@ public class TrpPageType extends PageType {
 
 	public void setEdited(boolean edited) {
 		this.edited = edited;
+		lastEditTime = this.edited ? System.currentTimeMillis() : null;
 	}
-	public boolean isEdited() { return edited; }
+	
+	public boolean isEdited() { 
+		return edited;
+	}
+	
+	public boolean isEditedSince(long time) {
+		return lastEditTime!=null && lastEditTime>time;
+	}
+	
+	public Long getLastEditTime() {
+		return lastEditTime;
+	}
 
 	public PcGtsType getPcGtsType() {
 		return pcGtsType;

@@ -57,9 +57,9 @@ final public class TrpPageUnmarshalListener extends Unmarshaller.Listener {
 			((ITrpShapeType) target).getObservable().setActive(true);
 		}
 		
-		if (page != null) {
-			page.registerObjectId(target);
-		}
+//		if (page != null) {
+//			page.registerObjectId(target);
+//		}
 		
 //		if (target instanceof PcGtsType) {
 //			page.printIdRegistry();
