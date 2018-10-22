@@ -113,12 +113,12 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 	@Hidden
 	public TrpProperties getParamProps() {
 		TrpProperties p = new TrpProperties();
-		p.setProperty(NUM_EPOCHS_KEY, ""+numEpochs);
+		p.setProperty(NUM_EPOCHS_KEY, numEpochs);
 		p.setProperty(LEARNING_RATE_KEY, learningRate);
 		p.setProperty(NOISE_KEY, noise);
-		p.setProperty(TRAIN_SIZE_KEY, ""+trainSizePerEpoch);
+		p.setProperty(TRAIN_SIZE_KEY, trainSizePerEpoch);
 		if(baseModelId != null) {
-			p.setProperty(BASE_MODEL_ID_KEY, ""+baseModelId);
+			p.setProperty(BASE_MODEL_ID_KEY, baseModelId);
 		}
 		return p;
 	}
