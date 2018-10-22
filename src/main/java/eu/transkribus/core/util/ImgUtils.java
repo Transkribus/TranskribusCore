@@ -47,7 +47,12 @@ public class ImgUtils {
 		} catch (FileNotFoundException e) {
 			isExiftoolAvailable = false;
 		}
-		logger.debug("Exiftool is available on Path");
+		if (isExiftoolAvailable){
+			logger.debug("Exiftool is available on Path");
+		}
+		else{
+			logger.debug("Exiftool is not available on Path");
+		}
 		return isExiftoolAvailable;
 	}
 	
@@ -101,6 +106,9 @@ public class ImgUtils {
 		String widthStr = tags.get("ImageWidth");
 		String heightStr = tags.get("ImageHeight");
 		
+//		logger.debug("widhtStr " + widthStr);
+//		logger.debug("heightStr " + heightStr);
+		
 		if (widthStr==null || heightStr==null) {
 			//Exiftool returns error description on stderr and stdout
 			String error = tags.get("Error");
@@ -143,6 +151,7 @@ public class ImgUtils {
 		
 		//if exiftool is not installed or failed. Try imageIO
 		if(dim == null) {
+			logger.debug("read with imageio");
 			try {
 				dim = readImageDimensionsWithImageIO(imgFile);
 			} catch (Exception e1) {

@@ -474,6 +474,14 @@ public class DocxBuilder {
 		TrpDocMetadata docMd = doc.getMd();
 		
 		addParagraph("Title: ", docMd.getTitle(), mdp, "Subtitle");
+		
+		addParagraph("Authority: ", docMd.getAuthority(), mdp, "Subtitle");
+		
+		addParagraph("External ID: ", docMd.getExternalId(), mdp, "Subtitle");
+		
+		addParagraph("Hierarchy: ", docMd.getHierarchy(), mdp, "Subtitle");
+		
+		addParagraph("Backlink: ", docMd.getBacklink(), mdp, "Subtitle");
 	    
 		addParagraph("Author: ", docMd.getAuthor(), mdp, "Subtitle");
 

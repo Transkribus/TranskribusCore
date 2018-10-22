@@ -130,6 +130,7 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		docId = md.getDocId();
 		title = md.getTitle();
 		author = md.getAuthor();
+		authority = md.getAuthority();
 		uploadTimestamp = md.getUploadTimestamp();
 		genre = md.getGenre();
 		writer = md.getWriter();
@@ -138,6 +139,8 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 		uploaderId = md.getUploaderId();
 		nrOfPages = md.getNrOfPages();
 		externalId = md.getExternalId();
+		hierarchy = md.getHierarchy();
+		backlink = md.getBacklink();
 		desc = md.getDesc();
 		type = md.getType();
 		language = md.getLanguage();

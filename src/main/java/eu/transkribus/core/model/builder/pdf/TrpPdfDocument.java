@@ -2211,6 +2211,22 @@ public class TrpPdfDocument extends APdfDocument {
 
 		lineHeight = twelfthPoints[1][0]/6;
 		
+		if (writeDocMd("Authority: ", docMd.getAuthority(), posY, 0, lineHeight, cb, italicBaseFont)){
+			posY += lineHeight*1.5;
+		}
+		
+		if (writeDocMd("External ID: ", docMd.getExternalId(), posY, 0, lineHeight, cb, italicBaseFont)){
+			posY += lineHeight*1.5;
+		}
+		
+		if (writeDocMd("Hierarchy: ", docMd.getHierarchy(), posY, 0, lineHeight, cb, italicBaseFont)){
+			posY += lineHeight*1.5;
+		}
+		
+		if (writeDocMd("Backlink: ", docMd.getBacklink(), posY, 0, lineHeight, cb, italicBaseFont)){
+			posY += lineHeight*1.5;
+		}
+		
 		if (writeDocMd("Description: ", docMd.getDesc(), posY, 0, lineHeight, cb, italicBaseFont)){
 			posY += lineHeight*1.2;
 		}
