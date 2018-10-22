@@ -241,11 +241,41 @@ public class TrpProperties {
 			return CoreUtils.propertiesToString(props);
 		}
 		
+		/**
+		 * Sets a String value to the properties (see {@link Properties#setProperty(String, String)}).
+		 * 
+		 * If key or value is null, then nothing will be added and null is returned.
+		 *  
+		 * @param key
+		 * @param value
+		 * @return
+		 */
 		public Object setProperty(String key, String value) {
 			if(key == null) {
 				return null;
 			}
+			if(value == null) {
+				logger.warn("Not inserting null value for key: " + key);
+				return null;
+			}
 			return props.setProperty(key, value);
+		}
+		
+		/**
+		 * Sets a Integer value to the properties (see {@link Properties#setProperty(String, String)}).
+		 * 
+		 * If key or value is null, then nothing will be added and null is returned.
+		 *  
+		 * @param key
+		 * @param value
+		 * @return
+		 */
+		public Object setProperty(String key, Integer value) {
+			if(value == null) {
+				logger.warn("Not inserting (Integer)null value for key: " + key);
+				return null;
+			}
+			return setProperty(key, ""+value);
 		}
 		
 //		public void parseAndSetString(String propertyName) throws IOException, IllegalAccessException, InvocationTargetException {
