@@ -85,7 +85,7 @@ public class TrpErrorRateResult {
 	}
 	
 	public Double getBagTokensPrecDouble() {
-		return Double.parseDouble(bagTokensPrec.replaceAll("%", "").replaceAll(",", "."));
+		return Double.parseDouble(bagTokensPrec.replaceAll("%", "").replaceAll(",", ".")) / 100;
 	}
 
 	public void setBagTokensPrec(String bagTokensPrec) {
@@ -97,7 +97,7 @@ public class TrpErrorRateResult {
 	}
 	
 	public Double getBagTokensRecDouble() {
-		return Double.parseDouble(bagTokensRec.replaceAll("%", "").replaceAll(",", "."));
+		return Double.parseDouble(bagTokensRec.replaceAll("%", "").replaceAll(",", ".")) / 100;
 	}
 
 	public void setBagTokensRec(String bagTokensRec) {
