@@ -2,6 +2,9 @@ package eu.transkribus.core.model.beans;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import javax.persistence.Column;
@@ -14,6 +17,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,13 +69,26 @@ public class TrpHtr {
 	@Column(name="TRAIN_JOB_ID")
 	private String trainJobId;
 	
+	@Column(name="TRAIN_CER_SERIES")
 	private String cerString;
 	
+	@Column(name="TEST_CER_SERIES")
 	private String cerTestString;
 	
+	/**
+	 * Contains the CITlab specific char-to-channel mapping
+	 */
+	@Deprecated
 	private String charList;
 	
+	@Column(name="CHARSET")
+	private String charSetString;
+	
+	@Column(name="HAS_BEST_NET")
 	private boolean bestNetStored = true;
+	
+	@Column(name="HAS_LANGUAGE_MODEL")
+	private boolean languageModelExists = false;
 	
 	@Column(name="NR_OF_LINES")
 	private int nrOfLines;
@@ -198,20 +215,69 @@ public class TrpHtr {
 		this.cerTestString = cerTestLogString;
 	}
 	
+	/**
+	 * CITlab specific charmap string. needed by GUI versions &lt; 1.5<br>
+	 * Channel mapping may not match the actual one! So do not use this for HTR.
+	 */
+	@Deprecated
 	public String getCharList() {
 		return charList;
 	}
 	
+	/**
+	 * CITlab specific charmap string. needed by GUI versions &lt; 1.5
+	 */
+	@Deprecated
 	public void setCharList(String charList) {
 		this.charList = charList;
 	}
 	
+	/**
+	 * Fake the CITlab syntax on the basis of what is stored in DB. needed by GUI versions &lt; 1.5<br>
+	 * Channel mapping may not match the actual one! So do not use this for HTR.
+	 * 
+	 * @return
+	 */
+	@Deprecated
+	private String createCharList() {
+		int i = 1;
+		String charListStr = "";
+		for(String s : getCharSetList()) {
+			charListStr += s + "=" + i + "\n";
+		}
+		return charListStr.trim();
+	}
+	
+	public String getCharSetString() {
+		return charSetString;
+	}
+
+	public void setCharSetString(String charSet) {
+		this.charList = createCharList();
+		this.charSetString = charSet;
+	}
+	
+	public List<String> getCharSetList() {
+		if(StringUtils.isEmpty(charSetString)) {
+			return new ArrayList<>();
+		}
+		return Arrays.asList(charSetString.split("\n"));
+	}
+
 	public boolean isBestNetStored() {
 		return bestNetStored;
 	}
 
 	public void setBestNetStored(boolean bestNetStored) {
 		this.bestNetStored = bestNetStored;
+	}
+
+	public boolean isLanguageModelExists() {
+		return languageModelExists;
+	}
+
+	public void setLanguageModelExists(boolean dictionaryExists) {
+		this.languageModelExists = dictionaryExists;
 	}
 
 	public String getParams() {
@@ -300,8 +366,10 @@ public class TrpHtr {
 		return "TrpHtr [htrId=" + htrId + ", name=" + name + ", description=" + description + ", provider=" + provider
 				+ ", path=" + path + ", created=" + created + ", gtDocId=" + gtDocId + ", testGtDocId=" + testGtDocId
 				+ ", language=" + language + ", baseHtrId=" + baseHtrId + ", trainJobId=" + trainJobId + ", cerString="
-				+ cerString + ", cerTestString=" + cerTestString + ", charList=" + charList + ", bestNetStored="
-				+ bestNetStored + ", nrOfLines=" + nrOfLines + ", nrOfWords=" + nrOfWords + ", params=" + params + "]";
+				+ cerString + ", cerTestString=" + cerTestString + ", charSet=" + charSetString
+				+ ", bestNetStored=" + bestNetStored + ", nrOfLines=" + nrOfLines + ", nrOfWords=" + nrOfWords
+				+ ", params=" + params + ", userName=" + userName + ", userId=" + userId + ", cerLog="
+				+ Arrays.toString(cerLog) + ", cerTestLog=" + Arrays.toString(cerTestLog) + "]";
 	}
 	
 }
