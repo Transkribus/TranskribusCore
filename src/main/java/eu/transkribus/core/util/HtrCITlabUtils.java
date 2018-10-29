@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -86,8 +87,44 @@ public class HtrCITlabUtils {
 		}
 		return dictList;
 	}
+	
+	public static String getCerSeriesString(File cerTestFile) {
+		String str = readFileToString(cerTestFile);
+		if(str != null && str.contains(",")) {
+			logger.debug("Found CER series text file with decimal separator ','. Replacing with '.'");
+			str = str.replace(",", ".");
+		}
+		return str;
+	}
 
-	public static List<String> parseCitLabCharSet(String charSet) {
+	public static String getCharsetFromCITlabCharMap(File charMapFile) {
+		final String charSetStr = readFileToString(charMapFile);
+		if(charSetStr == null) {
+			return null;
+		}
+		List<String> charSet = parseCitLabCharMap(charSetStr);
+		return charSet.stream().collect(Collectors.joining("\n"));
+	}
+	
+	private static String readFileToString(File file) {
+		if(file == null) {
+			logger.error("HTR metadata file is null.");
+			return null;
+		}
+		if(!file.isFile()) {
+			logger.error("HTR metadata file does not exist: " + file.getAbsolutePath());
+			return null;
+		}
+		String content = null;
+		try {
+			content = FileUtils.readFileToString(file, DeaFileUtils.DEFAULT_CHARSET);
+		} catch (IOException e) {
+			logger.error("Could not read HTR metadata file: " + file.getName(), e);
+		}
+		return content;
+	}
+
+	public static List<String> parseCitLabCharMap(String charSet) {
 		Pattern p = Pattern.compile("(.)=[0-9]+");
 		Matcher m = p.matcher(charSet);
 		List<String> result = new LinkedList<>();
