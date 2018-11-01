@@ -50,6 +50,10 @@ public interface ITrpShapeType {
 	
 	void setReadingOrder(Integer readingOrder, Object who);
 	Integer getReadingOrder();
+	default int getReadingOrderAsInt() {
+		Integer ro = getReadingOrder();
+		return ro != null ? ro : -1;
+	}
 	
 	void setStructure(String structureType, boolean recursive, Object who);
 	String getStructure();
