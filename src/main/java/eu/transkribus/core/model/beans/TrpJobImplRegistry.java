@@ -1,5 +1,6 @@
 package eu.transkribus.core.model.beans;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -37,10 +38,12 @@ public class TrpJobImplRegistry {
 	@Transient
 	private List<Integer> users;
 	
-	public TrpJobImplRegistry() {}
+	public TrpJobImplRegistry() {
+		this.users = new ArrayList<>(0);
+	}
 
 	public TrpJobImplRegistry(int jobImplRegistryId, String jobImpl, String jobTasks, String jobType) {
-		super();
+		this();
 		this.jobImplRegistryId = jobImplRegistryId;
 		this.jobImpl = jobImpl;
 		this.jobTasks = jobTasks;
@@ -83,6 +86,13 @@ public class TrpJobImplRegistry {
 		this.jobType = jobType;
 	}
 	
+	/**
+	 * Use the method from the DAO to check the relation table instead of selecting all objects and checking each one for allowance.
+	 * 
+	 * @param userId
+	 * @return
+	 */
+	@Deprecated
 	public boolean isUserAllowed(Integer userId) {
 		//List<String> ul = getUsersList();
 		List<Integer> ul = getUsers();
@@ -91,10 +101,6 @@ public class TrpJobImplRegistry {
 		
 		return ul.contains(userId);
 	}
-	
-//	public List<String> getUsersList() {
-//		return CoreUtils.parseStringList(users, true);
-//	}
 
 	@Transient
 	public List<Integer> getUsers() {
