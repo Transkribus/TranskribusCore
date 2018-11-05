@@ -3,6 +3,7 @@ package eu.transkribus.core.util;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -271,6 +272,14 @@ public class GeomUtils {
 	
 	public static Point invertRotation(double x, double y, double angleRad) {
 		return AffineTransform2D.createRotation(angleRad).invert().transform(new Point2D(x, y)).getAsInt();
+	}
+	
+	public static List<java.awt.Point> toAwtPoints(Collection<math.geom2d.Point2D> ptsIn) {
+		List<java.awt.Point> pts = new ArrayList<>();
+		for (math.geom2d.Point2D p : ptsIn) {
+			pts.add(new Point((int)p.x(), (int)p.y()));
+		}
+		return pts;
 	}
 
 }
