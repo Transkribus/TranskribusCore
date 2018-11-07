@@ -24,9 +24,9 @@ public class JaxbTest {
 		map.addParameter("test", "testValue");
 		config.setCustomParams(map);
 		
-		Properties props = new Properties();
-		props.setProperty("test", "testValue");
-		config.setParams(props);
+//		Properties props = new Properties();
+//		props.setProperty("test", "testValue");
+//		config.setParams(props);
 		
 		logger.info(JaxbUtils.marshalToString(config));
 		
