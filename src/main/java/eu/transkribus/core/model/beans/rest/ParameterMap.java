@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import eu.transkribus.core.io.util.TrpProperties;
 
 /**
  * Implements {@link AJaxbMap} and adds parameter-related helper methods.
@@ -175,5 +178,13 @@ public class ParameterMap extends AJaxbMap {
 		return this.toList().toArray(new String[map.size() * 2]);
 	}
 	
+	public Properties toProperties() {
+		Properties props = new Properties();
+		props.putAll(map);
+		return props;
+	}
 	
+	public TrpProperties toTrpProperties() {
+		return new TrpProperties(toProperties());
+	}
 }
