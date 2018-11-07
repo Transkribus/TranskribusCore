@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Map;
 
+import javax.ws.rs.core.MediaType;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -32,12 +33,14 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.eclipse.persistence.jaxb.rs.MOXyJsonProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import eu.transkribus.core.io.formats.XmlFormat;
+import eu.transkribus.core.model.beans.HtrTrainConfig;
 
 public class JaxbUtils {
 	private static final Logger logger = LoggerFactory.getLogger(JaxbUtils.class);
@@ -158,6 +161,7 @@ public class JaxbUtils {
 		Marshaller marshaller = jc.createMarshaller();
 		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, doFormatting);
 		marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+		logger.debug("Using Marshaller of type: " + marshaller.getClass().getName());
 		
 		XmlFormat format = XmlFormat.resolveFromClazz(object.getClass());
 		if(format != null && !format.equals(XmlFormat.UNKNOWN)) {
@@ -225,10 +229,25 @@ public class JaxbUtils {
 		return baos.toString();		
 	}
 	
-	private static <T> String marshalToString(T object, boolean doFormatting, MarshallerType type, Class<?>... nestedClasses) throws JAXBException {		
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		marshalToStream(object, baos, doFormatting, type, nestedClasses);
-		return baos.toString();		
+	/**
+	 * Experimental method for producing JSON representations similar to the ones the HTTP API uses.
+	 * <br><br>
+	 * TODO: check usage of the method {@link MOXyJsonProvider#writeTo(Object, Class, java.lang.reflect.Type, java.lang.annotation.Annotation[], MediaType, javax.ws.rs.core.MultivaluedMap, OutputStream)}
+	 * 
+	 * @param object
+	 * @param doFormatting
+	 * @return
+	 * @throws JAXBException
+	 */
+	public static <T> String marshalToJsonString(T object, boolean doFormatting) throws JAXBException {
+		MOXyJsonProvider prov = new MOXyJsonProvider();
+		prov.setFormattedOutput(doFormatting);
+		try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+			prov.writeTo(object, object.getClass(), null, null, MediaType.APPLICATION_JSON_TYPE, null, baos);
+			return new String(baos.toByteArray(), DeaFileUtils.DEFAULT_CHARSET);
+		} catch (IOException e) {
+			throw new JAXBException("Could not marshal object of type " + object.getClass() + " to JSON.", e);
+		}
 	}
 	
 	public static <T> byte[] marshalToBytes(T object, Class<?>... nestedClasses) throws JAXBException {
