@@ -170,19 +170,6 @@ public class JaxbUtils {
 		logger.debug(marshaller.getClass().getCanonicalName());
 		return marshaller;
 	}
-
-//	private static <T> Marshaller createJsonMarshaller(T object, boolean doFormatting, Class<?>... nestedClasses) throws JAXBException {
-//		Class<?>[] targetClasses = merge(object.getClass(), nestedClasses);
-//		JAXBContext jc = createJAXBContext(targetClasses);
-//		Marshaller marshaller = jc.createMarshaller();
-//		// Set the Marshaller media type to JSON or XML
-//        marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
-//        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, doFormatting);
-//        marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
-//        // Set it to true if you need to include the JSON root element in the JSON output
-//        marshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, true);
-//        return marshaller;
-//	}
 	
 	public static <T> T unmarshal(Document doc, Class<T> targetClass, Class<?>... nestedClasses) throws JAXBException {
 		JAXBContext jc = createJAXBContext(merge(targetClass, nestedClasses));
@@ -225,8 +212,16 @@ public class JaxbUtils {
 	
 	public static <T> String marshalToString(T object, boolean doFormatting, Class<?>... nestedClasses) throws JAXBException {		
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		marshalToStream(object, baos, doFormatting, nestedClasses);
-		return baos.toString();		
+		try {
+			marshalToStream(object, baos, doFormatting, nestedClasses);
+			return baos.toString();	
+		} finally {
+			try {
+				baos.close();
+			} catch (IOException e) {
+				logger.warn("A ByteArrayOutputStream used for marshalling could not be closed!", e);
+			}
+		}
 	}
 	
 	/**
@@ -323,6 +318,28 @@ public class JaxbUtils {
 		}
 		return xmlCal;
 	}
+	
+	/**
+	 * This does not work as the eclipselink property keys are unknown to the JAXB marshaller in use!?
+	 * 
+	 * @param object
+	 * @param doFormatting
+	 * @param nestedClasses
+	 * @return
+	 * @throws JAXBException
+	 */
+//	private static <T> Marshaller createJsonMarshaller(T object, boolean doFormatting, Class<?>... nestedClasses) throws JAXBException {
+//		Class<?>[] targetClasses = merge(object.getClass(), nestedClasses);
+//		JAXBContext jc = createJAXBContext(targetClasses);
+//		Marshaller marshaller = jc.createMarshaller();
+//		// Set the Marshaller media type to JSON or XML		 
+//		marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
+//        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, doFormatting);
+//        marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+//        // Set it to true if you need to include the JSON root element in the JSON output
+//        marshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, true);
+//        return marshaller;
+//	}
 	
 	public enum MarshallerType {
 		XML,
