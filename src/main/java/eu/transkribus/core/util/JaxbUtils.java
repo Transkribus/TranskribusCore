@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Map;
@@ -18,6 +19,7 @@ import java.util.Map;
 import javax.ws.rs.core.MediaType;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.MarshalException;
 import javax.xml.bind.Marshaller;
@@ -32,7 +34,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.stream.StreamSource;
 
+import org.eclipse.persistence.jaxb.MarshallerProperties;
+import org.eclipse.persistence.jaxb.UnmarshallerProperties;
 import org.eclipse.persistence.jaxb.rs.MOXyJsonProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +45,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import eu.transkribus.core.io.formats.XmlFormat;
-import eu.transkribus.core.model.beans.HtrTrainConfig;
+import eu.transkribus.core.model.beans.ExportParameters;
 
 public class JaxbUtils {
 	private static final Logger logger = LoggerFactory.getLogger(JaxbUtils.class);
@@ -133,20 +138,37 @@ public class JaxbUtils {
 		return marshalToStream(object, out, doFormatting, MarshallerType.XML, nestedClasses);
 	}
 	
+	/**
+	 * Marshal object to stream.
+	 * 
+	 * FIXME
+	 * This method support JSON, but the representation does not match the one produced and accepted by Jersey! See {@link ExportParameters}Test
+	 * 
+	 * @param object
+	 * @param out
+	 * @param doFormatting
+	 * @param type
+	 * @param nestedClasses
+	 * @return
+	 * @throws JAXBException
+	 */
 	private static <T> ValidationEvent[] marshalToStream(T object, OutputStream out, 
 			boolean doFormatting, MarshallerType type, Class<?>... nestedClasses) throws JAXBException {
 		ValidationEventCollector vec = new ValidationEventCollector();
 
+		if(type == null) {
+			type = MarshallerType.XML;
+		}
 		final Marshaller marshaller;
-//		switch(type) {
-//		case JSON:
-//			marshaller = createJsonMarshaller(object, doFormatting, nestedClasses);
-//			break;
-//		default:
-//			marshaller = createXmlMarshaller(object, doFormatting, nestedClasses);
-//			break;
-//		}
-		marshaller = createXmlMarshaller(object, doFormatting, nestedClasses);
+		switch(type) {
+		case JSON:
+			marshaller = createJsonMarshaller(object, doFormatting, nestedClasses);
+			break;
+		default:
+			marshaller = createXmlMarshaller(object, doFormatting, nestedClasses);
+			break;
+		}
+//		marshaller = createXmlMarshaller(object, doFormatting, nestedClasses);
 		marshaller.setEventHandler(vec);
 		marshaller.marshal(object, out);
 		
@@ -221,27 +243,6 @@ public class JaxbUtils {
 			} catch (IOException e) {
 				logger.warn("A ByteArrayOutputStream used for marshalling could not be closed!", e);
 			}
-		}
-	}
-	
-	/**
-	 * Experimental method for producing JSON representations similar to the ones the HTTP API uses.
-	 * <br><br>
-	 * TODO: check usage of the method {@link MOXyJsonProvider#writeTo(Object, Class, java.lang.reflect.Type, java.lang.annotation.Annotation[], MediaType, javax.ws.rs.core.MultivaluedMap, OutputStream)}
-	 * 
-	 * @param object
-	 * @param doFormatting
-	 * @return
-	 * @throws JAXBException
-	 */
-	public static <T> String marshalToJsonString(T object, boolean doFormatting) throws JAXBException {
-		MOXyJsonProvider prov = new MOXyJsonProvider();
-		prov.setFormattedOutput(doFormatting);
-		try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-			prov.writeTo(object, object.getClass(), null, null, MediaType.APPLICATION_JSON_TYPE, null, baos);
-			return new String(baos.toByteArray(), DeaFileUtils.DEFAULT_CHARSET);
-		} catch (IOException e) {
-			throw new JAXBException("Could not marshal object of type " + object.getClass() + " to JSON.", e);
 		}
 	}
 	
@@ -320,7 +321,105 @@ public class JaxbUtils {
 	}
 	
 	/**
-	 * This does not work as the eclipselink property keys are unknown to the JAXB marshaller in use!?
+	 * Experimental method for producing JSON representations similar to the ones the HTTP API uses.
+	 * <br><br>
+	 * TODO: check usage of the method {@link MOXyJsonProvider#writeTo(Object, Class, java.lang.reflect.Type, java.lang.annotation.Annotation[], MediaType, javax.ws.rs.core.MultivaluedMap, OutputStream)}
+	 * 
+	 * @param object
+	 * @param doFormatting
+	 * @return
+	 * @throws JAXBException
+	 */
+	@Deprecated
+	public static <T> String marshalToJsonStringMOXy(T object, boolean doFormatting) throws JAXBException {
+		MOXyJsonProvider prov = new MOXyJsonProvider();
+		prov.setFormattedOutput(doFormatting);
+		try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+			//FIXME the JSON representation differs when using JAXB with moxy context factory or using MOXyJsonProvider!
+			prov.writeTo(object, object.getClass(), null, null, MediaType.APPLICATION_JSON_TYPE, null, baos);
+			return new String(baos.toByteArray(), DeaFileUtils.DEFAULT_CHARSET);
+		} catch (IOException e) {
+			throw new JAXBException("Could not marshal object of type " + object.getClass() + " to JSON.", e);
+		}
+	}
+	
+	/**
+	 * Experimental method for reading the JSON representation produced by the MOXyJsonProvider.
+	 * 
+	 * FIXME: this does not work, but at least it has localized error messages. 
+	 * throws DOMException: NAMESPACE_ERR: Es wurde versucht, ein Objekt auf eine Weise zu erstellen oder zu ändern, die falsch in Bezug auf Namespaces ist.
+	 * 
+	 * @param str
+	 * @param targetClass
+	 * @param nestedClasses
+	 * @return
+	 * @throws JAXBException
+	 */
+	@Deprecated
+	public static <T> T unmarshalJsonMOXy(String str, Class<Object> targetClass, Class<?>... nestedClasses) throws JAXBException {
+		MOXyJsonProvider prov = new MOXyJsonProvider();
+		try(ByteArrayInputStream bais = new ByteArrayInputStream(str.getBytes())) {
+			@SuppressWarnings("unchecked")
+			T newT = (T) prov.readFrom(targetClass, null, targetClass.getDeclaredAnnotations(), MediaType.TEXT_PLAIN_TYPE, 
+					null, bais);
+			return newT;
+		} catch (IOException e) {
+			throw new JAXBException("Could not marshal object of type " + targetClass.getClass() + " to JSON.", e);
+		}
+	}
+	
+	/**
+	 * Experimental method for producing JSON with MOXy via JAXB.
+	 * 
+	 * This seems to work fine in combination with {@link #unmarshalJsonWithJaxb(String, Class, Class...)} 
+	 * 
+	 * @param object
+	 * @param doFormatting
+	 * @return
+	 * @throws JAXBException
+	 */
+	public static <T> String marshalToJsonString(T object, boolean doFormatting) throws JAXBException {
+		MOXyJsonProvider prov = new MOXyJsonProvider();
+		prov.setFormattedOutput(doFormatting);
+		try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+			marshalToStream(object, baos, doFormatting, MarshallerType.JSON, object.getClass());
+			return new String(baos.toByteArray(), DeaFileUtils.DEFAULT_CHARSET);
+		} catch (IOException e) {
+			throw new JAXBException("Could not marshal object of type " + object.getClass() + " to JSON.", e);
+		}
+	}
+	
+	/**
+	 * Experimental method for loading an object from a JSON String.
+	 * Seems to work with {@link #marshalToJsonStringWithJaxb(Object, boolean)}
+	 * 
+	 * @param str
+	 * @param targetClass
+	 * @param nestedClasses
+	 * @return
+	 * @throws JAXBException
+	 */
+	public static <T> T unmarshalJson(String str, Class<T> targetClass, Class<?>... nestedClasses) throws JAXBException {
+		//this part only works for the representations produced via the JAXB API
+		Class<?>[] targetClasses = merge(targetClass, nestedClasses);
+		JAXBContext jc = org.eclipse.persistence.jaxb.JAXBContextFactory.createContext(targetClasses, Collections.<String,Object>emptyMap());
+		Unmarshaller u = jc.createUnmarshaller();
+		u.setProperty(UnmarshallerProperties.MEDIA_TYPE, "application/json");
+		u.setProperty(UnmarshallerProperties.JSON_INCLUDE_ROOT, false);
+		
+		StringReader sr = new StringReader(str);
+//		@SuppressWarnings("unchecked")
+//		T object = (T) u.unmarshal(sr);
+//		return object;
+		
+		StreamSource source = new StreamSource(sr);
+		JAXBElement<T> element = u.unmarshal(source, targetClass);
+
+		return element.getValue();
+	}
+	
+	/**
+	 * Do not use. The JSON representations produced will differ from the ones the API produces/accepts!
 	 * 
 	 * @param object
 	 * @param doFormatting
@@ -328,18 +427,18 @@ public class JaxbUtils {
 	 * @return
 	 * @throws JAXBException
 	 */
-//	private static <T> Marshaller createJsonMarshaller(T object, boolean doFormatting, Class<?>... nestedClasses) throws JAXBException {
-//		Class<?>[] targetClasses = merge(object.getClass(), nestedClasses);
-//		JAXBContext jc = createJAXBContext(targetClasses);
-//		Marshaller marshaller = jc.createMarshaller();
-//		// Set the Marshaller media type to JSON or XML		 
-//		marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
-//        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, doFormatting);
-//        marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
-//        // Set it to true if you need to include the JSON root element in the JSON output
-//        marshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, true);
-//        return marshaller;
-//	}
+	private static <T> Marshaller createJsonMarshaller(T object, boolean doFormatting, Class<?>... nestedClasses) throws JAXBException {
+		Class<?>[] targetClasses = merge(object.getClass(), nestedClasses);
+		JAXBContext jc = org.eclipse.persistence.jaxb.JAXBContextFactory.createContext(targetClasses, Collections.<String,Object>emptyMap());
+		Marshaller marshaller = jc.createMarshaller();
+		// Set the Marshaller media type to JSON or XML		 
+		marshaller.setProperty(MarshallerProperties.MEDIA_TYPE, "application/json");
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, doFormatting);
+        marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+        // If true then the JSON root element is included in the JSON output. Keep it false to make it compliant to the API
+        marshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, false);
+        return marshaller;
+	}
 	
 	public enum MarshallerType {
 		XML,
