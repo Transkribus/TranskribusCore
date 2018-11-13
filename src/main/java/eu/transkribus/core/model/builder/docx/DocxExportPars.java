@@ -1,5 +1,11 @@
 package eu.transkribus.core.model.builder.docx;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class DocxExportPars {
 	public static final String PARAMETER_KEY = "docxPars";
 	
@@ -89,7 +95,44 @@ public class DocxExportPars {
 				+ doDocxMarkUnclear + ", doDocxKeepAbbrevs=" + doDocxKeepAbbrevs + ", doDocxExpandAbbrevs="
 				+ doDocxExpandAbbrevs + ", doDocxSubstituteAbbrevs=" + doDocxSubstituteAbbrevs + "]";
 	}
-	
-	
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (doDocxExpandAbbrevs ? 1231 : 1237);
+		result = prime * result + (doDocxForcePageBreaks ? 1231 : 1237);
+		result = prime * result + (doDocxKeepAbbrevs ? 1231 : 1237);
+		result = prime * result + (doDocxMarkUnclear ? 1231 : 1237);
+		result = prime * result + (doDocxPreserveLineBreaks ? 1231 : 1237);
+		result = prime * result + (doDocxSubstituteAbbrevs ? 1231 : 1237);
+		result = prime * result + (doDocxWithTags ? 1231 : 1237);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DocxExportPars other = (DocxExportPars) obj;
+		if (doDocxExpandAbbrevs != other.doDocxExpandAbbrevs)
+			return false;
+		if (doDocxForcePageBreaks != other.doDocxForcePageBreaks)
+			return false;
+		if (doDocxKeepAbbrevs != other.doDocxKeepAbbrevs)
+			return false;
+		if (doDocxMarkUnclear != other.doDocxMarkUnclear)
+			return false;
+		if (doDocxPreserveLineBreaks != other.doDocxPreserveLineBreaks)
+			return false;
+		if (doDocxSubstituteAbbrevs != other.doDocxSubstituteAbbrevs)
+			return false;
+		if (doDocxWithTags != other.doDocxWithTags)
+			return false;
+		return true;
+	}
 }

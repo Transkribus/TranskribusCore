@@ -1,8 +1,14 @@
 package eu.transkribus.core.model.builder.tei;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * TEI specific extension of ExportPars
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class TeiExportPars {
 	public static final String PARAMETER_KEY = "teiPars";
 	
@@ -112,7 +118,49 @@ public class TeiExportPars {
 				+ pbImageNameAsXmlId + "]";
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (boundingBoxCoords ? 1231 : 1237);
+		result = prime * result + (lineBreakAtBeginningOfLine ? 1231 : 1237);
+		result = prime * result + (lineXmlIds ? 1231 : 1237);
+		result = prime * result + (lineZones ? 1231 : 1237);
+		result = prime * result + ((linebreakType == null) ? 0 : linebreakType.hashCode());
+		result = prime * result + (pbImageNameAsXmlId ? 1231 : 1237);
+		result = prime * result + (regionZones ? 1231 : 1237);
+		result = prime * result + (wordZones ? 1231 : 1237);
+		return result;
+	}
 
-	
-
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TeiExportPars other = (TeiExportPars) obj;
+		if (boundingBoxCoords != other.boundingBoxCoords)
+			return false;
+		if (lineBreakAtBeginningOfLine != other.lineBreakAtBeginningOfLine)
+			return false;
+		if (lineXmlIds != other.lineXmlIds)
+			return false;
+		if (lineZones != other.lineZones)
+			return false;
+		if (linebreakType == null) {
+			if (other.linebreakType != null)
+				return false;
+		} else if (!linebreakType.equals(other.linebreakType))
+			return false;
+		if (pbImageNameAsXmlId != other.pbImageNameAsXmlId)
+			return false;
+		if (regionZones != other.regionZones)
+			return false;
+		if (wordZones != other.wordZones)
+			return false;
+		return true;
+	}
 }
