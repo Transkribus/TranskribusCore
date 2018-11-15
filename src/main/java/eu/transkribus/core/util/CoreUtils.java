@@ -79,6 +79,10 @@ public class CoreUtils {
 //		
 //	}
 	
+	public static long countNrOfLines(String filename) throws IOException {
+		return Files.lines(Paths.get(new File(filename).getPath())).count();
+	}
+	
 	public static String toTimeString(long time) {
 		return DATE_FORMAT_USER_FRIENDLY.format(time);
 	}
