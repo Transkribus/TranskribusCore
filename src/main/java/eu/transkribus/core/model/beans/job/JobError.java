@@ -29,7 +29,7 @@ public class JobError {
 	@Column
 	private int jobId;
 	@Column
-	private int docId;
+	private Integer docId;
 	@Column
 	private Integer pageId;
 	@Column
@@ -43,10 +43,26 @@ public class JobError {
 	@XmlTransient
 	@Column
 	private String stacktrace;
+	@Column
+	private String path;
 	
 	public JobError() {}
 	
-	public JobError(int jobId, int docId, Integer pageId, Integer pageNr, Integer tsId, Throwable throwable) {
+	public JobError(int jobId, Integer docId, Integer pageId, Integer pageNr, Integer tsId,
+			String message, String exceptionClass, String stacktrace, String path) {
+		super();
+		this.jobId = jobId;
+		this.docId = docId;
+		this.pageId = pageId;
+		this.pageNr = pageNr;
+		this.tsId = tsId;
+		this.message = message;
+		this.exceptionClass = exceptionClass;
+		this.stacktrace = stacktrace;
+		this.path = path;
+	}
+
+	public JobError(int jobId, Integer docId, Integer pageId, Integer pageNr, Integer tsId, Throwable throwable) {
 		this.jobId = jobId;
 		this.docId = docId;
 		this.pageId = pageId;
@@ -63,13 +79,13 @@ public class JobError {
 		this.jobErrorId = jobErrorId;
 	}
 
-	public int getJobId() {
+	public Integer getJobId() {
 		return jobId;
 	}
-	public void setJobId(int jobId) {
+	public void setJobId(Integer jobId) {
 		this.jobId = jobId;
 	}
-	public int getDocId() {
+	public Integer getDocId() {
 		return docId;
 	}
 	public void setDocId(int docId) {
@@ -119,6 +135,14 @@ public class JobError {
 	public void setStacktrace(String stacktrace) {
 		this.stacktrace = stacktrace;
 	}
+	
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
 
 	public void setThrowable(Throwable t) {
 		final String errorMsg;
@@ -139,6 +163,6 @@ public class JobError {
 	public String toString() {
 		return "JobError [jobErrorId=" + jobErrorId + ", jobId=" + jobId + ", docId=" + docId + ", pageId=" + pageId
 				+ ", pageNr=" + pageNr + ", tsId=" + tsId + ", message=" + message + ", exceptionClass="
-				+ exceptionClass + ", stacktrace=" + stacktrace + "]";
+				+ exceptionClass + ", stacktrace=" + stacktrace + ", path=" + path + "]";
 	}
 }
