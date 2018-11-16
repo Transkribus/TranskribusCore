@@ -277,6 +277,10 @@ public class TrpProperties {
 			}
 			return setProperty(key, ""+value);
 		}
+
+		public Object remove(String key) {
+			return props.remove(key);	
+		}
 		
 //		public void parseAndSetString(String propertyName) throws IOException, IllegalAccessException, InvocationTargetException {
 //			String value = props.getProperty(propertyName);
