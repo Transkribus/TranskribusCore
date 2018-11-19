@@ -202,13 +202,13 @@
 		<dependency>
 	        <groupId>com.twelvemonkeys.imageio</groupId>
 	        <artifactId>imageio-jpeg</artifactId>
-	        <version>3.3.2</version> 
+	        <version>3.4</version> 
 	    </dependency>
 	    
 	    <dependency>
 	        <groupId>com.twelvemonkeys.imageio</groupId>
 	        <artifactId>imageio-tiff</artifactId>
-	        <version>3.3.2</version>
+	        <version>3.4</version>
 	    </dependency>
 		
 		<!-- ImageJ for Image IO: -->
