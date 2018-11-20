@@ -89,6 +89,14 @@ public class GsonUtil {
 	public static <T> T fromJson(String json, Type type) {
 		return GSON.fromJson(json, type);
 	}
+	
+	public static <T> T fromJson2(String json, Type type) {
+		try {
+			return fromJson(json, type);
+		} catch (Exception e) {
+			return null;
+		}
+	}	
 
 	public static <T> T fromJson(String json, Class<T> clazz) {
 		return GSON.fromJson(json, clazz);
