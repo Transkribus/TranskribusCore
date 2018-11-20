@@ -90,7 +90,7 @@ public class ImgUtilsTest {
 //		File lines = NcsrTools.segmentLines(bin, reg, new File("/tmp/output.xml"));
 	}
 	
-	@Test
+//	@Test
 	public void testExiftoolVsImageIO() throws FileNotFoundException, IOException, TimeoutException, InterruptedException, ImageProcessingException, MetadataException {
 //		File imgFile = new File("/mnt/dea_scratch/TRP/test/I._ZvS_1902_4.Q/ZS-I-1902-198 (1).jpg");
 		File imgFile = new File("/tmp/Exif_orientation_test/Exif_orientation_test/IMG_20181115_144511.jpg");
@@ -110,7 +110,7 @@ public class ImgUtilsTest {
 		logger.info("md-extractor: " + dim3.getWidth() + " x " + dim3.getHeight() + " -> " + mdExtractorTime + " ms");
 	}
 	
-	@Test
+//	@Test
 	public void testReadDimension() throws FileNotFoundException, IOException, TimeoutException, InterruptedException {
 		File imgFile = new File("/mnt/dea_scratch/TRP/test/I._ZvS_1902_4.Q/ZS-I-1902-198 (1).jpg");
 		SSW sw = new SSW();
