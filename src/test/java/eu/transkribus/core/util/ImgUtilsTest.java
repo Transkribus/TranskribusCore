@@ -14,9 +14,13 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.MetadataException;
+
 import eu.transkribus.core.model.beans.pagecontent.CoordsType;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.util.SebisStopWatch.SSW;
+import eu.transkribus.interfaces.types.util.TrpImageIO;
 
 public class ImgUtilsTest {
 	private static final Logger logger = LoggerFactory.getLogger(ImgUtilsTest.class);
@@ -86,19 +90,27 @@ public class ImgUtilsTest {
 //		File lines = NcsrTools.segmentLines(bin, reg, new File("/tmp/output.xml"));
 	}
 	
-//	@Test
-	public void testExiftoolVsImageIO() throws FileNotFoundException, IOException, TimeoutException, InterruptedException {
-		File imgFile = new File("/mnt/dea_scratch/TRP/test/I._ZvS_1902_4.Q/ZS-I-1902-198 (1).jpg");
+	@Test
+	public void testExiftoolVsImageIO() throws FileNotFoundException, IOException, TimeoutException, InterruptedException, ImageProcessingException, MetadataException {
+//		File imgFile = new File("/mnt/dea_scratch/TRP/test/I._ZvS_1902_4.Q/ZS-I-1902-198 (1).jpg");
+		File imgFile = new File("/tmp/Exif_orientation_test/Exif_orientation_test/IMG_20181115_144511.jpg");
 		SSW sw = new SSW();
 		sw.start();
 		Dimension dim = ImgUtils.readImageDimensionsWithExiftool(imgFile);
-		sw.stop(true);
+		long exiftoolTime = sw.stop(true, "exiftool: ");
 		sw.start();
-		Dimension dim2 = ImgUtils.readImageDimensionsWithImageIO(imgFile);
-		sw.stop(true);
+		Dimension dim2 = TrpImageIO.readImageDimensions(imgFile);
+		long imageioTime = sw.stop(true, "imageio: ");
+		sw.start();
+		Dimension dim3 = ImgUtils.readImageDimensionsWithMdParser(imgFile);
+		long mdExtractorTime = sw.stop(true, "md-extractor: ");
+		
+		logger.info("exiftool: " + dim.getWidth() + " x " + dim.getHeight() + " -> " + exiftoolTime + " ms");
+		logger.info("imageio: " + dim2.getWidth() + " x " + dim2.getHeight() + " -> " + imageioTime + " ms");
+		logger.info("md-extractor: " + dim3.getWidth() + " x " + dim3.getHeight() + " -> " + mdExtractorTime + " ms");
 	}
 	
-//	@Test
+	@Test
 	public void testReadDimension() throws FileNotFoundException, IOException, TimeoutException, InterruptedException {
 		File imgFile = new File("/mnt/dea_scratch/TRP/test/I._ZvS_1902_4.Q/ZS-I-1902-198 (1).jpg");
 		SSW sw = new SSW();

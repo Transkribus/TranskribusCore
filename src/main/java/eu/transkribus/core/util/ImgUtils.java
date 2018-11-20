@@ -24,10 +24,9 @@ import com.drew.metadata.MetadataException;
 
 import eu.transkribus.core.exceptions.CorruptImageException;
 import eu.transkribus.core.io.exec.util.ExiftoolUtil;
-import eu.transkribus.core.util.SebisStopWatch.SSW;
 import eu.transkribus.interfaces.types.util.TrpImageIO;
-import eu.transkribus.interfaces.util.TrpImgMdParser;
-import eu.transkribus.interfaces.util.TrpImgMdParser.ImageDimension;
+import eu.transkribus.interfaces.types.util.TrpImgMdParser;
+import eu.transkribus.interfaces.types.util.TrpImgMdParser.ImageDimension;
 
 public class ImgUtils {
 	private final static Logger logger = LoggerFactory.getLogger(ImgUtils.class);
@@ -88,7 +87,7 @@ public class ImgUtils {
 	
 	/** 
 	 * Reads image dimension for the specified image file.
-	 * This method uses exiftool and falls back to ImageIO if that fails. 
+	 * This method uses exiftool and falls back to metadata-extractor and ultimately imageIO in case of failure. 
 	 * For multiimage tiff files, the dimensions of the first image are read. 
 	 * @param imgFile
 	 * @return java.awt.Dimension
@@ -117,18 +116,8 @@ public class ImgUtils {
 		if(dim == null) {
 			try {
 				dim = readImageDimensionsWithMdParser(imgFile);
-			} catch (ImageProcessingException | MetadataException | IOException e) {
+			} catch (Exception e) {
 				logger.warn("Could not read image dimensions with metadata-extractor: " + e.getMessage(), e);
-			}
-		}
-		
-		//This might still work for images that do not contain metadata and will read the dimension from the image data directly
-		if(dim == null) {
-			logger.debug("read with imageio");
-			try {
-				dim = readImageDimensionsWithImageIO(imgFile);
-			} catch (Exception e1) {
-				logger.warn(e1.getMessage(), e1);
 			}
 		}
 		
@@ -139,23 +128,14 @@ public class ImgUtils {
 		return dim;
 	}
 	
-	/**
-	 * This method reads the image and returns the pixel dimensions not taking into account information on the orientation!
-	 * Better use {@link readImageDimensionsWithMdParser} first.
-	 * 
-	 * @param imgFile
-	 * @return
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 */
-	public static Dimension readImageDimensionsWithImageIO(File imgFile) throws FileNotFoundException, IOException {
-		logger.debug("Loading file with imageIO...");
-		return TrpImageIO.readImageDimensionsFromImageData(imgFile);
-	}
-	
-	public static Dimension readImageDimensionsWithMdParser(File imgFile) throws FileNotFoundException, IOException, ImageProcessingException, MetadataException {
-		ImageDimension imgDim = TrpImgMdParser.readImageDimension(imgFile);
-		return new Dimension(imgDim.getDestinationWidth(), imgDim.getDestinationHeight());
+	public static Dimension readImageDimensionsWithMdParser(File imgFile) throws FileNotFoundException, IOException {
+		try {
+			ImageDimension imgDim = TrpImgMdParser.readImageDimension(imgFile);
+			return new Dimension(imgDim.getDestinationWidth(), imgDim.getDestinationHeight());
+		} catch(ImageProcessingException | MetadataException e) {
+			logger.warn("Metadata extractor did not find EXIF data. Falling back to reading raw image data dimension.");
+			return TrpImageIO.readImageDimensions(imgFile);
+		}
 	}
 	
 	/** Reads image in the specified image file. For multiimage tiff files, the first image is read. */
@@ -241,24 +221,5 @@ public class ImgUtils {
         	throw new IOException("No appropriate writer was found!");
         }
         return out;        
-	}
-	
-	public static void main(String[] args) throws Exception {
-//		Dimension d = readImageDimensions(new File("Parkosz/Parkosz_0041.tif"));
-//		System.out.println("d = "+d);
-		File testImg = new File("/tmp/Exif_orientation_test/Exif_orientation_test/IMG_20181115_144511.jpg");
-		SSW sw = new SSW();
-		sw.start();
-		Dimension dim = readImageDimensionsWithExiftool(testImg);
-		sw.stop(true, "exiftool: ");
-		sw.start();
-		Dimension dim2 = readImageDimensionsWithImageIO(testImg);
-		sw.stop(true, "imageio: ");
-		sw.start();
-		Dimension dim3 = readImageDimensionsWithMdParser(testImg);
-		sw.stop(true, "md-extractor: ");
-		logger.info("exiftool: " + dim.getWidth() + " x " + dim.getHeight());
-		logger.info("imageio: " + dim2.getWidth() + " x " + dim2.getHeight());
-		logger.info("md-extractor: " + dim3.getWidth() + " x " + dim3.getHeight());
 	}
 }
