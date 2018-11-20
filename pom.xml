@@ -203,38 +203,18 @@
 			</exclusions>
 		</dependency>
 		
-		<!-- more robust image readers for ImageIO -->
-		<dependency>
-	        <groupId>com.twelvemonkeys.imageio</groupId>
-	        <artifactId>imageio-jpeg</artifactId>
-	        <version>3.4</version> 
-	    </dependency>
+		<!-- imageIO is included via TranskribusInterfaces -->
+<!-- 		<dependency> -->
+<!-- 	        <groupId>com.twelvemonkeys.imageio</groupId> -->
+<!-- 	        <artifactId>imageio-jpeg</artifactId> -->
+<!-- 	        <version>3.4</version>  -->
+<!-- 	    </dependency> -->
 	    
-	    <dependency>
-	        <groupId>com.twelvemonkeys.imageio</groupId>
-	        <artifactId>imageio-tiff</artifactId>
-	        <version>3.4</version>
-	    </dependency>
-		
-		<!-- ImageJ for Image IO: -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>gov.nih.imagej</groupId> -->
-<!-- 			<artifactId>imagej</artifactId> -->
-<!-- 			<version>1.47</version> -->
-<!-- 		</dependency> -->
-
-		<!-- JAI for Image IO: -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>javax.media</groupId> -->
-<!-- 			<artifactId>jai_codec</artifactId> -->
-<!-- 			<version>1.1.3</version> -->
-<!-- 		</dependency> -->
-		
-<!-- 		<dependency> -->
-<!-- 			<groupId>javax.media</groupId> -->
-<!-- 			<artifactId>jai_core</artifactId> -->
-<!-- 			<version>1.1.3</version> -->
-<!-- 		</dependency> -->
+<!-- 	    <dependency> -->
+<!-- 	        <groupId>com.twelvemonkeys.imageio</groupId> -->
+<!-- 	        <artifactId>imageio-tiff</artifactId> -->
+<!-- 	        <version>3.4</version> -->
+<!-- 	    </dependency> -->
 	
 <!-- 		<dependency> -->
 <!-- 			<groupId>com.sun.media</groupId> -->
