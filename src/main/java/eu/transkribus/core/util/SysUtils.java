@@ -15,6 +15,12 @@ import org.slf4j.LoggerFactory;
 public class SysUtils {	
 	private final static Logger logger = LoggerFactory.getLogger(SysUtils.class);
 	
+	public static final boolean IS_WINDOWS = isWin();
+	public static final boolean IS_LINUX = isLinux();
+	public static final boolean IS_OSX = isOsx();
+	
+	public static final String OS_NAME = getOSName();
+	
 	public static String getOSName() {
 		String osNameProperty = System.getProperty("os.name");
 
