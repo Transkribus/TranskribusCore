@@ -10,6 +10,7 @@
  ******************************************************************************/
 package eu.transkribus.core.io.exec.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -31,18 +32,37 @@ public class ExiftoolUtil {
 		else return fn;
 	}
 
-	public static List<String> runExiftool(String filename) throws IOException, TimeoutException, InterruptedException {
+	public static List<String> runExiftool(File file) throws IOException, TimeoutException, InterruptedException {
+		return runExiftool(file, false);
+	}
+	
+	public static List<String> runExiftool(String filepath) throws IOException, TimeoutException, InterruptedException {
+		return runExiftool(filepath, false);
+	}
+	
+	public static List<String> runExiftool(File file, boolean readNumericalTagValues) throws IOException, TimeoutException, InterruptedException {
+		return runExiftool(file.getAbsolutePath(), readNumericalTagValues);
+	}
+	
+	public static List<String> runExiftool(String filepath, boolean readNumericalTagValues) throws IOException, TimeoutException, InterruptedException {
 		LinkedList<String> stdOut=new LinkedList<String>(), stdErr=new LinkedList<String>();
-//		CommandLine.runProcess(exiftool+" -s "+Util.addApostrophe(filename), 0, stdOut, stdErr);
-		
+		String[] command;
+		filepath = addApostrophe(filepath);
+		if(readNumericalTagValues) {
+			//-n: tag values will not be mapped to labels in the output, e.g. "Orientation = 6" instead of "Rotate 90 CW"
+			command = new String[] { exiftool, "-s", "-n", filepath };
+		} else {
+			command = new String[] { exiftool, "-s", filepath };
+		}
+				
 		try {
-			CommandLine.runProcess(0, stdOut, stdErr, exiftool, "-s", addApostrophe(filename));
+			CommandLine.runProcess(0, stdOut, stdErr, command);
 		} catch (IOException | TimeoutException | InterruptedException e) {
 			HashMap<String, String> tags = parseTags(stdOut);
 			String error = tags.get(ERROR_TAG_NAME);
 			if (error != null && error.equals(UNKNOWN_FILE_TYPE_ERROR_MESSAGE)) {
 				// ignore unknown file type error!
-				System.err.println("Ignoring unknown file type error: "+filename);
+				System.err.println("Ignoring unknown file type error: "+filepath);
 			} else {
 				throw e;
 			}
@@ -51,13 +71,13 @@ public class ExiftoolUtil {
 		return stdOut;
 	}
 	
-	public static HashMap<String, String> parseTags(String filename) throws IOException, TimeoutException, InterruptedException {
+	public static HashMap<String, String> parseTags(String filename, boolean readNumericalTagValues) throws IOException, TimeoutException, InterruptedException {
 		
-		List<String> stdOut = runExiftool(filename);
+		List<String> stdOut = runExiftool(filename, readNumericalTagValues);
 		return parseTags(stdOut);
 	}
 	
-	public static HashMap<String, String> parseTags(List<String> exifStdOut) {
+	private static HashMap<String, String> parseTags(List<String> exifStdOut) {
 		HashMap<String, String> tags = new HashMap<String, String>();
 		
 		for (int i=0; i<exifStdOut.size(); ++i) {

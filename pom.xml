@@ -16,6 +16,7 @@
 		<!-- Transkribus components' version numbers -->
 		<fimagestoreClient.version>0.3.0</fimagestoreClient.version>
 		<pdfUtils.version>0.0.3-SNAPSHOT</pdfUtils.version>
+		<interfaces.version>0.0.4-SNAPSHOT</interfaces.version>
 	</properties>
 
 	<repositories>
@@ -58,7 +59,11 @@
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
 		</dependency>	    
-	    
+	    <dependency>
+	    	<groupId>eu.transkribus</groupId>
+			<artifactId>TranskribusInterfaces</artifactId>
+			<version>${interfaces.version}</version>
+	    </dependency>
 		<dependency>
 			<groupId>org.dea.fimagestore</groupId>
 			<artifactId>fimagestore-http-client</artifactId>

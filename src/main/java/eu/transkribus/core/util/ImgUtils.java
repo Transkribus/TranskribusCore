@@ -7,30 +7,27 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.FileImageInputStream;
-import javax.imageio.stream.ImageInputStream;
-
-//import com.sun.media.jai.
-
-
-import javax.imageio.stream.MemoryCacheImageInputStream;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.MetadataException;
+
 import eu.transkribus.core.exceptions.CorruptImageException;
 import eu.transkribus.core.io.exec.util.ExiftoolUtil;
+import eu.transkribus.core.util.SebisStopWatch.SSW;
+import eu.transkribus.interfaces.types.util.TrpImageIO;
+import eu.transkribus.interfaces.util.TrpImgMdParser;
+import eu.transkribus.interfaces.util.TrpImgMdParser.ImageDimension;
 
 public class ImgUtils {
 	private final static Logger logger = LoggerFactory.getLogger(ImgUtils.class);
@@ -56,59 +53,14 @@ public class ImgUtils {
 		return isExiftoolAvailable;
 	}
 	
-	/** Reads image in the specified image file. For multiimage tiff files, the first image is read. */
-	public static BufferedImage readImage(byte[] data) throws IOException {
-		ByteArrayInputStream bais = new ByteArrayInputStream(data);
-		ImageInputStream iis = new MemoryCacheImageInputStream(bais);
-		return readImage(iis);
-	}
-	
-	/** Reads image in the specified image file. For multiimage tiff files, the first image is read. */
-	public static BufferedImage readImage(File imgFile) throws FileNotFoundException, IOException {
-		ImageInputStream iis = new FileImageInputStream(imgFile);
-		BufferedImage img;
-		try{
-			img = readImage(iis);
-		} catch(IOException e){
-			throw new IOException("Could not read image: "+imgFile.getAbsolutePath(), e);
-		}
-		return img;
-	}
-	
-	/** Reads image from ImageInputStream */
-	private static BufferedImage readImage(ImageInputStream iis) throws IOException {		
-		BufferedImage img = null;
-		
-		img = ImageIO.read(iis);
-		
-//		final Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
-//		while (readers.hasNext() && img==null) {
-//			ImageReader reader = readers.next();
-//			try {
-//				logger.debug("reader format = "+reader.getFormatName());
-//				reader.setInput(iis);
-//				img = reader.read(0);
-//			} catch(Exception e) {
-//				logger.warn("Could not read image with reader: "+reader.getFormatName()+" - trying next one!");
-//			} finally {
-//	            reader.dispose();
-//	        }
-//		};
-//		
-		if (img == null)
-			throw new IOException("Could not read image from stream!");
-		else
-			return img;
-	}
-	
 	public static Dimension readImageDimensionsWithExiftool(File imgFile) throws IOException, TimeoutException, InterruptedException { 
-		HashMap<String, String> tags = ExiftoolUtil.parseTags(imgFile.getAbsolutePath());
+		Map<String, String> tags = ExiftoolUtil.parseTags(imgFile.getAbsolutePath(), true);
 		String widthStr = tags.get("ImageWidth");
 		String heightStr = tags.get("ImageHeight");
+		String orientationStr = tags.get("Orientation");
 		
-//		logger.debug("widhtStr " + widthStr);
-//		logger.debug("heightStr " + heightStr);
-		
+		logger.debug("EXIF orientation = " + orientationStr);
+
 		if (widthStr==null || heightStr==null) {
 			//Exiftool returns error description on stderr and stdout
 			String error = tags.get("Error");
@@ -118,8 +70,20 @@ public class ImgUtils {
 			}
 			throw new IOException(msg);
 		}
+		
+		int orientation = TrpImgMdParser.DEFAULT_EXIF_ORIENTATION;
+		if(orientationStr != null) {
+			try {
+				orientation = Integer.valueOf(orientationStr);
+			} catch (NumberFormatException e) {
+				logger.error("Orientation value from exiftool is not a number! Check if installation supports the -n switch.", e);
+			}
+		}
+		final int width = Integer.valueOf(widthStr);
+		final int height = Integer.valueOf(heightStr);
+		ImageDimension imgDim = TrpImgMdParser.getTransformation(width, height, orientation);
 		logger.debug("success reading img dims with exiftool!");
-		return new Dimension(Integer.valueOf(widthStr), Integer.valueOf(heightStr));
+		return new Dimension(imgDim.getDestinationWidth(), imgDim.getDestinationHeight());
 	}
 	
 	/** 
@@ -149,7 +113,16 @@ public class ImgUtils {
 			}
 		}
 		
-		//if exiftool is not installed or failed. Try imageIO
+		//if exiftool is not installed or failed. Try metadata extractor
+		if(dim == null) {
+			try {
+				dim = readImageDimensionsWithMdParser(imgFile);
+			} catch (ImageProcessingException | MetadataException | IOException e) {
+				logger.warn("Could not read image dimensions with metadata-extractor: " + e.getMessage(), e);
+			}
+		}
+		
+		//This might still work for images that do not contain metadata and will read the dimension from the image data directly
 		if(dim == null) {
 			logger.debug("read with imageio");
 			try {
@@ -166,35 +139,33 @@ public class ImgUtils {
 		return dim;
 	}
 	
+	/**
+	 * This method reads the image and returns the pixel dimensions not taking into account information on the orientation!
+	 * Better use {@link readImageDimensionsWithMdParser} first.
+	 * 
+	 * @param imgFile
+	 * @return
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
 	public static Dimension readImageDimensionsWithImageIO(File imgFile) throws FileNotFoundException, IOException {
-		Dimension dim = null;
 		logger.debug("Loading file with imageIO...");
-		ImageInputStream iis = new FileImageInputStream(imgFile);
-		final Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
-		while (readers.hasNext()) {
-			ImageReader reader = readers.next();
-			try {
-				logger.debug("reader format = "+reader.getFormatName());
-				reader.setInput(iis);
-				final int xDim = reader.getWidth(0);
-				final int yDim = reader.getHeight(0);
-				logger.debug("Success with reader impl: " + reader.getClass().getCanonicalName());
-				dim = new Dimension(xDim, yDim);
-			} catch(Exception e) {
-				logger.warn("Could not read image dimensions with reader: "+reader.getFormatName()+": " + e.getMessage());
-				logger.debug("Cause: ",  e);
-				logger.debug("Reader impl: " + reader.getClass().getCanonicalName());
-			} finally {
-	            reader.dispose();
-	        }
-			if(dim != null){
-				break;
-			}
-		}
-		if(dim == null) {
-			throw new IOException("Could not read image dimensions with ImageIO.");
-		}
-		return dim;
+		return TrpImageIO.readImageDimensionsFromImageData(imgFile);
+	}
+	
+	public static Dimension readImageDimensionsWithMdParser(File imgFile) throws FileNotFoundException, IOException, ImageProcessingException, MetadataException {
+		ImageDimension imgDim = TrpImgMdParser.readImageDimension(imgFile);
+		return new Dimension(imgDim.getDestinationWidth(), imgDim.getDestinationHeight());
+	}
+	
+	/** Reads image in the specified image file. For multiimage tiff files, the first image is read. */
+	public static BufferedImage readImage(byte[] data) throws IOException {
+		return TrpImageIO.read(data);
+	}
+	
+	/** Reads image in the specified image file. For multiimage tiff files, the first image is read. */
+	public static BufferedImage readImage(File imgFile) throws FileNotFoundException, IOException {
+		return TrpImageIO.read(imgFile);
 	}
 	
 	/**
@@ -273,9 +244,21 @@ public class ImgUtils {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		Dimension d = readImageDimensions(new File("Parkosz/Parkosz_0041.tif"));
-		System.out.println("d = "+d);
-		
-		
+//		Dimension d = readImageDimensions(new File("Parkosz/Parkosz_0041.tif"));
+//		System.out.println("d = "+d);
+		File testImg = new File("/tmp/Exif_orientation_test/Exif_orientation_test/IMG_20181115_144511.jpg");
+		SSW sw = new SSW();
+		sw.start();
+		Dimension dim = readImageDimensionsWithExiftool(testImg);
+		sw.stop(true, "exiftool: ");
+		sw.start();
+		Dimension dim2 = readImageDimensionsWithImageIO(testImg);
+		sw.stop(true, "imageio: ");
+		sw.start();
+		Dimension dim3 = readImageDimensionsWithMdParser(testImg);
+		sw.stop(true, "md-extractor: ");
+		logger.info("exiftool: " + dim.getWidth() + " x " + dim.getHeight());
+		logger.info("imageio: " + dim2.getWidth() + " x " + dim2.getHeight());
+		logger.info("md-extractor: " + dim3.getWidth() + " x " + dim3.getHeight());
 	}
 }
