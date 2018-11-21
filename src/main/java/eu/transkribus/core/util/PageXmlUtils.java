@@ -3,6 +3,7 @@ package eu.transkribus.core.util;
 import java.awt.Dimension;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -49,6 +50,7 @@ import eu.transkribus.core.model.beans.enums.TranscriptionLevel;
 import eu.transkribus.core.model.beans.pagecontent.CoordsType;
 import eu.transkribus.core.model.beans.pagecontent.MetadataType;
 import eu.transkribus.core.model.beans.pagecontent.ObjectFactory;
+import eu.transkribus.core.model.beans.pagecontent.PageType;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.PrintSpaceType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
@@ -57,6 +59,7 @@ import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
+import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementCoordinatesComparator;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpObjectFactory;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
@@ -66,6 +69,7 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.model.builder.TrpPageMarshalListener;
 import eu.transkribus.core.model.builder.TrpPageUnmarshalListener;
+import eu.transkribus.interfaces.types.util.TrpImgMdParser.ImageTransformation;
 
 public class PageXmlUtils {
 	private static final Logger logger = LoggerFactory.getLogger(PageXmlUtils.class);
@@ -1033,6 +1037,93 @@ public class PageXmlUtils {
 		return matchingLines;
 	}
 	
+	public static void applyAffineTransformation(ITrpShapeType shape, double tx, double ty, double sx, double sy, double rot) throws Exception {
+		AffineTransform at = new AffineTransform();
+		at.scale(sx, sy);
+		at.rotate(rot);
+		at.translate(tx, ty);
+		applyAffineTransformation(shape, at);
+	}
+	
+	public static void applyAffineTransformation(ITrpShapeType shape, AffineTransform at) throws Exception {
+		String coords = shape.getCoordinates();
+		logger.trace("applyAffineTransformation, old coords = "+coords);
+		String newCoords = PointStrUtils.affineTransPoints(coords, at);
+		logger.trace("applyAffineTransformation, new coords = "+newCoords);
+		
+		shape.setCoordinates(newCoords, null);
+	}
+	
+	/**
+	 * Applies an affine transformation, i.e. a translation, scaling and rotation (in radiants!) to all the coordinates of the page
+	 */
+	public static void applyAffineTransformation(PageType page, double tx, double ty, double sx, double sy, double rot) {		
+		page.setImageWidth((int) (page.getImageWidth()*sx));
+		page.setImageHeight((int) (page.getImageHeight()*sy));
+		
+		for (ITrpShapeType shape : ((TrpPageType) page).getAllShapes(true)) {
+			try {
+				applyAffineTransformation(shape, tx, ty, sx, sy, rot);
+			} catch (Exception e) {
+				logger.error("Error transforming coordinates of shape "+shape.getId()+": "+e.getMessage(), e);
+			}
+		}
+	}
+	
+	public static PcGtsType applyAffineTransformation(File xmlFile, ImageTransformation imageTransformation) throws JAXBException {
+		return applyAffineTransformation(unmarshal(xmlFile), imageTransformation);
+	}
+	
+	public static PcGtsType applyAffineTransformation(PcGtsType pc, ImageTransformation imageTransformation) {
+		if(pc == null) {
+			throw new IllegalArgumentException("Given PcGtsType is null.");
+		}
+		if(imageTransformation == null) {
+			return pc;
+		}
+		pc.getPage().setImageWidth(imageTransformation.getDestinationWidth());
+		pc.getPage().setImageHeight(imageTransformation.getDestinationHeight());
+		
+		for (ITrpShapeType shape : ((TrpPageType) pc.getPage()).getAllShapes(true)) {
+			try {
+				applyAffineTransformation(shape, imageTransformation.getTransformation());
+			} catch (Exception e) {
+				logger.error("Error transforming coordinates of shape "+shape.getId()+": "+e.getMessage(), e);
+			}
+		}
+		return pc;
+	}
+	
+	/** 
+	 * Assigns unique IDs to the elements in the page using the current order of the elements. 
+	 */
+	public static void assignUniqueIDs(PageType page) {
+		int i = 1;
+		for (RegionType r : page.getTextRegionOrImageRegionOrLineDrawingRegion()) {
+			if (r instanceof TextRegionType) {
+				TextRegionType region = (TextRegionType) r;
+				String rid = "r" + i;
+
+				region.setId(rid);
+				int j = 1;
+				for (TextLineType l : region.getTextLine()) {
+					String lid = rid + "l" + j;
+					l.setId(lid);
+
+					int k = 1;
+					for (WordType word : l.getWord()) {
+						String wid = lid + "w" + k;
+						word.setId(wid);
+
+						k++;
+					}
+					++j;
+				}
+				++i;
+			}
+		}
+	}
+
 	public static void main(String[] args) throws Exception {
 //		final String path = "/mnt/dea_scratch/TRP/Bentham_box_002/page/002_080_001.xml";
 //		try {

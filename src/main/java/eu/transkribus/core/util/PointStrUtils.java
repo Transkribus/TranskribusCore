@@ -46,12 +46,16 @@ public class PointStrUtils {
 	static Logger logger = LoggerFactory.getLogger(PointStrUtils.class);
 	
 	public static String affineTransPoints(String ptsStr, double tx, double ty, double sx, double sy, double rot) throws PointParseException {
-		List<Point> pts = parsePoints(ptsStr);
-		
 		AffineTransform at = new AffineTransform();
 		at.scale(sx, sy);
 		at.rotate(rot);
 		at.translate(tx, ty);
+
+		return affineTransPoints(ptsStr, at);
+	}
+	
+	public static String affineTransPoints(String ptsStr, AffineTransform at) throws PointParseException {
+		List<Point> pts = parsePoints(ptsStr);
 
 		for (Point p : pts) {
 			at.transform(p, p);
