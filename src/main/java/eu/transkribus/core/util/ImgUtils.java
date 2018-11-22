@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
@@ -135,6 +136,16 @@ public class ImgUtils {
 		} catch(ImageProcessingException | MetadataException e) {
 			logger.warn("Metadata extractor did not find EXIF data. Falling back to reading raw image data dimension.");
 			return TrpImageIO.readImageDimensions(imgFile);
+		}
+	}
+	
+	public static Dimension readImageDimensionsWithMdParser(URL url) throws FileNotFoundException, IOException {
+		try {
+			ImageTransformation imgDim = TrpImgMdParser.readImageDimension(url);
+			return new Dimension(imgDim.getDestinationWidth(), imgDim.getDestinationHeight());
+		} catch(ImageProcessingException | MetadataException e) {
+			logger.warn("Metadata extractor did not find EXIF data. Falling back to reading raw image data dimension.");
+			return TrpImageIO.readImageDimensions(url);
 		}
 	}
 	

@@ -10,7 +10,6 @@ import java.util.concurrent.TimeoutException;
 
 import javax.xml.bind.JAXBException;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
