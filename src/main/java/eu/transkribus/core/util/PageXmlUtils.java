@@ -17,6 +17,7 @@ import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -1152,7 +1153,7 @@ public class PageXmlUtils {
 		//image data was re-oriented during load. Check if XML fits
 		try {
 			PcGtsType pc = PageXmlUtils.unmarshal(xmlFile);
-			if(pc.getPage().getImageWidth() != t.getDestinationWidth()) {
+			if(isOrientationBroken(t, pc)) {
 				/*
 				 * this won't catch XMLs were the image was rotated 180°. 
 				 * On the other hand, we would also mess up transcriptions that 
@@ -1166,6 +1167,7 @@ public class PageXmlUtils {
 		}
 		return xmlFile;
 	}
+	
 	/**
 	 * Reads the dimension and exif orientation from the {@link Image} instance and checks if the PAGE XML dimension matches.
 	 * If not, it rotates the PAGE XML according to the EXIF orientation tag value stored in the image.<br>
@@ -1201,7 +1203,7 @@ public class PageXmlUtils {
 	 * @throws IOException
 	 */
 	public static PcGtsType checkAndFixXmlOrientation(ImageTransformation t, PcGtsType pc) {
-		if(pc.getPage().getImageWidth() != t.getDestinationWidth()) {
+		if(isOrientationBroken(t, pc)) {
 			logger.debug("Image Dimension does not match PAGE dimension. Applying transformation for EXIF orientation tag value = " + t.getExifOrientation());
 			/*
 			 * this won't catch XMLs were the image was rotated 180°. 
@@ -1211,6 +1213,39 @@ public class PageXmlUtils {
 			pc = PageXmlUtils.applyAffineTransformation(pc, t);
 		}
 		return pc;
+	}
+	
+	private static boolean isOrientationBroken(ImageTransformation t, PcGtsType pc) {
+		if(t.isDefaultOrientation()) {
+			//no need to inspect further
+			return false;
+		}
+		if(pc.getPage().getImageWidth() != t.getDestinationWidth()) {
+			/*
+			 * EXIF orientation tag value and dimension mismatch suggest to rotate
+			 * This should catch 90° and 270° rotations
+			 */
+			return true;
+		}
+		/*
+		 * We could use the date when this was fixed and compare it to the LastChange date in the PAGE XML Metadata element.
+		 * There seems to be no other (easy) way to determine if a 180° rotation is necessary or not.
+		 * However, this would mess up PAGE XML created by third-party applications, so it's deactivated for now.
+		 */
+		final boolean fixBasedOnDate = false;
+		if(fixBasedOnDate) {
+			Calendar cal = Calendar.getInstance();
+			cal.set(2018, 12, 1);
+			long fixTime = cal.getTimeInMillis();
+			
+			if(pc.getMetadata().getLastChange().getMillisecond() < fixTime) {
+				/*
+				 * EXIF orientation tag value and the time this XML was written suggest to rotate
+				 */
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public static void main(String[] args) throws Exception {
