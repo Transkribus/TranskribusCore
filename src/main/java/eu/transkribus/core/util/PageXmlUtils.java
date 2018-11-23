@@ -37,6 +37,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1096,6 +1097,11 @@ public class PageXmlUtils {
 				logger.error("Error transforming coordinates of shape "+shape.getId()+": "+e.getMessage(), e);
 			}
 		}
+		String comment = "Auto-rotated according to EXIF orientation = " + imageTransformation.getExifOrientation();
+		if(!StringUtils.isEmpty(pc.getMetadata().getComments())) {
+			comment = pc.getMetadata().getComments() + "\n" + comment;
+		}
+		pc.getMetadata().setComments(comment);
 		return pc;
 	}
 	
