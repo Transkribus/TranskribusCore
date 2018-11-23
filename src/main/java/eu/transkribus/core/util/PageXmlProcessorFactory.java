@@ -38,11 +38,24 @@ public class PageXmlProcessorFactory {
 	public static PageXmlProcessor newInstance(DocBuilderFactoryImpl docBuilderFactoryImpl, 
 			XPathFactoryImpl xPathFactoryImpl) throws XPathFactoryConfigurationException, ParserConfigurationException {
 		final String storeLocation = FimgStoreReadConnection.getInstance().getFImagestore().getStoreLocation();
-		if(storeLocation != null && new File(storeLocation).isDirectory() && new File(storeLocation).canRead()) {
+		boolean isDirectReadSupported = true;
+		if(storeLocation == null) {
+			logger.debug("Returning Instance with HTTPS access as storeLocation is null.");
+			isDirectReadSupported = false;
+		} else {
+			if(!new File(storeLocation).isDirectory()){
+				logger.debug("Returning Instance with HTTPS access as storeLocation does not exist: " + storeLocation);
+				isDirectReadSupported = false;
+			}
+			if(!new File(storeLocation).canRead()) {
+				logger.debug("Returning Instance with HTTPS access as storeLocation is not not readable");
+				isDirectReadSupported = false;
+			}
+		}
+		if(isDirectReadSupported) {
 			logger.debug("Returning Instance with netShare access.");
 			return buildNetShareInstance(storeLocation, docBuilderFactoryImpl, xPathFactoryImpl);
 		} else {
-			logger.debug("Returning Instance with HTTPS access.");
 			return buildHttpInstance(docBuilderFactoryImpl, xPathFactoryImpl);
 		}
 	}
