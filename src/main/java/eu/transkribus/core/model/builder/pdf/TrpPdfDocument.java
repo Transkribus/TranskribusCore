@@ -2,7 +2,6 @@ package eu.transkribus.core.model.builder.pdf;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -33,7 +32,6 @@ import org.apache.commons.io.IOUtils;
 import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
 import org.dea.fimgstoreclient.beans.ImgType;
 import org.dea.util.pdf.APdfDocument;
-import org.docx4j.fonts.microsoft.MicrosoftFonts.Font.Bolditalic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,6 +78,7 @@ import eu.transkribus.core.model.builder.ExportCache;
 import eu.transkribus.core.model.builder.ExportUtils;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.PointStrUtils;
+import eu.transkribus.interfaces.types.util.TrpImageIO;
 
 
 /**
@@ -211,8 +210,8 @@ public class TrpPdfDocument extends APdfDocument {
 //		}
 		
 		BufferedImage imgBuffer = null;
-		try (InputStream input = imgUrl.openStream()) {			
-			imgBuffer = ImageIO.read(input);
+		try {			
+			imgBuffer = TrpImageIO.read(imgUrl);
 		} catch (FileNotFoundException e) {
 			logger.error("File was not found at url " + imgUrl);
 			URL origUrl = new URL(imgUrl.getProtocol(), imgUrl.getHost(), imgUrl.getFile().replace("view", "orig"));			
