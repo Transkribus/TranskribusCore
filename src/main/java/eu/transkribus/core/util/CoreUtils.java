@@ -15,6 +15,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -58,11 +59,28 @@ public class CoreUtils {
 	public static int SIZE_OF_LOG_FILE_TAIL = 256;
 
 	public final static String DATE_FORMAT_STR = "dd_MM_yyyy_HH:mm";
-	public final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STR);
+	/**
+	 * Create a date format instance for application internal use: {@value #DATE_FORMAT_STR}
+	 */
+	public static DateFormat newDateFormat() {
+		return new SimpleDateFormat(DATE_FORMAT_STR);
+	}
 
 	public final static String DATE_FORMAT_STR_USER_FRIENDLY = "dd.MM.YY HH:mm:ss";
-	public final static SimpleDateFormat DATE_FORMAT_USER_FRIENDLY = new SimpleDateFormat(
-			DATE_FORMAT_STR_USER_FRIENDLY);
+	/**
+	 * Create a date format instance for formatting dates for UIs: {@value #DATE_FORMAT_STR_USER_FRIENDLY}
+	 */
+	public static DateFormat newDateFormatUserFriendly() {
+		return new SimpleDateFormat(DATE_FORMAT_STR_USER_FRIENDLY);
+	}
+	
+	public final static String DATE_FORMAT_STR_ddMMYY = "dd.MM.YY";	
+	/**
+	 * Create a date format instance for formatting dates with day precision: {@value #DATE_FORMAT_STR_ddMMYY}
+	 */
+	public static DateFormat newDateFormatddMMYY() {
+		return new SimpleDateFormat(DATE_FORMAT_STR_ddMMYY);
+	}
 
 	// public static void main(String[] args) {
 	// String str = " Gregor S,_;amsa wacht eines M\"orgens auf u[]nd stellt fe(st,
@@ -89,7 +107,7 @@ public class CoreUtils {
 	}
 
 	public static String toTimeString(long time) {
-		return DATE_FORMAT_USER_FRIENDLY.format(time);
+		return newDateFormatUserFriendly().format(time);
 	}
 
 	public static <T> T getNeighborElement(List<T> list, Object object, boolean previous, boolean wrap) {
