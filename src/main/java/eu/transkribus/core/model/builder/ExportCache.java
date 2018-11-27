@@ -31,6 +31,9 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
+import eu.transkribus.core.util.PageXmlUtils;
+import eu.transkribus.interfaces.types.util.TrpImgMdParser;
+import eu.transkribus.interfaces.types.util.TrpImgMdParser.ImageTransformation;
 
 public class ExportCache {
 	private final static Logger logger = LoggerFactory.getLogger(ExportUtils.class);
@@ -111,6 +114,13 @@ public class ExportCache {
 
 			JAXBPageTranscript tr = new JAXBPageTranscript(md);
 			tr.build();
+			ImageTransformation t = TrpImgMdParser.readImageDimension(page.getUrl());
+			if(!t.isDefaultOrientation()) {
+				//check if this is an old PAGE XML and does not yet conform to the EXIF orientation of the image
+				//rotate if needed (will catch 90° and 270° rotations
+				PageXmlUtils.checkAndFixXmlOrientation(t, tr.getPageData());
+			}
+			
 			pageTranscripts.add(tr);
 			
 			logger.debug("Loaded Transcript from page " + (i+1));

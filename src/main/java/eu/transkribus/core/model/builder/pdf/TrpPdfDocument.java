@@ -216,9 +216,7 @@ public class TrpPdfDocument extends APdfDocument {
 			logger.error("File was not found at url " + imgUrl);
 			URL origUrl = new URL(imgUrl.getProtocol(), imgUrl.getHost(), imgUrl.getFile().replace("view", "orig"));			
 			logger.debug("try orig file location " + origUrl);
-			try (InputStream input = origUrl.openStream()) {
-				imgBuffer = ImageIO.read(input);
-			}
+			imgBuffer = TrpImageIO.read(imgUrl);
 		}
 				
 	    Graphics2D graph = imgBuffer.createGraphics();
