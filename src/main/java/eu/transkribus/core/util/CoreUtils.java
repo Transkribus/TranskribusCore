@@ -12,6 +12,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -1231,5 +1232,19 @@ public class CoreUtils {
 
 	public static int size(Collection<?> collection) {
 		return collection == null ? 0 : collection.size();
+	}
+	
+	public static List<URL> getClassPath(Class<?> clazz) {
+		ClassLoader cl = clazz.getClassLoader();
+		URL[] urls = ((URLClassLoader) cl).getURLs();
+		return Arrays.asList(urls);
+	}
+	
+	public static String getClassPathString(Class<?> clazz, String del) {
+		return StringUtils.join(getClassPath(clazz), del);
+	}
+	
+	public static String getClassPathString(Class<?> clazz) {
+		return getClassPathString(clazz, ":");
 	}
 }
