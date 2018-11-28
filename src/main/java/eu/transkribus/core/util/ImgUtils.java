@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
@@ -26,7 +27,7 @@ import eu.transkribus.core.exceptions.CorruptImageException;
 import eu.transkribus.core.io.exec.util.ExiftoolUtil;
 import eu.transkribus.interfaces.types.util.TrpImageIO;
 import eu.transkribus.interfaces.types.util.TrpImgMdParser;
-import eu.transkribus.interfaces.types.util.TrpImgMdParser.ImageDimension;
+import eu.transkribus.interfaces.types.util.TrpImgMdParser.ImageTransformation;
 
 public class ImgUtils {
 	private final static Logger logger = LoggerFactory.getLogger(ImgUtils.class);
@@ -80,7 +81,7 @@ public class ImgUtils {
 		}
 		final int width = Integer.valueOf(widthStr);
 		final int height = Integer.valueOf(heightStr);
-		ImageDimension imgDim = TrpImgMdParser.getTransformation(width, height, orientation);
+		ImageTransformation imgDim = TrpImgMdParser.getTransformation(width, height, orientation);
 		logger.debug("success reading img dims with exiftool!");
 		return new Dimension(imgDim.getDestinationWidth(), imgDim.getDestinationHeight());
 	}
@@ -130,11 +131,21 @@ public class ImgUtils {
 	
 	public static Dimension readImageDimensionsWithMdParser(File imgFile) throws FileNotFoundException, IOException {
 		try {
-			ImageDimension imgDim = TrpImgMdParser.readImageDimension(imgFile);
+			ImageTransformation imgDim = TrpImgMdParser.readImageDimension(imgFile);
 			return new Dimension(imgDim.getDestinationWidth(), imgDim.getDestinationHeight());
 		} catch(ImageProcessingException | MetadataException e) {
 			logger.warn("Metadata extractor did not find EXIF data. Falling back to reading raw image data dimension.");
 			return TrpImageIO.readImageDimensions(imgFile);
+		}
+	}
+	
+	public static Dimension readImageDimensionsWithMdParser(URL url) throws FileNotFoundException, IOException {
+		try {
+			ImageTransformation imgDim = TrpImgMdParser.readImageDimension(url);
+			return new Dimension(imgDim.getDestinationWidth(), imgDim.getDestinationHeight());
+		} catch(ImageProcessingException | MetadataException e) {
+			logger.warn("Metadata extractor did not find EXIF data. Falling back to reading raw image data dimension.");
+			return TrpImageIO.readImageDimensions(url);
 		}
 	}
 	
