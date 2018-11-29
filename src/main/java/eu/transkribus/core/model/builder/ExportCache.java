@@ -14,6 +14,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.MetadataException;
+
 import eu.transkribus.core.model.beans.JAXBPageTranscript;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpPage;
@@ -114,11 +117,19 @@ public class ExportCache {
 
 			JAXBPageTranscript tr = new JAXBPageTranscript(md);
 			tr.build();
-			ImageTransformation t = TrpImgMdParser.readImageDimension(page.getUrl());
-			if(!t.isDefaultOrientation()) {
-				//check if this is an old PAGE XML and does not yet conform to the EXIF orientation of the image
-				//rotate if needed (will catch 90° and 270° rotations
-				PageXmlUtils.checkAndFixXmlOrientation(t, tr.getPageData());
+			logger.debug("page.getUrl() " + page.getUrl());
+			
+			try {
+				ImageTransformation t = TrpImgMdParser.readImageDimension(page.getUrl());
+				if(!t.isDefaultOrientation()) {
+					//check if this is an old PAGE XML and does not yet conform to the EXIF orientation of the image
+					//rotate if needed (will catch 90° and 270° rotations
+					PageXmlUtils.checkAndFixXmlOrientation(t, tr.getPageData());
+				}
+			} catch (MetadataException | ImageProcessingException e) {
+				logger.debug("No EXIF metadata found: " + e.getMessage());
+			} catch (IOException e) {
+				logger.warn("Could not access image file: " + e.getMessage(), e);
 			}
 			
 			pageTranscripts.add(tr);
