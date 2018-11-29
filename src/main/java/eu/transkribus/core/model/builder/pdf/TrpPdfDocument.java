@@ -209,13 +209,21 @@ public class TrpPdfDocument extends APdfDocument {
 //			printspace = psPoly.getBounds();
 //		}
 		
+		/*
+		 * try to read image - if the image is not readable try the original one
+		 */
 		BufferedImage imgBuffer = null;
 		try {			
 			imgBuffer = TrpImageIO.read(imgUrl);
 		} catch (FileNotFoundException e) {
 			logger.error("File was not found at url " + imgUrl);
-			URL origUrl = new URL(imgUrl.getProtocol(), imgUrl.getHost(), imgUrl.getFile().replace("view", "orig"));			
-			logger.debug("try orig file location " + origUrl);
+			if (imgUrl.getFile().endsWith("view")){
+				imgUrl = new URL(imgUrl.getProtocol(), imgUrl.getHost(), imgUrl.getFile().replace("view", "orig"));	
+			}
+			else if (imgUrl.getFile().endsWith("orig")){
+				imgUrl = new URL(imgUrl.getProtocol(), imgUrl.getHost(), imgUrl.getFile().replace("orig", "view"));	
+			}
+			logger.debug("try alternative file location " + imgUrl);
 			imgBuffer = TrpImageIO.read(imgUrl);
 		}
 				
@@ -247,15 +255,18 @@ public class TrpPdfDocument extends APdfDocument {
 				}
 			}
 		}
-		
+				
 		graph.dispose();
 		
-		ByteArrayOutputStream baos=new ByteArrayOutputStream();
-		ImageIO.write(imgBuffer,"JPEG",baos);
-		byte[] imageBytes = baos.toByteArray();
-		Image img = Image.getInstance(imageBytes);
+//		ByteArrayOutputStream baos=new ByteArrayOutputStream();
+//		ImageIO.write(imgBuffer,"JPEG",baos);
+//		byte[] imageBytes = baos.toByteArray();
+//		Image img = Image.getInstance(imageBytes);
 		
-		baos.close();
+		//direct access instead of the version above
+		Image img = Image.getInstance(imgUrl);
+		
+		//baos.close();
 		imgBuffer.flush();
 		imgBuffer = null;
 		
