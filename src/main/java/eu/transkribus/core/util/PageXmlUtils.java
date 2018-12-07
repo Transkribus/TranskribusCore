@@ -183,6 +183,12 @@ public class PageXmlUtils {
 		PcGtsType pageData = ((JAXBElement<PcGtsType>) u.unmarshal(fis)).getValue();
 		onPostConstruct(pageData);
 		
+		try {
+			fis.close();
+		} catch (IOException e) {
+			logger.warn("A FileInputStream could not be closed after reading PAGE XML.");
+		}
+		
 		return pageData;
 	}
 	
