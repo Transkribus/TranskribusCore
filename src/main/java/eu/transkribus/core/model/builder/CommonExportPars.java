@@ -57,7 +57,12 @@ public class CommonExportPars {
 	String pageDirName = LocalDocConst.PAGE_FILE_SUB_FOLDER;
 	String fileNamePattern = ExportFilePatternUtils.PAGENR_FILENAME_PATTERN;
 	boolean useHttps=true;
-	ImgType remoteImgQuality = ImgType.orig;
+	/**
+	 * defines which prepared image type should be exported.
+	 * <br>
+	 * Set to private as the setter will enforce that this is never null
+	 */
+	private ImgType remoteImgQuality = ImgType.orig;
 	boolean doOverwrite=true;
 	boolean useOcrMasterDir=true;
 	boolean exportTranscriptMetadata = true;
@@ -81,7 +86,7 @@ public class CommonExportPars {
 			boolean doWriteTxt, boolean doWriteTagsXlsx, boolean doWriteTablesXlsx,
 			boolean doCreateTitle, String useVersionStatus, boolean writeTextOnWordLevel, 
 			boolean doBlackening, Set<String> selectedTags, String font) {
-		super();
+		this();
 		this.pages = pages;
 		this.doWriteMets = doWriteMets;
 		this.doWriteImages = doWriteImages;
@@ -308,7 +313,12 @@ public class CommonExportPars {
 	}
 
 	public void setRemoteImgQuality(ImgType remoteImgQuality) {
-		this.remoteImgQuality = remoteImgQuality;
+		if(remoteImgQuality == null) {
+			//remoteImgQuality shall never be null
+			this.remoteImgQuality = ImgType.orig;
+		} else {
+			this.remoteImgQuality = remoteImgQuality;
+		}
 	}
 
 	public boolean isDoOverwrite() {
@@ -371,14 +381,16 @@ public class CommonExportPars {
 	}
 
 	public static CommonExportPars getDefaultParSetForHtrTraining() {
-		CommonExportPars c = new CommonExportPars();
-		c.setDoWriteImages(true);
-		c.setDoExportAltoXml(false);
-		c.setDoExportPageXml(true);
-		c.setPageDirName("");
-		c.setUseOcrMasterDir(false);
-		c.setDoWriteMets(false);
-		return c;
+		CommonExportPars opts = new CommonExportPars();
+		opts.setDoWriteImages(true);
+		opts.setDoExportAltoXml(false);
+		opts.setDoExportPageXml(true);
+		opts.setPageDirName("");
+		opts.setUseOcrMasterDir(false);
+		opts.setDoWriteMets(false);
+		//use page ID as filename to not run into problems with overlaps. Consider e.g. "0000001.jpg"
+		opts.setFileNamePattern(ExportFilePatternUtils.PAGEID_PATTERN);
+		return opts;
 	}
 
 	public static CommonExportPars getDefaultParSetForOcr() {
@@ -390,7 +402,7 @@ public class CommonExportPars {
 		opts.setDoExportPageXml(false);
 		opts.setDoExportAltoXml(false);
 		//store files with pageID as name. Important for matching result files to original document!
-		opts.setFileNamePattern("${pageId}");
+		opts.setFileNamePattern(ExportFilePatternUtils.PAGEID_PATTERN);
 		return opts;
 	}
 
