@@ -327,8 +327,8 @@ public class LocalDocReader {
 			return doc;
 		}
 
-		//Construct the input dir with pageXml Files. 
-		File pageInputDir = getPageXmlInputDir(inputDir);
+		//Construct the input dir with pageXml Files. For sync mode the input folder can be the page directory directly
+		File pageInputDir = (inputDir.getName().equals(LocalDocConst.PAGE_FILE_SUB_FOLDER)&&config.isEnableSyncWithoutImages() ? inputDir : getPageXmlInputDir(inputDir));
 		if (config.isForceCreatePageXml() && !pageInputDir.isDirectory()) {
 			pageInputDir.mkdir();
 		}
@@ -911,7 +911,11 @@ public class LocalDocReader {
 	 * @throws IOException
 	 */
 	public static TreeMap<String, File> createDummyImgFiles(File baseDir) throws IOException {
-		File xmlDir = getPageXmlInputDir(baseDir);
+		
+		//for syncing page file: the base directory can also be directly the page folder		
+		File xmlDir = (baseDir.getName().equals(LocalDocConst.PAGE_FILE_SUB_FOLDER)) ? baseDir : getPageXmlInputDir(baseDir);
+		
+		//File xmlDir = getPageXmlInputDir(baseDir);
 		File txtDir = getTxtInputDir(baseDir);
 		
 		// check whether xml directory contains files, if not, assume txt directory has content

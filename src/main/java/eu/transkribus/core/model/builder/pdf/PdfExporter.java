@@ -90,7 +90,7 @@ public class PdfExporter extends Observable {
 			/*
 			 * new: get img URL dependent on the chosen imgType - default is viewing image (JPG)
 			 */
-//			logger.debug("img type " + imgType);
+			logger.debug("img type " + imgType);
 //			logger.debug("p.getKey() " + p.getKey());
 			URL imgUrl;
 			if (doc.isRemoteDoc()) {
