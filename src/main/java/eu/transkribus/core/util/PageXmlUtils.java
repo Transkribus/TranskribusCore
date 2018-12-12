@@ -38,7 +38,7 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
+import org.dea.fimagestore.core.beans.ImageMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -385,7 +385,7 @@ public class PageXmlUtils {
 		PcGtsType pcGts;
 		if (prot.startsWith("http")) {
 			//fimagestore file
-			FimgStoreImgMd md = FimgStoreReadConnection.getImgMd(imgUrl);
+			ImageMetadata md = FimgStoreReadConnection.getGetClient().getImgMd(imgUrl);
 			pcGts = createEmptyPcGtsTypeForRemoteImg(imgUrl, md);
 		} else {
 			//try to deal with it as local file
@@ -395,10 +395,10 @@ public class PageXmlUtils {
 		return pcGts;
 	}
 
-	private static PcGtsType createEmptyPcGtsTypeForRemoteImg(final URL url, FimgStoreImgMd imgMd) throws IOException {
-		int xDim = new Double(imgMd.getXResolution()).intValue();
-		int yDim = new Double(imgMd.getYResolution()).intValue();
-		return createEmptyPcGtsType(imgMd.getFileName(), xDim, yDim);
+	private static PcGtsType createEmptyPcGtsTypeForRemoteImg(final URL url, ImageMetadata imgMd) throws IOException {
+		int xDim = new Double(imgMd.getxResolution()).intValue();
+		int yDim = new Double(imgMd.getyResolution()).intValue();
+		return createEmptyPcGtsType(imgMd.getOrigFilename(), xDim, yDim);
 	}
 
 	public static PcGtsType createEmptyPcGtsType(final File imgFile, Dimension dim) {

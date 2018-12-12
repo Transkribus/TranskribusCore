@@ -7,7 +7,7 @@ import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
-import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
+import org.dea.fimagestore.core.beans.ImageMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ public class PageXmlUtilsTest {
 		
 		try {
 			URL url = new URL("https://dbis-thure.uibk.ac.at/fimagestore/Get?fileType=metadata&id=YSUGXUUGAHYCUQVMEUJAYQGO");
-			FimgStoreImgMd md = FimgStoreReadConnection.getImgMd(url);
+			ImageMetadata md = FimgStoreReadConnection.getGetClient().getImgMd(url);
 			PcGtsType t = PageXmlUtils.createEmptyPcGtsType(url, md.getDimension());
 			JaxbUtils.marshalToSysOut(t);
 		} catch (IOException | JAXBException e) {

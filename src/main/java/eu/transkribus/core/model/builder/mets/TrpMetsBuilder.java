@@ -13,9 +13,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.dea.fimagestore.core.beans.FileMetadata;
 import org.dea.fimagestore.core.util.MimeTypes;
 import org.dea.fimgstoreclient.FimgStoreGetClient;
-import org.dea.fimgstoreclient.beans.FimgStoreFileMd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -336,7 +336,7 @@ public class TrpMetsBuilder extends Observable {
 			}
 		} else {
 			try {
-				FimgStoreFileMd fMd = client.getFileMd(o.getKey());
+				FileMetadata fMd = client.getFileMd(o.getKey());
 				date = fMd.getUploadDate();
 				mime = fMd.getMimetype();
 				fLocat.setLOCTYPE("URL");

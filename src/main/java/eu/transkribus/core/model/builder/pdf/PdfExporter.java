@@ -11,8 +11,8 @@ import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 
+import org.dea.fimagestore.core.beans.ImageMetadata;
 import org.dea.fimgstoreclient.FimgStoreGetClient;
-import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
 import org.dea.fimgstoreclient.beans.ImgType;
 import org.dea.fimgstoreclient.utils.FimgStoreUriBuilder;
 import org.slf4j.Logger;
@@ -106,10 +106,10 @@ public class PdfExporter extends Observable {
 			 * md is only needed for getting resolution because in the image it may be missing
 			 * But if it is a local doc we have to try to get from img because md is null
 			 */
-			FimgStoreImgMd md = null;
+			ImageMetadata md = null;
 			if(doc.isRemoteDoc()){
 				FimgStoreGetClient getter2 = new FimgStoreGetClient(imgUrl);
-				md = (FimgStoreImgMd)getter2.getFileMd(p.getKey());
+				md = (ImageMetadata)getter2.getFileMd(p.getKey());
 			}
 		
 			URL xmlUrl = p.getCurrentTranscript().getUrl();
