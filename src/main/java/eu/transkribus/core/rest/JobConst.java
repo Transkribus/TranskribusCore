@@ -43,6 +43,11 @@ public class JobConst {
 	public static final String PROP_NR_OF_THREADS = "nrOfThreads";
 	public static final String PROP_TRAIN_SIZE_PER_EPOCH = "trainSizePerEpoch";
 	public static final String PROP_BASE_MODEL = "baseModel";
+	
+	/**
+	 * Use {@link #PROP_PARAMETERS} for consistency
+	 */
+	@Deprecated
 	public static final String PROP_CONFIG = "config";
 	
 	public static final String PROP_DO_BLOCK_SEG = "doBlockSeg";
@@ -85,6 +90,8 @@ public class JobConst {
 	public static final String PROP_EXTID = "extId";
 	public static final String PROP_FROMDATE = "fromDate";
 	public static final String PROP_TODATE = "toDate";
+	
+	public static final String PROP_NUM_LINESAMPLES = "numLineSamples";
 
 	public static final String PROP_GPU_DEVICE_ENV_VAR = "GPU_DEVICE";
 	
