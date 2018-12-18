@@ -1,15 +1,18 @@
 package eu.transkribus.core.io;
 
-import eu.transkribus.core.io.DocExporter;
-import eu.transkribus.core.io.LocalDocReader;
+import org.dea.fimgstoreclient.FimgStoreGetClient;
+
+import eu.transkribus.core.TrpFimgStoreConf;
 import eu.transkribus.core.model.beans.TrpDoc;
+import eu.transkribus.core.model.beans.TrpFImagestore;
 
 public class DocExporterTest {
 	public static void main(String[] args) throws Exception {
 	}
 	
 	public static void testSth() {
-		DocExporter ex = new DocExporter();
+		TrpFImagestore storeConfig = TrpFimgStoreConf.getFImagestore();
+		DocExporter ex = new DocExporter(new FimgStoreGetClient(storeConfig));
 		try {
 			TrpDoc doc = LocalDocReader.load("/mnt/dea_scratch/TRP/Bentham_box_002", true);
 //			ex.writeFatDoc(doc, "/tmp/fatTest", true);

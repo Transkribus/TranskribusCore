@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
@@ -24,7 +23,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.transkribus.core.io.DocExporter;
 import eu.transkribus.core.io.LocalDocReader;
 import eu.transkribus.core.model.beans.JAXBPageTranscript;
 import eu.transkribus.core.model.beans.TrpDoc;
@@ -43,7 +41,6 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.model.builder.ExportCache;
 import eu.transkribus.core.model.builder.ExportUtils;
 import eu.transkribus.core.model.builder.NoTagsException;
-import eu.transkribus.core.util.CoreUtils;
 
 
 public class TrpXlsxBuilder {
@@ -461,12 +458,12 @@ public class TrpXlsxBuilder {
 				pageIndices.add(i);
 			}
 		}
-		DocExporter docExporter =  new DocExporter();
-		docExporter.getCache().storePageTranscripts4Export(docWithTags, pageIndices, null, "Latest", -1, null);
-		docExporter.getCache().storeCustomTagMapForDoc(docWithTags, false, pageIndices, null, false);
+		ExportCache exportCache = new ExportCache();
+		exportCache.storePageTranscripts4Export(docWithTags, pageIndices, null, "Latest", -1, null);
+		exportCache.storeCustomTagMapForDoc(docWithTags, false, pageIndices, null, false);
 		
 		TrpXlsxBuilder txslx = new TrpXlsxBuilder();
-		txslx.writeXlsxForDoc(docWithTags, false, new File("C:/01_Projekte/READ/Projekte/testWithTags.xlsx"), pageIndices, null, docExporter.getCache());
+		txslx.writeXlsxForDoc(docWithTags, false, new File("C:/01_Projekte/READ/Projekte/testWithTags.xlsx"), pageIndices, null, exportCache);
 		//ExcelTest("C:/Users/Administrator/test.xlsx");
 		System.out.println("finished");
 	}

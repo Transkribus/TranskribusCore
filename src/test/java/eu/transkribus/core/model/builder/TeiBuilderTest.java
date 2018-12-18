@@ -17,22 +17,20 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.dea.fimgstoreclient.FimgStoreGetClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.TrpFimgStoreConf;
 import eu.transkribus.core.io.DocExporter;
 import eu.transkribus.core.io.LocalDocReader;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
-import eu.transkribus.core.model.beans.TrpPage;
-import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
+import eu.transkribus.core.model.beans.TrpFImagestore;
 import eu.transkribus.core.model.beans.mets.Mets;
-import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
-import eu.transkribus.core.model.builder.mets.util.MetsUtil;
 import eu.transkribus.core.model.builder.tei.TeiExportPars;
 import eu.transkribus.core.model.builder.tei.TrpTeiStringBuilder;
 import eu.transkribus.core.util.JaxbUtils;
-import eu.transkribus.core.util.PageXmlUtils;
 import eu.transkribus.core.util.SebisStopWatch;
 import eu.transkribus.core.util.XslTransformer;
 
@@ -142,7 +140,8 @@ public class TeiBuilderTest {
 		File metsFile = new File(metsPath);
 		try {
 			mets = JaxbUtils.unmarshal(metsFile, Mets.class, TrpDocMetadata.class);
-			DocExporter docExp = new DocExporter();
+			TrpFImagestore storeConfig = TrpFimgStoreConf.getFImagestore();
+			DocExporter docExp = new DocExporter(new FimgStoreGetClient(storeConfig));
 			docExp.writeTEI(doc, exportFilename, new CommonExportPars("1-4", false, false, true, false, false, true, false, false, false, false, false, "Latest", false, false, null), null);
 			//DocExporter.transformTei(mets, docPath);
 			//transformTei(mets);

@@ -28,7 +28,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.dea.fimgstoreclient.FimgStoreGetClient;
+import org.dea.fimgstoreclient.IFimgStoreGetClient;
 import org.dea.fimgstoreclient.beans.ImgType;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.slf4j.Logger;
@@ -69,23 +69,26 @@ public class DocExporter extends APassthroughObservable {
 	
 	private final ExportCache cache;
 	private final AltoExporter altoEx;
-	private final FimgStoreGetClient getter;
+	private final IFimgStoreGetClient getter;
 	
 	private CommonExportPars pars;
 	private OutputDirStructure outputDir;
 	
-	public DocExporter() {
-		this(new ExportCache());
+	public DocExporter(IFimgStoreGetClient getClient) {
+		this(getClient, new ExportCache());
 	}
 	
-	public DocExporter(ExportCache cache) {
+	public DocExporter(IFimgStoreGetClient getClient, ExportCache cache) {
+		if(getClient == null) {
+			throw new IllegalArgumentException("FImagestoreClient is null!");
+		}
 		if(cache == null) {
 			this.cache = new ExportCache();
 		} else {
 			this.cache = cache;
 		}
         altoEx = new AltoExporter();
-        getter = FimgStoreReadConnection.getGetClient();
+        getter = getClient;
 	}
 	
 	/**
@@ -467,7 +470,9 @@ public class DocExporter extends APassthroughObservable {
 				logger.debug(msg);
 				updateStatus(msg);
 				final URI imgUri = getter.getUriBuilder().getImgUri(page.getKey(), pars.getRemoteImgQuality());
-				imgFile = getter.saveFile(imgUri, outputDir.getImgOutputDir().getAbsolutePath(), baseFileName + imgExt);
+//				imgFile = getter.saveFile(imgUri, outputDir.getImgOutputDir().getAbsolutePath(), baseFileName + imgExt);
+				imgFile = getter.saveImg(page.getKey(), pars.getRemoteImgQuality(), 
+						outputDir.getImgOutputDir().getAbsolutePath(), baseFileName + imgExt);
 				page.setUrl(imgFile.toURI().toURL());
 				page.setKey(null);
 			}
