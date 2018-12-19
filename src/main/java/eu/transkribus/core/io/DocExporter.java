@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
@@ -435,19 +434,21 @@ public class DocExporter extends APassthroughObservable {
 
 	/**
 	 * Exports files for a ground truth entity, according to the parameters set on this DocExporter instance.
+	 * In contrast to the exportDoc method, the parameters have be set via the init method beforehand!
 	 * <br><br>
 	 * If the parameters include a export filename pattern, note that the document ID of ground truth is never set (i.e. "docId == -1").
 	 * To avoid collisions, rather use the page ID in a pattern ({@link TrpGroundTruthPage#getOriginPageId()} will be used), 
 	 * instead of a doc. ID + page nr. combination.
 	 *  
 	 * @param gtPage
+	 * @return TrpPage object including URLs pointing to the export files.
 	 * @throws IOException
 	 */
-	public void exportPage(TrpGroundTruthPage gtPage) throws IOException {
-		exportPage(gtPage.toTrpPage());
+	public TrpPage exportPage(TrpGroundTruthPage gtPage) throws IOException {
+		return exportPage(gtPage.toTrpPage());
 	}
 	
-	public void exportPage(TrpPage page) throws IOException {
+	public TrpPage exportPage(TrpPage page) throws IOException {
 		if(pars == null || outputDir == null) {
 			throw new IllegalStateException("Export parameters are not set or output directory has not been initialized!");
 		}
@@ -469,9 +470,9 @@ public class DocExporter extends APassthroughObservable {
 				final String msg = "Downloading " + pars.getRemoteImgQuality().toString() + " image for page nr. " + page.getPageNr();
 				logger.debug(msg);
 				updateStatus(msg);
-				final URI imgUri = getter.getUriBuilder().getImgUri(page.getKey(), pars.getRemoteImgQuality());
+//				final URI imgUri = getter.getUriBuilder().getImgUri(page.getKey(), pars.getRemoteImgQuality());
 //				imgFile = getter.saveFile(imgUri, outputDir.getImgOutputDir().getAbsolutePath(), baseFileName + imgExt);
-				imgFile = getter.saveImg(page.getKey(), pars.getRemoteImgQuality(), 
+				imgFile = getter.saveImg(page.getKey(), pars.getRemoteImgQuality(),
 						outputDir.getImgOutputDir().getAbsolutePath(), baseFileName + imgExt);
 				page.setUrl(imgFile.toURI().toURL());
 				page.setKey(null);
@@ -572,6 +573,7 @@ public class DocExporter extends APassthroughObservable {
 		
 		setChanged();
 		notifyObservers(Integer.valueOf(page.getPageNr()));
+		return page;
 	}
 
 	public ExportCache getCache() {
