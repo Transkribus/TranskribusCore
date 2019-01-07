@@ -190,13 +190,14 @@ public class TrpMetsBuilder extends Observable {
 				altoFt.setSEQ(p.getPageNr());
 
 				//String tmpImgName = img.getFLocat().get(0).getHref();
-				String relAltoPath = "alto".concat(File.separator).concat(p.getImgFileName().substring(0, p.getImgFileName().lastIndexOf(".")).concat(".xml"));
+				String relAltoPath = "alto/".concat(p.getImgFileName().substring(0, p.getImgFileName().lastIndexOf(".")).concat(".xml"));
 				fLocat.setHref(relAltoPath);
 				
 				//String absAltoPath = tMd.getUrl().getPath().replace("page", "alto");
-				final String path = FileUtils.toFile(p.getUrl()).getAbsolutePath();
-				String absAltoPath = path.substring(0, path.lastIndexOf(File.separator));
-				absAltoPath = absAltoPath.concat("/alto/").concat(p.getImgFileName().substring(0, p.getImgFileName().lastIndexOf(".")).concat(".xml"));
+				
+				String absAltoPath = FileUtils.toFile(p.getUrl()).getAbsolutePath().concat("/alto/");
+				//String absAltoPath = path.substring(0, path.lastIndexOf(File.separator));
+				//absAltoPath = absAltoPath.concat("/alto/").concat(p.getImgFileName().substring(0, p.getImgFileName().lastIndexOf(".")).concat(".xml"));
 				//logger.info("alto path starts with: " + absAltoPath);
 				if (absAltoPath.startsWith("\\") /*|| absAltoPath.startsWith("/")*/){
 					//logger.info("alto path starts with \\ or /");
@@ -208,7 +209,7 @@ public class TrpMetsBuilder extends Observable {
 				
 				File altoTmp = new File(absAltoPath);
 				if(altoTmp.exists()){
-					//logger.info("alto file exist at " + absAltoPath);
+					logger.info("alto file exist at " + absAltoPath);
 					Date date = new Date(altoTmp.lastModified());
 					XMLGregorianCalendar cal = JaxbUtils.getXmlCalendar(date);
 					altoFt.setCREATED(cal);

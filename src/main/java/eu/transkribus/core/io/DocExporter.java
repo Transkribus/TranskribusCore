@@ -431,7 +431,7 @@ public class DocExporter extends APassthroughObservable {
 					updateStatus(msg);
 					final URI imgUri = uriBuilder.getImgUri(p.getKey(), imgType);
 					imgFile = getter.saveFile(imgUri, imgOutputDir.getAbsolutePath(), baseFileName + imgExt);
-					p.setUrl(imgFile.toURI().toURL());
+					//p.setUrl(imgFile.toURI().toURL());
 					p.setKey(null);
 				}
 				if(pars.isDoExportPageXml()) {
@@ -509,6 +509,11 @@ public class DocExporter extends APassthroughObservable {
 			if (pars.isDoExportAltoXml()) {
 				altoFile = altoEx.exportAltoFile(p, baseFileName + xmlExt, altoOutputDir, pars.isSplitIntoWordsInAltoXml());
 			}
+			
+			/*
+			 * to find the 'local' output dir later on during the mets creation 
+			 */
+			p.setUrl(new File(outputDir.getAbsolutePath()).toURI().toURL());
 			
 			if (imgFile != null)
 				logger.debug("Written image file " + imgFile.getAbsolutePath());
