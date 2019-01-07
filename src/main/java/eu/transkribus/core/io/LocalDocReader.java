@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import com.google.common.io.Files;
 import com.itextpdf.text.DocumentException;
 
 import eu.transkribus.core.exceptions.CorruptImageException;
@@ -366,10 +367,16 @@ public class LocalDocReader {
 			File thumbFile = getThumbFile(inputDir, imgFileName);
 					
 			if(pageXml != null) {
+				logger.debug("page Xml found for file: " + pageXml.getAbsolutePath());
 				XmlFormat xmlFormat = XmlUtils.getXmlFormat(pageXml);
 				switch(xmlFormat){
 				case PAGE_2010:
-					Page2010Converter.updatePageFormatSingleFile(pageXml, backupPath);
+					File tmp = new File(pageXml.getParent().concat("/page2010/"));
+					tmp.mkdir();
+					File dest = new File(tmp.getAbsolutePath()+"/"+pageXml.getName());
+					FileUtils.moveFile(pageXml,dest);	
+					
+					pageXml = Page2010Converter.updatePageFormatSingleFile(pageXml, dest);
 					break;
 				case PAGE_2013:
 					break;
@@ -665,6 +672,10 @@ public class LocalDocReader {
 			if (xmlFormat.equals(XmlFormat.ALTO_2)) {
 				logger.info(altoXml.getAbsolutePath() + ": Transforming ALTO v2 XMLs to PAGE XML.");
 				return PageXmlUtils.createPcGtsTypeFromAlto(altoXml, imgFileName, preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars);
+			}
+			else if(xmlFormat.equals(XmlFormat.ALTO_BNF)){
+				logger.info(altoXml.getAbsolutePath() + ": Transforming ALTO BnF XMLs to PAGE XML.");
+				return PageXmlUtils.createPcGtsTypeFromAltoBnF(altoXml, imgFileName, preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars);
 			}
 			throw new IOException("Not a valid ALTO v2 file.");
 		} catch(IOException | TransformerException ioe){
