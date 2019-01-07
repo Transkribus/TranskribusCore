@@ -18,13 +18,23 @@ public class StructureTag extends CustomTag {
 	
 	public static final String TAG_NAME = "structure";
 	public final CustomTagAttribute[] ATTRIBUTES = { 
-			new CustomTagAttribute("type", true, "Structure type", "The structure type of this element")
+			new CustomTagAttribute("type", true, "Structure type", "The structure type of this element"),
+			new CustomTagAttribute("id", true, "ID", "ID for grouping structure tags together, e.g. all lines of an article"),
 	};
 		
 //	TextTypeSimpleType type = null;
 //	String type = "";
 	String type = "";
+	String id = "";
 	
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	public StructureTag() {
 		super(TAG_NAME);
 	}
@@ -37,6 +47,12 @@ public class StructureTag extends CustomTag {
 	public StructureTag(String type) {
 		this();
 		setType(type);
+	}
+	
+	public StructureTag(String type, String id) {
+		this();
+		setType(type);
+		setId(id);
 	}
 	
 	@Override public boolean isDeleteable() {
