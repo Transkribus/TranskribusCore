@@ -3,7 +3,6 @@ package eu.transkribus.core.model.builder.alto;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,10 +37,7 @@ public class AltoExporter extends Observable {
 	
 	public AltoExporter(){}
 	
-	public File createAltoOuputDir(TrpDoc doc, String path) {
-		if(doc == null) {
-			throw new IllegalArgumentException("TrpDoc is null!");
-		}
+	public File createAltoOuputDir(String path) {
 		if(path == null){
 			throw new IllegalArgumentException("path is null!");
 		}		
@@ -63,7 +59,7 @@ public class AltoExporter extends Observable {
 		
 	}
 	
-	public File exportAltoFile(TrpPage p, File altoOutputDir, boolean splitIntoWords) throws JAXBException, FileNotFoundException, TransformerException {
+	public File exportAltoFile(TrpPage p, File altoOutputDir, boolean splitIntoWords) throws JAXBException, IOException {
 		if(p == null){
 			throw new IllegalArgumentException("TrpPage is null!");
 		}
@@ -76,16 +72,26 @@ public class AltoExporter extends Observable {
 		return exportAltoFile(p, imgName.substring(0,lastIndex)+".xml", altoOutputDir, splitIntoWords);
 	}
 	
-	public File exportAltoFile(TrpPage p, final String fileName, File altoOutputDir, boolean splitIntoWords) throws JAXBException, FileNotFoundException, TransformerException {
+	public File exportAltoFile(TrpPage p, final String fileName, File altoOutputDir, boolean splitIntoWords) throws IOException {
 		if(p == null || fileName == null){
 			throw new IllegalArgumentException("An argument is null!");
 		}
 		
 		TrpTranscriptMetadata t = p.getCurrentTranscript();
-		PcGtsType pc = PageXmlUtils.unmarshal(t.getUrl());
 		
+		InputStream pcIs = null;
 		StreamSource mySrc = new StreamSource();
-		mySrc.setInputStream(new ByteArrayInputStream(PageXmlUtils.marshalToBytes(pc)));
+		try {
+			PcGtsType pc = PageXmlUtils.unmarshal(t.getUrl());
+			pcIs = new ByteArrayInputStream(PageXmlUtils.marshalToBytes(pc));
+			mySrc.setInputStream(pcIs);
+		} catch (JAXBException e) {
+			throw new IOException("Could not read PAGE XML at: " + t.getUrl(), e);
+		} finally {
+			if(pcIs != null) {
+				pcIs.close();
+			}
+		}
 		
 		InputStream is;
 		if (splitIntoWords){
@@ -102,25 +108,24 @@ public class AltoExporter extends Observable {
         TransformerFactory transFact =
                 TransformerFactory.newInstance();
         Transformer trans;
-//		try {
+		try {
 			trans = transFact.newTransformer(xslSource);
 			
 			File altoFile = new File(altoOutputDir.getAbsolutePath()+"/"+fileName);			
 			trans.transform(mySrc, new StreamResult(new FileOutputStream(altoFile)));
 			
 			return altoFile;
-//		} catch (TransformerConfigurationException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (TransformerException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		
+		} catch (TransformerException e) {
+			throw new IOException("Could not create ALTO file.", e);
+		} finally {
+			if(xslIS != null) {
+				xslIS.close();
+			}
+		}
 	}
 			
 	public void export(final TrpDoc doc, final String path) throws DocumentException, MalformedURLException, IOException, JAXBException, TransformerException {		
-		File altoOutputDir = createAltoOuputDir(doc, path);
+		File altoOutputDir = createAltoOuputDir(path);
 		
 		//TrpPdfDocument pdf = new TrpPdfDocument(pdfFile, useWordLevel);
 		notifyObservers("Exporting Altos...");

@@ -38,7 +38,7 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
+import org.dea.fimagestore.core.beans.ImageMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -86,7 +86,7 @@ public class PageXmlUtils {
 	public static final XmlFormat TRP_PAGE_VERSION = XmlFormat.PAGE_2013;
 	private static final String ABBY_TO_PAGE_XSLT = "xslt/Abbyy10ToPage2013.xsl";
 	private static final String ALTO_TO_PAGE_XSLT = "xslt/AltoToPage2013.xsl";
-	private static final String ALTO_BNF_TO_PAGE_XSLT = "xslt/AltoBnFToPage.xsl";
+	private static final String ALTO_BNF_TO_PAGE_XSLT = "xslt/AltoBnFToPage2013.xsl";
 	private static final String TEXT_STYLE_XSL_PARAM_NAME = "preserveTextStyles";
 	private static final String FONT_FAM_XSL_PARAM_NAME = "preserveFontFam";
 	
@@ -183,6 +183,12 @@ public class PageXmlUtils {
 		@SuppressWarnings("unchecked")
 		PcGtsType pageData = ((JAXBElement<PcGtsType>) u.unmarshal(fis)).getValue();
 		onPostConstruct(pageData);
+		
+		try {
+			fis.close();
+		} catch (IOException e) {
+			logger.warn("A FileInputStream could not be closed after reading PAGE XML.");
+		}
 		
 		return pageData;
 	}
@@ -380,7 +386,7 @@ public class PageXmlUtils {
 		PcGtsType pcGts;
 		if (prot.startsWith("http")) {
 			//fimagestore file
-			FimgStoreImgMd md = FimgStoreReadConnection.getImgMd(imgUrl);
+			ImageMetadata md = FimgStoreReadConnection.getGetClient().getImgMd(imgUrl);
 			pcGts = createEmptyPcGtsTypeForRemoteImg(imgUrl, md);
 		} else {
 			//try to deal with it as local file
@@ -390,10 +396,10 @@ public class PageXmlUtils {
 		return pcGts;
 	}
 
-	private static PcGtsType createEmptyPcGtsTypeForRemoteImg(final URL url, FimgStoreImgMd imgMd) throws IOException {
-		int xDim = new Double(imgMd.getXResolution()).intValue();
-		int yDim = new Double(imgMd.getYResolution()).intValue();
-		return createEmptyPcGtsType(imgMd.getFileName(), xDim, yDim);
+	private static PcGtsType createEmptyPcGtsTypeForRemoteImg(final URL url, ImageMetadata imgMd) throws IOException {
+		int xDim = new Double(imgMd.getxResolution()).intValue();
+		int yDim = new Double(imgMd.getyResolution()).intValue();
+		return createEmptyPcGtsType(imgMd.getOrigFilename(), xDim, yDim);
 	}
 
 	public static PcGtsType createEmptyPcGtsType(final File imgFile, Dimension dim) {

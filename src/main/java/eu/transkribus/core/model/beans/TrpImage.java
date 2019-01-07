@@ -35,6 +35,9 @@ public class TrpImage implements Serializable, ITrpFile {
 	@Transient
 	private URL url;
 	@Column
+	@Transient
+	private URL thumbUrl;
+	@Column
 	private java.sql.Timestamp created;
 
 	private String md5sum;
@@ -74,6 +77,12 @@ public class TrpImage implements Serializable, ITrpFile {
 	}
 	public void setUrl(URL url) {
 		this.url = url;
+	}
+	public URL getThumbUrl() {
+		return this.thumbUrl;
+	}
+	public void setThumbUrl(URL thumbUrl) {
+		this.thumbUrl = thumbUrl;
 	}
 	public java.sql.Timestamp getCreated() {
 		return created;

@@ -5,7 +5,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -25,11 +24,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.imageio.ImageIO;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.IOUtils;
-import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
+import org.dea.fimagestore.core.beans.ImageMetadata;
 import org.dea.fimgstoreclient.beans.ImgType;
 import org.dea.util.pdf.APdfDocument;
 import org.slf4j.Logger;
@@ -198,7 +196,7 @@ public class TrpPdfDocument extends APdfDocument {
 	
 
 	@SuppressWarnings("unused")
-	public void addPage(URL imgUrl, TrpDoc doc, PcGtsType pc, boolean addAdditionalPlainTextPage, boolean imageOnly, FimgStoreImgMd md, boolean doBlackening, ExportCache cache) throws MalformedURLException, IOException, DocumentException, JAXBException, URISyntaxException {
+	public void addPage(URL imgUrl, TrpDoc doc, PcGtsType pc, boolean addAdditionalPlainTextPage, boolean imageOnly, ImageMetadata md, boolean doBlackening, ExportCache cache) throws MalformedURLException, IOException, DocumentException, JAXBException, URISyntaxException {
 		
 		imgOnly = imageOnly;
 		extraTextPage = addAdditionalPlainTextPage;
@@ -274,8 +272,8 @@ public class TrpPdfDocument extends APdfDocument {
 		 * take resolution from metadata of image store, values in img are not always set
 		 */
 		if(md != null){
-			double resolutionX = (float) md.getXResolution();
-			double resolutionY = (float) md.getYResolution();
+			double resolutionX = (float) md.getxResolution();
+			double resolutionY = (float) md.getyResolution();
 			//logger.debug("Dpi: " + md.getXResolution());
 			img.setDpi((int)resolutionX, (int)resolutionY);
 		}

@@ -1,14 +1,6 @@
 package eu.transkribus.core.io;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-
-import org.dea.fimagestore.core.util.FilekeyUtils;
-import org.dea.fimgstoreclient.AbstractHttpClient.Scheme;
 import org.dea.fimgstoreclient.FimgStoreGetClient;
-import org.dea.fimgstoreclient.beans.FimgStoreFileMd;
-import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
 import org.dea.fimgstoreclient.utils.FimgStoreUriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,8 +49,7 @@ public class FimgStoreReadConnection {
 	public static FimgStoreGetClient getGetClient(){
 		if(getter == null){
 			TrpFImagestore store = FimgStoreReadConnection.getInstance().getFImagestore();
-			getter = new FimgStoreGetClient(store.getHostName(), 
-					store.getPort(), store.getContext());
+			getter = new FimgStoreGetClient(store);
 		}
 		return getter;
 	}
@@ -67,43 +58,11 @@ public class FimgStoreReadConnection {
 		logger.debug(TrpFimgStoreConf.getFImagestore().toString());
 	}
 	
-	public static FimgStoreFileMd getFileMd(URL url) throws IOException {
-		FimgStoreGetClient getter = new FimgStoreGetClient(url);
-		final String key;
-		try {
-			key = FilekeyUtils.extractKey(url);
-		} catch (URISyntaxException e) {
-			throw new IOException("Could not extract key from url: " + url.toString(), e);
-		}
-
-		return getter.getFileMd(key);
-	}
-	
-	public static FimgStoreImgMd getImgMd(URL url) throws IOException {
-		FimgStoreFileMd md = getFileMd(url);
-
-		if (!(md instanceof FimgStoreImgMd)) {
-			throw new IOException("File with key " + md.getKey() + " is not an image!");
-		}
-		FimgStoreImgMd imgMd = (FimgStoreImgMd) md;
-		return imgMd;
-	}
-	
 	public static FimgStoreUriBuilder getUriBuilder() {
-		TrpFImagestore store = FimgStoreReadConnection.getInstance().getFImagestore();
-		return new FimgStoreUriBuilder(
-				Scheme.https.toString(), store.getHostName(), 
-				store.getPort(), store.getContext());
+		return getGetClient().getUriBuilder();
 	}
 	
 	public static String getFimgStoreGetUrl(){
-		FimgStoreUriBuilder uriBuilder = getUriBuilder();
-		String fimgStoreUrl;
-		try {
-			fimgStoreUrl = uriBuilder.getBaseGetUri().toString();
-		} catch(URISyntaxException e){
-			throw new IllegalStateException("fimagstore settings in properties are not correct! TRP will not function correctly!!", e);
-		}
-		return fimgStoreUrl;
+		return getUriBuilder().getBaseGetUri().toString();
 	}
 }

@@ -14,7 +14,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
 		<!-- Transkribus components' version numbers -->
-		<fimagestoreClient.version>0.3.0</fimagestoreClient.version>
+		<fimagestoreClient.version>0.4.0-SNAPSHOT</fimagestoreClient.version>
 		<pdfUtils.version>0.0.3-SNAPSHOT</pdfUtils.version>
 		<interfaces.version>0.0.4-SNAPSHOT</interfaces.version>
 	</properties>

@@ -256,46 +256,47 @@ public class LocalDocWriter {
 	}
 	
 	public static File copyTranscriptFile(TrpPage p, String path, ExportCache cache) throws IOException, JAXBException {
-	
-		if (!p.getTranscripts().isEmpty()) {
-			String xmlFn =  "Transcript_"+p.getPageNr()+".xml";
-			TrpTranscriptMetadata tmd = p.getTranscripts().get(p.getTranscripts().size()-1);
-			URL u = tmd.getUrl();
-			if (u.getProtocol().toLowerCase().contains("file")) {
-				logger.debug("path: "+u.getPath());
-								
-				xmlFn = FilenameUtils.getName(FileUtils.toFile(u).getAbsolutePath());
-			}
-			else if (u.getProtocol().toLowerCase().contains("http")) {
-				// parse filename from
-				String fn = getFilenameFromUrl(u);
-				if (fn!=null)
-					xmlFn = fn;
-			}
-			return copyTranscriptFile(p, path, xmlFn, cache);
-		}		
-		else
+		if (p.getTranscripts().isEmpty()) {
 			return null;
+		}
+		String xmlFn =  "Transcript_"+p.getPageNr()+".xml";
+		TrpTranscriptMetadata tmd = p.getTranscripts().get(p.getTranscripts().size()-1);
+		URL u = tmd.getUrl();
+		if (u.getProtocol().toLowerCase().contains("file")) {
+			logger.debug("path: "+u.getPath());
+							
+			xmlFn = FilenameUtils.getName(FileUtils.toFile(u).getAbsolutePath());
+		}
+		else if (u.getProtocol().toLowerCase().contains("http")) {
+			// parse filename from
+			String fn = getFilenameFromUrl(u);
+			if (fn!=null)
+				xmlFn = fn;
+		}
+		return copyTranscriptFile(p, path, xmlFn, cache);
 	}
 	
-	public static File copyTranscriptFile(TrpPage p, String path, String fileName, ExportCache cache) throws IOException, JAXBException {
-		if (!p.getTranscripts().isEmpty()) {
-			TrpTranscriptMetadata tmd = p.getTranscripts().get(p.getTranscripts().size()-1);
+	public static File copyTranscriptFile(TrpPage p, String path, String fileName, ExportCache cache) throws IOException {
+		if (p.getTranscripts().isEmpty()) {
+			return null;
+		}
+		TrpTranscriptMetadata tmd = p.getTranscripts().get(p.getTranscripts().size()-1);
 
-			//load page transcript only once during export
-			JAXBPageTranscript tr = cache.getPageTranscriptAtIndex(p.getPageNr()-1);
-						
-			if (tr == null){
-				tr = new JAXBPageTranscript(tmd);
-				tr.build();
-			}
-			
-			File xmlFile = new File(path+"/"+fileName);
+		//load page transcript only once during export
+		JAXBPageTranscript tr = cache.getPageTranscriptAtIndex(p.getPageNr()-1);
+					
+		if (tr == null){
+			tr = new JAXBPageTranscript(tmd);
+			tr.build();
+		}
+		
+		File xmlFile = new File(path+"/"+fileName);
+		try {
 			PageXmlUtils.marshalToFile(tr.getPageData(), xmlFile);
 			return xmlFile;
-		}		
-		else
-			return null;
+		} catch (JAXBException e) {
+			throw new IOException("Could not write PAGE XML file.", e);
+		}
 	}
 	
 	private static String getFilenameFromUrl(URL url) throws IOException {

@@ -366,16 +366,19 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		i.setWidth(width);
 		i.setHeight(height);
 		i.setUrl(url);
+		i.setThumbUrl(thumbUrl);
 		return i;
 	}
 	
 	public void setImage(TrpImage i) {
+		this.imageId = i.getImageId();
 		this.imgFileName = i.getImgFileName();
 		this.key = i.getKey();
 		this.created = i.getCreated();
 		this.width = i.getWidth();
 		this.height = i.getHeight();
 		this.url = i.getUrl();
+		this.thumbUrl = i.getThumbUrl();
 	}
 
 	public boolean isIndexed() {

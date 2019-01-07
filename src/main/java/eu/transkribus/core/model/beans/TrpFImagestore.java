@@ -11,13 +11,15 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.dea.fimagestore.core.client.IFImagestoreConfig;
+
 import io.swagger.v3.oas.annotations.Hidden;
 
 @Entity
 @Table(name="FIMGSTORE")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpFImagestore implements Serializable {
+public class TrpFImagestore implements Serializable, IFImagestoreConfig {
 	private static final long serialVersionUID = 1L;
 
 	@Id

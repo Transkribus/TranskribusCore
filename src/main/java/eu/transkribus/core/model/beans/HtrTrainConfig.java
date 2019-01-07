@@ -46,6 +46,14 @@ public class HtrTrainConfig implements Serializable {
 	@XmlElement
 	protected List<DocumentSelectionDescriptor> test = new LinkedList<>();
 	
+	@XmlElementWrapper(name="trainGtList")
+	@XmlElement
+	protected List<GroundTruthSelectionDescriptor> trainGt;
+	
+	@XmlElementWrapper(name="testGtList")
+	@XmlElement
+	protected List<GroundTruthSelectionDescriptor> testGt;
+	
 	public String getModelName() {
 		return modelName;
 	}
@@ -115,6 +123,30 @@ public class HtrTrainConfig implements Serializable {
 			test = new LinkedList<>();
 		} else {
 			this.test = test;	
+		}
+	}
+	
+	public List<GroundTruthSelectionDescriptor> getTrainGt() {
+		return trainGt;
+	}
+
+	public void setTrainGt(List<GroundTruthSelectionDescriptor> trainGt) {
+		if (trainGt == null) {
+			trainGt = new LinkedList<>();
+		} else {
+			this.trainGt = trainGt;	
+		}
+	}
+	
+	public List<GroundTruthSelectionDescriptor> getTestGt() {
+		return testGt;
+	}
+
+	public void setTestGt(List<GroundTruthSelectionDescriptor> testGt) {
+		if (testGt == null) {
+			testGt = new LinkedList<>();
+		} else {
+			this.testGt = testGt;	
 		}
 	}
 	
