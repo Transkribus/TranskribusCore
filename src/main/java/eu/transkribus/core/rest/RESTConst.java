@@ -278,6 +278,7 @@ public final class RESTConst {
 	
 	public static final String WER_PATH = "computeWER";
 	public static final String ERROR_RATE = "errorRate";
+	public static final String COMPUTE_SAMPLE = "computeSample";
 
 	public static final String TEST_DOC_PATH = "testSet";
 	public static final String TRAIN_DOC_PATH = "trainSet";
