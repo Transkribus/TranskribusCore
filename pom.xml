@@ -16,7 +16,7 @@
 		<!-- Transkribus components' version numbers -->
 		<fimagestoreClient.version>0.4.0-SNAPSHOT</fimagestoreClient.version>
 		<pdfUtils.version>0.0.3-SNAPSHOT</pdfUtils.version>
-		<interfaces.version>0.0.4-SNAPSHOT</interfaces.version>
+		<interfaces.version>0.0.4</interfaces.version>
 	</properties>
 
 	<repositories>
