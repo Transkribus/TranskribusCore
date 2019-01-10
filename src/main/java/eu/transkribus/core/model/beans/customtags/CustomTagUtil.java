@@ -182,6 +182,8 @@ public class CustomTagUtil {
 		ReadingOrderType ro = page.getReadingOrder();
 		if (ro == null)
 			return;
+		if (ro.getOrderedGroup() == null)
+			return;
 		
 		for (Object o : ro.getOrderedGroup().getRegionRefIndexedOrOrderedGroupIndexedOrUnorderedGroupIndexed()) {
 			logger.trace("ref: "+o);
@@ -383,6 +385,15 @@ public class CustomTagUtil {
 		
 		StructureTag t = shape.getCustomTagList().getNonIndexedTag(StructureTag.TAG_NAME);
 		return t==null ? "" : t.getType();			
+	}
+	
+	public static StructureTag getStructureTag(ITrpShapeType shape) {
+		
+		if (shape == null || shape.getCustomTagList()==null) {
+			return null;
+		}
+				
+		return shape.getCustomTagList().getNonIndexedTag(StructureTag.TAG_NAME);	
 	}
 
 	public static void setReadingOrder(ITrpShapeType shape, Integer readingOrder, Object who) {

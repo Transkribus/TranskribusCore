@@ -13,6 +13,7 @@ public enum JobImpl {
 	GoobiMetsImportJob(JobTask.CreateDocument, JobTask.CreateDocument.getLabel(), "GoobiMetsImportJob", null),
 	DuplicateDocumentJob(JobTask.DuplicateDocument, JobTask.DuplicateDocument.getLabel(), "DuplicateDocJob", null),
 	CreateSampleDocJob(JobTask.CreateSample, JobTask.CreateSample.getLabel(), "CreateSampleDocJob", null),
+	ComputeSampleJob(JobTask.Htr,"Sample Computation","ComputeSampleJob",null),
 	DeleteDocJob(JobTask.DeleteDocument, JobTask.DeleteDocument.getLabel(), "DeleteDocJob", null),
 	RebuildSolrIndexJob(JobTask.RebuildSolrIndex, JobTask.RebuildSolrIndex.getLabel(), "RebuildSolrIndexJob", null),	
 	IndexDocumentJob(JobTask.IndexDocument, JobTask.IndexDocument.getLabel(), "IndexDocumentJob", null),

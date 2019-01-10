@@ -119,7 +119,8 @@ public class TrpFImagestore implements Serializable, IFImagestoreConfig {
 	@Override
 	public String toString() {
 		return "TrpFImagestore [storeId=" + storeId + ", hostName=" + hostName + ", context=" + context + ", port=" + port
-				+ ", username=" + username + ", password=" + (password == null ? "null" : "[is set from DB]") + "]";
+				+ ", username=" + username + ", password=" + (password == null ? "null" : "[is set from DB]") 
+				+ ", storeLocation=" + storeLocation + "]";
 	}
 	
 }

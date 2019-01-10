@@ -86,6 +86,7 @@ public class PageXmlUtils {
 	public static final XmlFormat TRP_PAGE_VERSION = XmlFormat.PAGE_2013;
 	private static final String ABBY_TO_PAGE_XSLT = "xslt/Abbyy10ToPage2013.xsl";
 	private static final String ALTO_TO_PAGE_XSLT = "xslt/AltoToPage2013.xsl";
+	private static final String ALTO_BNF_TO_PAGE_XSLT = "xslt/AltoBnFToPage2013.xsl";
 	private static final String TEXT_STYLE_XSL_PARAM_NAME = "preserveTextStyles";
 	private static final String FONT_FAM_XSL_PARAM_NAME = "preserveFontFam";
 	
@@ -530,6 +531,27 @@ public class PageXmlUtils {
 		
 		// transform into Object and set imgFileName as it is not avail in abbyy XML
 		PcGtsType pc = JaxbUtils.transformToObject(altoXml, ALTO_TO_PAGE_XSLT, params, PcGtsType.class);
+		pc.getPage().setImageFilename(imgFileName);
+		if(replaceBadChars){
+			pc = FinereaderUtils.replaceBadChars(pc);
+		}
+		
+		return pc;
+	}
+	
+	public static PcGtsType createPcGtsTypeFromAltoBnF(File altoXml, String imgFileName,
+			boolean preserveOcrTxtStyles, boolean preserveOcrFontFamily, boolean replaceBadChars) throws TransformerException, SAXException, IOException, ParserConfigurationException, JAXBException {
+		// simple transform to file. Does not set imageFileName!!
+		// pageXml = XslTransformer.transform(abbyyXml, ABBY_TO_PAGE_XSLT, pageOutFile);
+		
+		Map<String, Object> params = null;
+		//set parameter for textStyle preservation
+		params = new HashMap<>();
+		params.put(TEXT_STYLE_XSL_PARAM_NAME, new Boolean(preserveOcrTxtStyles));
+		params.put(FONT_FAM_XSL_PARAM_NAME, new Boolean(preserveOcrFontFamily));
+		
+		// transform into Object and set imgFileName as it is not avail in abbyy XML
+		PcGtsType pc = JaxbUtils.transformToObject(altoXml, ALTO_BNF_TO_PAGE_XSLT, params, PcGtsType.class);
 		pc.getPage().setImageFilename(imgFileName);
 		if(replaceBadChars){
 			pc = FinereaderUtils.replaceBadChars(pc);

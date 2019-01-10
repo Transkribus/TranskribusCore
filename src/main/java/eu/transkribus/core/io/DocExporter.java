@@ -328,7 +328,7 @@ public class DocExporter extends APassthroughObservable {
 	 * @throws TransformerException
 	 */
 	public File exportDoc(TrpDoc doc, CommonExportPars pars) throws IOException, IllegalArgumentException,
-			URISyntaxException, JAXBException, TransformerException {		
+			URISyntaxException, JAXBException, TransformerException {
 		//create copy of object, as we alter it here while exporting
 		TrpDoc doc2 = new TrpDoc(doc);
 		
@@ -556,6 +556,11 @@ public class DocExporter extends APassthroughObservable {
 		if (pars.isDoExportAltoXml()) {
 			altoFile = altoEx.exportAltoFile(page, baseFileName + xmlExt, outputDir.getAltoOutputDir(), pars.isSplitIntoWordsInAltoXml());
 		}
+		
+		/*
+		 * to find the output dir later on during the mets creation 
+		 */
+		page.setUrl(new File(outputDir.getImgOutputDir().getAbsolutePath()).toURI().toURL());
 		
 		if (imgFile != null)
 			logger.debug("Written image file " + imgFile.getAbsolutePath());
