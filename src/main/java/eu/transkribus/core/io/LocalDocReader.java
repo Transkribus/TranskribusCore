@@ -366,10 +366,21 @@ public class LocalDocReader {
 			File thumbFile = getThumbFile(inputDir, imgFileName);
 					
 			if(pageXml != null) {
+				logger.debug("page Xml found for file: " + pageXml.getAbsolutePath());
 				XmlFormat xmlFormat = XmlUtils.getXmlFormat(pageXml);
 				switch(xmlFormat){
 				case PAGE_2010:
-					Page2010Converter.updatePageFormatSingleFile(pageXml, backupPath);
+					//initial solution for Windows concurrent access bug: do not use backup mechanism of Page2010Converter
+					File tmp = new File(backupPath);
+					if(!tmp.isDirectory()) {
+						tmp.mkdir();
+					}
+					File dest = new File(tmp.getAbsolutePath(), pageXml.getName());
+					FileUtils.moveFile(pageXml, dest);
+					pageXml = Page2010Converter.convert(dest, pageXml);
+					
+					//updated method including backup creation using FileUtils#moveFile
+//					pageXml = Page2010Converter.updatePageFormatSingleFile(pageXml, backupPath);
 					break;
 				case PAGE_2013:
 					break;
@@ -665,6 +676,10 @@ public class LocalDocReader {
 			if (xmlFormat.equals(XmlFormat.ALTO_2)) {
 				logger.info(altoXml.getAbsolutePath() + ": Transforming ALTO v2 XMLs to PAGE XML.");
 				return PageXmlUtils.createPcGtsTypeFromAlto(altoXml, imgFileName, preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars);
+			}
+			else if(xmlFormat.equals(XmlFormat.ALTO_BNF)){
+				logger.info(altoXml.getAbsolutePath() + ": Transforming ALTO BnF XMLs to PAGE XML.");
+				return PageXmlUtils.createPcGtsTypeFromAltoBnF(altoXml, imgFileName, preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars);
 			}
 			throw new IOException("Not a valid ALTO v2 file.");
 		} catch(IOException | TransformerException ioe){

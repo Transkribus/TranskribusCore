@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.primaresearch.dla.page.Page;
 import org.primaresearch.dla.page.converter.PageConverter;
 import org.primaresearch.dla.page.io.FileInput;
@@ -134,6 +135,14 @@ public class Page2010Converter {
 		}
 	}
 
+	/**
+	 * Convert a PAGE XML 2010 schema version input File to the version in use by Transkribus and write result to output File.
+	 * 
+	 * @param input
+	 * @param output
+	 * @return
+	 * @throws IOException
+	 */
 	public static File convert(File input, File output) throws IOException {
 		
 		PageConverter conv = new PageConverter();
@@ -149,8 +158,16 @@ public class Page2010Converter {
 		return output;
 	}
 	
+	/**
+	 * Update a PAGE XML 2010 schema version input File to the version in use by Transkribus. A backup of the initial file with the same name
+	 * is created at the backupDirStr path
+	 * 
+	 * @param input
+	 * @param backupDirStr absolute path to the backup directory. If it does not exist, it is created.
+	 * @return The converted File
+	 * @throws IOException
+	 */
 	public static File updatePageFormatSingleFile(File input, String backupDirStr) throws IOException {
-				
 		File backupDir = new File(backupDirStr);
 		if(!backupDir.exists()){
 			backupDir.mkdirs();
@@ -163,12 +180,34 @@ public class Page2010Converter {
 		convert(input, tmpFile);
 		
 		//move input to backup path
-		File backup = new File(backupDir.getAbsolutePath() + File.separator + input.getName());
+		File backup = new File(backupDir, input.getName());
+		FileUtils.moveFile(input, backup);
+		//move output into original file's place
+		FileUtils.moveFile(tmpFile, input);
+		
+		return input;
+	}
+	
+	@Deprecated
+	public static File updatePageFormatSingleFileOld(File input, String backupDirStr) throws IOException {
+		File backupDir = new File(backupDirStr);
+		if(!backupDir.exists()){
+			backupDir.mkdirs();
+		}
+		
+		//output
+		File tmpFile = new File(input.getAbsolutePath() + ".tmp"); 
+
+		//do conversion
+		convert(input, tmpFile);
+		
+		//move input to backup path
+		File backup = new File(backupDir, input.getName());
 		Files.move(input.toPath(), backup.toPath());
 		//move output into original file's place
-		Path outputPath = Files.move(tmpFile.toPath(), input.toPath());
+		Files.move(tmpFile.toPath(), input.toPath());
 		
-		return outputPath.toFile();
+		return input;
 	}
 	
 	public static boolean isSupportedFormat(XmlFormat format){
