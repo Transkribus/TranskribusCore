@@ -43,7 +43,11 @@ public class Page2010ConverterTest {
 		File backup = new File(backupDir, page2010Xml.getName());
 		Assert.assertTrue("Backup file was not created at: " + backup.getAbsolutePath(), backup.isFile());
 		
-		FileUtils.deleteDirectory(tmpDir);
+		try {
+			FileUtils.deleteDirectory(tmpDir);
+		} catch(IOException e) {
+			logger.error("Could not delete temp dir: " + tmpDir.getAbsolutePath(), e);
+		}
 	}
 	
 	@Test
@@ -72,6 +76,10 @@ public class Page2010ConverterTest {
 		File backup = new File(backupDir, page2010Xml.getName());
 		Assert.assertTrue("Backup file was not created at: " + backup.getAbsolutePath(), backup.isFile());
 		
-		FileUtils.deleteDirectory(tmpDir);
+		try {
+			FileUtils.deleteDirectory(tmpDir);
+		} catch(IOException e) {
+			logger.error("Could not delete temp dir: " + tmpDir.getAbsolutePath(), e);
+		}
 	}
 }
