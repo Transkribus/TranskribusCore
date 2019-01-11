@@ -707,9 +707,24 @@ public class CoreUtils {
 
 		return buf.toString();
 	}
+	
+	public static List<Integer> indexOfAll(String txt, String searchStr, boolean previous, boolean caseSensitive,
+			boolean wholeWord) {
+		List<Integer> indices = new ArrayList<>();
+		int index = indexOf(txt, searchStr, 0, previous, caseSensitive, wholeWord);
+		while (index >= 0) {
+		    indices.add(index);
+		    index = indexOf(txt, searchStr, index+1, previous, caseSensitive, wholeWord);
+		}
+		return indices;
+	}
 
 	public static int indexOf(String txt, String searchStr, int startOffset, boolean previous, boolean caseSensitive,
 			boolean wholeWord) {
+		if (StringUtils.isEmpty(txt) || StringUtils.isEmpty(searchStr)) {
+			return -1;
+		}
+		
 		searchStr = Pattern.quote(searchStr);
 		if (wholeWord) {
 			searchStr = "\\b" + searchStr + "\\b";

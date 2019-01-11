@@ -42,7 +42,7 @@ public class CustomTagList {
 		Assert.assertNotNull(shape);
 		this.shape = shape;
 		
-		initFromCustomTagString(shape.getCustom());
+		initFromCustomTagString(shape.getCustom(), false);
 //		List<CustomTag> cts = CustomTagUtil.getCustomTags(shape.getCustom());
 //		logger.trace("nr of custom tags: " + cts.size() + " id: " + shape.getId());
 //		for (CustomTag ct : CustomTagUtil.getCustomTags(shape.getCustom())) {
@@ -55,7 +55,7 @@ public class CustomTagList {
 //		}
 	}
 	
-	public void initFromCustomTagString(String customTag) {
+	public void initFromCustomTagString(String customTag, boolean registerNewTags) {
 		if (shape == null) { // cannot happen, but just to be sure...
 			return;
 		}
@@ -71,7 +71,17 @@ public class CustomTagList {
 		
 		List<CustomTag> cts = CustomTagUtil.getCustomTags(shape.getCustom());
 		logger.trace("nr of custom tags: " + cts.size() + " id: " + shape.getId());
-		for (CustomTag ct : CustomTagUtil.getCustomTags(shape.getCustom())) {
+		for (CustomTag ct : cts) {
+			if (registerNewTags) {
+				try {
+					boolean canBeEmpty = ct.isEmpty();
+					logger.trace("t = "+ct+" canBeEmpty = "+canBeEmpty);
+					CustomTagFactory.addToRegistry(ct, null, canBeEmpty, false);
+				} catch (NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e) {
+					logger.error("Could not register the tag: "+ct.getCssStr()+", reason: "+e.getMessage(), e);
+				}
+			}			
+			
 			logger.trace("adding custom tag: " + ct);
 			try {
 				addOrMergeTag(ct, null);
