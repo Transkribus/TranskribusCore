@@ -11,26 +11,29 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
 
+import eu.transkribus.core.io.LocalDocReader;
 import eu.transkribus.core.io.util.ExtensionFileFilter;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageTypeUtils;
+import eu.transkribus.core.util.JaxbUtils;
 import eu.transkribus.core.util.PageXmlUtils;
 
 public class ScalePageCoordinatesToImageDimension {
 	private static final Logger logger = LoggerFactory.getLogger(ScalePageCoordinatesToImageDimension.class);
 	public static void main(String[] args) throws IOException, JAXBException {
 		
-		heldenbuch600to300dpi();
+//		fixNLF_GT();
+//		heldenbuch600to300dpi();
 		
-//		final String path = "/media/daten/Dokumente/newseye_testdata/";
+		final String path = "Y:/Newseye/NLF_GT/nlf_ocr_groundtruth_sv";
 
-//		TrpDoc doc = LocalDocReader.load(path);
+		TrpDoc doc = LocalDocReader.load(path);
 		
 //		fixAltoFilenames();
 
-//		fixAltoMmToPx(doc);
+		fixAltoMmToPx(doc);
 	}
 
 	private static void fixAltoFilenames() throws IOException {
@@ -40,6 +43,46 @@ public class ScalePageCoordinatesToImageDimension {
 		for(File f : files) {
 			File target = new File(f.getAbsolutePath().replaceAll("-gt2", ""));
 			Files.move(f, target);
+		}
+	}
+	
+	/*
+	 * images size is in Pixel, alto file coordinates are in mm10 (calculated for physical page and 300dpi)
+	 * means to correct it for Transkribus: scale with 1,1811: 300dpi/2,54cm(=1Zoll) 
+	 */
+	private static void fixNLF_GT() throws JAXBException, IOException {
+		File input = new File("C:/01_Projekte/READ/Projekte/NewsEye/NLF_GT/nlf_ocr_groundtruth_fi/nlf_ocr_groundtruth_fi/alto");
+		File output = new File("C:/01_Projekte/READ/Projekte/NewsEye/NLF_GT/nlf_ocr_groundtruth_fi/nlf_ocr_groundtruth_fi/page");
+		if (!output.isDirectory()) {
+			output.mkdirs();
+		}
+
+		File[] files = input.listFiles(new ExtensionFileFilter("xml", true, false));
+		for (File f : files) {
+			System.out.println("Processing file: " + f.getName());
+			//(1) create pageXML from alto
+			PcGtsType pc = null;		
+			if(pc == null && f != null){
+				//try find ALTO XML
+				pc = LocalDocReader.createPageFromAlto2(f.getName().replace(".xml", ".tif"), f, true, true, false);
+			}
+			
+			File pageTmp = new File(input+"/tmp_"+f.getName());
+			//create the file
+			try{
+				JaxbUtils.marshalToFile(pc, pageTmp);
+			} catch (JAXBException je) {
+				throw new IOException("Could not create PageXml on disk!", je);
+			}
+			PcGtsType pc2 = PageXmlUtils.unmarshal(pageTmp);
+			
+			TrpPageTypeUtils.applyAffineTransformation(pc2.getPage(), 0, 0, 1.1811, 1.1811, 0);
+
+			final String filename = f.getName();
+
+			System.out.println("Writing file: " + filename);
+			PageXmlUtils.marshalToFile(pc2, new File(output.getAbsolutePath() + File.separator + filename));
+			pageTmp.delete();
 		}
 	}
 
@@ -96,23 +139,23 @@ public class ScalePageCoordinatesToImageDimension {
 
 		for (TrpPage p : doc.getPages()) {
 
-			final double imgWidth = p.getWidth();
-			final double imgHeight = p.getHeight();
+//			final double imgWidth = p.getWidth();
+//			final double imgHeight = p.getHeight();
 
 			File f = FileUtils.toFile(p.getCurrentTranscript().getUrl());
 			PcGtsType pc = PageXmlUtils.unmarshal(f);
-			final double altoWidth = pc.getPage().getImageWidth();
-			final double altoHeight = pc.getPage().getImageHeight();
+//			final double altoWidth = pc.getPage().getImageWidth();
+//			final double altoHeight = pc.getPage().getImageHeight();
 
-			logger.info("Img: " + imgWidth + "x" + imgHeight + " | ALTO: " + altoWidth + "x" + altoHeight);
+//			logger.info("Img: " + imgWidth + "x" + imgHeight + " | ALTO: " + altoWidth + "x" + altoHeight);
+//			
+//			double scaleX = (imgWidth / (altoWidth / 100f)) / 100f;
+//			double scaleY = (imgHeight / (altoHeight / 100f)) / 100f;
 			
-			double scaleX = (imgWidth / (altoWidth / 100f)) / 100f;
-			double scaleY = (imgHeight / (altoHeight / 100f)) / 100f;
+//			logger.info("Scale factor X: " + scaleX);
+//			logger.info("Scale factor Y: " + scaleY);
 			
-			logger.info("Scale factor X: " + scaleX);
-			logger.info("Scale factor Y: " + scaleY);
-			
-			TrpPageTypeUtils.applyAffineTransformation(pc.getPage(), 0, 0, scaleX, scaleY, 0);
+			TrpPageTypeUtils.applyAffineTransformation(pc.getPage(), 0, 0, 1.1811, 1.1811, 0);
 
 			PageXmlUtils.marshalToFile(pc, f);
 		}
