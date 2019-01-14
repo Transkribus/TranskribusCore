@@ -382,11 +382,19 @@ public class CustomTagFactory {
 	}
 	
 	public static boolean isEmptyTag(String tagName) {
+		if (StringUtils.isEmpty(tagName)) {
+			return false;
+		}
+		
 		CustomTagWrapper cw = objectRegistry.get(tagName);
 		return cw != null ? cw.isEmptyTag : false;
 	}
 	
 	public static void setIsEmptyTag(String tagName, boolean isEmptyTag) {
+		if (StringUtils.isEmpty(tagName)) {
+			return;
+		}
+		
 		CustomTagWrapper cw = objectRegistry.get(tagName);
 		if (cw != null) {
 			cw.isEmptyTag = isEmptyTag;
