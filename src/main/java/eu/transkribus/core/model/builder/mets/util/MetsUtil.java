@@ -75,7 +75,7 @@ public class MetsUtil {
 
 		XPathFactory xpathFactory = XPathFactory.newInstance();
 		XPath xpath = xpathFactory.newXPath();
-		XPathExpression expr = xpath.compile("//*[local-name()='rightsMD'][(@ID,'RIGHTS')][1]");
+		XPathExpression expr = xpath.compile("//*[local-name()='rightsMD'][@ID='RIGHTS'][1]");
 		Element rightsElement = (Element) expr.evaluate(doc, XPathConstants.NODE);
 
 		if (rightsElement != null) {
