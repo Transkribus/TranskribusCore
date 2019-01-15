@@ -1249,16 +1249,25 @@ public class CoreUtils {
 		return collection == null ? 0 : collection.size();
 	}
 	
+	/**
+	 * @deprecated does not work in java >= 9 ('BaseClassLoader cannot be cast to URLClassLoader')
+	 */
 	public static List<URL> getClassPath(Class<?> clazz) {
 		ClassLoader cl = clazz.getClassLoader();
 		URL[] urls = ((URLClassLoader) cl).getURLs();
 		return Arrays.asList(urls);
 	}
-	
+
+	/**
+	 * @deprecated does not work in java >= 9 ('BaseClassLoader cannot be cast to URLClassLoader')
+	 */
 	public static String getClassPathString(Class<?> clazz, String del) {
 		return StringUtils.join(getClassPath(clazz), del);
 	}
 	
+	/**
+	 * @deprecated does not work in java >= 9 ('BaseClassLoader cannot be cast to URLClassLoader')
+	 */
 	public static String getClassPathString(Class<?> clazz) {
 		return getClassPathString(clazz, ":");
 	}
