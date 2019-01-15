@@ -128,7 +128,10 @@ public class XslTransformer {
 
 		// Create a transformer for the stylesheet.
 
+		
 		DOMSource dom = new DOMSource(sourceXML);
+		
+		xslSource.setSystemId(xslFileResource);
 		
 		// this method MAY return null although the JavaDoc says it doesn't! 
 		// That can happen when an XSLT 2.0 conformant XSL file is given. To work around this, 

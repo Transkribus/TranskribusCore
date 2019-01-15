@@ -681,7 +681,11 @@ public class LocalDocReader {
 				logger.info(altoXml.getAbsolutePath() + ": Transforming ALTO BnF XMLs to PAGE XML.");
 				return PageXmlUtils.createPcGtsTypeFromAltoBnF(altoXml, imgFileName, preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars);
 			}
-			throw new IOException("Not a valid ALTO v2 file.");
+			else if(xmlFormat.equals(XmlFormat.ALTO_3)){
+				logger.info(altoXml.getAbsolutePath() + ": Transforming ALTO v3 XMLs to PAGE XML.");
+				return PageXmlUtils.createPcGtsTypeFromAltov3(altoXml, imgFileName, preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars);
+			}
+			throw new IOException("Not a valid ALTO file.");
 		} catch(IOException | TransformerException ioe){
 			logger.error(ioe.getMessage(), ioe);
 			throw new IOException("Could not migrate file: " + altoXml.getAbsolutePath(), ioe);

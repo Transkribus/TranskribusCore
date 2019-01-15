@@ -3,7 +3,6 @@ package eu.transkribus.core.model.beans.customtags;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -13,16 +12,14 @@ import java.util.Observer;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
-import org.apache.commons.collections.comparators.ComparableComparator;
 //import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.cedarsoftware.util.CaseInsensitiveMap;
 
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.MyObservable;
@@ -45,6 +42,33 @@ public class CustomTagFactory {
        }
 	};
 	
+	public static final String IS_EMPTY_TAG_PROPERTY_NAME = "_isEmptyTag";
+	
+	/**
+	 * Contains the data for each CustomTag registry entry: a CustomTag prototype object,
+	 * i.e. the CustomTag 'prototype' with all non-set properties,
+	 * its class object, color, isEmptyTag, ...
+	 */
+	private static class CustomTagWrapper {
+		public CustomTag customTag=null;
+		public Class<? extends CustomTag> clazz=null;
+		
+		public String color=null;
+		public boolean isEmptyTag=false;
+		
+		public CustomTagWrapper(CustomTag customTagToRegister, String color, boolean isEmptyTag) {
+			if (customTagToRegister == null) {
+				throw new IllegalArgumentException("customTag cannot be null!");
+			}
+			this.customTag = customTagToRegister.copy();
+			this.customTag.setAttributes(customTagToRegister, true, false); // clear all attribute values
+			this.clazz = customTagToRegister.getClass();
+			this.color = color;
+			this.isEmptyTag = isEmptyTag;
+		}
+	}
+	
+	
 	private final static BeanUtilsBean beanUtilsBean = new BeanUtilsBean(new EnumConvertUtilsBean());
 
 	private final static Logger logger = LoggerFactory.getLogger(CustomTagFactory.class);
@@ -57,9 +81,10 @@ public class CustomTagFactory {
 //	private static final ConcurrentMap<String, CustomTag > objectRegistry = new CaseInsensitiveMap<>();
 //	private static final Map<String, String > colorRegistry = new CaseInsensitiveMap<>();
 	
-	private static final Map<String, Class<? extends CustomTag> > registry = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);
-	private static final Map<String, CustomTag > objectRegistry = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);
-	private static final Map<String, String > colorRegistry = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);
+//	private static final Map<String, Class<? extends CustomTag> > registry = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);
+//	private static final Map<String, CustomTag > objectRegistry = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);
+	private static final Map<String, CustomTagWrapper > objectRegistry = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);
+//	private static final Map<String, String > colorRegistry = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);
 	
 	// case sensitive maps:
 //	private static final Map<String, Class<? extends CustomTag> > registry = new HashMap<>();
@@ -99,28 +124,28 @@ public class CustomTagFactory {
 			// add some custom tags to the registry:
 			
 			// non-indexed:
-			CustomTagFactory.addToRegistry(new StructureTag(), null, true);
-			CustomTagFactory.addToRegistry(new ReadingOrderTag(), null, true);
-			CustomTagFactory.addToRegistry(new RegionTypeTag(), null, true);
+			CustomTagFactory.addToRegistry(new StructureTag(), null, true, true);
+			CustomTagFactory.addToRegistry(new ReadingOrderTag(), null, true, true);
+			CustomTagFactory.addToRegistry(new RegionTypeTag(), null, true, true);
 			
 			// indexed:
-			CustomTagFactory.addToRegistry(new TextStyleTag(), null, true);
-			CustomTagFactory.addToRegistry(new AbbrevTag(), null, true);
-			CustomTagFactory.addToRegistry(new PersonTag(), null, true);
-			CustomTagFactory.addToRegistry(new OrganizationTag(), null, true);
-			CustomTagFactory.addToRegistry(new PlaceTag(), null, true);
-			CustomTagFactory.addToRegistry(new SpeechTag(), null, true);
-			CustomTagFactory.addToRegistry(new DateTag(), null, true);
-			CustomTagFactory.addToRegistry(new WorkTag(), null, true);
-			CustomTagFactory.addToRegistry(new SicTag(), null, true);
-			CustomTagFactory.addToRegistry(new GapTag(), null, true);
-			CustomTagFactory.addToRegistry(new DivTag(), null, true);
-			CustomTagFactory.addToRegistry(new UnclearTag(), null, true);
-			CustomTagFactory.addToRegistry(new BlackeningTag(), null, true);
-			CustomTagFactory.addToRegistry(new SuppliedTag(), null, true);
-			CustomTagFactory.addToRegistry(new AdditionTag(), null, true);
+			CustomTagFactory.addToRegistry(new TextStyleTag(), null, false, true);
+			CustomTagFactory.addToRegistry(new AbbrevTag(), null, false, true);
+			CustomTagFactory.addToRegistry(new PersonTag(), null, false, true);
+			CustomTagFactory.addToRegistry(new OrganizationTag(), null, false, true);
+			CustomTagFactory.addToRegistry(new PlaceTag(), null, false, true);
+			CustomTagFactory.addToRegistry(new SpeechTag(), null, false, true);
+			CustomTagFactory.addToRegistry(new DateTag(), null, false, true);
+			CustomTagFactory.addToRegistry(new WorkTag(), null, false, true);
+			CustomTagFactory.addToRegistry(new SicTag(), null, false, true);
+			CustomTagFactory.addToRegistry(new GapTag(), null, true, true);
+			CustomTagFactory.addToRegistry(new DivTag(), null, false, true);
+			CustomTagFactory.addToRegistry(new UnclearTag(), null, false, true);
+			CustomTagFactory.addToRegistry(new BlackeningTag(), null, false, true);
+			CustomTagFactory.addToRegistry(new SuppliedTag(), null, false, true);
+			CustomTagFactory.addToRegistry(new AdditionTag(), null, false, true);
 			
-			CustomTagFactory.addToRegistry(new CommentTag(), null, true); // no color needed since extra rendering is done!
+			CustomTagFactory.addToRegistry(new CommentTag(), null, false, true); // no color needed since extra rendering is done!
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -159,7 +184,7 @@ public class CustomTagFactory {
 	public static String createTagDefPropertyForConfigFile() {
 		String p = "";
 		
-		for (CustomTag t : objectRegistry.values()) {
+		for (CustomTag t : getRegisteredCustomTags()) {
 			if (!t.showInTagWidget())
 				continue;
 			
@@ -192,6 +217,10 @@ public class CustomTagFactory {
 				String color = getTagColor(t.getTagName());
 				if (color != null)
 					p += color+",";
+				boolean isEmptyTag = isEmptyTag(t.getTagName());
+				if (isEmptyTag && !t.isPredefined()) {
+					p += IS_EMPTY_TAG_PROPERTY_NAME+",";
+				}
 				
 				for (String pn : t.getAttributeNames()) {
 					if (!CustomTag.isOffsetOrLengthOrContinuedProperty(pn) && !t.isPredefinedAttribute(pn))
@@ -222,6 +251,7 @@ public class CustomTagFactory {
 			String atts = m.group(3);
 			
 			String color = null;
+			boolean isEmptyTag=false;
 			if (atts != null)
 				for (String a : m.group(3).split(",")) {
 					a = a.trim();
@@ -229,53 +259,58 @@ public class CustomTagFactory {
 					if (a.startsWith("#")) { // color attribute!
 						logger.debug("setting color for tag "+tagName+" to: "+color);
 						color = a;
-					} else {
+					}
+					else if (a.equals(IS_EMPTY_TAG_PROPERTY_NAME)) {
+						isEmptyTag=true;
+					}
+					else {
 						attributes.put(a, null);	
 					}
 				}
 			
 			try {
-				addToRegistry(CustomTagFactory.create(tagName, attributes), color, true);
+				addToRegistry(CustomTagFactory.create(tagName, attributes), color, isEmptyTag, true);
 			} catch (Exception e1) {
 				logger.warn(e1.getMessage());
 			}
 		}
 	}
 	
-	public static List<CustomTag> getCustomTagListFromProperties(String tagNamesProp) {		
-		//logger.info("adding local tags to registry, tagNamesProp = "+tagNamesProp);
-		List<CustomTag> cts = new ArrayList<CustomTag>();
-		
-		Matcher m = RegexPattern.TAG_DEFINITIONS_PATTERN.matcher(tagNamesProp);
-		while (m.find()) {
-			String tag = tagNamesProp.substring(m.start(), m.end());
-			logger.debug("found tag: '"+tag+"'");
-			
-			String tagName = m.group(1);
-			logger.debug("tagname = "+tagName);
-			
-			CustomTag ct = objectRegistry.get(tagName);
-		    cts.add(ct);
-		}
-		return cts;
-	}
+//	/**
+//	 * @deprecated does this even work? never used anyway...
+//	 */
+//	public static List<CustomTag> getCustomTagListFromProperties(String tagNamesProp) {		
+//		List<CustomTag> cts = new ArrayList<CustomTag>();
+//		
+//		Matcher m = RegexPattern.TAG_DEFINITIONS_PATTERN.matcher(tagNamesProp);
+//		while (m.find()) {
+//			String tag = tagNamesProp.substring(m.start(), m.end());
+//			logger.debug("found tag: '"+tag+"'");
+//			
+//			String tagName = m.group(1);
+//			logger.debug("tagname = "+tagName);
+//			
+//			CustomTag ct = objectRegistry.get(tagName);
+//		    cts.add(ct);
+//		}
+//		return cts;
+//	}
 	
-	public static void removeFromRegistry(String tagName) throws IOException {
-		if (registry.containsKey(tagName)) {
-			CustomTag t = objectRegistry.get(tagName);
+	public static boolean removeFromRegistry(String tagName) throws IOException {
+		CustomTag t = getCustomTag(tagName);
+		if (t != null) {
 			if (t.isDeleteable()) {
 				logger.debug("deleting tag '"+tagName+"'");
-				
-				colorRegistry.remove(tagName);
 				objectRegistry.remove(tagName);
-				registry.remove(tagName);
 				
 				TagRegistryChangeEvent e = new TagRegistryChangeEvent(TagRegistryChangeEvent.REMOVED_TAG, t);
 				registryObserver.setChangedAndNotifyObservers(e);
+				return true;
 			} else {
 				throw new IOException("Cannot delete tag "+tagName+"'");
 			}
 		}
+		return false;
 	}
 	
 	/**
@@ -285,59 +320,59 @@ public class CustomTagFactory {
 	 * @param mergeAttributesIfAlreadyRegistered If the tag is already registered, attributes from ct will be merged into the existing registered tag.
 	 * If no default color is set a new one is generated automatically.
 	 */
-	public static void addToRegistry(CustomTag ct, String color, boolean mergeAttributesIfAlreadyRegistered) throws NoSuchMethodException, SecurityException, IllegalAccessException, InvocationTargetException {		
-		if (!registry.containsKey(ct.getTagName())) {
-			
-			CustomTag ctCopy = ct.copy();
-			ctCopy.setAttributes(ct, true, false); // clear all attribute values
-			logger.debug("registering new tag: "+ct+" copy: "+ctCopy);
-
-			// register the class for this custom tag: 
-			registry.put( ct.getTagName(), ctCopy.getClass() );
-			// register the object for this custom tag:		
-			logger.trace("adding prototype tag object to registry: "+ctCopy);
-			objectRegistry.put(ct.getTagName(), ctCopy);
-			
-			if (color == null) // color not given -> get default color
+	public static boolean addToRegistry(CustomTag ct, String color, boolean isEmptyTag, boolean mergeAttributesIfAlreadyRegistered) throws NoSuchMethodException, SecurityException, IllegalAccessException, InvocationTargetException {
+		CustomTag t = getCustomTag(ct.getTagName());
+		if (t == null) { // not registered yet
+			logger.debug("registering new tag: "+ct);
+			if (color == null) { // color not given -> get default color
 				color = ct.getDefaultColor();
-			
-			if (!setTagColor(ct.getTagName(), color) && ct.showInTagWidget()) {
+			}
+			if (!CoreUtils.isValidColorCode(color)) { // still no valid color --> create a new one
 				color = getNewTagColor();
-				setTagColor(ct.getTagName(), color);
 			}
 			
-			TagRegistryChangeEvent e = new TagRegistryChangeEvent(TagRegistryChangeEvent.ADDED_TAG, ctCopy);
+			CustomTagWrapper cw = new CustomTagWrapper(ct, color, isEmptyTag);
+			objectRegistry.put(ct.getTagName(), cw);
+			
+			TagRegistryChangeEvent e = new TagRegistryChangeEvent(TagRegistryChangeEvent.ADDED_TAG, cw.customTag);
 			registryObserver.setChangedAndNotifyObservers(e);
-		} else {
-			CustomTag t = objectRegistry.get(ct.getTagName());
-			
-			if (mergeAttributesIfAlreadyRegistered) {
-				boolean addedAttributes = t.setAttributes(ct, false, false); // add attributes (without values!!!)
-				
-				if (addedAttributes) {
-					TagRegistryChangeEvent e = new TagRegistryChangeEvent(TagRegistryChangeEvent.ADDED_TAG_ATTRIBUTES, t);
-					registryObserver.setChangedAndNotifyObservers(e);
-				}
+			return true;
+		} else if (mergeAttributesIfAlreadyRegistered) {
+			boolean addedAttributes = t.setAttributes(ct, false, false); // add attributes (without values!!!)
+			if (addedAttributes) {
+				TagRegistryChangeEvent e = new TagRegistryChangeEvent(TagRegistryChangeEvent.ADDED_TAG_ATTRIBUTES, t);
+				registryObserver.setChangedAndNotifyObservers(e);
 			}
-			
-			setTagColor(ct.getTagName(), color);
+			// set new color (if it's a new one)
+			if (CoreUtils.isValidColorCode(color) && !color.equals(getTagColor(ct.getTagName()))) {
+				setTagColor(ct.getTagName(), color);	
+			}				
 //			logger.warn("A tag with this name is already defined: "+ct.getTagName()+" - not adding to registry!");
+			return false;
 		}
+		return false;
 	}
 	
+//	public static void addToRegistry(CustomTag ct, String color, boolean mergeAttributesIfAlreadyRegistered) throws NoSuchMethodException, SecurityException, IllegalAccessException, InvocationTargetException {
+//		addToRegistry(ct, color, false, mergeAttributesIfAlreadyRegistered);
+//	}
+	
 	public static String getNewTagColor() {
-		return ColorTable.getNewColor(colorRegistry.values());
+		return ColorTable.getNewColor(getRegisteredColors());
 	}
 
 	public static String getTagColor(String tagName) {
-		return colorRegistry.get(tagName);
+		return objectRegistry.get(tagName)==null ? null : objectRegistry.get(tagName).color;
 	}
 	
 	public static boolean setTagColor(String tagName, String color) {
-		if (CoreUtils.isValidColorCode(color)) {
-			colorRegistry.put(tagName, color.toUpperCase());
+		CustomTagWrapper cw = objectRegistry.get(tagName);
+		
+		if (CoreUtils.isValidColorCode(color) && cw != null) {
+//			colorRegistry.put(tagName, color.toUpperCase());
+			cw.color = color.toUpperCase();
 			
-			TagRegistryChangeEvent e = new TagRegistryChangeEvent(TagRegistryChangeEvent.CHANGED_TAG_COLOR, objectRegistry.get(tagName));
+			TagRegistryChangeEvent e = new TagRegistryChangeEvent(TagRegistryChangeEvent.CHANGED_TAG_COLOR, cw.customTag);
 			registryObserver.setChangedAndNotifyObservers(e);
 			return true;
 		} else {
@@ -346,19 +381,57 @@ public class CustomTagFactory {
 		}
 	}
 	
+	public static boolean isEmptyTag(String tagName) {
+		if (StringUtils.isEmpty(tagName)) {
+			return false;
+		}
+		
+		CustomTagWrapper cw = objectRegistry.get(tagName);
+		return cw != null ? cw.isEmptyTag : false;
+	}
+	
+	public static void setIsEmptyTag(String tagName, boolean isEmptyTag) {
+		if (StringUtils.isEmpty(tagName)) {
+			return;
+		}
+		
+		CustomTagWrapper cw = objectRegistry.get(tagName);
+		if (cw != null) {
+			cw.isEmptyTag = isEmptyTag;
+		}
+	}
+	
+	public static List<CustomTag> getRegisteredCustomTags() {
+		return objectRegistry.values().stream().map(tw -> tw.customTag).collect(Collectors.toList());
+	}
+
+	public static List<String> getRegisteredColors() {
+		return objectRegistry.values().stream().map(tw -> tw.color).collect(Collectors.toList());
+	}
+	
 	public static Class<? extends CustomTag> getTagClassFromRegistry(String tagName) {
-		if (tagName == null)
+		CustomTagWrapper cw = objectRegistry.get(tagName);
+		if (tagName == null || cw == null) {
 			return null;
-		return registry.get(tagName);
+		}
+		return cw.clazz;
+	}
+	
+	public static CustomTag getCustomTag(String tagName) {
+		CustomTagWrapper cw = objectRegistry.get(tagName);
+		if (cw != null) {
+			return cw.customTag;
+		}
+		else {
+			return null;
+		}
 	}
 	
 	public static CustomTag getTagObjectFromRegistry(String tagName) {
-		if (tagName == null)
-			return null;
-		return objectRegistry.get(tagName);
+		return getCustomTag(tagName);
 	}
 	
-	public static Set<String> getRegisteredTagNames() { return registry.keySet(); }
+	public static Set<String> getRegisteredTagNames() { return objectRegistry.keySet(); }
 	
 	public static List<String> getRegisteredTagNamesSorted() {
 		List<String> tags = new ArrayList<>();
@@ -367,11 +440,11 @@ public class CustomTagFactory {
 		return tags;
 	}
 	
-	public static Collection<CustomTag> getRegisteredTagObjects() { return objectRegistry.values(); }
+//	public static Collection<CustomTag> getRegisteredTagObjects() { return objectRegistry.values(); }
 //	public static Map<String, CustomTag> getRegisteredObjects() { return objectRegistry; } 
 	
 	public static List<CustomTag> getRegisteredTagObjectsSortedByName(boolean caseInsensitve) {
-		List<CustomTag> registeredTagsSorted = new ArrayList<>(CustomTagFactory.getRegisteredTagObjects());
+		List<CustomTag> registeredTagsSorted = new ArrayList<>(CustomTagFactory.getRegisteredCustomTags());
 		Collections.sort(registeredTagsSorted, new Comparator<CustomTag>() {
 			@Override
 			public int compare(CustomTag t1, CustomTag t2) {
@@ -456,7 +529,7 @@ public class CustomTagFactory {
 			ct = tagClazz.newInstance();
 		} else if (objectRegistry.containsKey(tagName)) { // found in object registry for all custom tags
 //			ct = new CustomTag(tagName);
-			ct = new CustomTag(objectRegistry.get(tagName));
+			ct = new CustomTag(getCustomTag(tagName));
 		} else // not found in registry --> use constructor with tagName in CustomTag class
 			ct = new CustomTag(tagName);
 

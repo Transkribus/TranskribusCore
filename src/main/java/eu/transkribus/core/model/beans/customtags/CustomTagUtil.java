@@ -349,6 +349,16 @@ public class CustomTagUtil {
 		if (StringUtils.isEmpty(structureType)) {
 			shape.getCustomTagList().removeTags(StructureTag.TAG_NAME);
 		}
+		else if(shape instanceof TrpTextLineType && structureType.startsWith("article")){
+			StructureTag newSt = new StructureTag("article");
+			try {
+				newSt.setAttribute("id", structureType.substring(structureType.lastIndexOf("_")+1), true);
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			shape.getCustomTagList().addOrMergeTag(newSt, null);			
+		}
 		else {
 			shape.getCustomTagList().addOrMergeTag(new StructureTag(structureType), null);
 		}
@@ -384,6 +394,9 @@ public class CustomTagUtil {
 		}
 		
 		StructureTag t = shape.getCustomTagList().getNonIndexedTag(StructureTag.TAG_NAME);
+		if (t!=null && t.getType() != null && t.getType().equals("article")){
+			return t.getType().concat("_").concat(t.getId());
+		}
 		return t==null ? "" : t.getType();			
 	}
 	

@@ -532,7 +532,8 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 	}
 
 	public void setLength(int length) {
-		this.length = length;
+//		this.length = length;
+		this.length = CustomTagFactory.isEmptyTag(getTagName()) ? 0 : length; 
 	}
 
 	public boolean isContinued() {
@@ -646,11 +647,12 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 	}
 
 	public boolean isEmpty() {
-		return isIndexed() && length == 0;
+		return CustomTagFactory.isEmptyTag(getTagName()) ? true : isIndexed() && length == 0;
 	}
 	
 	public boolean canBeEmpty() {
-		return false;
+		return CustomTagFactory.isEmptyTag(getTagName());
+//		return false;
 	}
 
 	/**
