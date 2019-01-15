@@ -30,6 +30,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.MarshalException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.PropertyException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.util.ValidationEventCollector;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -112,7 +113,11 @@ public class PageXmlUtils {
 		JAXBContext jc = createPageJAXBContext();
 
 		Unmarshaller u = jc.createUnmarshaller();
-		u.setProperty("com.sun.xml.internal.bind.ObjectFactory", new TrpObjectFactory());
+		try {
+			u.setProperty("com.sun.xml.internal.bind.ObjectFactory", new TrpObjectFactory());
+		} catch(PropertyException pe) {
+			u.setProperty("com.sun.xml.bind.ObjectFactory", new TrpObjectFactory());
+		}
 		u.setListener(new TrpPageUnmarshalListener());
 
 		if(vec != null) {
