@@ -4,7 +4,7 @@
 
 	<groupId>eu.transkribus</groupId>
 	<artifactId>TranskribusCore</artifactId>
-	<version>0.1.5</version>
+	<version>0.1.6</version>
 	<packaging>jar</packaging>
 	<name>TranskribusCore</name>
 	<organization>
@@ -14,7 +14,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
 		<!-- Transkribus components' version numbers -->
-		<fimagestoreClient.version>0.4.0</fimagestoreClient.version>
+		<fimagestoreClient.version>0.4.1</fimagestoreClient.version>
 		<pdfUtils.version>0.0.3</pdfUtils.version>
 		<interfaces.version>0.0.4</interfaces.version>
 	</properties>
