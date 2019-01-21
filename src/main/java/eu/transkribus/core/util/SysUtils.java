@@ -53,7 +53,33 @@ public class SysUtils {
 		} else {
 			return "32";
 		}
-	}	
+	}
+	
+	public static int getJavaMajorVersion() {
+		String v = getJavaVersion();
+		System.out.println("v = "+v);
+		try {
+			if (v.startsWith("1.")) { // java version <= 8
+				return Integer.parseInt(v.split("\\.")[1]);
+			} else {
+				return Integer.parseInt(v.split("\\.")[0]);
+			}
+		} catch (NumberFormatException e) {
+			throw new RuntimeException("Could not parse java major version: "+e.getMessage(), e);
+		}
+	}
+	
+	public static String getJavaVersion() {
+		return System.getProperty("java.version");
+	}
+	
+	public static boolean isJavaVersionGreater8() {
+		return !SysUtils.getJavaVersion().startsWith("1.");
+	}
+	
+	public static boolean is64Bit() {
+		return getArch().contains("64");
+	}
 
 	public static boolean isWin() {
 		return getOSName().equals("win");
@@ -131,6 +157,7 @@ public class SysUtils {
 		final String fileEnc = System.getProperty("file.encoding");
 		
 		String realArch;
+		realArch = getArchName();
 		if (SysUtils.isWin()) {
 			String arch = System.getenv("PROCESSOR_ARCHITECTURE");
 			String wow64Arch = System.getenv("PROCESSOR_ARCHITEW6432");
@@ -151,7 +178,7 @@ public class SysUtils {
 			}
 		} else {
 			//TODO implement a check for mac
-			realArch = "64";
+			realArch = getArchName(); // FIXME: @philipp: can this go wrong? and: why not use this for other OS too?
 		}
 		return new JavaInfo(javaArch, version, fileEnc, realArch);
 	}
