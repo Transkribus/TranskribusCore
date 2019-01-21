@@ -214,8 +214,8 @@
          <!-- compute region bounds from lines within and add a padding -->
         <xsl:param name="padding" select="number(1)"/>
          <xsl:for-each select="./abbyy:text/abbyy:par">
-            <!-- there are pars with @lineSpacing="-1" and no nodes inside -->
-             <xsl:if test="not(empty(.) or ./@lineSpacing='-1')">
+            <!-- there are pars with @lineSpacing="-1" and no nodes inside (15.01.2019: GH added not(./@lineSpacing='-1') instead of ./@lineSpacing='-1' because this was meant-->
+             <xsl:if test="not(empty(.) and not(./@lineSpacing='-1'))">
                 <TextRegion>
                     <xsl:attribute name="id" select="concat('r_', $seq, '_', position())"/>
                     <xsl:attribute name="type" select="'paragraph'"/>
