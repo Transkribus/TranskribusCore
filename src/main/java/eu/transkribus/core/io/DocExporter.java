@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -448,6 +449,29 @@ public class DocExporter extends APassthroughObservable {
 		return exportPage(gtPage.toTrpPage());
 	}
 	
+	/**
+	 * Exports files for a list of ground truth entities, according to the parameters set on this DocExporter instance.
+	 * In contrast to the exportDoc method, the parameters have be set via the init method beforehand!
+	 * <br><br>
+	 * If the parameters include a export filename pattern, note that the document ID of ground truth is never set (i.e. "docId == -1").
+	 * To avoid collisions, rather use the page ID in a pattern ({@link TrpGroundTruthPage#getOriginPageId()} will be used), 
+	 * instead of a doc. ID + page nr. combination.
+	 *  
+	 * @param gtPage
+	 * @return TrpPage object including URLs pointing to the export files.
+	 * @throws IOException
+	 */
+	public List<TrpPage> exportPages(List<TrpGroundTruthPage> gtPages) throws IOException {
+		if(gtPages == null) {
+			return new ArrayList<>(0);
+		}
+		List<TrpPage> exportedPages = new ArrayList<>(gtPages.size());
+		for(TrpGroundTruthPage gtp : gtPages) {
+			exportedPages.add(exportPage(gtp));
+		}
+		return exportedPages;
+	}
+	
 	public TrpPage exportPage(TrpPage page) throws IOException {
 		if(pars == null || outputDir == null) {
 			throw new IllegalStateException("Export parameters are not set or output directory has not been initialized!");
@@ -585,12 +609,6 @@ public class DocExporter extends APassthroughObservable {
 		return cache;
 	}
 		
-	public static void main(String[] args){
-		final String p = "${filename}_${${pageId}_${pageNr}";
-		System.out.println(ExportFilePatternUtils.isFileNamePatternValid(p));
-		System.out.println(ExportFilePatternUtils.buildBaseFileName(p, "test.jpg", 123, 456, "AAAAA", 7));
-	}
-	
 	private static class OutputDirStructure {
 		final File rootOutputDir, imgOutputDir, pageOutputDir, altoOutputDir;
 		
