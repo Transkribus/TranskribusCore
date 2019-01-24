@@ -263,11 +263,113 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 		}
 		return 0;
 	}
+	
+	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((created == null) ? 0 : created.hashCode());
+		result = prime * result + gtId;
+		result = prime * result + ((gtType == null) ? 0 : gtType.hashCode());
+		//image does not yet implement equals(). imageId is sufficient for now
+		//result = prime * result + ((image == null) ? 0 : image.hashCode());
+		result = prime * result + ((imageId == null) ? 0 : imageId.hashCode());
+		result = prime * result + ((key == null) ? 0 : key.hashCode());
+		result = prime * result + ((md5Sum == null) ? 0 : md5Sum.hashCode());
+		result = prime * result + ((originJobId == null) ? 0 : originJobId.hashCode());
+		result = prime * result + ((originPageId == null) ? 0 : originPageId.hashCode());
+		result = prime * result + ((originTsId == null) ? 0 : originTsId.hashCode());
+		result = prime * result + ((pageNr == null) ? 0 : pageNr.hashCode());
+		result = prime * result + ((url == null) ? 0 : url.hashCode());
+		result = prime * result + userId;
+		result = prime * result + ((userName == null) ? 0 : userName.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TrpGroundTruthPage other = (TrpGroundTruthPage) obj;
+		if (created == null) {
+			if (other.created != null)
+				return false;
+		} else if (!created.equals(other.created))
+			return false;
+		if (gtId != other.gtId)
+			return false;
+		if (gtType == null) {
+			if (other.gtType != null)
+				return false;
+		} else if (!gtType.equals(other.gtType))
+			return false;
+		if (image == null) {
+			if (other.image != null)
+				return false;
+		} 
+		//image does not yet implement equals(). imageId is sufficient for now
+//		else if (!image.equals(other.image))
+//			return false;
+		if (imageId == null) {
+			if (other.imageId != null)
+				return false;
+		} else if (!imageId.equals(other.imageId))
+			return false;
+		if (key == null) {
+			if (other.key != null)
+				return false;
+		} else if (!key.equals(other.key))
+			return false;
+		if (md5Sum == null) {
+			if (other.md5Sum != null)
+				return false;
+		} else if (!md5Sum.equals(other.md5Sum))
+			return false;
+		if (originJobId == null) {
+			if (other.originJobId != null)
+				return false;
+		} else if (!originJobId.equals(other.originJobId))
+			return false;
+		if (originPageId == null) {
+			if (other.originPageId != null)
+				return false;
+		} else if (!originPageId.equals(other.originPageId))
+			return false;
+		if (originTsId == null) {
+			if (other.originTsId != null)
+				return false;
+		} else if (!originTsId.equals(other.originTsId))
+			return false;
+		if (pageNr == null) {
+			if (other.pageNr != null)
+				return false;
+		} else if (!pageNr.equals(other.pageNr))
+			return false;
+		if (url == null) {
+			if (other.url != null)
+				return false;
+		} else if (!url.equals(other.url))
+			return false;
+		if (userId != other.userId)
+			return false;
+		if (userName == null) {
+			if (other.userName != null)
+				return false;
+		} else if (!userName.equals(other.userName))
+			return false;
+		return true;
+	}
 
 	@Override
 	public String toString() {
 		return "TrpGroundTruthPage [gtId=" + gtId + ", key=" + key + ", url=" + url + ", md5Sum=" + md5Sum
-				+ ", imageId=" + imageId + ", image=" + image + ", type=" + gtType + ", pageNr=" + pageNr
+				+ ", imageId=" + imageId + ", image= [ " + image + " ], type=" + gtType + ", pageNr=" + pageNr
 				+ ", originPageId=" + originPageId + ", originTsId=" + originTsId + ", originJobId=" + originJobId
 				+ ", created=" + created + ", username=" + userName + ", userId=" + userId + "]";
 	}
