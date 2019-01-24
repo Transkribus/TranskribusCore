@@ -12,7 +12,7 @@ public class ImgFilenameFilter implements FilenameFilter {
 	public boolean accept(File dir, String name) {
 		final String mime = MimeTypes.getMimeType(FilenameUtils.getExtension(name));
 		//is allowed mimetype and not starts with ".", which may occur on mac
-		return !name.startsWith(".") && ImgPriority.priorities.containsKey(mime);
+		return !name.startsWith(".") && ImgPriority.containsMimeType(mime);
 	}
 
 }
