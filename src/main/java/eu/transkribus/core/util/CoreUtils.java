@@ -1271,4 +1271,12 @@ public class CoreUtils {
 	public static String getClassPathString(Class<?> clazz) {
 		return getClassPathString(clazz, ":");
 	}
+	
+	public static boolean contains(Collection<String> collection, String searchFor, boolean caseSensitive) {
+		if (collection == null) {
+			return false;
+		}
+		
+		return collection.stream().anyMatch(s -> caseSensitive ? StringUtils.equals(s, searchFor) : StringUtils.equalsIgnoreCase(s, searchFor));
+	}
 }

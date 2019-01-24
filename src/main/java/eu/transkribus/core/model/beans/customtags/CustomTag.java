@@ -633,6 +633,10 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 		
 		return css;
 	}
+	
+	public String getAttributeCssStr(List<String> attributesToFilterOut) {
+		return CssSyntaxTag.removeAttributes(getAttributeCssStr(), attributesToFilterOut.toArray(new String[0]));
+	}
 
 	@Override public String toString() {
 		return getCssStr();

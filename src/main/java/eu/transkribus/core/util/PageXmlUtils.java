@@ -383,7 +383,7 @@ public class PageXmlUtils {
         try {
 			return PageXmlUtils.marshalToFile(emptyPcGtsType, xmlFile);
 		} catch (JAXBException e) {
-			throw new IOException("Could not create empty PAGE XML at: " + xmlFile.getAbsolutePath());
+			throw new IOException("Could not create empty PAGE XML at: " + xmlFile.getAbsolutePath(), e);
 		}
 	}
 
