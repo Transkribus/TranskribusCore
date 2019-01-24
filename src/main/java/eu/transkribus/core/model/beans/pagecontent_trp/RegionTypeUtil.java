@@ -36,6 +36,8 @@ public class RegionTypeUtil {
 	public static final String TABLE_CELL = "TableCell";
 	public static final String PRINTSPACE = "Printspace";
 	
+	public static final String ARTICLE = "Article (experimental)";
+	
 	public static final String ADVERT_REGION = "Advert";
 	public static final String CHART_REGION = "Chart";
 	public static final String CHEM_REGION = "Chem";

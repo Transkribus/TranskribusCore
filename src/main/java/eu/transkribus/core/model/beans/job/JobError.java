@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
@@ -28,13 +29,13 @@ public class JobError {
 	@Column
 	private int jobId;
 	@Column
-	private int docId;
+	private Integer docId;
 	@Column
-	private int pageId;
+	private Integer pageId;
 	@Column
-	private int pageNr;
+	private Integer pageNr;
 	@Column
-	private int tsId;
+	private Integer tsId;
 	@Column(name="MSG")
 	private String message;
 	@Column(name="EX_CLASS")
@@ -42,10 +43,26 @@ public class JobError {
 	@XmlTransient
 	@Column
 	private String stacktrace;
+	@Column
+	private String path;
 	
 	public JobError() {}
 	
-	public JobError(int jobId, int docId, int pageId, int pageNr, int tsId, Throwable throwable) {
+	public JobError(int jobId, Integer docId, Integer pageId, Integer pageNr, Integer tsId,
+			String message, String exceptionClass, String stacktrace, String path) {
+		super();
+		this.jobId = jobId;
+		this.docId = docId;
+		this.pageId = pageId;
+		this.pageNr = pageNr;
+		this.tsId = tsId;
+		this.message = message;
+		this.exceptionClass = exceptionClass;
+		this.stacktrace = stacktrace;
+		this.path = path;
+	}
+
+	public JobError(int jobId, Integer docId, Integer pageId, Integer pageNr, Integer tsId, Throwable throwable) {
 		this.jobId = jobId;
 		this.docId = docId;
 		this.pageId = pageId;
@@ -62,34 +79,34 @@ public class JobError {
 		this.jobErrorId = jobErrorId;
 	}
 
-	public int getJobId() {
+	public Integer getJobId() {
 		return jobId;
 	}
-	public void setJobId(int jobId) {
+	public void setJobId(Integer jobId) {
 		this.jobId = jobId;
 	}
-	public int getDocId() {
+	public Integer getDocId() {
 		return docId;
 	}
 	public void setDocId(int docId) {
 		this.docId = docId;
 	}
-	public int getPageId() {
+	public Integer getPageId() {
 		return pageId;
 	}
-	public void setPageId(int pageId) {
+	public void setPageId(Integer pageId) {
 		this.pageId = pageId;
 	}
-	public int getPageNr() {
+	public Integer getPageNr() {
 		return pageNr;
 	}
-	public void setPageNr(int pageNr) {
+	public void setPageNr(Integer pageNr) {
 		this.pageNr = pageNr;
 	}
-	public int getTsId() {
+	public Integer getTsId() {
 		return tsId;
 	}
-	public void setTsId(int tsId) {
+	public void setTsId(Integer tsId) {
 		this.tsId = tsId;
 	}
 	public int getPageIndex() {
@@ -118,6 +135,14 @@ public class JobError {
 	public void setStacktrace(String stacktrace) {
 		this.stacktrace = stacktrace;
 	}
+	
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
 
 	public void setThrowable(Throwable t) {
 		final String errorMsg;
@@ -126,7 +151,9 @@ public class JobError {
 		} else {
 			errorMsg = t.getMessage();
 		}
-		this.setMessage(errorMsg);
+		if(StringUtils.isEmpty(this.getMessage())) {
+			this.setMessage(errorMsg);
+		}
 		this.setExceptionClass(t.getClass().getName());
 		final String stacktrace = ExceptionUtils.getStackTrace(t);
 		this.setStacktrace(stacktrace);
@@ -136,6 +163,6 @@ public class JobError {
 	public String toString() {
 		return "JobError [jobErrorId=" + jobErrorId + ", jobId=" + jobId + ", docId=" + docId + ", pageId=" + pageId
 				+ ", pageNr=" + pageNr + ", tsId=" + tsId + ", message=" + message + ", exceptionClass="
-				+ exceptionClass + ", stacktrace=" + stacktrace + "]";
+				+ exceptionClass + ", stacktrace=" + stacktrace + ", path=" + path + "]";
 	}
 }

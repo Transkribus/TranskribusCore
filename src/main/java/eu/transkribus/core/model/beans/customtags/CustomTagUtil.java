@@ -5,34 +5,47 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.transkribus.core.model.beans.pagecontent.OrderedGroupIndexedType;
 import eu.transkribus.core.model.beans.pagecontent.OrderedGroupType;
-import eu.transkribus.core.model.beans.pagecontent.PageType;
-import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.ReadingOrderType;
 import eu.transkribus.core.model.beans.pagecontent.RegionRefIndexedType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
-import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextTypeSimpleType;
-import eu.transkribus.core.model.beans.pagecontent.WordType;
 import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
-import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpReadingOrderChangedEvent;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpStructureChangedEvent;
 import eu.transkribus.core.util.CoreUtils;
-import eu.transkribus.core.util.PAGETypeFactory;
+import eu.transkribus.core.util.SebisStopWatch;
 
 public class CustomTagUtil {
 	private final static Logger logger = LoggerFactory.getLogger(CustomTagUtil.class);
+	
+	public static void applyForAllTagsAndContinuations(CustomTag tag, Consumer<CustomTag> c) {
+		if (tag==null) {
+			return;
+		}
+		
+		// only apply to this tag if it is not linked in a CustomTagList
+		if (tag.getCustomTagList()==null || !tag.getCustomTagList().hasTag(tag)) {
+			c.accept(tag);
+			return;
+		}
+		
+		for (Pair<CustomTagList, CustomTag> p : tag.getCustomTagList().getCustomTagAndContinuations(tag)) {
+			c.accept(p.getRight());
+		}
+	}
 	
 	public static <T extends CustomTag> List<T> getIndexedCustomTagsForLines(TrpPageType page, String tagName) {
 		List<T> tags = new ArrayList<>();
@@ -169,6 +182,8 @@ public class CustomTagUtil {
 		ReadingOrderType ro = page.getReadingOrder();
 		if (ro == null)
 			return;
+		if (ro.getOrderedGroup() == null)
+			return;
 		
 		for (Object o : ro.getOrderedGroup().getRegionRefIndexedOrOrderedGroupIndexedOrUnorderedGroupIndexed()) {
 			logger.trace("ref: "+o);
@@ -301,8 +316,9 @@ public class CustomTagUtil {
 			}
 		}
 		
-		if (readingOrderSet)
+		if (readingOrderSet) {
 			page.setReadingOrder(ro);
+		}
 	}
 	
 	public static Integer getReadingOrder(ITrpShapeType shape) {
@@ -315,13 +331,14 @@ public class CustomTagUtil {
 	}
 	
 	public static void setStructure(ITrpShapeType shape, String structureType, boolean recursive, Object who) {
-		if (shape == null)
+		if (shape == null || shape.getCustomTagList() == null) {
 			return;
+		}
 		
 		logger.trace("setting structure: "+structureType+" id: "+shape.getId()+" type: "+shape.getClass().getSimpleName()+" recursive: "+recursive);
 		
-		if (!isTextregionOrLineOrWord(shape))
-			return;
+//		if (!isTextregionOrLineOrWord(shape))
+//			return;
 		
 		if (shape instanceof TrpTextRegionType) { // if this is a text region, also set PAGE structure field if possible
 			TextTypeSimpleType s = StructureTag.parseTextType(structureType);
@@ -329,11 +346,24 @@ public class CustomTagUtil {
 		}
 						
 		// set custom tag:
-		if (structureType == null || structureType.equals(""))
+		if (StringUtils.isEmpty(structureType)) {
 			shape.getCustomTagList().removeTags(StructureTag.TAG_NAME);
+		}
+		else if(shape instanceof TrpTextLineType && structureType.startsWith("article")){
+			StructureTag newSt = new StructureTag("article");
+			try {
+				newSt.setAttribute("id", structureType.substring(structureType.lastIndexOf("_")+1), true);
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			shape.getCustomTagList().addOrMergeTag(newSt, null);			
+		}
 		else {
 			shape.getCustomTagList().addOrMergeTag(new StructureTag(structureType), null);
 		}
+		
+		logger.trace("structure afterwards: "+shape.getStructure());
 		
 		if (recursive) {
 			for (ITrpShapeType c : shape.getChildren(recursive)) {
@@ -349,17 +379,34 @@ public class CustomTagUtil {
 	}
 		
 	public static String getStructure(ITrpShapeType shape) {
-		if (!isTextregionOrLineOrWord(shape))
+//		if (!isTextregionOrLineOrWord(shape))
+//			return "";
+		
+		if (shape == null || shape.getCustomTagList()==null) {
 			return "";
+		}
 		
 		if (shape instanceof TrpTextRegionType) { // if this is a region, try to parse the PAGE struct element
 			TextTypeSimpleType tt = ((TrpTextRegionType) shape).getType();
-			if (tt != null)
+			if (tt != null) {
 				return tt.value();
+			}
+		}
+		
+		StructureTag t = shape.getCustomTagList().getNonIndexedTag(StructureTag.TAG_NAME);
+		if (t!=null && t.getType() != null && t.getType().equals("article")){
+			return t.getType().concat("_").concat(t.getId());
+		}
+		return t==null ? "" : t.getType();			
+	}
+	
+	public static StructureTag getStructureTag(ITrpShapeType shape) {
+		
+		if (shape == null || shape.getCustomTagList()==null) {
+			return null;
 		}
 				
-		StructureTag t = shape.getCustomTagList().getNonIndexedTag(StructureTag.TAG_NAME);
-		return t==null ? "" : t.getType();
+		return shape.getCustomTagList().getNonIndexedTag(StructureTag.TAG_NAME);	
 	}
 
 	public static void setReadingOrder(ITrpShapeType shape, Integer readingOrder, Object who) {
@@ -373,18 +420,26 @@ public class CustomTagUtil {
 	}
 	
 	public static void writeCustomTagListToCustomTag(ITrpShapeType st) {
+//		logger.debug("custom before: "+st.getCustom());
+//		SebisStopWatch sw = new SebisStopWatch();
+		boolean wasObserverActiveBefore = st.getObservable().isActive();
 		st.getObservable().setActive(false);
 				
 		// write CustomTagList tags to the custom tag:
 //		if (st instanceof TrpTextRegionType || st instanceof TrpTextLineType || st instanceof TrpWordType) {
 		if (st instanceof RegionType || st instanceof TrpTextLineType || st instanceof TrpWordType) {
-    		if (st.getCustomTagList()!=null)
-    			st.getCustomTagList().writeToCustomTag();
-    		else
+    		if (st.getCustomTagList()!=null) {
+    			String customTagStr = st.getCustomTagList().getCustomTag();
+    			st.setCustom(customTagStr);
+    		}
+    		else {
     			logger.error("Warning: CustomTagList of "+st.getId()+" was null while marshalling file!");
+    		}
 		}
 		
-		st.getObservable().setActive(true);
+		st.getObservable().setActive(wasObserverActiveBefore);
+//		sw.stop(true, "writeCustomTAgListToCustomTag: ", logger);
+//		logger.debug("custom: "+st.getCustom());
 	}
 	
 	public static void writeCustomTagsToPage(TrpPageType page) {

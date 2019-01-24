@@ -11,16 +11,32 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescriptor;
+import eu.transkribus.core.model.beans.rest.ParameterMap;
+import eu.transkribus.core.util.HtrCITlabUtils;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class HtrTrainConfig implements Serializable {
+public class HtrTrainConfig implements Serializable {
 
 	private static final long serialVersionUID = 1434111712220564100L;
+	@Schema(description = "the name of the new HTR model", required=true)
 	protected String modelName;
+	@Schema(description = "textual description", required=true)
 	protected String description;
+	@Schema(description = "specifies the language of the training data's text content", required=true)
 	protected String language;
 	protected int colId;
+	@Schema(description = "the HTR techology provider", allowableValues =  {HtrCITlabUtils.PROVIDER_CITLAB, HtrCITlabUtils.PROVIDER_CITLAB_PLUS})
+	protected String provider;
+	@Schema(description = "map with custom parameters", implementation=ParameterMap.class)
+	protected ParameterMap customParams;
+	
+	public HtrTrainConfig() {
+		provider = null;
+		customParams = null;
+	}
 	
 	@XmlElementWrapper(name="trainList")
 	@XmlElement
@@ -29,6 +45,14 @@ public abstract class HtrTrainConfig implements Serializable {
 	@XmlElementWrapper(name="testList")
 	@XmlElement
 	protected List<DocumentSelectionDescriptor> test = new LinkedList<>();
+	
+	@XmlElementWrapper(name="trainGtList")
+	@XmlElement
+	protected List<GroundTruthSelectionDescriptor> trainGt;
+	
+	@XmlElementWrapper(name="testGtList")
+	@XmlElement
+	protected List<GroundTruthSelectionDescriptor> testGt;
 	
 	public String getModelName() {
 		return modelName;
@@ -62,6 +86,22 @@ public abstract class HtrTrainConfig implements Serializable {
 		this.colId = colId;
 	}
 
+	public String getProvider() {
+		return provider;
+	}
+
+	public void setProvider(String provider) {
+		this.provider = provider;
+	}
+
+	public ParameterMap getCustomParams() {
+		return customParams;
+	}
+
+	public void setCustomParams(ParameterMap customParams) {
+		this.customParams = customParams;
+	}
+
 	public List<DocumentSelectionDescriptor> getTrain() {
 		return train;
 	}
@@ -86,6 +126,31 @@ public abstract class HtrTrainConfig implements Serializable {
 		}
 	}
 	
+	public List<GroundTruthSelectionDescriptor> getTrainGt() {
+		return trainGt;
+	}
+
+	public void setTrainGt(List<GroundTruthSelectionDescriptor> trainGt) {
+		if (trainGt == null) {
+			trainGt = new LinkedList<>();
+		} else {
+			this.trainGt = trainGt;	
+		}
+	}
+	
+	public List<GroundTruthSelectionDescriptor> getTestGt() {
+		return testGt;
+	}
+
+	public void setTestGt(List<GroundTruthSelectionDescriptor> testGt) {
+		if (testGt == null) {
+			testGt = new LinkedList<>();
+		} else {
+			this.testGt = testGt;	
+		}
+	}
+	
+	@Hidden
 	public boolean isTestAndTrainOverlapping() {
 		for(DocumentSelectionDescriptor trainDsd : train) {
 			for(DocumentSelectionDescriptor testDsd : test) {

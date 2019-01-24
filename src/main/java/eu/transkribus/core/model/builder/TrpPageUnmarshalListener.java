@@ -57,9 +57,9 @@ final public class TrpPageUnmarshalListener extends Unmarshaller.Listener {
 			((ITrpShapeType) target).getObservable().setActive(true);
 		}
 		
-		if (page != null) {
-			page.registerObjectId(target);
-		}
+//		if (page != null) {
+//			page.registerObjectId(target);
+//		}
 		
 //		if (target instanceof PcGtsType) {
 //			page.printIdRegistry();
@@ -67,23 +67,32 @@ final public class TrpPageUnmarshalListener extends Unmarshaller.Listener {
 		
 	}
 	
-	/** sync tags with registry for each and every shape */
+	/** 
+	 * sync tags with registry for each and every shape
+	 *  */
 	private void syncTags(Object target) {
 		if (!(target instanceof ITrpShapeType)) {
 			return;
 		}
 		
 		ITrpShapeType st = (ITrpShapeType) target;
-		st.setCustom(st.getCustom()); // manually call setter method for custom tag as JAXB does not call setters!
+		if (st.getCustomTagList() != null) {
+			// FIXME: empty tags do not get built (if they are not already defined)
+			st.getCustomTagList().initFromCustomTagString(st.getCustom(), true);
+		}
+//		st.setCustom(st.getCustom()); // manually call setter method for custom tag as JAXB does not call setters!
 		
 //			TextStyleTypeUtils.applyTextStyleToCustomTag(st);
 		
+		// try registering (possibly new) tags:
+		if (false) // now done in CustomTagList::initFromCustomTagString which is already called above
 		if (st.getCustomTagList()!=null) {
-			// try registering (possibly new) tags:
 			for (CustomTag t : st.getCustomTagList().getTags()) {
 				try {
 					boolean mergeAttributes = false;
-					CustomTagFactory.addToRegistry(t, null, mergeAttributes);
+					boolean canBeEmpty = t.isEmpty();
+					logger.debug("t = "+t+" canBeEmpty = "+canBeEmpty);
+					CustomTagFactory.addToRegistry(t, null, canBeEmpty, mergeAttributes);
 				} catch (NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e) {
 					logger.error("Could not register the tag: "+t.getCssStr()+", reason: "+e.getMessage(), e);
 				}

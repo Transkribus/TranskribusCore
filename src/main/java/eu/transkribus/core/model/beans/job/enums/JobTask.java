@@ -4,6 +4,7 @@ public enum JobTask {
 	CreateDocument(JobType.utility, "Create Document", "uibk"),
 	DeleteDocument(JobType.utility, "Delete Document", "uibk"),
 	DuplicateDocument(JobType.utility, "Duplicate Document", "uibk"),
+	CreateSample(JobType.utility, "Create Sample", "uibk"),
 	RebuildSolrIndex(JobType.utility, "Rebuild Solr Index", "uibk"),	
 	IndexDocument(JobType.utility, "Build search index", "uibk"),
 	Export(JobType.utility, "Export Document", "uibk"),

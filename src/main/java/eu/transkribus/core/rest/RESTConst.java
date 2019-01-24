@@ -59,6 +59,8 @@ public final class RESTConst {
 	public static final String REGISTER_PARAM = "register";
 	public static final String ERROR_PATH = "errors";
 	
+	public static final String JOB_ACL_PATH = "jobAcl";
+	
 	/* SECOND TIER: Methods */
 	public static final String DB_PATH = "db";
 	public static final String CURR_MD_PATH = "curr";
@@ -72,6 +74,7 @@ public final class RESTConst {
 	public static final String DISALLOW_PATH = "disallow";
 	public static final String REFRESH_PATH = "refresh";
 	public static final String LIST_PATH = "list";
+	public static final String LIST_COL_PATH = "listCols";
 	public static final String LIST_BY_NAME_PATH = "listByName";
 	public static final String LIST_MY_DOCS_PATH = "listMyDocs";
 	public static final String COUNT_MY_DOCS_PATH = "countMyDocs";
@@ -96,7 +99,6 @@ public final class RESTConst {
 	
 	public static final String WORDGRAPHS_PATH = "wordgraphs";
 	public static final String LIST_USERS_PATH = "userlist";
-	public static final String LIST_LOGINS_PATH = "loginlist";
 	public static final String REGISTER_PATH = "register";
 	public static final String BUG_REPORT_PATH = "bugReport";
 	public static final String SERVER_VERSION_INFO_PATH = "serverVersion";
@@ -130,6 +132,7 @@ public final class RESTConst {
 	public static final String INGEST_PATH = "ingest";
 	public static final String INFO_PATH = "info";
 	public static final String CHECK_SESSION = "checkSession";
+	public static final String FIMAGESTORE_DETAILS_PATH = "fimagestore";
 	
 	@Deprecated
 	public static final String DOC_STAT_PATH = "docStat";
@@ -180,6 +183,8 @@ public final class RESTConst {
 	public static final String IS_BUG_PARAM = "isBug";
 	public static final String LOG_FILE_PARAM = "logFile";
 	
+	public static final String IS_DELETED_FLAG = "isDeleted";
+	public static final String IS_STRAY_FLAG = "isStray";
 	public static final String IS_RELEASE_PARAM = "isRelease";
 	public static final String PACKAGE_TYPE_PARAM = "packageType";
 	
@@ -260,7 +265,6 @@ public final class RESTConst {
 	public static final String HTR_TRAIN_PATH = "htrTraining";
 	
 	public static final String HTR_UPVLC_TRAIN_PATH = "htrTrainingUpvlc";
-	public static final String HTR_URO_TRAIN_PATH = "htrTrainingUro";
 	public static final String HTR_CITLAB_TRAIN_PATH = "htrTrainingCITlab";
 	public static final String HTR_CITLAB_TEST_PATH = "htrCITlab";
 	public static final String HTR_T2I_CITLAB_PATH = "t2iCITlab";
@@ -274,6 +278,7 @@ public final class RESTConst {
 	
 	public static final String WER_PATH = "computeWER";
 	public static final String ERROR_RATE = "errorRate";
+	public static final String COMPUTE_SAMPLE = "computeSample";
 
 	public static final String TEST_DOC_PATH = "testSet";
 	public static final String TRAIN_DOC_PATH = "trainSet";
@@ -375,6 +380,8 @@ public final class RESTConst {
 	public static final String TAGS_PATH = "tags";
 	public static final String TAG_NAME_PARAM = "tagName";
 	public static final String TAG_VALUE_PARAM = "tagValue";
+	public static final String TAG_DEF_PARAM = "tagDefs";
+	public static final String LIST_TAG_DEFS_PARAM = "listTagDefs";
 	public static final String REGION_TYPE_PARAM = "regionType";
 	public static final String ATTRIBUTES_PARAM = "attributes";
 	public static final String PARS_PARAM = "pars";
@@ -411,6 +418,7 @@ public final class RESTConst {
 	public static final String DO_TEI_LINE_BREAKS_PARAM = "doTeiWithLineBreaks";
 	public static final String DO_DOCX_EXPORT_TAGS = "doDocxWithTags";
 	public static final String DO_DOCX_PRESERVE_BREAKS_PARAM = "doDocxPreserveLineBreaks";
+	public static final String DO_DOCX_FORCE_PAGEBREAKS_PARAM = "doDocxForcePageBreaks";
 	public static final String DO_DOCX_MARK_UNCLEAR_PARAM = "doDocxMarkUnclear";
 	public static final String DO_DOCX_KEEP_ABBREVS_PARAM = "doDocxKeepAbbrevs";
 	public static final String DO_DOCX_EXPAND_ABBREVS_PARAM = "doDocxExpandAbbrevs";

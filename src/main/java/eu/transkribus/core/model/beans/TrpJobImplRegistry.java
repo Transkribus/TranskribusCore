@@ -1,14 +1,17 @@
 package eu.transkribus.core.model.beans;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import eu.transkribus.core.util.CoreUtils;
 
@@ -31,12 +34,16 @@ public class TrpJobImplRegistry {
 	private String jobType;
 	
 	@Column
-	private String users;
+	@XmlTransient
+	@Transient
+	private List<Integer> users;
 	
-	public TrpJobImplRegistry() {}
+	public TrpJobImplRegistry() {
+		this.users = new ArrayList<>(0);
+	}
 
 	public TrpJobImplRegistry(int jobImplRegistryId, String jobImpl, String jobTasks, String jobType) {
-		super();
+		this();
 		this.jobImplRegistryId = jobImplRegistryId;
 		this.jobImpl = jobImpl;
 		this.jobTasks = jobTasks;
@@ -79,24 +86,30 @@ public class TrpJobImplRegistry {
 		this.jobType = jobType;
 	}
 	
-	public boolean isUserAllowed(String userName) {
-		List<String> ul = getUsersList();
-		if (ul.isEmpty()) // empty userlist means no restriction -> add some dummy user like "admin" to restrict module to admins only!
+	/**
+	 * Use the method from the DAO to check the relation table instead of selecting all objects and checking each one for allowance.
+	 * 
+	 * @param userId
+	 * @return
+	 */
+	@Deprecated
+	public boolean isUserAllowed(Integer userId) {
+		//List<String> ul = getUsersList();
+		List<Integer> ul = getUsers();
+		if (ul.isEmpty()) // empty userlist means no restriction -> add some dummy user like "deaadmin" with userId = 1 to restrict module to admins only!
 			return true;
 		
-		return ul.contains(userName);
-	}
-	
-	public List<String> getUsersList() {
-		return CoreUtils.parseStringList(users, true);
+		return ul.contains(userId);
 	}
 
-	public String getUsers() {
+	@Transient
+	public List<Integer> getUsers() {
 		return users;
 	}
 
-	public void setUsers(String users) {
-		this.users = users;
+	@Transient
+	public void setUsers(List<Integer> list) {
+		this.users = list;
 	}
 
 	@Override

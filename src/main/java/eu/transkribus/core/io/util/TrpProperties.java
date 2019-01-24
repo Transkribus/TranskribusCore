@@ -177,6 +177,14 @@ public class TrpProperties {
 			return retVal;
 		}
 		
+		/**
+		 * Get a Boolean value from the Properties.<br>
+		 * Evaluation result is based on {@link Boolean#parseBoolean(String)}. Additionally, "1" will be evaluated as "true".<br>
+		 * A missing (null) value will be interpreted as false!  
+		 * 
+		 * @param key
+		 * @return
+		 */
 		public Boolean getBoolProperty(String key) {
 			final String propStr = getProperty(key);
 			if("1".equals(propStr)) {
@@ -233,11 +241,45 @@ public class TrpProperties {
 			return CoreUtils.propertiesToString(props);
 		}
 		
+		/**
+		 * Sets a String value to the properties (see {@link Properties#setProperty(String, String)}).
+		 * 
+		 * If key or value is null, then nothing will be added and null is returned.
+		 *  
+		 * @param key
+		 * @param value
+		 * @return
+		 */
 		public Object setProperty(String key, String value) {
 			if(key == null) {
 				return null;
 			}
+			if(value == null) {
+				logger.warn("Not inserting null value for key: " + key);
+				return null;
+			}
 			return props.setProperty(key, value);
+		}
+		
+		/**
+		 * Sets a Integer value to the properties (see {@link Properties#setProperty(String, String)}).
+		 * 
+		 * If key or value is null, then nothing will be added and null is returned.
+		 *  
+		 * @param key
+		 * @param value
+		 * @return
+		 */
+		public Object setProperty(String key, Integer value) {
+			if(value == null) {
+				logger.warn("Not inserting (Integer)null value for key: " + key);
+				return null;
+			}
+			return setProperty(key, ""+value);
+		}
+
+		public Object remove(String key) {
+			return props.remove(key);	
 		}
 		
 //		public void parseAndSetString(String propertyName) throws IOException, IllegalAccessException, InvocationTargetException {

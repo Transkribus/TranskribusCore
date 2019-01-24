@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +63,7 @@ public class SebisStopWatch {
 		calcDiffs();
 		
 		if (verbose) {
-			String formatStr = (name==null || name.isEmpty()) ? verbosePrefix : name+" - "+verbosePrefix+": ";		
+			String formatStr = (StringUtils.isEmpty(name)) ? (verbosePrefix+": ") : (name+" - "+verbosePrefix+": ");		
 			
 			String outStr = formatStr+timeStr+"\n";
 			if (logger==null)

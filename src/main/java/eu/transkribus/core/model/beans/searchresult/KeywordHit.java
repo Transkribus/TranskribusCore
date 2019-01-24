@@ -11,15 +11,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class KeywordHit {
 	
 	private String id;
+	private int docId;
 	private String docTitle;
 	private int pageNr;
+	private String imgKey;
 	private ArrayList<Integer> colIds;
-	private ArrayList<String> wordOptions;
+//	private ArrayList<String> wordOptions;
 	private String pageUrl;
 	private String lineId;
 	private String textCoords;
+	private ArrayList<Integer> pos;
+	private ArrayList<Integer> size;
 	private String word;
 	private float probability;
+	
+//	private KeywordPageHit page;
 	
 	public String getId() {
 		return id;
@@ -75,11 +81,41 @@ public class KeywordHit {
 	public void setLineId(String lineId) {
 		this.lineId = lineId;
 	}
-	public ArrayList<String> getWordOptions() {
-		return wordOptions;
+//	public ArrayList<String> getWordOptions() {
+//		return wordOptions;
+//	}
+//	public void setWordOptions(ArrayList<String> wordOptions) {
+//		this.wordOptions = wordOptions;
+//	}
+//	public KeywordPageHit getPage() {
+//		return page;
+//	}
+//	public void setPage(KeywordPageHit page) {
+//		this.page = page;
+//	}
+	public int getDocId() {
+		return docId;
 	}
-	public void setWordOptions(ArrayList<String> wordOptions) {
-		this.wordOptions = wordOptions;
+	public void setDocId(int docId) {
+		this.docId = docId;
+	}
+	public String getImgKey() {
+		return imgKey;
+	}
+	public void setImgKey(String imgKey) {
+		this.imgKey = imgKey;
+	}
+	public ArrayList<Integer> getPos() {
+		return pos;
+	}
+	public void setPos(ArrayList<Integer> pos) {
+		this.pos = pos;
+	}
+	public ArrayList<Integer> getSize() {
+		return size;
+	}
+	public void setSize(ArrayList<Integer> size) {
+		this.size = size;
 	}
 	
 	

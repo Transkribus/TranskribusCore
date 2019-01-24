@@ -165,7 +165,7 @@
 		             <Unicode>
 		                 <xsl:variable name="regionLineCount" select="count(./TextLine)"/>
 		                 <xsl:for-each select="./TextLine">
-		                     <xsl:value-of select="string-join(.//String/@CONTENT, ' ')"/>
+		                     <xsl:value-of select="concat(string-join(.//String/@CONTENT, ' '),.//HYP/@CONTENT)"/>
 		                     <xsl:if test="position() &lt; $regionLineCount">
 		                         <xsl:text>&#10;</xsl:text>
 		                     </xsl:if>
@@ -213,7 +213,7 @@
 		             <Unicode>
 		                 <xsl:variable name="regionLineCount" select="count(./TextLine)"/>
 		                 <xsl:for-each select="./TextLine">
-		                     <xsl:value-of select="string-join(.//String/@CONTENT, ' ')"/>
+		                     <xsl:value-of select="concat(string-join(.//String/@CONTENT, ' '),.//HYP/@CONTENT)"/>
 		                     <xsl:if test="position() &lt; $regionLineCount">
 		                         <xsl:text>&#10;</xsl:text>
 		                     </xsl:if>
@@ -277,7 +277,7 @@
                 <xsl:apply-templates select="./String"/>
                 <xsl:if test="not($textToWordsOnly)">  
 	                <TextEquiv>
-	                    <Unicode><xsl:value-of select="string-join(.//String/@CONTENT, ' ')"/></Unicode>
+	                    <Unicode><xsl:value-of select="concat(string-join(.//String/@CONTENT, ' '),.//HYP/@CONTENT)"/></Unicode>
 	                </TextEquiv>
                 </xsl:if>
                 <xsl:if test="$preserveTextStyles">
@@ -315,6 +315,12 @@
         <xsl:variable name="font" select="./@STYLEREFS"/>
         <xsl:variable name="fontFamily" select="//TextStyle[@ID=$font]/@FONTFAMILY"/>
         <xsl:variable name="fontSize" select="//TextStyle[@ID=$font]/@FONTSIZE"/>
+        <xsl:variable name="hyp">
+       		<xsl:if test="following-sibling::*[1][self::HYP]">
+       			<xsl:value-of select="following-sibling::*[1][self::HYP]/@CONTENT"/>
+       	    </xsl:if>
+      	</xsl:variable>
+      	
         <Word id="{concat('w_', $seq)}">
         <!-- reading order does not start with 0 for each new text region - so leave this to the Transkribus import  -->
         <!-- Word id="{concat('w_', $seq)}" custom="readingOrder {concat(concat('{index:', $seq2), ';}')}"-->
@@ -327,7 +333,8 @@
             </xsl:call-template>
             <TextEquiv>
                 <Unicode>
-                    <xsl:value-of select="./@CONTENT"/>
+                    <!--  xsl:value-of select="./@CONTENT"/-->
+                    <xsl:value-of select="concat(./@CONTENT, $hyp)"/>
                 </Unicode>
             </TextEquiv>
             <xsl:if test="$preserveTextStyles">

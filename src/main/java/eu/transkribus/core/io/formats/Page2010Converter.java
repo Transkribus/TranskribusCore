@@ -149,24 +149,24 @@ public class Page2010Converter {
 		return output;
 	}
 	
-	public static File updatePageFormatSingleFile(File input, String backupDirStr) throws IOException {
+	public static File updatePageFormatSingleFile(File pageConverted, File pageSource) throws IOException {
 				
-		File backupDir = new File(backupDirStr);
-		if(!backupDir.exists()){
-			backupDir.mkdirs();
-		}
+//		File backupDir = new File(backupDirStr);
+//		if(!backupDir.exists()){
+//			backupDir.mkdirs();
+//		}
 		
 		//output
-		File tmpFile = new File(input.getAbsolutePath() + ".tmp"); 
+		File tmpFile = new File(pageSource.getAbsolutePath() + ".tmp"); 
 
 		//do conversion
-		convert(input, tmpFile);
+		convert(pageSource, tmpFile);
 		
 		//move input to backup path
-		File backup = new File(backupDir.getAbsolutePath() + File.separator + input.getName());
-		Files.move(input.toPath(), backup.toPath());
+//		File backup = new File(backupDir.getAbsolutePath() + File.separator + input.getName());
+//		Files.move(input.toPath(), backup.toPath());
 		//move output into original file's place
-		Path outputPath = Files.move(tmpFile.toPath(), input.toPath());
+		Path outputPath = Files.move(tmpFile.toPath(), pageConverted.toPath());
 		
 		return outputPath.toFile();
 	}

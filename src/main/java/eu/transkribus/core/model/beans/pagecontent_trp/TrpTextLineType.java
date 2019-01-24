@@ -60,12 +60,10 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	@Override
 	public TrpTextLineType copy() { return new TrpTextLineType(this); }	
 	
-	@Override public void setCustom(String custom) {
-		// TODO: catch exceptions (index out of bounds!)
-//		logger.debug("setting custom tag to: "+custom);
-		this.custom = custom;
-		customTagList = new CustomTagList(this);
-	}
+//	@Override public void setCustom(String custom) {
+//		this.custom = custom;
+//		customTagList = new CustomTagList(this);
+//	}
 	
 	@Override public void copyFields(ITrpShapeType srcShape) {
 		if (!(srcShape instanceof TrpTextLineType))
@@ -89,7 +87,7 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	    primaryLanguage = src.primaryLanguage;
 	    production = src.production;
 	    	    
-	    src.getCustomTagList().writeToCustomTag();
+//	    src.getCustomTagList().writeToCustomTag();
 	    if (src.custom != null)
 	    	custom = new String(src.custom);
 	    if (src.comments != null)
@@ -134,7 +132,8 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	}
 		
 	public TrpPageType getPage() {
-		return getRegion().getPage();
+		return getRegion() != null ? getRegion().getPage() : null;
+//		return getRegion().getPage();
 	}
 	
 	public int getWordCount() { return getWord().size(); }
@@ -253,11 +252,13 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	public List<ITrpShapeType> getChildren(boolean recursive) {
 		ArrayList<ITrpShapeType> c = new ArrayList<ITrpShapeType>();
 		// add baseline:
-		if (getBaseline() != null)
-			c.add((TrpBaselineType)getBaseline());
+		logger.trace("baseline: "+getBaseline()+" line = "+getId());
+		if (getTrpBaseline() != null) {
+			c.add(getTrpBaseline());
+		}
 		// add words:
-		for (WordType w : getWord()) {
-			c.add((TrpWordType)w);
+		for (TrpWordType w : getTrpWord()) {
+			c.add(w);
 		}
 
 		return c;

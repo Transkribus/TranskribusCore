@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import eu.transkribus.core.io.util.TrpProperties;
 
 /**
  * Implements {@link AJaxbMap} and adds parameter-related helper methods.
@@ -175,32 +178,13 @@ public class ParameterMap extends AJaxbMap {
 		return this.toList().toArray(new String[map.size() * 2]);
 	}
 	
-	@Override
-	public boolean equals(Object other) {
-		if(other == null) {
-			return false;
-		}
-		if(!(other instanceof ParameterMap)) {
-			return false;
-		}
-		ParameterMap otherMap = (ParameterMap)other;
-		if(map.size() != otherMap.getParamMap().size()) {
-			logger.debug("Size differs!");
-			return false;
-		}
-		for(Entry<String,String> e : map.entrySet()) {
-			final String key = e.getKey();
-			final String value = e.getValue();
-			if(!otherMap.containsKey(key)) {
-				logger.debug("A key is missing: " + key);
-				return false;
-			}
-			final String otherValue = otherMap.getParameterValue(key);
-			if(!value.equals(otherValue)) {
-				logger.debug("A value does not match: " + value + " <-> " + otherValue);
-				return false;
-			}
-		}
-		return true;
+	public Properties toProperties() {
+		Properties props = new Properties();
+		props.putAll(map);
+		return props;
+	}
+	
+	public TrpProperties toTrpProperties() {
+		return new TrpProperties(toProperties());
 	}
 }

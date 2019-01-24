@@ -3,11 +3,13 @@ package eu.transkribus.core.model.builder.ms;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
@@ -22,6 +24,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.io.DocExporter;
 import eu.transkribus.core.io.LocalDocReader;
 import eu.transkribus.core.model.beans.JAXBPageTranscript;
 import eu.transkribus.core.model.beans.TrpDoc;
@@ -37,9 +40,10 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
+import eu.transkribus.core.model.builder.ExportCache;
 import eu.transkribus.core.model.builder.ExportUtils;
 import eu.transkribus.core.model.builder.NoTagsException;
-import eu.transkribus.core.model.builder.rtf.TrpRtfBuilder;
+import eu.transkribus.core.util.CoreUtils;
 
 
 public class TrpXlsxBuilder {
@@ -50,7 +54,7 @@ public class TrpXlsxBuilder {
 		
 	}
 	
-	private static void writeTagsForShapeElement(ITrpShapeType element, String context, String doc, String page, String regionID, String lineID, String wordId, Set<String> selectedTags) throws IOException{
+	private void writeTagsForShapeElement(ITrpShapeType element, String context, String doc, String page, String regionID, String lineID, String wordId, Set<String> selectedTags) throws IOException{
 
 		String textStr = element.getUnicodeText();
 		CustomTagList cl = element.getCustomTagList();
@@ -197,7 +201,7 @@ public class TrpXlsxBuilder {
 
 	}
 	
-	private static void fillFirstOverviewRow(Sheet firstSheet) {
+	private void fillFirstOverviewRow(Sheet firstSheet) {
 		Row firstRow = firstSheet.createRow(0);
 		
 		int idx = 0;
@@ -212,7 +216,7 @@ public class TrpXlsxBuilder {
 				
 	}
 
-	private static void fillFirstRow(Sheet currSheet, Map<String, Object> attributes, CreationHelper crHelper) {
+	private void fillFirstRow(Sheet currSheet, Map<String, Object> attributes, CreationHelper crHelper) {
 		Row firstRow = currSheet.createRow(0);
 		
 		int idx = 0;
@@ -233,116 +237,134 @@ public class TrpXlsxBuilder {
 		
 	}
 
-	public static void writeXlsxForDoc(TrpDoc doc, boolean wordBased, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor) throws NoTagsException, Exception {
+	public void writeXlsxForDoc(TrpDoc doc, boolean wordBased, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor, ExportCache cache) throws NoTagsException, Exception {
 		
-		if (ExportUtils.getCustomTagMapForDoc().isEmpty()) {
-			logger.info("No tags to store -> Xlsx export cancelled");
-			throw new NoTagsException("No tags available to store into Xlsx");
+		if(cache == null) {
+			throw new IllegalArgumentException("ExportCache must not be null.");
 		}
-
-		List<TrpPage> pages = doc.getPages();
-		String exportPath = exportFile.getPath();
 		
-		Set<String> selectedTags = ExportUtils.getOnlySelectedTagnames(ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames()));
-		
-		int totalPages = pageIndices==null ? pages.size() : pageIndices.size();
-		if (monitor!=null) {
-			monitor.beginTask("Exporting to Excel", totalPages);
-		}
-				
 		wb = new XSSFWorkbook();
-		int c=0;
-		for (int i=0; i<pages.size(); ++i) {
-			if (pageIndices!=null && !pageIndices.contains(i))
-				continue;
-			
-			if (monitor!=null) {
-				if (monitor.isCanceled()) {
-					throw new InterruptedException("Export was canceled by user");
-//					logger.debug("Xlsx export cancelled!");
-//					return;
-				}
-				monitor.subTask("Processing page "+(c+1));
-			}
-			
-			TrpPage page = pages.get(i);
-			//try to get previously loaded JAXB transcript
-			JAXBPageTranscript tr = ExportUtils.getPageTranscriptAtIndex(i);
-			if (tr == null){
-				TrpTranscriptMetadata md = page.getCurrentTranscript();
-				tr = new JAXBPageTranscript(md);
-				tr.build();
-			}
-			
-			//old version
-//			TrpPage page = pages.get(i);
-//			TrpTranscriptMetadata md = page.getCurrentTranscript();
-//			JAXBPageTranscript tr = new JAXBPageTranscript(md);
-//			tr.build();
-			
-			
-			TrpPageType trpPage = tr.getPage();
+		String exportPath = exportFile.getPath();
 				
-			logger.debug("writing xlsx for page "+(i+1)+"/"+doc.getNPages());
-			
-			List<TrpTextRegionType> textRegions = trpPage.getTextRegions(true);
-
-			for (int j=0; j<textRegions.size(); ++j) {
-				TrpTextRegionType r = textRegions.get(j);
-								
-				List<TextLineType> lines = r.getTextLine();
-				
-				for (int k=0; k<lines.size(); ++k) {
-					TrpTextLineType trpL = (TrpTextLineType) lines.get(k);
-					List<WordType> words = trpL.getWord();
-					
-					if (wordBased){
-						for (int l=0; l<words.size(); ++l) {
-							TrpWordType w = (TrpWordType) words.get(l);
-							writeTagsForShapeElement(w, trpL.getUnicodeText(), String.valueOf(doc.getId()), String.valueOf(page.getPageNr()), r.getId(), trpL.getId(), w.getId(), selectedTags );
-						}
-					}
-					else{
-						writeTagsForShapeElement(trpL, trpL.getUnicodeText(), String.valueOf(doc.getId()), String.valueOf(page.getPageNr()), r.getId(), trpL.getId(), "", selectedTags );
-					}
-
-				}
-
-			}
-			
-
-
-			++c;
-			if (monitor!=null) {
-				monitor.worked(c);
-			}
-		}
-		
 		/*
-		 * auto size the columns
+		 * write XSL only if tags are available - otherwise say 'No tags available for the chosen export' when exporting on Server
+		 * otherwise the user doesn't know what's happening
 		 */
-		for (int i = 0; i < wb.getNumberOfSheets(); i++){
-            int numberOfCells = 0;
-            Iterator rowIterator = wb.getSheetAt(i).rowIterator();
-            /**
-             * Escape the header row *
-             */
-            if (rowIterator.hasNext())
-            {
-                Row headerRow = (Row) rowIterator.next();
-                //get the number of cells in the header row
-                numberOfCells = headerRow.getPhysicalNumberOfCells();
-                for (int j = 0; j<numberOfCells; j++){
-                	wb.getSheetAt(i).autoSizeColumn(j);
-                }
-            }
+		if (!cache.getCustomTagMapForDoc().isEmpty()) {
+			logger.info("Tags available for export!");
+			//throw new NoTagsException("No tags available to store into Xlsx");
+
+			List<TrpPage> pages = doc.getPages();
+			Set<String> selectedTags = cache.getOnlySelectedTagnames(ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames()));
+			
+			//to test if it works if no tags are selected
+			//selectedTags.clear();
+								
+			int totalPages = pageIndices==null ? pages.size() : pageIndices.size();
+			if (monitor!=null) {
+				monitor.beginTask("Exporting to Excel", totalPages);
+			}
+
+			int c=0;
+			for (int i=0; i<pages.size(); ++i) {
+				if (pageIndices!=null && !pageIndices.contains(i))
+					continue;
+				
+				if (monitor!=null) {
+					if (monitor.isCanceled()) {
+						throw new InterruptedException("Export was canceled by user");
+	//					logger.debug("Xlsx export cancelled!");
+	//					return;
+					}
+					monitor.subTask("Processing page "+(c+1));
+				}
+				
+				TrpPage page = pages.get(i);
+				//try to get previously loaded JAXB transcript
+				JAXBPageTranscript tr = null;
+				if(cache != null) {
+					tr = cache.getPageTranscriptAtIndex(i);
+				}
+				if (tr == null){
+					TrpTranscriptMetadata md = page.getCurrentTranscript();
+					tr = new JAXBPageTranscript(md);
+					tr.build();
+				}
+				
+				//old version
+	//			TrpPage page = pages.get(i);
+	//			TrpTranscriptMetadata md = page.getCurrentTranscript();
+	//			JAXBPageTranscript tr = new JAXBPageTranscript(md);
+	//			tr.build();
+				
+				
+				TrpPageType trpPage = tr.getPage();
+					
+				logger.debug("writing xlsx for page "+(i+1)+"/"+doc.getNPages());
+				
+				List<TrpTextRegionType> textRegions = trpPage.getTextRegions(true);
+				
+				for (int j=0; j<textRegions.size(); ++j) {
+					TrpTextRegionType r = textRegions.get(j);
+									
+					List<TextLineType> lines = r.getTextLine();
+										
+					for (int k=0; k<lines.size(); ++k) {
+						TrpTextLineType trpL = (TrpTextLineType) lines.get(k);
+						List<WordType> words = trpL.getWord();
+												
+						if (wordBased){
+							for (int l=0; l<words.size(); ++l) {
+								TrpWordType w = (TrpWordType) words.get(l);
+								writeTagsForShapeElement(w, trpL.getUnicodeText(), String.valueOf(doc.getId()), String.valueOf(page.getPageNr()), r.getId(), trpL.getId(), w.getId(), selectedTags );
+							}
+						}
+						else{
+							logger.debug("writing tags for shape ");
+							writeTagsForShapeElement(trpL, trpL.getUnicodeText(), String.valueOf(doc.getId()), String.valueOf(page.getPageNr()), r.getId(), trpL.getId(), "", selectedTags );
+						}
+	
+					}
+	
+				}
+
+				++c;
+				if (monitor!=null) {
+					monitor.worked(c);
+				}
+			}
+
+			/*
+			 * auto size the columns
+			 */
+			for (int i = 0; i < wb.getNumberOfSheets(); i++){
+	            int numberOfCells = 0;
+	            Iterator rowIterator = wb.getSheetAt(i).rowIterator();
+	            /**
+	             * Escape the header row *
+	             */
+	            if (rowIterator.hasNext())
+	            {
+	                Row headerRow = (Row) rowIterator.next();
+	                //get the number of cells in the header row
+	                numberOfCells = headerRow.getPhysicalNumberOfCells();
+	                for (int j = 0; j<numberOfCells; j++){
+	                	wb.getSheetAt(i).autoSizeColumn(j);
+	                }
+	            }
+			}
 		}
 
 		FileOutputStream fOut;
 		try {
-			//means no tags at all
+			//means no tags found for export - we write in the XLS that there were no tags found to export
 			if (wb.getNumberOfSheets() == 0){
-				throw new IOException("Sorry - No tags available for export");
+				//throw new IOException("Sorry - No tags available for export");
+				logger.info("Sorry - No tags available for export");
+				Sheet noTags = wb.createSheet(WorkbookUtil.createSafeSheetName("No tags found"));
+				CreationHelper crHelper = wb.getCreationHelper();
+				Row firstRow = noTags.createRow(0);
+				firstRow.createCell(0).setCellValue(crHelper.createRichTextString("Sorry - there were no tags available for your export. Please check the transcripts!"));
 			}
 			fOut = new FileOutputStream(exportPath);
 			wb.write(fOut);
@@ -355,7 +377,11 @@ public class TrpXlsxBuilder {
 		logger.info("wrote xlsx to: "+ exportPath);
 	}
 	
-	private static void ExcelTest(String Path) {
+	private void writeExcelForNoTags(){
+		
+	}
+	
+	private void ExcelTest(String Path) {
 		Workbook wb = new XSSFWorkbook();
 		Sheet employees = wb.createSheet(WorkbookUtil.createSafeSheetName("Mitarbeiter"));
 		
@@ -417,9 +443,30 @@ public class TrpXlsxBuilder {
 	public static void main(String[] args) throws Exception {
 		
 		
-		TrpDoc doc = LocalDocReader.load("C:/Users/Administrator/OCR_Sample_Document_-_Gothic_letter/");
+		//TrpDoc docWithoutTags = LocalDocReader.load("C:/01_Projekte/READ/Projekte/export_job_377290/41768/171/");
+		TrpDoc docWithTags = LocalDocReader.load("C:/Neuer Ordner/Janauschek_ZK_04_F/Janauschek_ZK_04_F/");
+		
+		/*
+		 * here we store the page transcripts for all later exports regarding to the wished version status
+		 * if status can not be found -> we get the latest one, so values 
+		 *  
+		 */
+		
+		Set<Integer> pageIndices = null; // null means every page
+		
+		//pageIndices must be set here instead of being null because it gets used in ExportUtils
+		if (pageIndices == null){
+			pageIndices = new HashSet<Integer>();
+			for (int i = 0; i<docWithTags.getNPages(); i++){
+				pageIndices.add(i);
+			}
+		}
+		DocExporter docExporter =  new DocExporter();
+		docExporter.getCache().storePageTranscripts4Export(docWithTags, pageIndices, null, "Latest", -1, null);
+		docExporter.getCache().storeCustomTagMapForDoc(docWithTags, false, pageIndices, null, false);
+		
 		TrpXlsxBuilder txslx = new TrpXlsxBuilder();
-		writeXlsxForDoc(doc, true, new File("C:/Users/Administrator/test.xlsx"), null, null);
+		txslx.writeXlsxForDoc(docWithTags, false, new File("C:/01_Projekte/READ/Projekte/testWithTags.xlsx"), pageIndices, null, docExporter.getCache());
 		//ExcelTest("C:/Users/Administrator/test.xlsx");
 		System.out.println("finished");
 	}

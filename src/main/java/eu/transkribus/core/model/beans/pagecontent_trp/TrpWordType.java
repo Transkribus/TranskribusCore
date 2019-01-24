@@ -64,11 +64,10 @@ public class TrpWordType extends WordType implements ITrpShapeType {
 	@Override
 	public TrpWordType copy() { return new TrpWordType(this); }	
 	
-	@Override public void setCustom(String custom) {
-		// TODO: catch exceptions (index out of bounds!)
-		this.custom = custom;
-		customTagList = new CustomTagList(this);
-	}
+//	@Override public void setCustom(String custom) {
+//		this.custom = custom;
+//		customTagList = new CustomTagList(this);
+//	}
 	
 	@Override public void copyFields(ITrpShapeType srcShape) {
 		if (!(srcShape instanceof TrpWordType))
@@ -90,7 +89,7 @@ public class TrpWordType extends WordType implements ITrpShapeType {
 	    language = src.language;
 		production = src.production;
 		
-		src.getCustomTagList().writeToCustomTag();
+//		src.getCustomTagList().writeToCustomTag();
 	    if (src.custom != null)
 	    	custom = new String(src.custom);
 	    if (src.comments != null)
@@ -222,7 +221,9 @@ public class TrpWordType extends WordType implements ITrpShapeType {
 	public void setData(Object data) { this.data = data; }
 	
 	@Override
-	public TrpPageType getPage() { return getLine().getPage(); }
+	public TrpPageType getPage() {
+		return getLine() != null ? getLine().getPage() : null;
+	}
 	
 	@Override 
 	public ITrpShapeType getParentShape() { return getLine(); }

@@ -69,7 +69,8 @@ public class TrpDocPacker extends APassthroughObservable {
 		logger.info("Creating METS file at: " + metsFilePath);
 		//build a mets that points to all files we need
 		//2nd arg: export page files (add to mets filesec), 3rd arg: export alto files, 4th arg: export images
-		mets = TrpMetsBuilder.buildMets(doc, true, false, true, null);
+		TrpMetsBuilder metsBuilder = new TrpMetsBuilder();
+		mets = metsBuilder.buildMets(doc, true, false, true, null);
 		
 		try {
 			metsFile = JaxbUtils.marshalToFile(mets, metsFile, TrpDocMetadata.class);

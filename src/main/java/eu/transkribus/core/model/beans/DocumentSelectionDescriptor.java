@@ -16,32 +16,29 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.fop.afp.modca.PageDescriptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.util.CoreUtils;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DocumentSelectionDescriptor implements Serializable {
-	private static final Logger logger = LoggerFactory.getLogger(DocumentSelectionDescriptor.class);
-
 	private static final long serialVersionUID = -4923573285902913207L;
+
 	private int docId;
+	
 	@XmlElementWrapper(name="pageList")
 	@XmlElement
 	private List<PageDescriptor> pages = new LinkedList<>();
 	
-	public DocumentSelectionDescriptor() {
-	}
+	public DocumentSelectionDescriptor() {}
 	
 	public DocumentSelectionDescriptor(int docId) {
+		this();
 		this.docId = docId;
 	}
 	
 	public DocumentSelectionDescriptor(int docId, int pageId) {
-		this.docId = docId;
+		this(docId);
 		addPage(pageId);
 	}
 
@@ -110,7 +107,7 @@ public class DocumentSelectionDescriptor implements Serializable {
 		private static final long serialVersionUID = -6203294525504243123L;
 		
 		private int pageId;
-		private int tsId;
+		private Integer tsId;
 		
 		private Set<String> regionIds = new HashSet<>();
 		
@@ -121,7 +118,7 @@ public class DocumentSelectionDescriptor implements Serializable {
 			this.pageId = pageId;
 		}
 		
-		public PageDescriptor(int pageId, int tsId) {
+		public PageDescriptor(int pageId, Integer tsId) {
 			this.pageId = pageId;
 			this.tsId = tsId;
 		}
@@ -132,10 +129,10 @@ public class DocumentSelectionDescriptor implements Serializable {
 		public void setPageId(int pageId) {
 			this.pageId = pageId;
 		}
-		public int getTsId() {
+		public Integer getTsId() {
 			return tsId;
 		}
-		public void setTsId(int tsId) {
+		public void setTsId(Integer tsId) {
 			this.tsId = tsId;
 		}
 

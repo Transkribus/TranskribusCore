@@ -13,9 +13,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.dea.fimagestore.core.beans.FileMetadata;
+import org.dea.fimagestore.core.util.MimeTypes;
 import org.dea.fimgstoreclient.FimgStoreGetClient;
-import org.dea.fimgstoreclient.beans.FimgStoreFileMd;
-import org.dea.fimgstoreclient.utils.MimeTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +72,7 @@ public class TrpMetsBuilder extends Observable {
 	 * @return
 	 * @throws IOException if image/xml files can't be accessed for reading the mimetype etc.
 	 */
-	public static Mets buildMets(TrpDoc doc, boolean exportPage, boolean exportAlto, boolean exportImages, Set<Integer> pageIndices) throws IOException {
+	public Mets buildMets(TrpDoc doc, boolean exportPage, boolean exportAlto, boolean exportImages, Set<Integer> pageIndices) throws IOException {
 		
 		Mets mets = new Mets();
 		TrpDocMetadata md = doc.getMd();
@@ -176,7 +176,7 @@ public class TrpMetsBuilder extends Observable {
 				pageDiv.getFptr().add(xmlPtr);
 			}
 			
-			//creat ALTO fileGrp
+			//create ALTO fileGrp
 			if (exportAlto){
 				FileType altoFt = new FileType();
 				altoFt.setCHECKSUMTYPE(ChecksumUtils.ChkSumAlg.MD5.toString());
@@ -190,13 +190,14 @@ public class TrpMetsBuilder extends Observable {
 				altoFt.setSEQ(p.getPageNr());
 
 				//String tmpImgName = img.getFLocat().get(0).getHref();
-				String relAltoPath = "alto".concat(File.separator).concat(p.getImgFileName().substring(0, p.getImgFileName().lastIndexOf(".")).concat(".xml"));
+				String relAltoPath = "alto/".concat(p.getImgFileName().substring(0, p.getImgFileName().lastIndexOf(".")).concat(".xml"));
 				fLocat.setHref(relAltoPath);
 				
 				//String absAltoPath = tMd.getUrl().getPath().replace("page", "alto");
-				final String path = FileUtils.toFile(p.getUrl()).getAbsolutePath();
-				String absAltoPath = path.substring(0, path.lastIndexOf(File.separator));
-				absAltoPath = absAltoPath.concat("/alto/").concat(p.getImgFileName().substring(0, p.getImgFileName().lastIndexOf(".")).concat(".xml"));
+				
+				String absAltoPath = FileUtils.toFile(p.getUrl()).getAbsolutePath().concat("/alto/");
+				//String absAltoPath = path.substring(0, path.lastIndexOf(File.separator));
+				//absAltoPath = absAltoPath.concat("/alto/").concat(p.getImgFileName().substring(0, p.getImgFileName().lastIndexOf(".")).concat(".xml"));
 				//logger.info("alto path starts with: " + absAltoPath);
 				if (absAltoPath.startsWith("\\") /*|| absAltoPath.startsWith("/")*/){
 					//logger.info("alto path starts with \\ or /");
@@ -208,7 +209,7 @@ public class TrpMetsBuilder extends Observable {
 				
 				File altoTmp = new File(absAltoPath);
 				if(altoTmp.exists()){
-					//logger.info("alto file exist at " + absAltoPath);
+					logger.info("alto file exist at " + absAltoPath);
 					Date date = new Date(altoTmp.lastModified());
 					XMLGregorianCalendar cal = JaxbUtils.getXmlCalendar(date);
 					altoFt.setCREATED(cal);
@@ -253,7 +254,7 @@ public class TrpMetsBuilder extends Observable {
 		
 	}
 	
-	private static MetsHdr buildMetsHdr(TrpDocMetadata md) {
+	private MetsHdr buildMetsHdr(TrpDocMetadata md) {
 		MetsHdr hdr = new MetsHdr();
 		
 		XMLGregorianCalendar xmlCal = JaxbUtils.getXmlCalendar(new Date());
@@ -271,7 +272,8 @@ public class TrpMetsBuilder extends Observable {
 		hdr.getAgent().add(agent);
 		return hdr;
 	}
-	private static MdSecType buildSourceMdSec(TrpDocMetadata md) {
+	
+	private MdSecType buildSourceMdSec(TrpDocMetadata md) {
 		MdWrap wrap = new MdWrap();
 		wrap.setMDTYPE("OTHER");
 		wrap.setID(TRP_DOC_MD_TYPE_CONST);
@@ -301,7 +303,7 @@ public class TrpMetsBuilder extends Observable {
 	 * @return
 	 * @throws IOException
 	 */
-	private static FileType buildFileType(File localFolder, String id, ITrpFile o, final int seq, FimgStoreGetClient client) throws IOException {
+	private FileType buildFileType(File localFolder, String id, ITrpFile o, final int seq, FimgStoreGetClient client) throws IOException {
 		FileType fType = new FileType();
 		fType.setID(id);
 		String mime = null;
@@ -335,7 +337,7 @@ public class TrpMetsBuilder extends Observable {
 			}
 		} else {
 			try {
-				FimgStoreFileMd fMd = client.getFileMd(o.getKey());
+				FileMetadata fMd = client.getFileMd(o.getKey());
 				date = fMd.getUploadDate();
 				mime = fMd.getMimetype();
 				fLocat.setLOCTYPE("URL");
@@ -356,7 +358,7 @@ public class TrpMetsBuilder extends Observable {
 		return fType;
 	}
 	
-	private static Fptr buildFptr(FileType img) {
+	private Fptr buildFptr(FileType img) {
 		Fptr ptr = new Fptr();
 		AreaType area = new AreaType();
 		area.setFILEID(img);

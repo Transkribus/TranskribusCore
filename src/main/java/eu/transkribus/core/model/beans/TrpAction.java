@@ -236,6 +236,129 @@ public class TrpAction {
 
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((actionId == null) ? 0 : actionId.hashCode());
+		result = prime * result + ((clientId == null) ? 0 : clientId.hashCode());
+		result = prime * result + ((clientName == null) ? 0 : clientName.hashCode());
+		result = prime * result + ((clientVersion == null) ? 0 : clientVersion.hashCode());
+		result = prime * result + ((colDesc == null) ? 0 : colDesc.hashCode());
+		result = prime * result + ((colId == null) ? 0 : colId.hashCode());
+		result = prime * result + ((colName == null) ? 0 : colName.hashCode());
+		result = prime * result + ((docId == null) ? 0 : docId.hashCode());
+		result = prime * result + ((docName == null) ? 0 : docName.hashCode());
+		result = prime * result + ((pageId == null) ? 0 : pageId.hashCode());
+		result = prime * result + ((pageNr == null) ? 0 : pageNr.hashCode());
+		result = prime * result + ((sessionHistoryId == null) ? 0 : sessionHistoryId.hashCode());
+		result = prime * result + ((time == null) ? 0 : time.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + typeId;
+		result = prime * result + userId;
+		result = prime * result + ((userName == null) ? 0 : userName.hashCode());
+		result = prime * result + ((userRole == null) ? 0 : userRole.hashCode());
+		return result;
+	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TrpAction other = (TrpAction) obj;
+		if (actionId == null) {
+			if (other.actionId != null)
+				return false;
+		} else if (!actionId.equals(other.actionId))
+			return false;
+		if (clientId == null) {
+			if (other.clientId != null)
+				return false;
+		} else if (!clientId.equals(other.clientId))
+			return false;
+		if (clientName == null) {
+			if (other.clientName != null)
+				return false;
+		} else if (!clientName.equals(other.clientName))
+			return false;
+		if (clientVersion == null) {
+			if (other.clientVersion != null)
+				return false;
+		} else if (!clientVersion.equals(other.clientVersion))
+			return false;
+		if (colDesc == null) {
+			if (other.colDesc != null)
+				return false;
+		} else if (!colDesc.equals(other.colDesc))
+			return false;
+		if (colId == null) {
+			if (other.colId != null)
+				return false;
+		} else if (!colId.equals(other.colId))
+			return false;
+		if (colName == null) {
+			if (other.colName != null)
+				return false;
+		} else if (!colName.equals(other.colName))
+			return false;
+		if (docId == null) {
+			if (other.docId != null)
+				return false;
+		} else if (!docId.equals(other.docId))
+			return false;
+		if (docName == null) {
+			if (other.docName != null)
+				return false;
+		} else if (!docName.equals(other.docName))
+			return false;
+		if (pageId == null) {
+			if (other.pageId != null)
+				return false;
+		} else if (!pageId.equals(other.pageId))
+			return false;
+		if (pageNr == null) {
+			if (other.pageNr != null)
+				return false;
+		} else if (!pageNr.equals(other.pageNr))
+			return false;
+		if (sessionHistoryId == null) {
+			if (other.sessionHistoryId != null)
+				return false;
+		} else if (!sessionHistoryId.equals(other.sessionHistoryId))
+			return false;
+		if (time == null) {
+			if (other.time != null)
+				return false;
+		} else if (!time.equals(other.time))
+			return false;
+		if (type == null) {
+			if (other.type != null)
+				return false;
+		} else if (!type.equals(other.type))
+			return false;
+		if (typeId != other.typeId)
+			return false;
+		if (userId != other.userId)
+			return false;
+		if (userName == null) {
+			if (other.userName != null)
+				return false;
+		} else if (!userName.equals(other.userName))
+			return false;
+		if (userRole == null) {
+			if (other.userRole != null)
+				return false;
+		} else if (!userRole.equals(other.userRole))
+			return false;
+		return true;
+	}
+
+
+	@Override
 	public String toString() {
 		return "TrpAction [actionId=" + actionId + ", typeId=" + typeId + ", type=" + type + ", userId=" + userId
 				+ ", userName=" + userName + ", time=" + time + ", colId=" + colId + ", colName=" + colName

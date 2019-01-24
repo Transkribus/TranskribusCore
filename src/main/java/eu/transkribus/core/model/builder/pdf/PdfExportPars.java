@@ -1,5 +1,12 @@
 package eu.transkribus.core.model.builder.pdf;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.dea.fimgstoreclient.beans.ImgType;
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class PdfExportPars {
 	public static final String PARAMETER_KEY = "pdfPars";
 	
@@ -7,6 +14,8 @@ public class PdfExportPars {
 	boolean doPdfImagesPlusText=true;
 	boolean doPdfWithTextPages=false;
 	boolean doPdfWithTags=false; 
+	
+	ImgType pdfImgQuality = ImgType.view;
 	
 	public PdfExportPars() {
 		
@@ -54,15 +63,53 @@ public class PdfExportPars {
 	public void setDoPdfWithTags(boolean doPdfWithTags) {
 		this.doPdfWithTags = doPdfWithTags;
 	}
+	
+	public ImgType getPdfImgQuality() {
+		return pdfImgQuality;
+	}
+
+	public void setPdfImgQuality(ImgType pdfImgQuality) {
+		this.pdfImgQuality = pdfImgQuality;
+	}
 
 	@Override
 	public String toString() {
 		return "PdfExportPars [doPdfImagesOnly=" + doPdfImagesOnly + ", doPdfImagesPlusText=" + doPdfImagesPlusText
-				+ ", doPdfWithTextPages=" + doPdfWithTextPages + ", doPdfWithTags=" + doPdfWithTags + "]";
+				+ ", doPdfWithTextPages=" + doPdfWithTextPages + ", doPdfWithTags=" + doPdfWithTags + ", pdfImgQuality="
+				+ pdfImgQuality + "]";
 	}
-	
-	
-	
-	
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (doPdfImagesOnly ? 1231 : 1237);
+		result = prime * result + (doPdfImagesPlusText ? 1231 : 1237);
+		result = prime * result + (doPdfWithTags ? 1231 : 1237);
+		result = prime * result + (doPdfWithTextPages ? 1231 : 1237);
+		result = prime * result + ((pdfImgQuality == null) ? 0 : pdfImgQuality.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PdfExportPars other = (PdfExportPars) obj;
+		if (doPdfImagesOnly != other.doPdfImagesOnly)
+			return false;
+		if (doPdfImagesPlusText != other.doPdfImagesPlusText)
+			return false;
+		if (doPdfWithTags != other.doPdfWithTags)
+			return false;
+		if (doPdfWithTextPages != other.doPdfWithTextPages)
+			return false;
+		if (pdfImgQuality != other.pdfImgQuality)
+			return false;
+		return true;
+	}
 }

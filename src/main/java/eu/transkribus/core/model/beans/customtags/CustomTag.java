@@ -15,6 +15,7 @@ import org.apache.bcel.generic.INSTANCEOF;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,7 +120,7 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 	}
 	
 	public String getTextOfShape() {
-		if (customTagList == null)
+		if (customTagList == null || customTagList.getShape()==null)
 			return "";
 		
 		return customTagList.getShape().getUnicodeText();
@@ -134,10 +135,10 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 	}
 
 	public String getNeighborText(boolean before, int N) {
-		if (customTagList == null)
+		String txtOfShape = getTextOfShape();
+		if (StringUtils.isEmpty(txtOfShape)) {
 			return "";
-		
-		String txtOfShape = customTagList.getShape().getUnicodeText();
+		}
 		
 		// first get neighboring text of same shape
 		String txt = "";
@@ -178,10 +179,10 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 	}
 
 	public String getContainedText() {
-		if (customTagList == null)
+		String txt = getTextOfShape();
+		if (StringUtils.isEmpty(txt)) {
 			return "";
-		
-		String txt = customTagList.getShape().getUnicodeText();
+		}
 		
 		int o = CoreUtils.bound(offset, 0, txt.length());
 		int e = CoreUtils.bound(offset+length, 0, txt.length());
@@ -416,10 +417,14 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 		return (a1.size() == a2.size() && a1.containsAll(a2));
 	}
 	
-	public List<String> getAttributeNamesSortedByName() {
+	public List<String> getAttributeNamesSortedByName(boolean caseSensitive) {
 		List<String> attNamesSorted = new ArrayList<>();
 		attNamesSorted.addAll(getAttributeNames());
-		Collections.sort(attNamesSorted);
+		if (caseSensitive) {
+			Collections.sort(attNamesSorted);
+		} else {
+			Collections.sort(attNamesSorted, String.CASE_INSENSITIVE_ORDER);
+		}
 		return attNamesSorted;
 	}
 	
@@ -527,7 +532,8 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 	}
 
 	public void setLength(int length) {
-		this.length = length;
+//		this.length = length;
+		this.length = CustomTagFactory.isEmptyTag(getTagName()) ? 0 : length; 
 	}
 
 	public boolean isContinued() {
@@ -641,11 +647,12 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 	}
 
 	public boolean isEmpty() {
-		return isIndexed() && length == 0;
+		return CustomTagFactory.isEmptyTag(getTagName()) ? true : isIndexed() && length == 0;
 	}
 	
 	public boolean canBeEmpty() {
-		return false;
+		return CustomTagFactory.isEmptyTag(getTagName());
+//		return false;
 	}
 
 	/**

@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -20,29 +21,36 @@ import org.slf4j.LoggerFactory;
 public class HtrCITlabUtils {
 	private static final Logger logger = LoggerFactory.getLogger(HtrCITlabUtils.class);
 	public final static String PROVIDER_CITLAB = "CITlab";
-	public final static String CITLAB_SPRNN_FILENAME = "net.sprnn";
-	public final static String CITLAB_SPRNN_FOLDERNAME = "nets";
-	public final static String CITLAB_BEST_SPRNN_FILENAME = "best_net.sprnn";
-	public final static String CITLAB_CER_FILENAME = "CER.txt";
-	public final static String CITLAB_CER_TEST_FILENAME = "CER_test.txt";
-	public final static String CHAR_MAP_FILENAME = "chars.txt";
+	public final static String PROVIDER_CITLAB_PLUS = "CITlabPlus";
+
 	public static final String CITLAB_CM_EXT = ".cm";
-	
-	@Deprecated
-	public static final String NET_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/net";
-	public static final String DICT_PATH = "/mnt/dea_scratch/TRP/HTR/RNN/dict";
+
 	/**
-	 * this will located in the virtual FTP user storage
+	 * this will be located in the virtual FTP user storage
 	 */
 	public static final String TEMP_DICT_DIR_NAME = "dictTmp";
 
 	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("####0.00");
+	
+	/* 
+	 * Constants below where necessary for CITlab legacy HTR. File are handled by CITlabModule now. 
+	 * If access is needed use de.uros.citlab.module.types.Key
+	 */
+	@Deprecated
+	public final static String CITLAB_SPRNN_FILENAME = "net.sprnn";	
+	@Deprecated
+	public final static String CITLAB_SPRNN_FOLDERNAME = "nets";	
+	@Deprecated
+	public final static String CITLAB_BEST_SPRNN_FILENAME = "best_net.sprnn";	
+	@Deprecated
+	public final static String CITLAB_CER_FILENAME = "CER.txt";	
+	@Deprecated
+	public final static String CITLAB_CER_TEST_FILENAME = "CER_test.txt";	
+	@Deprecated
+	public final static String CHAR_MAP_FILENAME = "chars.txt";
+	
 	static {
 		DECIMAL_FORMAT.setRoundingMode(RoundingMode.UP);
-	}
-	
-	public static File resolveDict(String dictName) throws FileNotFoundException {
-		return resolveDict(HtrCITlabUtils.DICT_PATH, dictName);
 	}
 	
 	public static File resolveDict(final File baseDir, String dictName) throws FileNotFoundException {
@@ -53,59 +61,25 @@ public class HtrCITlabUtils {
 		if (StringUtils.isEmpty(dictName)) {
 			return null;
 		}
-		File dict = new File(baseDir + File.separator + dictName);
+		File dict = new File(baseDir, dictName);
 		if (!dict.isFile()) {
 			throw new FileNotFoundException("A dictionary by this name could not be found: " + dictName);
 		}
 		return dict;
 	}
-
-	@Deprecated
-	public static File[] getNetList() {
-		File[] models = new File(HtrCITlabUtils.NET_PATH).listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				return pathname.isFile() && pathname.getName().endsWith(".sprnn");
-			}
-		});
-		return models;
-	}
-
-	@Deprecated
-	public static String getNetListStr() {
-		File[] models = getNetList();
-
-		String modelStr = "";
-		boolean isFirst = true;
-		for (File model : models) {
-			if (isFirst) {
-				modelStr += model.getName();
-				isFirst = false;
-			} else {
-				modelStr += "\n" + model.getName();
-			}
+	
+	public static List<String> getDictList(final String baseDirPath) {
+		if(baseDirPath == null) {
+			throw new IllegalArgumentException("baseDirPath argument is null.");
 		}
-		return modelStr;
-	}
-
-	public static String getDictListStr() {
-		File[] dicts = new File(HtrCITlabUtils.DICT_PATH).listFiles(new DictFileFilter());
-
-		String modelStr = "";
-		boolean isFirst = true;
-		for (File dict : dicts) {
-			if (isFirst) {
-				modelStr += dict.getName();
-				isFirst = false;
-			} else {
-				modelStr += "\n" + dict.getName();
-			}
-		}
-		return modelStr;
+		return getDictList(new File(baseDirPath));
 	}
 	
-	public static List<String> getDictList() {
-		File[] dicts = new File(HtrCITlabUtils.DICT_PATH).listFiles(new DictFileFilter());
+	public static List<String> getDictList(final File baseDir) {
+		if(baseDir == null || !baseDir.isDirectory()) {
+			throw new IllegalArgumentException("baseDir argument is null or not a directory.");
+		}
+		File[] dicts = baseDir.listFiles(new DictFileFilter());
 		List<String> dictList = new ArrayList<>(dicts.length);
 		
 		for (File dict : dicts) {
@@ -113,8 +87,44 @@ public class HtrCITlabUtils {
 		}
 		return dictList;
 	}
+	
+	public static String getCerSeriesString(File cerTestFile) {
+		String str = readFileToString(cerTestFile);
+		if(str != null && str.contains(",")) {
+			logger.debug("Found CER series text file with decimal separator ','. Replacing with '.'");
+			str = str.replace(",", ".");
+		}
+		return str;
+	}
 
-	public static List<String> parseCitLabCharSet(String charSet) {
+	public static String getCharsetFromCITlabCharMap(File charMapFile) {
+		final String charSetStr = readFileToString(charMapFile);
+		if(charSetStr == null) {
+			return null;
+		}
+		List<String> charSet = parseCitLabCharMap(charSetStr);
+		return charSet.stream().collect(Collectors.joining("\n"));
+	}
+	
+	private static String readFileToString(File file) {
+		if(file == null) {
+			logger.error("HTR metadata file is null.");
+			return null;
+		}
+		if(!file.isFile()) {
+			logger.error("HTR metadata file does not exist: " + file.getAbsolutePath());
+			return null;
+		}
+		String content = null;
+		try {
+			content = FileUtils.readFileToString(file, DeaFileUtils.DEFAULT_CHARSET);
+		} catch (IOException e) {
+			logger.error("Could not read HTR metadata file: " + file.getName(), e);
+		}
+		return content;
+	}
+
+	public static List<String> parseCitLabCharMap(String charSet) {
 		Pattern p = Pattern.compile("(.)=[0-9]+");
 		Matcher m = p.matcher(charSet);
 		List<String> result = new LinkedList<>();

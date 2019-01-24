@@ -4,7 +4,7 @@
 
 	<groupId>eu.transkribus</groupId>
 	<artifactId>TranskribusCore</artifactId>
-	<version>0.0.2</version>
+	<version>0.1.8-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>TranskribusCore</name>
 	<organization>
@@ -12,6 +12,11 @@
 	</organization>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		
+		<!-- Transkribus components' version numbers -->
+		<fimagestoreClient.version>0.4.1</fimagestoreClient.version>
+		<pdfUtils.version>0.0.3</pdfUtils.version>
+		<interfaces.version>0.0.5</interfaces.version>
 	</properties>
 
 	<repositories>
@@ -54,22 +59,37 @@
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
 		</dependency>	    
-	    
+	    <dependency>
+	    	<groupId>eu.transkribus</groupId>
+			<artifactId>TranskribusInterfaces</artifactId>
+			<version>${interfaces.version}</version>
+	    </dependency>
 		<dependency>
-			<groupId>org.dea</groupId>
-			<artifactId>fimagestoreClient</artifactId>
-			<version>0.1</version>
+			<groupId>org.dea.fimagestore</groupId>
+			<artifactId>fimagestore-http-client</artifactId>
+			<version>${fimagestoreClient.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dea.util</groupId>
 			<artifactId>PdfUtils</artifactId>
-			<version>0.0.1</version>
-<!-- 			<scope>compile</scope> -->
+			<version>${pdfUtils.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>jaxb-api</artifactId>
-			<version>2.2.7</version>
+		  <groupId>javax.xml.bind</groupId>
+		  <artifactId>jaxb-api</artifactId>
+		  <version>2.2.7</version>
+		</dependency>
+		<!-- The following two libs must be included to ensure the jaxb stuff works for java >= 11 (where java-ee libs are not included anymore, 
+			see: https://stackoverflow.com/questions/52502189/java-11-package-javax-xml-bind-does-not-exist) -->
+		<dependency>
+		  <groupId>com.sun.xml.bind</groupId>
+		  <artifactId>jaxb-core</artifactId>
+		  <version>2.2.7</version>
+		</dependency>
+		<dependency>
+		  <groupId>com.sun.xml.bind</groupId>
+		  <artifactId>jaxb-impl</artifactId>
+		  <version>2.2.7</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-net</groupId>
@@ -80,6 +100,11 @@
 			<groupId>javax.ws.rs</groupId>
 			<artifactId>javax.ws.rs-api</artifactId>
 			<version>2.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>io.swagger.core.v3</groupId>
+		    <artifactId>swagger-annotations</artifactId>
+		    <version>2.0.3</version>
 		</dependency>
 
 		<!-- primaresearch page io libs -->
@@ -121,54 +146,43 @@
 			<artifactId>persistence-api</artifactId>
 			<version>1.0.2</version>
 		</dependency>
+						
+		<dependency>
+		    <groupId>org.eclipse.persistence</groupId>
+		    <artifactId>org.eclipse.persistence.moxy</artifactId>
+		    <version>2.7.2</version>
+		</dependency>
 
 		<!-- FOR LOGGING:  -->
+		
+		<!-- slf4j api already is pulled by logback below. -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.10</version>
-		</dependency>		
-		
-		 <!-- Next 2 are for log4j 1.2 logging with sl4j: -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>log4j</groupId> -->
-<!-- 			<artifactId>log4j</artifactId> -->
-<!-- 			<version>1.2.17</version> -->
-<!-- 		</dependency>		 -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.slf4j</groupId> -->
-<!-- 			<artifactId>slf4j-log4j12</artifactId> -->
-<!-- 			<version>1.7.10</version> -->
-<!-- 		</dependency>		 -->
-	
-		<!-- Next 2 are for logback logging via sl4j: -->
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>1.1.2</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-core</artifactId>
-			<version>1.1.2</version>
-		</dependency>
+			<version>1.7.25</version>
+		</dependency>	
 		
 		<!--  redirect all log4j stuff to slf4j -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>log4j-over-slf4j</artifactId>
-			<version>1.7.16</version>
+			<version>1.7.25</version>
 		</dependency>
-		
-		<!-- This is for supporting conditions in logback.xml: -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.codehaus.janino</groupId> -->
-<!-- 			<artifactId>janino</artifactId> -->
-<!-- 			<version>2.6.1</version> -->
-<!-- 		</dependency>		 -->
-		<!-- END FOR LOGGING  -->
+	
+		<!-- Logback logging via sl4j: -->
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.2.3</version>
+		</dependency>
 
+		<!-- This is for supporting conditions in logback.xml: -->
+		<dependency>
+			<groupId>org.codehaus.janino</groupId>
+			<artifactId>janino</artifactId>
+			<version>3.0.8</version>
+		</dependency>		
+		<!-- END FOR LOGGING  -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
@@ -201,38 +215,18 @@
 			</exclusions>
 		</dependency>
 		
-		<!-- more robust image readers for ImageIO -->
-		<dependency>
-	        <groupId>com.twelvemonkeys.imageio</groupId>
-	        <artifactId>imageio-jpeg</artifactId>
-	        <version>3.3.2</version> 
-	    </dependency>
+		<!-- imageIO is included via TranskribusInterfaces -->
+<!-- 		<dependency> -->
+<!-- 	        <groupId>com.twelvemonkeys.imageio</groupId> -->
+<!-- 	        <artifactId>imageio-jpeg</artifactId> -->
+<!-- 	        <version>3.4</version>  -->
+<!-- 	    </dependency> -->
 	    
-	    <dependency>
-	        <groupId>com.twelvemonkeys.imageio</groupId>
-	        <artifactId>imageio-tiff</artifactId>
-	        <version>3.3.2</version>
-	    </dependency>
-		
-		<!-- ImageJ for Image IO: -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>gov.nih.imagej</groupId> -->
-<!-- 			<artifactId>imagej</artifactId> -->
-<!-- 			<version>1.47</version> -->
-<!-- 		</dependency> -->
-
-		<!-- JAI for Image IO: -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>javax.media</groupId> -->
-<!-- 			<artifactId>jai_codec</artifactId> -->
-<!-- 			<version>1.1.3</version> -->
-<!-- 		</dependency> -->
-		
-<!-- 		<dependency> -->
-<!-- 			<groupId>javax.media</groupId> -->
-<!-- 			<artifactId>jai_core</artifactId> -->
-<!-- 			<version>1.1.3</version> -->
-<!-- 		</dependency> -->
+<!-- 	    <dependency> -->
+<!-- 	        <groupId>com.twelvemonkeys.imageio</groupId> -->
+<!-- 	        <artifactId>imageio-tiff</artifactId> -->
+<!-- 	        <version>3.4</version> -->
+<!-- 	    </dependency> -->
 	
 <!-- 		<dependency> -->
 <!-- 			<groupId>com.sun.media</groupId> -->
@@ -250,7 +244,7 @@
 		<dependency>
 			<groupId>net.sf.saxon</groupId>
 			<artifactId>Saxon-HE</artifactId>
-			<version>9.5.1-5</version>
+			<version>9.8.0-11</version>
 		</dependency>
 			
 		<dependency>
@@ -303,6 +297,15 @@
 			<version>7.0</version>
 			<scope>provided</scope>
 		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/com.googlecode.juniversalchardet/juniversalchardet 
+		for reading text files with unknown encoding-->
+		<dependency>
+		    <groupId>com.googlecode.juniversalchardet</groupId>
+		    <artifactId>juniversalchardet</artifactId>
+		    <version>1.0.3</version>
+		</dependency>
+		
 		
 		<!-- for case insenstive map: -->
 		<dependency>

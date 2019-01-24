@@ -3,8 +3,6 @@ package eu.transkribus.core.io;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -24,10 +22,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.validation.Schema;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.dea.fimgstoreclient.utils.MimeTypes;
+import org.dea.fimagestore.core.util.MimeTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -583,7 +580,7 @@ public class GoobiMetsImporter extends APassthroughObservable
 				String typeAttribute = act.getAttribute("type");
 				//NAF uses type="CatalogueIdentifier"
 				if (typeAttribute!=null && typeAttribute.equals("CatalogueIdentifier")){
-					final String extId = act.getNodeValue();
+					final String extId = act.getTextContent();
 					result.setExternalId(extId);
 				}
 			}

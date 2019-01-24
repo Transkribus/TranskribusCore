@@ -28,6 +28,7 @@ import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.rest.JaxbList;
+import eu.transkribus.core.model.builder.ExportCache;
 import eu.transkribus.core.model.builder.ExportUtils;
 import eu.transkribus.core.util.ImgUtils;
 import eu.transkribus.core.util.JaxbUtils;
@@ -202,7 +203,7 @@ public class LocalDocWriter {
 	 * Use {@link DocExporter#writeRawDoc}
 	 * @deprecated
 	 */
-	public static void writeTrpDoc(TrpDoc doc, String path) throws Exception {
+	public static void writeTrpDoc(TrpDoc doc, String path, ExportCache cache) throws Exception {
 		if (doc == null) {
 			throw new Exception("Null document given!");
 		}
@@ -224,7 +225,7 @@ public class LocalDocWriter {
 			File imgFile = copyImgFile(p, p.getUrl(), pathN);
 			logger.debug("Written image file "+imgFile.getAbsolutePath());
 			
-			File xmlFile = copyTranscriptFile(p, pathN+"/"+LocalDocConst.PAGE_FILE_SUB_FOLDER);
+			File xmlFile = copyTranscriptFile(p, pathN+"/"+LocalDocConst.PAGE_FILE_SUB_FOLDER, cache);
 			if (xmlFile != null)
 				logger.debug("Written transcript xml file "+xmlFile.getAbsolutePath());	
 			else
@@ -254,46 +255,48 @@ public class LocalDocWriter {
 		return imgFile;
 	}
 	
-	public static File copyTranscriptFile(TrpPage p, String path) throws IOException, JAXBException {
-	
-		if (!p.getTranscripts().isEmpty()) {
-			String xmlFn =  "Transcript_"+p.getPageNr()+".xml";
-			TrpTranscriptMetadata tmd = p.getTranscripts().get(p.getTranscripts().size()-1);
-			URL u = tmd.getUrl();
-			if (u.getProtocol().toLowerCase().contains("file")) {
-				logger.debug("path: "+u.getPath());
-								
-				xmlFn = FilenameUtils.getName(FileUtils.toFile(u).getAbsolutePath());
-			}
-			else if (u.getProtocol().toLowerCase().contains("http")) {
-				// parse filename from
-				String fn = getFilenameFromUrl(u);
-				if (fn!=null)
-					xmlFn = fn;
-			}
-			return copyTranscriptFile(p, path, xmlFn);
-		}		
-		else
+	public static File copyTranscriptFile(TrpPage p, String path, ExportCache cache) throws IOException, JAXBException {
+		if (p.getTranscripts().isEmpty()) {
 			return null;
+		}
+		String xmlFn =  "Transcript_"+p.getPageNr()+".xml";
+		TrpTranscriptMetadata tmd = p.getTranscripts().get(p.getTranscripts().size()-1);
+		URL u = tmd.getUrl();
+		if (u.getProtocol().toLowerCase().contains("file")) {
+			logger.debug("path: "+u.getPath());
+							
+			xmlFn = FilenameUtils.getName(FileUtils.toFile(u).getAbsolutePath());
+		}
+		else if (u.getProtocol().toLowerCase().contains("http")) {
+			// parse filename from
+			String fn = getFilenameFromUrl(u);
+			if (fn!=null)
+				xmlFn = fn;
+		}
+		return copyTranscriptFile(p, path, xmlFn, cache);
 	}
 	
-	public static File copyTranscriptFile(TrpPage p, String path, String fileName) throws IOException, JAXBException {
-		if (!p.getTranscripts().isEmpty()) {
-			TrpTranscriptMetadata tmd = p.getTranscripts().get(p.getTranscripts().size()-1);
+	public static File copyTranscriptFile(TrpPage p, String path, String fileName, ExportCache cache) throws IOException {
+		if (p.getTranscripts().isEmpty()) {
+			return null;
+		}
+		TrpTranscriptMetadata tmd = p.getTranscripts().get(p.getTranscripts().size()-1);
 
-			//load page transcript only once during export
-			JAXBPageTranscript tr = ExportUtils.getPageTranscriptAtIndex(p.getPageNr()-1);
-			if (tr == null){
-				tr = new JAXBPageTranscript(tmd);
-				tr.build();
-			}
-			
-			File xmlFile = new File(path+"/"+fileName);
+		//load page transcript only once during export
+		JAXBPageTranscript tr = cache.getPageTranscriptAtIndex(p.getPageNr()-1);
+					
+		if (tr == null){
+			tr = new JAXBPageTranscript(tmd);
+			tr.build();
+		}
+		
+		File xmlFile = new File(path+"/"+fileName);
+		try {
 			PageXmlUtils.marshalToFile(tr.getPageData(), xmlFile);
 			return xmlFile;
-		}		
-		else
-			return null;
+		} catch (JAXBException e) {
+			throw new IOException("Could not write PAGE XML file.", e);
+		}
 	}
 	
 	private static String getFilenameFromUrl(URL url) throws IOException {

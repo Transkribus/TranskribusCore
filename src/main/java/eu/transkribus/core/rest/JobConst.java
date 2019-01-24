@@ -13,6 +13,7 @@ public class JobConst {
 	public static final String STATE_INGEST = "ingest";
 	
 	public static final String PROP_DOC_ID = "docId";
+	public static final String PROP_NEW_DOC_ID = "newDocId";
 	public static final String PROP_DOC_DESCS = "docDescs"; // property for list of DocumentSelectionDescriptor's
 	public static final String PROP_PAGE_NR = "pageNr";
 	public static final String PROP_JOB_ID = "jobId";
@@ -42,6 +43,11 @@ public class JobConst {
 	public static final String PROP_NR_OF_THREADS = "nrOfThreads";
 	public static final String PROP_TRAIN_SIZE_PER_EPOCH = "trainSizePerEpoch";
 	public static final String PROP_BASE_MODEL = "baseModel";
+	
+	/**
+	 * Use {@link #PROP_PARAMETERS} for consistency
+	 */
+	@Deprecated
 	public static final String PROP_CONFIG = "config";
 	
 	public static final String PROP_DO_BLOCK_SEG = "doBlockSeg";
@@ -49,6 +55,8 @@ public class JobConst {
 	public static final String PROP_DO_WORD_SEG = "doWordSeg";
 	public static final String PROP_DO_POLYGON_TO_BASELINE = "doPolygonToBaseline";
 	public static final String PROP_DO_BASELINE_TO_POLYGON = "doBaselineToPolygon";
+	
+	public static final String PROP_TABLE_TEMPLATE_ID = "templateId";
 
 	public static final String PROP_SOLR_URL = "solrUrl";
 
@@ -73,4 +81,18 @@ public class JobConst {
 	
 	public static final String PROP_KEY = "key";
 	public static final String PROP_IMG_FILE = "imgKey";
+
+	public static final String PROP_TITLE_PREFIX = "titlePrefix";
+
+	public static final String PROP_AUTHORITY = "authority";
+	public static final String PROP_HIERARCHY = "hierarchy";
+	public static final String PROP_BACKLINK = "backlink";
+	public static final String PROP_EXTID = "extId";
+	public static final String PROP_FROMDATE = "fromDate";
+	public static final String PROP_TODATE = "toDate";
+	
+	public static final String PROP_NUM_LINESAMPLES = "numLineSamples";
+
+	public static final String PROP_GPU_DEVICE_ENV_VAR = "GPU_DEVICE";
+	
 }

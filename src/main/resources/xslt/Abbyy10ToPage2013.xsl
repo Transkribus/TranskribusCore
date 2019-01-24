@@ -165,41 +165,48 @@
     
     <xsl:template name="TextRegion_for_table">
         <xsl:param name="seq"/>
+        <xsl:param name="rowSeq"/>
+        <xsl:param name="cellSeq"/>
          <!-- compute region bounds from lines within and add a padding -->
         <xsl:param name="padding" select="number(1)"/>
-         <xsl:for-each select="./abbyy:text/abbyy:par">
+<!--         <xsl:for-each select="./abbyy:text/abbyy:par"> -->
             <!-- there are pars with @lineSpacing="-1" and no nodes inside -->
-             <xsl:if test="not(empty(.) or ./@lineSpacing='-1')">
+<!--              <xsl:if test="not(empty(.) or ./@lineSpacing='-1')"> -->
+				<xsl:if test="count(./abbyy:text/abbyy:par/abbyy:line)>0">
                 <TableCell>
+                	<xsl:attribute name="row" select="$rowSeq - 1"></xsl:attribute>
+                	<xsl:attribute name="col" select="$cellSeq - 1"></xsl:attribute>
                     <xsl:attribute name="id" select="concat('r_', $seq, '_', position())"/>
                     <xsl:attribute name="type" select="'paragraph'"/>
 					<xsl:if test="number($seq)">
                    		<xsl:attribute name="custom" select="concat('readingOrder {index:', $seq - 1, ';}')"/>
                    	</xsl:if>
-                    <xsl:call-template name="writeCoords">
-                        <xsl:with-param name="l" select="min(./abbyy:line/@l)-$padding"/>
-                        <xsl:with-param name="t" select="min(./abbyy:line/@t)-$padding"/>
-                        <xsl:with-param name="r" select="max(./abbyy:line/@r)+$padding"/>
-                        <xsl:with-param name="b" select="max(./abbyy:line/@b)+$padding"/>
+                  	<xsl:call-template name="writeCoords">
+                        <xsl:with-param name="l" select="min((./abbyy:text/abbyy:par/abbyy:line/@l))-$padding"/>
+                        <xsl:with-param name="t" select="min((./abbyy:text/abbyy:par/abbyy:line/@t))-$padding"/>
+                        <xsl:with-param name="r" select="max((./abbyy:text/abbyy:par/abbyy:line/@r))+$padding"/>
+                        <xsl:with-param name="b" select="max((./abbyy:text/abbyy:par/abbyy:line/@b))+$padding"/>
                     </xsl:call-template>
-                    <xsl:apply-templates select="./abbyy:line"/> 
-                    <xsl:if test="not($textToWordsOnly)">             
-	                    <TextEquiv>
-	                        <Unicode>
-	                            <xsl:variable name="regionLineCount" select="count(./abbyy:line)"/>
-	                            <xsl:for-each select="./abbyy:line">
-	                                <xsl:value-of select="string-join(.//abbyy:charParams/text(), '')"/>
-	                                <xsl:if test="position() &lt; $regionLineCount">
-	                                    <xsl:text>&#10;</xsl:text>
-	                                </xsl:if>
-	                            </xsl:for-each>
-	                        </Unicode>
-	                    </TextEquiv>
-                    </xsl:if>
+                   	<xsl:for-each select="./abbyy:text/abbyy:par">
+	                    <xsl:apply-templates select="./abbyy:line"/> 
+	                    <xsl:if test="not($textToWordsOnly)">             
+		                    <TextEquiv>
+		                        <Unicode>
+		                            <xsl:variable name="regionLineCount" select="count(./abbyy:line)"/>
+		                            <xsl:for-each select="./abbyy:line">
+		                                <xsl:value-of select="string-join(.//abbyy:charParams/text(), '')"/>
+		                                <xsl:if test="position() &lt; $regionLineCount">
+		                                    <xsl:text>&#10;</xsl:text>
+		                                </xsl:if>
+		                            </xsl:for-each>
+		                        </Unicode>
+		                    </TextEquiv>
+	                    </xsl:if>
+                     </xsl:for-each>
                     <CornerPts>0 1 2 3</CornerPts>
                 </TableCell>
             </xsl:if>
-        </xsl:for-each>
+<!--         -->
     </xsl:template>
     
      <xsl:template name="TextRegion_from_par">
@@ -207,8 +214,8 @@
          <!-- compute region bounds from lines within and add a padding -->
         <xsl:param name="padding" select="number(1)"/>
          <xsl:for-each select="./abbyy:text/abbyy:par">
-            <!-- there are pars with @lineSpacing="-1" and no nodes inside -->
-             <xsl:if test="not(empty(.) or ./@lineSpacing='-1')">
+            <!-- there are pars with @lineSpacing="-1" and no nodes inside (15.01.2019: GH added not(./@lineSpacing='-1') instead of ./@lineSpacing='-1' because this was meant-->
+             <xsl:if test="not(empty(.) and not(./@lineSpacing='-1'))">
                 <TextRegion>
                     <xsl:attribute name="id" select="concat('r_', $seq, '_', position())"/>
                     <xsl:attribute name="type" select="'paragraph'"/>
@@ -254,12 +261,21 @@
         <xsl:param name="padding" select="number(1)"/>
                 <TableRegion>
                     <xsl:attribute name="id" select="concat('tbl_', $seq, '_', position())"/>
-                    <xsl:call-template name="writeCoords"/>                    
-                    <xsl:for-each select="./abbyy:row/abbyy:cell">
-                        <xsl:variable name="pos" select="position()"/>
-                        <xsl:call-template name="TextRegion_for_table">
-                            <xsl:with-param name="seq" select="concat($seq, '_', $pos)"/>
-                        </xsl:call-template>
+                    <xsl:call-template name="writeCoords"/>  
+			        <xsl:for-each select="./abbyy:row">
+						<xsl:variable name="row">
+						  	<xsl:value-of select="position()"/>
+						</xsl:variable>							                
+	                    <xsl:for-each select="./abbyy:cell">
+	                        <xsl:variable name="pos">
+						  		<xsl:value-of select="position()"/>
+							</xsl:variable>
+	                        <xsl:call-template name="TextRegion_for_table">
+	                            <xsl:with-param name="seq" select="concat($seq, '_', $pos)"/>
+	                            <xsl:with-param name="rowSeq" select="$row"/>
+	                            <xsl:with-param name="cellSeq" select="$pos"/>
+	                        </xsl:call-template>
+	                    </xsl:for-each>
                     </xsl:for-each>
                 </TableRegion>
     </xsl:template>
@@ -293,8 +309,11 @@
                         <xsl:with-param name="formatting" select="./abbyy:formatting"/>
                     </xsl:call-template>
                 </xsl:attribute>
-                <xsl:call-template name="writeCoords"/>                
-                <Baseline points="{./@l},{./@baseline} {./@r},{./@baseline}"/>
+                <xsl:call-template name="writeCoords"/>
+                <xsl:call-template name="generateBaselineCoords">  
+                    <xsl:with-param name="wordstarts" select=".//abbyy:charParams[1] | .//abbyy:charParams[string-length(normalize-space((text()[$textIndex]))) = 0]/following-sibling::charParams[1]"/>
+                </xsl:call-template>           
+<!--                 <Baseline points="{./@l},{./@baseline} {./@r},{./@baseline}"/> -->
                 
                 <!-- produce Word nodes -->
                 <!-- FIXME This does not work when charRecVariants and wordRecVariants are present!!! -->
@@ -445,6 +464,69 @@
                 </Word>
             </xsl:if>
         </xsl:for-each>
+    </xsl:template>
+    
+    <!-- creates baseline for a line: Abbyy has only defined one point for baseline - on oblique lines this
+    means that the basline is not correct. So we create the baseline from the beginning of a word to each end of a word respectively
+    the last charparams of all words-->
+    <xsl:template name="generateBaselineCoords">
+        <xsl:param name="wordstarts"/>
+        <xsl:variable name="coordPoints">
+	        <xsl:for-each select="$wordstarts">
+	            <xsl:variable name="actpos" select="position()"/>
+	            <xsl:variable name="wordlenght">
+	                <xsl:choose>
+	                    <xsl:when test="position()=last()">
+	                        <xsl:value-of select="count(./following-sibling::abbyy:charParams) + 1"/>
+	                    </xsl:when>
+	                    <xsl:otherwise>
+	                        <xsl:value-of
+	                            select="count(./following-sibling::abbyy:charParams) - count($wordstarts[$actpos+1]/following-sibling::charParams) - 1"
+	                        />
+	                    </xsl:otherwise>
+	                </xsl:choose>
+	            </xsl:variable>	            
+	            <xsl:variable name="wordChars"
+	                select=". | (./following-sibling::*)[$wordlenght > position()]"/>	            
+	            <xsl:variable name="value">
+	                <xsl:for-each select="$wordChars">
+	                    <xsl:value-of select="normalize-space((./text())[$textIndex])"/>
+	                </xsl:for-each>
+	            </xsl:variable>
+	            <xsl:variable name="leftCoord">
+	                <xsl:value-of select="$wordChars[1]//@l"/>
+	            </xsl:variable>
+	            <xsl:variable name="leftBottom">
+	                <xsl:value-of select="$wordChars[1]//@b"/>
+	            </xsl:variable>
+	            <xsl:variable name="rightCoord">
+	                <xsl:value-of select="$wordChars[last()]//@r"/>
+	            </xsl:variable>
+	           	<xsl:variable name="rightBottom">
+	                <xsl:value-of select="$wordChars[last()]//@b"/>
+	            </xsl:variable>
+	            <xsl:if test="string-length($value) > 0">
+	            	<xsl:choose>
+	            		<xsl:when test="position()=1">
+	            			<xsl:value-of select="$leftCoord"/>
+	                		<xsl:value-of>,</xsl:value-of>
+			                <xsl:value-of select="$leftBottom"/>
+			                <xsl:text> </xsl:text>
+		                	<xsl:value-of select="$rightCoord"/>
+		                	<xsl:value-of>,</xsl:value-of>
+	                		<xsl:value-of select="$rightBottom"/>
+	            		</xsl:when>
+	            		<xsl:otherwise>
+	            			<xsl:text> </xsl:text>
+		                	<xsl:value-of select="$rightCoord"/>
+		                	<xsl:value-of>,</xsl:value-of>
+	                		<xsl:value-of select="$rightBottom"/>
+	            		</xsl:otherwise>
+	            	</xsl:choose>
+	            </xsl:if>
+	        </xsl:for-each>
+        </xsl:variable>
+        <Baseline points="{$coordPoints}"/>
     </xsl:template>
     
     <!-- Helper for writing rectangle coordinates with points-string -->

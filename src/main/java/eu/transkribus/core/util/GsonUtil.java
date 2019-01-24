@@ -10,6 +10,7 @@ import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import eu.transkribus.core.model.beans.DocumentSelectionDescriptor;
@@ -22,6 +23,11 @@ public class GsonUtil {
 	public static final Type DOCUMENT_SELECTION_DESCRIPTOR_LIST_TYPE = new TypeToken<List<DocumentSelectionDescriptor>>(){}.getType();
 	
 	public static final Type MAP_TYPE = new TypeToken<Map<String, Object>>(){}.getType();
+	
+	public static String toJson(Object o, boolean prettyPrint) {
+		Gson gson = prettyPrint ? new GsonBuilder().setPrettyPrinting().create() : new GsonBuilder().create();
+		return gson.toJson(o);
+	}
 		
 	public static String toJson(Object o) {	
 		return GSON.toJson(o);
@@ -83,6 +89,14 @@ public class GsonUtil {
 	public static <T> T fromJson(String json, Type type) {
 		return GSON.fromJson(json, type);
 	}
+	
+	public static <T> T fromJson2(String json, Type type) {
+		try {
+			return fromJson(json, type);
+		} catch (Exception e) {
+			return null;
+		}
+	}	
 
 	public static <T> T fromJson(String json, Class<T> clazz) {
 		return GSON.fromJson(json, clazz);

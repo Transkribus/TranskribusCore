@@ -3,7 +3,9 @@ package eu.transkribus.core.util;
 import java.awt.Dimension;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -14,6 +16,8 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,6 +30,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.MarshalException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.PropertyException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.util.ValidationEventCollector;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -33,7 +38,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.io.FileUtils;
-import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
+import org.apache.commons.lang3.StringUtils;
+import org.dea.fimagestore.core.beans.ImageMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -48,6 +54,7 @@ import eu.transkribus.core.model.beans.enums.TranscriptionLevel;
 import eu.transkribus.core.model.beans.pagecontent.CoordsType;
 import eu.transkribus.core.model.beans.pagecontent.MetadataType;
 import eu.transkribus.core.model.beans.pagecontent.ObjectFactory;
+import eu.transkribus.core.model.beans.pagecontent.PageType;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.PrintSpaceType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
@@ -56,6 +63,7 @@ import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
+import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementCoordinatesComparator;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpObjectFactory;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
@@ -65,6 +73,10 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.model.builder.TrpPageMarshalListener;
 import eu.transkribus.core.model.builder.TrpPageUnmarshalListener;
+import eu.transkribus.interfaces.types.Image;
+import eu.transkribus.interfaces.types.util.TrpImageIO;
+import eu.transkribus.interfaces.types.util.TrpImageIO.RotatedBufferedImage;
+import eu.transkribus.interfaces.types.util.TrpImgMdParser.ImageTransformation;
 
 public class PageXmlUtils {
 	private static final Logger logger = LoggerFactory.getLogger(PageXmlUtils.class);
@@ -75,6 +87,8 @@ public class PageXmlUtils {
 	public static final XmlFormat TRP_PAGE_VERSION = XmlFormat.PAGE_2013;
 	private static final String ABBY_TO_PAGE_XSLT = "xslt/Abbyy10ToPage2013.xsl";
 	private static final String ALTO_TO_PAGE_XSLT = "xslt/AltoToPage2013.xsl";
+	private static final String ALTO_V3_TO_PAGE_XSLT = "xslt/Altov3ToPage2013.xsl";
+	private static final String ALTO_BNF_TO_PAGE_XSLT = "xslt/AltoBnFToPage.xsl";
 	private static final String TEXT_STYLE_XSL_PARAM_NAME = "preserveTextStyles";
 	private static final String FONT_FAM_XSL_PARAM_NAME = "preserveFontFam";
 	
@@ -94,14 +108,27 @@ public class PageXmlUtils {
 	public static JAXBContext createPageJAXBContext() throws JAXBException {
 		return JAXBContext.newInstance("eu.transkribus.core.model.beans.pagecontent");
 	}
-	
-	public static Unmarshaller createUnmarshaller() throws JAXBException {
+
+	public static Unmarshaller createUnmarshaller(ValidationEventCollector vec) throws JAXBException {
 		JAXBContext jc = createPageJAXBContext();
 
 		Unmarshaller u = jc.createUnmarshaller();
-		u.setProperty("com.sun.xml.internal.bind.ObjectFactory", new TrpObjectFactory());
+		try {
+			u.setProperty("com.sun.xml.internal.bind.ObjectFactory", new TrpObjectFactory());
+		} catch(PropertyException pe) {
+			u.setProperty("com.sun.xml.bind.ObjectFactory", new TrpObjectFactory());
+		}
 		u.setListener(new TrpPageUnmarshalListener());
+
+		if(vec != null) {
+			u.setEventHandler(vec);
+		}
+		
 		return u;
+	}
+	
+	public static Unmarshaller createUnmarshaller() throws JAXBException {
+		return createUnmarshaller(null);
 	}
 	
 	private static Marshaller createMarshaller() throws JAXBException {
@@ -163,11 +190,21 @@ public class PageXmlUtils {
 		PcGtsType pageData = ((JAXBElement<PcGtsType>) u.unmarshal(fis)).getValue();
 		onPostConstruct(pageData);
 		
+		try {
+			fis.close();
+		} catch (IOException e) {
+			logger.warn("A FileInputStream could not be closed after reading PAGE XML.");
+		}
+		
 		return pageData;
 	}
 	
 	public static PcGtsType unmarshal(InputStream is) throws JAXBException {
-		Unmarshaller u = createUnmarshaller();
+		return unmarshal(is, null);
+	}
+	
+	public static PcGtsType unmarshal(InputStream is, ValidationEventCollector vec) throws JAXBException {
+		Unmarshaller u = createUnmarshaller(vec);
 
 		@SuppressWarnings("unchecked")
 		PcGtsType pageData = ((JAXBElement<PcGtsType>) u.unmarshal(is)).getValue();
@@ -340,13 +377,22 @@ public class PageXmlUtils {
 		Dimension dim = new Dimension(p.getWidth(), p.getHeight());
 		return createEmptyPcGtsType(fn, dim);
 	}
+	
+	public static File createEmptyPAGEFile(String imgFilename, Integer width, Integer height, File xmlFile) throws IOException {
+		PcGtsType emptyPcGtsType = PageXmlUtils.createEmptyPcGtsType(imgFilename, width, height);
+        try {
+			return PageXmlUtils.marshalToFile(emptyPcGtsType, xmlFile);
+		} catch (JAXBException e) {
+			throw new IOException("Could not create empty PAGE XML at: " + xmlFile.getAbsolutePath());
+		}
+	}
 
 	public static PcGtsType createEmptyPcGtsType(final URL imgUrl, Dimension dim) throws IOException {
 		final String prot = imgUrl.getProtocol();
 		PcGtsType pcGts;
 		if (prot.startsWith("http")) {
 			//fimagestore file
-			FimgStoreImgMd md = FimgStoreReadConnection.getImgMd(imgUrl);
+			ImageMetadata md = FimgStoreReadConnection.getGetClient().getImgMd(imgUrl);
 			pcGts = createEmptyPcGtsTypeForRemoteImg(imgUrl, md);
 		} else {
 			//try to deal with it as local file
@@ -356,14 +402,14 @@ public class PageXmlUtils {
 		return pcGts;
 	}
 
-	private static PcGtsType createEmptyPcGtsTypeForRemoteImg(final URL url, FimgStoreImgMd imgMd) throws IOException {
-		int xDim = new Double(imgMd.getXResolution()).intValue();
-		int yDim = new Double(imgMd.getYResolution()).intValue();
-		return createEmptyPcGtsType(imgMd.getFileName(), xDim, yDim);
+	private static PcGtsType createEmptyPcGtsTypeForRemoteImg(final URL url, ImageMetadata imgMd) throws IOException {
+		int xDim = new Double(imgMd.getxResolution()).intValue();
+		int yDim = new Double(imgMd.getyResolution()).intValue();
+		return createEmptyPcGtsType(imgMd.getOrigFilename(), xDim, yDim);
 	}
 
 	public static PcGtsType createEmptyPcGtsType(final File imgFile, Dimension dim) {
-		return createEmptyPcGtsType(imgFile.getName(), dim.width, dim.height);
+		return createEmptyPcGtsType(imgFile.getName(), dim);
 	}
 	
 	public static PcGtsType createEmptyPcGtsType(final String imgFileName, Dimension dim) {
@@ -375,8 +421,8 @@ public class PageXmlUtils {
 		return createEmptyPcGtsType(imgFileName, dim.width, dim.height);
 	}
 	
-	public static PcGtsType createEmptyPcGtsType(final String imgFileName, final int xDim,
-			final int yDim) {
+	public static PcGtsType createEmptyPcGtsType(final String imgFileName, final Integer xDim,
+			final Integer yDim) {
 		// create md
 		MetadataType md = new MetadataType();
 		md.setCreator("TRP");
@@ -386,9 +432,15 @@ public class PageXmlUtils {
 
 		//create TRP (!) pageType
 		TrpPageType pt = new TrpPageType();
-		pt.setImageFilename(imgFileName);
-		pt.setImageHeight(yDim);
-		pt.setImageWidth(xDim);
+		if (imgFileName != null) {
+			pt.setImageFilename(imgFileName);
+		}
+		if (yDim != null) {
+			pt.setImageHeight(yDim);
+		}
+		if (xDim != null) {
+			pt.setImageWidth(xDim);
+		}
 
 		//create root and set stuff
 		PcGtsType pc = new PcGtsType();
@@ -485,6 +537,48 @@ public class PageXmlUtils {
 		
 		// transform into Object and set imgFileName as it is not avail in abbyy XML
 		PcGtsType pc = JaxbUtils.transformToObject(altoXml, ALTO_TO_PAGE_XSLT, params, PcGtsType.class);
+		pc.getPage().setImageFilename(imgFileName);
+		if(replaceBadChars){
+			pc = FinereaderUtils.replaceBadChars(pc);
+		}
+		
+		return pc;
+	}
+	
+	public static PcGtsType createPcGtsTypeFromAltoBnF(File altoXml, String imgFileName,
+			boolean preserveOcrTxtStyles, boolean preserveOcrFontFamily, boolean replaceBadChars) throws TransformerException, SAXException, IOException, ParserConfigurationException, JAXBException {
+		// simple transform to file. Does not set imageFileName!!
+		// pageXml = XslTransformer.transform(abbyyXml, ABBY_TO_PAGE_XSLT, pageOutFile);
+		
+		Map<String, Object> params = null;
+		//set parameter for textStyle preservation
+		params = new HashMap<>();
+		params.put(TEXT_STYLE_XSL_PARAM_NAME, new Boolean(preserveOcrTxtStyles));
+		params.put(FONT_FAM_XSL_PARAM_NAME, new Boolean(preserveOcrFontFamily));
+		
+		// transform into Object and set imgFileName as it is not avail in abbyy XML
+		PcGtsType pc = JaxbUtils.transformToObject(altoXml, ALTO_BNF_TO_PAGE_XSLT, params, PcGtsType.class);
+		pc.getPage().setImageFilename(imgFileName);
+		if(replaceBadChars){
+			pc = FinereaderUtils.replaceBadChars(pc);
+		}
+		
+		return pc;
+	}
+	
+	public static PcGtsType createPcGtsTypeFromAltov3(File altoXml, String imgFileName,
+			boolean preserveOcrTxtStyles, boolean preserveOcrFontFamily, boolean replaceBadChars) throws TransformerException, SAXException, IOException, ParserConfigurationException, JAXBException {
+		// simple transform to file. Does not set imageFileName!!
+		// pageXml = XslTransformer.transform(abbyyXml, ABBY_TO_PAGE_XSLT, pageOutFile);
+		
+		Map<String, Object> params = null;
+		//set parameter for textStyle preservation
+		params = new HashMap<>();
+		params.put(TEXT_STYLE_XSL_PARAM_NAME, new Boolean(preserveOcrTxtStyles));
+		params.put(FONT_FAM_XSL_PARAM_NAME, new Boolean(preserveOcrFontFamily));
+		
+		// transform into Object and set imgFileName as it is not avail in abbyy XML
+		PcGtsType pc = JaxbUtils.transformToObject(altoXml, ALTO_V3_TO_PAGE_XSLT, params, PcGtsType.class);
 		pc.getPage().setImageFilename(imgFileName);
 		if(replaceBadChars){
 			pc = FinereaderUtils.replaceBadChars(pc);
@@ -893,7 +987,9 @@ public class PageXmlUtils {
 					&& !r.getTextEquiv().getUnicode().trim().isEmpty()) {
 				nrOfTranscribedRegions += 1;
 				//TODO use tokenizer here
-				nrOfWordsInRegions += r.getTextEquiv().getUnicode().split(" ").length;
+				//next line is needed for non-breaking whitespace characters; that are excluded from the Character.isWhitespace() method
+				String tmp = r.getTextEquiv().getUnicode().replaceAll("[\\u00A0\\u2007\\u202F]+", " ");
+				nrOfWordsInRegions += tmp.split(" ").length;
 			}
 			List<TextLineType> lines = r.getTextLine();
 			nrOfLines += lines.size();
@@ -902,7 +998,9 @@ public class PageXmlUtils {
 						&& !l.getTextEquiv().getUnicode().trim().isEmpty()) {
 					nrOfTranscribedLines += 1;
 					//TODO use tokenizer here
-					nrOfWordsInLines += l.getTextEquiv().getUnicode().split(" ").length;
+					//next line is needed for non-breaking whitespace characters; that are excluded from the Character.isWhitespace() method
+					String tmp = l.getTextEquiv().getUnicode().replaceAll("[\\u00A0\\u2007\\u202F]+", " ");
+					nrOfWordsInLines += tmp.split(" ").length;
 				}
 				List<WordType> words = l.getWord();
 				nrOfWords += words.size();
@@ -1000,13 +1098,230 @@ public class PageXmlUtils {
 		return matchingLines;
 	}
 	
-	public static void main(String[] args) {
-		final String path = "/mnt/dea_scratch/TRP/Bentham_box_002/page/002_080_001.xml";
-		try {
-			logger.info(""+PageXmlUtils.isValid(new File(path)));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public static void applyAffineTransformation(ITrpShapeType shape, double tx, double ty, double sx, double sy, double rot) throws Exception {
+		AffineTransform at = new AffineTransform();
+		at.scale(sx, sy);
+		at.rotate(rot);
+		at.translate(tx, ty);
+		applyAffineTransformation(shape, at);
+	}
+	
+	public static void applyAffineTransformation(ITrpShapeType shape, AffineTransform at) throws Exception {
+		String coords = shape.getCoordinates();
+		logger.trace("applyAffineTransformation, old coords = "+coords);
+		String newCoords = PointStrUtils.affineTransPoints(coords, at);
+		logger.trace("applyAffineTransformation, new coords = "+newCoords);
+		
+		shape.setCoordinates(newCoords, null);
+	}
+	
+	/**
+	 * Applies an affine transformation, i.e. a translation, scaling and rotation (in radiants!) to all the coordinates of the page
+	 */
+	public static void applyAffineTransformation(PageType page, double tx, double ty, double sx, double sy, double rot) {		
+		page.setImageWidth((int) (page.getImageWidth()*sx));
+		page.setImageHeight((int) (page.getImageHeight()*sy));
+		
+		for (ITrpShapeType shape : ((TrpPageType) page).getAllShapes(true)) {
+			try {
+				applyAffineTransformation(shape, tx, ty, sx, sy, rot);
+			} catch (Exception e) {
+				logger.error("Error transforming coordinates of shape "+shape.getId()+": "+e.getMessage(), e);
+			}
 		}
+	}
+	
+	public static PcGtsType applyAffineTransformation(File xmlFile, ImageTransformation imageTransformation) throws JAXBException {
+		return applyAffineTransformation(unmarshal(xmlFile), imageTransformation);
+	}
+	
+	public static PcGtsType applyAffineTransformation(PcGtsType pc, ImageTransformation imageTransformation) {
+		if(pc == null) {
+			throw new IllegalArgumentException("Given PcGtsType is null.");
+		}
+		if(imageTransformation == null) {
+			return pc;
+		}
+		pc.getPage().setImageWidth(imageTransformation.getDestinationWidth());
+		pc.getPage().setImageHeight(imageTransformation.getDestinationHeight());
+		
+		for (ITrpShapeType shape : ((TrpPageType) pc.getPage()).getAllShapes(true)) {
+			try {
+				applyAffineTransformation(shape, imageTransformation.getTransformation());
+			} catch (Exception e) {
+				logger.error("Error transforming coordinates of shape "+shape.getId()+": "+e.getMessage(), e);
+			}
+		}
+		String comment = "Auto-rotated according to EXIF orientation = " + imageTransformation.getExifOrientation();
+		if(!StringUtils.isEmpty(pc.getMetadata().getComments())) {
+			comment = pc.getMetadata().getComments() + "\n" + comment;
+		}
+		pc.getMetadata().setComments(comment);
+		return pc;
+	}
+	
+	/** 
+	 * Assigns unique IDs to the elements in the page using the current order of the elements. 
+	 */
+	public static void assignUniqueIDs(PageType page) {
+		int i = 1;
+		for (RegionType r : page.getTextRegionOrImageRegionOrLineDrawingRegion()) {
+			if (r instanceof TextRegionType) {
+				TextRegionType region = (TextRegionType) r;
+				String rid = "r" + i;
+
+				region.setId(rid);
+				int j = 1;
+				for (TextLineType l : region.getTextLine()) {
+					String lid = rid + "l" + j;
+					l.setId(lid);
+
+					int k = 1;
+					for (WordType word : l.getWord()) {
+						String wid = lid + "w" + k;
+						word.setId(wid);
+
+						k++;
+					}
+					++j;
+				}
+				++i;
+			}
+		}
+	}
+	
+	/**
+	 * Reads the dimension and exif orientation from the {@link Image} instance and checks if the PAGE XML dimension matches.
+	 * If not, it rotates the PAGE XML according to the EXIF orientation tag value stored in the image.<br>
+	 * This is only necessary for transcriptions that were produced on the basis of an image that was not correctly oriented
+	 * due to issue <a href="https://github.com/Transkribus/TranskribusSwtGui/issues/154">TranskribusSwtGui#154</a>.<br>
+	 * This will only work for Image instances that were produced via the constructor {@link Image#Image(URL)} or 
+	 * {@link Image#Image(BufferedImage)} where the BufferedImage was created by any of the {@link TrpImageIO}::read methods.
+	 * Standard ImageIO will not extract the necessary information.
+	 * 
+	 * @param image
+	 * @param xmlFile
+	 * @return the updated xmlFile File instance at the same location as the input XML
+	 * @throws IOException
+	 */
+	public static File checkAndFixXmlOrientation(Image image, File xmlFile) throws IOException {
+		BufferedImage bi = image.getImageBufferedImage(true);
+		if(!(bi instanceof RotatedBufferedImage)) {
+			//nothing to do
+			return xmlFile;
+		}
+		ImageTransformation t = ((RotatedBufferedImage)bi).getImageTransformation();			
+		//image data was re-oriented during load. Check if XML fits
+		try {
+			PcGtsType pc = PageXmlUtils.unmarshal(xmlFile);
+			if(isOrientationBroken(t, pc)) {
+				/*
+				 * this won't catch XMLs were the image was rotated 180°. 
+				 * On the other hand, we would also mess up transcriptions that 
+				 * were done after the EXIF fix on 180° images.
+				 */
+				pc = PageXmlUtils.applyAffineTransformation(pc, t);
+				PageXmlUtils.marshalToFile(pc, xmlFile);
+			}
+		} catch (JAXBException e) {
+			throw new IOException("PAGE XML could not be read.", e);
+		}
+		return xmlFile;
+	}
+	
+	/**
+	 * Reads the dimension and exif orientation from the {@link Image} instance and checks if the PAGE XML dimension matches.
+	 * If not, it rotates the PAGE XML according to the EXIF orientation tag value stored in the image.<br>
+	 * This is only necessary for transcriptions that were produced on the basis of an image that was not correctly oriented
+	 * due to issue <a href="https://github.com/Transkribus/TranskribusSwtGui/issues/154">TranskribusSwtGui#154</a>.<br>
+	 * This will only work for Image instances that were produced via the constructor {@link Image#Image(URL)} or 
+	 * {@link Image#Image(BufferedImage)} where the BufferedImage was created by any of the {@link TrpImageIO}::read methods.
+	 * Standard ImageIO will not extract the necessary information.
+	 * 
+	 * @param image
+	 * @param xmlFile
+	 * @return the PcGtsType
+	 * @throws IOException
+	 */
+	public static PcGtsType checkAndFixXmlOrientation(Image image, PcGtsType pc) throws IOException {
+		BufferedImage bi = image.getImageBufferedImage(true);
+		if(!(bi instanceof RotatedBufferedImage)) {
+			//nothing to do
+			return pc;
+		}
+		//image data was re-oriented during load. Check if XML fits
+		return checkAndFixXmlOrientation(((RotatedBufferedImage)bi).getImageTransformation(), pc);			
+	}
+	/**
+	 * Reads the dimension and exif orientation from the {@link ImageTransformation} instance and checks if the PAGE XML dimension matches.
+	 * If not, it rotates the PAGE XML according to the EXIF orientation tag value stored in the transformation.<br>
+	 * This is only necessary for transcriptions that were produced on the basis of an image that was not correctly oriented
+	 * due to issue <a href="https://github.com/Transkribus/TranskribusSwtGui/issues/154">TranskribusSwtGui#154</a>.
+	 * 
+	 * @param image
+	 * @param xmlFile
+	 * @return the PcGtsType
+	 * @throws IOException
+	 */
+	public static PcGtsType checkAndFixXmlOrientation(ImageTransformation t, PcGtsType pc) {
+		if(isOrientationBroken(t, pc)) {
+			logger.debug("Image Dimension does not match PAGE dimension. Applying transformation for EXIF orientation tag value = " + t.getExifOrientation());
+			/*
+			 * this won't catch XMLs were the image was rotated 180°. 
+			 * On the other hand, we would also mess up transcriptions that 
+			 * were done after the EXIF fix on 180° images.
+			 */
+			pc = PageXmlUtils.applyAffineTransformation(pc, t);
+		}
+		return pc;
+	}
+	
+	private static boolean isOrientationBroken(ImageTransformation t, PcGtsType pc) {
+		if(t.isDefaultOrientation()) {
+			//no need to inspect further
+			return false;
+		}
+		if(pc.getPage().getImageWidth() != t.getDestinationWidth()) {
+			/*
+			 * EXIF orientation tag value and dimension mismatch suggest to rotate
+			 * This should catch 90° and 270° rotations
+			 */
+			return true;
+		}
+		/*
+		 * We could use the date when this was fixed and compare it to the LastChange date in the PAGE XML Metadata element.
+		 * There seems to be no other (easy) way to determine if a 180° rotation is necessary or not.
+		 * However, this would mess up PAGE XML created by third-party applications, so it's deactivated for now.
+		 */
+		final boolean fixBasedOnDate = false;
+		if(fixBasedOnDate) {
+			Calendar cal = Calendar.getInstance();
+			cal.set(2018, 12, 1);
+			long fixTime = cal.getTimeInMillis();
+			
+			if(pc.getMetadata().getLastChange().getMillisecond() < fixTime) {
+				/*
+				 * EXIF orientation tag value and the time this XML was written suggest to rotate
+				 */
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public static void main(String[] args) throws Exception {
+//		final String path = "/mnt/dea_scratch/TRP/Bentham_box_002/page/002_080_001.xml";
+//		try {
+//			logger.info(""+PageXmlUtils.isValid(new File(path)));
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+		PcGtsType page = PageXmlUtils.createEmptyPcGtsType("imgfilename.jpg", 45, 500);
+		String str = Arrays.toString(PageXmlUtils.marshalToBytes(page));
+		System.out.println(str);
+		
+		
 	}
 }

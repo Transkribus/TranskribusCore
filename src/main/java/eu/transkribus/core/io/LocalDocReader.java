@@ -3,6 +3,7 @@ package eu.transkribus.core.io;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -13,6 +14,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Observer;
 import java.util.TreeMap;
 
 import javax.xml.bind.JAXBException;
@@ -24,10 +26,12 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dea.util.pdf.PageImageWriter;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.mozilla.universalchardet.UniversalDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import com.google.common.io.Files;
 import com.itextpdf.text.DocumentException;
 
 import eu.transkribus.core.exceptions.CorruptImageException;
@@ -114,10 +118,28 @@ public class LocalDocReader {
 	 */
 	public static TrpDoc loadPdf(final String file, final String path) 
 			throws IOException, SecurityException, DocumentException {
+		return loadPdf(file, path, null);
+	}
+	
+	/**
+	 * Extracts images from a pdf into the given directory. 
+	 * Further loads the document from the specified image directory.
+	 * @param file absolute path of the pdf document
+	 * @param path absolute path of the directory to which the pdf images should be extracted to
+	 * @param observer optional observer object to transport state of the extraction process
+	 * @return new TrpDoc
+	 * @throws IOException
+	 * @throws SecurityException
+	 * @throws DocumentException
+	 */
+	public static TrpDoc loadPdf(final String file, final String path, Observer observer) 
+			throws IOException, SecurityException, DocumentException {
 		logger.info("Extracting pdf " + file + " to folder " + path);
 		PageImageWriter imgWriter = new PageImageWriter();
+		if(observer != null) {
+			imgWriter.addObserver(observer);
+		}
 		imgWriter.extractImages(file, path);
-		
 		return load(imgWriter.getExtractDirectory());
 	}
 	
@@ -255,38 +277,59 @@ public class LocalDocReader {
 		TreeMap<String, File> pageMap = findImgFiles(inputDir);
 		logger.info("Found " + pageMap.entrySet().size() + " page images.");
 		
+		// need a special variable to test whether we are in sync mode (only then do the following!!!!)
+		if (pageMap.isEmpty() && config.isEnableSyncWithoutImages()) {
+			pageMap = createDummyImgFiles(inputDir);
+		}
+		
 		if(pageMap.isEmpty()) {
 			throw new FileNotFoundException("The directory does not contain any images: " + inputDir.getAbsolutePath());
 		}
 		
 		TrpDocMetadata docMd = null;
+		boolean doRefresh = true;
 		//try to read doc structure from disk
 		if(docXml.isFile()) {
 			doc = loadDocXml(docXml);
 			if(isValid(doc, pageMap.size(), config.isForceCreatePageXml())) {
 				logger.info("Loaded document structure from disk.");
-				return doc;
-			} else {
-				logger.info("Removing faulty doc XML from disk and doing reload.");
 				docMd = doc.getMd();
-				//fix localFolder in case it has changed
-				docMd.setLocalFolder(inputDir);
+				//no refresh is necessary as doc structure matches the input dir content
+				doRefresh = false;
+			} else {
+				if(doc != null && doc.getMd() != null) {
+					//keep any existing metadata if invalid doc structure was found
+					docMd = doc.getMd();
+				}
+				logger.info("Removing faulty doc XML from disk and doing reload.");
 				docXml.delete();
 				doc = new TrpDoc();
 			}
 		}
-		
+
 		logger.info("Reading document at " + inputDir.getAbsolutePath());
 
 		//find metadata file if not extracted from doc.xml =============================================
 		if(docMd == null) {
-			docMd = findOrCreateDocMd(inputDir);
+			try {
+				docMd = loadDocMd(inputDir);
+			} catch(IOException ioe) {
+				docMd = new TrpDocMetadata();
+			}
 		}
+		
+		initDocMd(docMd, inputDir, config.isStripServerRelatedMetadata());
+		
 		//Set the docMd
 		doc.setMd(docMd);
+		
+		if(!doRefresh) {
+			//Stop now and reuse doc structure from file
+			return doc;
+		}
 
-		//Construct the input dir with pageXml Files. 
-		File pageInputDir = getPageXmlInputDir(inputDir);
+		//Construct the input dir with pageXml Files. For sync mode the input folder can be the page directory directly
+		File pageInputDir = (inputDir.getName().equals(LocalDocConst.PAGE_FILE_SUB_FOLDER)&&config.isEnableSyncWithoutImages() ? inputDir : getPageXmlInputDir(inputDir));
 		if (config.isForceCreatePageXml() && !pageInputDir.isDirectory()) {
 			pageInputDir.mkdir();
 		}
@@ -310,10 +353,6 @@ public class LocalDocReader {
 		int pageNr = 1;
 		List<TrpPage> pages = new ArrayList<TrpPage>(pageMap.entrySet().size());
 		
-		// need a special variable to test whether we are in sync mode (only then do the following!!!!)
-		if (pageMap.entrySet().size() == 0 && config.isEnableSyncWithoutImages()) {
-			pageMap = createDummyImgFilesForXmls(inputDir, pageInputDir);
-		}
 		
 		for (Entry<String, File> e : pageMap.entrySet()) {
 			
@@ -328,10 +367,16 @@ public class LocalDocReader {
 			File thumbFile = getThumbFile(inputDir, imgFileName);
 					
 			if(pageXml != null) {
+				logger.debug("page Xml found for file: " + pageXml.getAbsolutePath());
 				XmlFormat xmlFormat = XmlUtils.getXmlFormat(pageXml);
 				switch(xmlFormat){
 				case PAGE_2010:
-					Page2010Converter.updatePageFormatSingleFile(pageXml, backupPath);
+					File tmp = new File(pageXml.getParent().concat("/page2010/"));
+					tmp.mkdir();
+					File dest = new File(tmp.getAbsolutePath()+"/"+pageXml.getName());
+					FileUtils.moveFile(pageXml,dest);	
+					
+					pageXml = Page2010Converter.updatePageFormatSingleFile(pageXml, dest);
 					break;
 				case PAGE_2013:
 					break;
@@ -345,7 +390,11 @@ public class LocalDocReader {
 			Dimension dim = null;
 			String imageRemark = null;
 			try {
-				dim = ImgUtils.readImageDimensions(imgFile);
+				if (!config.isEnableSyncWithoutImages()) {
+					dim = ImgUtils.readImageDimensions(imgFile);
+				} else if (config.getDimensionMap() != null){
+					dim = config.getDimensionMap().get(FilenameUtils.getBaseName(imgFileName));
+				}
 			} catch(CorruptImageException cie) {
 				logger.error("Image is corrupt: " + imgFile.getAbsolutePath(), cie);
 				imageRemark = getCorruptImgMsg(imgFile.getName());
@@ -558,11 +607,11 @@ public class LocalDocReader {
 		return doc;
 	}
 	
-	public static List<TrpDocDir> listDocDirs(final String path) throws IOException{
+	public static List<TrpDocDir> listDocDirs(final String path) throws FileNotFoundException {
 		return listDocDirs(path, null);
 	}
 	
-	public static List<TrpDocDir> listDocDirs(final String path, IProgressMonitor monitor) throws IOException{
+	public static List<TrpDocDir> listDocDirs(final String path, IProgressMonitor monitor) throws FileNotFoundException {
 		if(path == null || path.isEmpty()){
 			throw new IllegalArgumentException("Path is null or empty!");
 		}
@@ -600,6 +649,7 @@ public class LocalDocReader {
 			docDir.setName(name);
 			docDir.setNrOfFiles(d.list().length);
 			docDir.setCreateDate(date);
+			docDir.setDocDir(d);
 //			TrpDocMetadata md = findOrCreateDocMd(d);
 //			md.setLocalFolder(null); // delete local folder s.t. server dir is not visible for clients!
 //			docDir.setMetadata(md);
@@ -623,7 +673,15 @@ public class LocalDocReader {
 				logger.info(altoXml.getAbsolutePath() + ": Transforming ALTO v2 XMLs to PAGE XML.");
 				return PageXmlUtils.createPcGtsTypeFromAlto(altoXml, imgFileName, preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars);
 			}
-			throw new IOException("Not a valid ALTO v2 file.");
+			else if(xmlFormat.equals(XmlFormat.ALTO_BNF)){
+				logger.info(altoXml.getAbsolutePath() + ": Transforming ALTO BnF XMLs to PAGE XML.");
+				return PageXmlUtils.createPcGtsTypeFromAltoBnF(altoXml, imgFileName, preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars);
+			}
+			else if(xmlFormat.equals(XmlFormat.ALTO_3)){
+				logger.info(altoXml.getAbsolutePath() + ": Transforming ALTO v3 XMLs to PAGE XML.");
+				return PageXmlUtils.createPcGtsTypeFromAltov3(altoXml, imgFileName, preserveOcrTxtStyles, preserveOcrFontFamily, replaceBadChars);
+			}
+			throw new IOException("Not a valid ALTO file.");
 		} catch(IOException | TransformerException ioe){
 			logger.error(ioe.getMessage(), ioe);
 			throw new IOException("Could not migrate file: " + altoXml.getAbsolutePath(), ioe);
@@ -638,10 +696,43 @@ public class LocalDocReader {
 		}
 	}
 
+	/*
+	 * use this library to detect the text file encoding automatically
+	 * previously we imported utf-8 as default which often brought errors if the encoding was different
+	 */
 	private static PcGtsType createPageFromTxt(final String imgFileName, Dimension dim, File txtFile) throws IOException {
 		logger.debug("creating PAGE file from text file");
-		String text = FileUtils.readFileToString(txtFile, "utf-8");
-		logger.debug("text = "+text);
+		
+		byte[] buf = new byte[4096]; 
+		java.io.FileInputStream fis = new FileInputStream(txtFile);
+
+		// (1)
+		UniversalDetector detector = new UniversalDetector(null);
+
+		// (2)
+		int nread;
+		while ((nread = fis.read(buf)) > 0 && !detector.isDone()) {
+		  detector.handleData(buf, 0, nread);
+		}
+		fis.close();
+		// (3)
+		detector.dataEnd();
+
+		// (4)
+		String encoding = detector.getDetectedCharset();
+		if (encoding != null) {
+		  logger.debug("Detected encoding = " + encoding);
+		} else {
+		  logger.debug("No encoding detected - use utf-8");
+		  encoding = "utf-8";
+		}
+
+		// (5)
+		detector.reset();
+
+		String text = FileUtils.readFileToString(txtFile, encoding);
+		//String text = FileUtils.readFileToString(txtFile, "ISO-8859-1");
+		//logger.debug("text = "+text);
 		
 		return PageXmlUtils.createPcGtsTypeFromText(imgFileName, dim, text, TranscriptionLevel.LINE_BASED, false);
 	}
@@ -829,14 +920,22 @@ public class LocalDocReader {
 	}
 	
 	/**
-	 * Check existence of PAGE XML files and return tree map of (fake) image filenames and files
+	 * Check existence of PAGE XML or txt files and return tree map of (fake) image filenames and files
 	 * @param baseDir folder in which images should be found
-	 * @param xmlDir folder holding all existing xml files - by default named "page"
 	 * @return
 	 * @throws IOException
 	 */
-	public static TreeMap<String, File> createDummyImgFilesForXmls(File baseDir, File xmlDir) throws IOException {
-		File[] xmlArr = xmlDir.listFiles();
+	public static TreeMap<String, File> createDummyImgFiles(File baseDir) throws IOException {
+		
+		//for syncing page file: the base directory can also be directly the page folder		
+		File xmlDir = (baseDir.getName().equals(LocalDocConst.PAGE_FILE_SUB_FOLDER)) ? baseDir : getPageXmlInputDir(baseDir);
+		
+		//File xmlDir = getPageXmlInputDir(baseDir);
+		File txtDir = getTxtInputDir(baseDir);
+		
+		// check whether xml directory contains files, if not, assume txt directory has content
+		File workingDir = (xmlDir==null || !xmlDir.exists())?txtDir:xmlDir;
+		File[] fileArr = workingDir.listFiles();
 		
 		//Use number sensitive ordering so that:		
 		//img1 -> img2 -> ... -> img9 -> img10 -> etc.
@@ -844,22 +943,39 @@ public class LocalDocReader {
 		Comparator<String> naturalOrderComp = new NaturalOrderComparator();
 		TreeMap<String, File> pageMap = new TreeMap<>(naturalOrderComp);
 
-		if (xmlArr == null || xmlArr.length == 0){
-			logger.debug("Folder " + xmlDir.getAbsolutePath() + " does not contain any XML files!");
-			logger.debug("No PAGE XML files found - returning empty TreeMap");
+		if (fileArr == null || fileArr.length == 0){
+			if (!workingDir.exists()) {
+				logger.debug("Could not find directory " +workingDir.getName() + " holding files for synchronisation!");
+			}
+
+			logger.debug("Folder " + workingDir.getAbsolutePath() + " does not contain any files!");
+			logger.debug("No PAGE XML nor txt files found - returning empty TreeMap");
 			return pageMap;
 		}
 		
-		for (File xml : xmlArr) {
-			final String pageName = FilenameUtils.getBaseName(xml.getName());
+		for (File page : fileArr) {
+			final String pageName = FilenameUtils.getBaseName(page.getName());
 			if (!pageMap.containsKey(pageName)) {
 				//new page. add this xml
 				File img = new File(baseDir, pageName+".png");
 				pageMap.put(pageName, img);
-				logger.debug(pageName + ": created fake image for: " + img.getName());
+				logger.debug(pageName + ": created fake image " + img.getName());
 			} 
 		}
 		return pageMap;
+	}
+	
+	/**
+	 * Check existence of PAGE XML files and return tree map of (fake) image filenames and files
+	 * @param baseDir folder in which images should be found
+	 * @param xmlDir folder holding all existing xml files - by default named "page"
+	 * @return
+	 * @throws IOException
+	 */
+	@Deprecated 
+	public static TreeMap<String, File> createDummyImgFilesForXmls(File baseDir, File xmlDir) throws IOException {
+
+		return createDummyImgFiles(baseDir);
 	}
 	
 	/**
@@ -933,7 +1049,7 @@ public class LocalDocReader {
 	 * @throws IOException
 	 *             If more than one mdFile is on the path
 	 */
-	public static TrpDocMetadata findDocMd(File inputDir) throws IOException {
+	public static TrpDocMetadata loadDocMd(File inputDir) throws IOException {
 		final File[] mdFiles = inputDir.listFiles(new MdFileFilter());
 
 		if (mdFiles == null || mdFiles.length == 0) {
@@ -958,28 +1074,36 @@ public class LocalDocReader {
 		}
 	}
 	
-	public static TrpDocMetadata findDocMd2(File docDir) {
-		try {
-			return findDocMd(docDir);
-		} catch (IOException ioe) {
-			return null;
+	/**
+	 * Initiates the metadata object. E.g. Doc ID is set to -1 and the local folder is set to input dir.
+	 * If no title is included, then the input dir name is used.
+	 * @param docMd
+	 * @param inputDir
+	 * @param stripAllServerRelatedMetadata if true, then all server related data is removed from the metadata object: collections, symbolic image links, etc.
+	 */
+	private static TrpDocMetadata initDocMd(TrpDocMetadata docMd, File inputDir, boolean stripAllServerRelatedMetadata) {
+		if(inputDir == null) {
+			throw new IllegalArgumentException("Input dir must not be null.");
 		}
-	}
-	
-	public static TrpDocMetadata findOrCreateDocMd(File inputDir) {
-		TrpDocMetadata docMd;
-		try {
-			docMd = findDocMd(inputDir);
-		} catch (IOException e) {
+		if(docMd == null) {
 			docMd = new TrpDocMetadata();
 		}
-		
 		docMd.setLocalFolder(inputDir);
 		docMd.setDocId(-1);
 		if (StringUtils.isEmpty(docMd.getTitle())) {
 			docMd.setTitle(inputDir.getName());
 		}
-		
+		if(stripAllServerRelatedMetadata) {
+			docMd.getColList().clear();
+			docMd.setFimgStoreColl(null);
+			docMd.setOrigDocId(null);
+			docMd.setPageId(null);
+			docMd.setThumbUrl(null);
+			docMd.setUrl(null);
+			docMd.setUploaderId(-1);
+			docMd.setUploader(null);
+			docMd.setUploadTimestamp(0);
+		}
 		return docMd;
 	}
 
@@ -1029,8 +1153,13 @@ public class LocalDocReader {
 				if(!pageXml.isFile()){
 					throw new FileNotFoundException("PAGE XML for page " + pageNr + " does not exist: " + img.getAbsolutePath());
 				}
-			} else if (StringUtils.isEmpty(imageRemark)) {
-				//if a problem occured when reading the image
+			} else {
+				
+				if(!StringUtils.isEmpty(imageRemark)) {
+					//if a problem occured when reading the image dimension create PAGE with zero dimension
+					dim = new Dimension(0, 0);
+				}
+				
 				File pageOutFile = new File(xmlDir.getAbsolutePath() + File.separatorChar + imgBaseName
 						+ ".xml");
 				
@@ -1041,7 +1170,7 @@ public class LocalDocReader {
 					logger.error(je.getMessage(), je);
 					throw new IOException("Could not create empty PageXml on disk!", je);
 				}
-			} 
+			}
 			TrpPage page = buildPage(baseDir, pageNr, img, pageXml, thumb, dim, imageRemark);
 			doc.getPages().add(page);
 		}
@@ -1099,12 +1228,41 @@ public class LocalDocReader {
 		return true;
 	}
 	
+	/**
+	 * Quick access to docMd without loading and checking all the stuff which load() would do.
+	 * 
+	 * @param dir
+	 * @return existing metadata if found, a freshly initiated instance otherwise
+	 */
+	public static TrpDocMetadata findDocMd(File dir) {
+		final File docXml = new File(dir.getAbsolutePath() + File.separator + LocalDocConst.DOC_XML_FILENAME);
+		TrpDocMetadata docMd = null;
+		TrpDoc doc;
+		if(docXml.isFile() && (doc = loadDocXml(docXml)) != null) {
+			docMd = doc.getMd();
+		}
+		//try find legacy metadata.xml
+		if(docMd == null) {
+			try {
+				docMd = loadDocMd(dir);
+			} catch(IOException ioe) {}
+		}
+		//init object as load() would do
+		return initDocMd(docMd, dir, false);
+	}
+	
 	public static class DocLoadConfig {
 		protected boolean preserveOcrTxtStyles; //true
 		protected boolean preserveOcrFontFamily; //true
 		protected boolean replaceBadChars; //false
 		protected boolean forceCreatePageXml; //true
 		protected boolean enableSyncWithoutImages; //false
+		/**
+		 * If set to true, then all server-related data is removed from the TrpDocMetadata if existent
+		 */
+		protected boolean stripServerRelatedMetadata; //false
+		
+		protected TreeMap<String, Dimension> dimensionMap;
 		
 		/**
 		 * build the default loadConfig
@@ -1115,7 +1273,21 @@ public class LocalDocReader {
 			this.replaceBadChars = false;
 			this.forceCreatePageXml = true;
 			this.enableSyncWithoutImages = false;
+			this.stripServerRelatedMetadata = false;
+			dimensionMap = null;
 		}
+		
+		public DocLoadConfig(boolean preserveOcrTxtStyles, 
+				boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml,
+				boolean enableSyncWithoutImages) {
+			this(preserveOcrTxtStyles,
+					preserveOcrFontFamily,
+					replaceBadChars,
+					forceCreatePageXml,
+					enableSyncWithoutImages, 
+					null);
+		}
+		
 		/**
 		 * @param preserveOcrTxtStyles when creating the pageXML from alto/finereader XMLs, preserve the text style information
 		 * @param preserveOcrFontFamily when creating the pageXML from alto/finereader XMLs, preserve the font information
@@ -1125,12 +1297,15 @@ public class LocalDocReader {
 		 */
 		public DocLoadConfig(boolean preserveOcrTxtStyles, 
 				boolean preserveOcrFontFamily, boolean replaceBadChars, boolean forceCreatePageXml,
-				boolean enableSyncWithoutImages) {
+				boolean enableSyncWithoutImages, TreeMap<String, Dimension> dimensionMap) {
+			this();
 			this.preserveOcrTxtStyles = preserveOcrTxtStyles;
 			this.preserveOcrFontFamily = preserveOcrFontFamily;
 			this.replaceBadChars = replaceBadChars;
 			this.forceCreatePageXml = forceCreatePageXml;
 			this.enableSyncWithoutImages = enableSyncWithoutImages;
+			this.dimensionMap = dimensionMap;
+
 		}
 		
 		public boolean isPreserveOcrTxtStyles() {
@@ -1172,6 +1347,30 @@ public class LocalDocReader {
 		public void setEnableSyncWithoutImages(boolean enableSyncWithoutImages) {
 			this.enableSyncWithoutImages = enableSyncWithoutImages;
 		}
+		public boolean isStripServerRelatedMetadata() {
+			return stripServerRelatedMetadata;
+		}
+		public void setStripServerRelatedMetadata(boolean stripServerRelatedMetadata) {
+			this.stripServerRelatedMetadata = stripServerRelatedMetadata;
+		}
+		
+		public TreeMap<String, Dimension> getDimensionMap() {
+			return dimensionMap;
+		}
+		
+		public void setDimensionMap(TreeMap<String, Dimension> dimensionMap) {
+			this.dimensionMap = dimensionMap;
+		}
+		
+		public void setDimensionMapFromDoc(TrpDoc source) {
+			TreeMap<String, Dimension> dims = new TreeMap<>(new NaturalOrderComparator ());
+			
+			for (TrpPage page : source.getPages()) {
+				dims.put(FilenameUtils.getBaseName(page.getImgFileName()), 
+						new Dimension(page.getWidth(), page.getHeight()));
+			}
+			
+			this.dimensionMap = dims;
+		}
 	}
-	
 }

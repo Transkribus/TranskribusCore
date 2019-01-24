@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.exceptions.NullValueException;
 import eu.transkribus.core.model.beans.adapters.SqlTimestampAdapter;
+import eu.transkribus.core.model.beans.enums.EditStatus;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 
 @Entity
@@ -274,22 +275,49 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		return tList.get(0);
 	}
 	
-	public TrpTranscriptMetadata getTranscriptWithStatus(String status) {
-		List<TrpTranscriptMetadata> tList = getTranscripts();
-		
-		Collections.sort(tList, Collections.reverseOrder());
-		for (TrpTranscriptMetadata md : tList){
-			if (md.getStatus().getStr().equals(status)){
-				return md;
-			}		
-		}
-		
-		//if no transcript with this status was found return the latest one
-		return tList.get(0);
+	/**
+	 * Return the most recent transcript with status. If status is not found return current.
+	 * 
+	 * @param status
+	 * @return
+	 */
+	public TrpTranscriptMetadata getTranscriptWithStatus(EditStatus status) {
+		return getTranscriptWithStatus(status == null ? null : status.getStr());
 	}
 	
+	/**
+	 * Return the most recent transcript with status. If status is not found return current.
+	 * 
+	 * @param status
+	 * @return
+	 */
+	public TrpTranscriptMetadata getTranscriptWithStatus(String status) {
+		TrpTranscriptMetadata tmd = getTranscriptWithStatusOrNull(status);
+
+		//if no transcript with this status was found return the latest one
+		return tmd == null ? getTranscripts().get(0) : tmd;
+	}
+	/**
+	 * Return the most recent transcript with status. If status is not found return null.
+	 * 
+	 * @param status
+	 * @return
+	 */
+	public TrpTranscriptMetadata getTranscriptWithStatusOrNull(EditStatus status) {
+		return getTranscriptWithStatusOrNull(status == null ? null : status.getStr());
+	}
+	
+	/**
+	 * Return the most recent transcript with status. If status is not found return null.
+	 * 
+	 * @param status
+	 * @return
+	 */
 	public TrpTranscriptMetadata getTranscriptWithStatusOrNull(String status) {
 		List<TrpTranscriptMetadata> tList = getTranscripts();
+		if(status == null) {
+			return null;
+		}
 		
 		Collections.sort(tList, Collections.reverseOrder());
 		for (TrpTranscriptMetadata md : tList){
@@ -331,22 +359,26 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 
 	public TrpImage getImage() {
 		TrpImage i = new TrpImage();
+		i.setImageId(imageId);
 		i.setImgFileName(imgFileName);
 		i.setKey(key);
 		i.setCreated(created);
 		i.setWidth(width);
 		i.setHeight(height);
 		i.setUrl(url);
+		i.setThumbUrl(thumbUrl);
 		return i;
 	}
 	
 	public void setImage(TrpImage i) {
+		this.imageId = i.getImageId();
 		this.imgFileName = i.getImgFileName();
 		this.key = i.getKey();
 		this.created = i.getCreated();
 		this.width = i.getWidth();
 		this.height = i.getHeight();
 		this.url = i.getUrl();
+		this.thumbUrl = i.getThumbUrl();
 	}
 
 	public boolean isIndexed() {

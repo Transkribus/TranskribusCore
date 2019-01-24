@@ -175,8 +175,8 @@ public class TrpTeiStringBuilder extends ATeiBuilder {
 		String graphicUrl = getPageGraphicsUrl(p, pc);
 		
 		final String facsId = FACS_ID_PREFIX + p.getPageNr();
-		final int width = pc.getPage().getImageHeight();
-		final int height = pc.getPage().getImageWidth();		
+		final int width = pc.getPage().getImageWidth();
+		final int height = pc.getPage().getImageHeight();		
 		
 		sb.incIndent();
 		sb.addLine("<facsimile xml:id='"+facsId+"'>");

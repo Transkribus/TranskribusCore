@@ -50,9 +50,15 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
+import eu.transkribus.core.model.builder.ExportCache;
 import eu.transkribus.core.model.builder.ExportUtils;
 import eu.transkribus.core.util.CoreUtils;
 
+/**
+ * 
+ * FIXME Not thread-safe!! might fail or do something unexpected in server export
+ *
+ */
 public class TrpRtfBuilder {
 	private final static Logger logger = LoggerFactory.getLogger(TrpRtfBuilder.class);
 	
@@ -350,10 +356,10 @@ public class TrpRtfBuilder {
 	}
 	
 
-	public static void writeRtfForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackening, File file, Set<Integer> pageIndices, IProgressMonitor monitor, Set<String> selectedTags) throws JAXBException, IOException {
+	public static void writeRtfForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackening, File file, Set<Integer> pageIndices, IProgressMonitor monitor, ExportCache cache) throws JAXBException, IOException {
 		
 		exportTags = writeTags;
-		tagnames = selectedTags;
+		tagnames = cache.getSelectedTags();
 		TrpRtfBuilder.doBlackening = doBlackening;
 		
 		/*
@@ -422,7 +428,7 @@ public class TrpRtfBuilder {
 			for (String currTagname : tagnames){
 				//logger.debug("curr tagname " + currTagname);
 				//get all custom tags with currTagname and text
-				HashMap<CustomTag, String> allTagsOfThisTagname = ExportUtils.getTags(currTagname);
+				HashMap<CustomTag, String> allTagsOfThisTagname = cache.getTags(currTagname);
 				if(allTagsOfThisTagname.size()>0){
 					tagParas.add(RtfPara.p(RtfText.text(RtfText.underline(currTagname + " tags in this document: " + allTagsOfThisTagname.size()))));
 					//ArrayList<RtfText> tagTexts = new ArrayList<RtfText>(); 

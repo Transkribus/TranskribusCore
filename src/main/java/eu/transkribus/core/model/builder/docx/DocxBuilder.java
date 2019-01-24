@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.xml.bind.JAXBElement;
@@ -89,9 +90,9 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableCellType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
+import eu.transkribus.core.model.builder.ExportCache;
 import eu.transkribus.core.model.builder.ExportUtils;
 import eu.transkribus.core.util.CoreUtils;
-import eu.transkribus.core.util.PageXmlUtils;
 
 public class DocxBuilder {
 	
@@ -99,41 +100,42 @@ public class DocxBuilder {
 
 	
 	TrpDoc doc;
-	static boolean exportTags = false;
-	static boolean doBlackening = false;
-	static boolean markUnclearWords = false;
-	static boolean expandAbbrevs = false;
-	static boolean substituteAbbrevs = false;
-	static boolean preserveLineBreaks = false;
-	static boolean showSuppliedWithBrackets = false;
-	static boolean ignoreSupplied = false;
+	boolean exportTags = false;
+	boolean doBlackening = false;
+	boolean markUnclearWords = false;
+	boolean expandAbbrevs = false;
+	boolean substituteAbbrevs = false;
+	boolean preserveLineBreaks = false;
+	boolean forcePageBreaks = false;
+	boolean showSuppliedWithBrackets = false;
+	boolean ignoreSupplied = false;
 	
 	//static Map<CustomTag, String> tags = new HashMap<CustomTag, String>();
-	static Set<String> tagnames = new HashSet<String>();
+	Set<String> tagnames = new HashSet<String>();
 	
 	static org.docx4j.wml.ObjectFactory wmlObjectFactory = new org.docx4j.wml.ObjectFactory();
 	static org.docx4j.wml.ObjectFactory factory = Context.getWmlObjectFactory();
 	
-	static int footnoteCounter = 0;
+	int footnoteCounter = 0;
 
-	private static WordprocessingMLPackage wordMLPackage;
+	private WordprocessingMLPackage wordMLPackage;
 	
 	/*
 	 * all lists necessary to export the tags in the right way
 	 */
 	//contains all gap offsets and the gap tag
-	static LinkedHashMap<Integer, GapTag> gapList = new LinkedHashMap<Integer, GapTag>();
-	static LinkedHashMap<Integer, String> commentList = new LinkedHashMap<Integer, String>();
+	LinkedHashMap<Integer, GapTag> gapList = new LinkedHashMap<Integer, GapTag>();
+	LinkedHashMap<Integer, String> commentList = new LinkedHashMap<Integer, String>();
 	//unclear list contains unclear begin as key and unclear end as value
-	static HashMap<Integer, Integer> unclearList = new HashMap<Integer, Integer>();
+	HashMap<Integer, Integer> unclearList = new HashMap<Integer, Integer>();
 	//Integer used for storing the offset: this is where the abbrev ends resp. (expansion) starts, and String contains the 'expansion' itself
-	static LinkedHashMap<Integer, String> expandAbbrevList = new LinkedHashMap<Integer, String>();
-	static LinkedHashMap<Integer, AbbrevTag> substituteAbbrevList = new LinkedHashMap<Integer, AbbrevTag>();
+	LinkedHashMap<Integer, String> expandAbbrevList = new LinkedHashMap<Integer, String>();
+	LinkedHashMap<Integer, AbbrevTag> substituteAbbrevList = new LinkedHashMap<Integer, AbbrevTag>();
 	//index: tags get stored as index in word and pressing F9 in word gives than this index list
-	static HashMap<Integer, ArrayList<CustomTag>> idxList = new HashMap<Integer, ArrayList<CustomTag>>();
+	HashMap<Integer, ArrayList<CustomTag>> idxList = new HashMap<Integer, ArrayList<CustomTag>>();
 	
-	static LinkedHashMap<Integer, String> showSuppliedList = new LinkedHashMap<Integer, String>();
-	static LinkedHashMap<Integer, String> ignoreSuppliedList = new LinkedHashMap<Integer, String>();
+	LinkedHashMap<Integer, String> showSuppliedList = new LinkedHashMap<Integer, String>();
+	LinkedHashMap<Integer, String> ignoreSuppliedList = new LinkedHashMap<Integer, String>();
 	
 
 	public static void main(String[] args) throws Exception {
@@ -193,7 +195,7 @@ public class DocxBuilder {
 		r.getContent().add(t);
 		
 		// OK, add a footnote
-		addFootnote(1, "my footnote", footnotesPart, r);  
+		//addFootnote(1, "my footnote", footnotesPart, r);  
 			// Note: your footnote ids must be distinct; they don't need to be ordered (though Word will do that when you open the docx)
 		
 		// Save it
@@ -264,17 +266,20 @@ public class DocxBuilder {
 //		System.out.println("Done.");
 	}
 	
-	public static void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackeningSensibleData, File file, Set<Integer> pageIndices, IProgressMonitor monitor, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean replaceAbbrevs, boolean keepLineBreaks, boolean showSuppliedInBrackets, boolean ignoreSuppliedTags) throws JAXBException, IOException, Docx4JException, InterruptedException {
+	public void writeDocxForDoc(TrpDoc doc, boolean wordBased, boolean writeTags, boolean doBlackeningSensibleData, File file, Set<Integer> pageIndices, 
+			IProgressMonitor monitor, boolean createTitle, boolean markUnclear, boolean expandAbbreviations, boolean replaceAbbrevs, boolean keepLineBreaks, 
+			boolean forcePagebreaks, boolean showSuppliedInBrackets, boolean ignoreSuppliedTags, ExportCache cache) throws JAXBException, IOException, Docx4JException, InterruptedException {
 		
 	    //ch.qos.logback.classic.Logger root = logger.getClass().get(ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
 	    ((ch.qos.logback.classic.Logger) logger).setLevel(ch.qos.logback.classic.Level.DEBUG);
 	    
 		exportTags = writeTags;
 		doBlackening = doBlackeningSensibleData;
-		tagnames = ExportUtils.getOnlySelectedTagnames(ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames()));
+		tagnames = cache.getOnlySelectedTagnames(ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames()));
 		markUnclearWords = markUnclear;
 		expandAbbrevs = expandAbbreviations;
 		preserveLineBreaks = keepLineBreaks;
+		forcePageBreaks = forcePagebreaks;
 		substituteAbbrevs = replaceAbbrevs;
 		showSuppliedWithBrackets = showSuppliedInBrackets;
 		ignoreSupplied = ignoreSuppliedTags;
@@ -329,8 +334,10 @@ public class DocxBuilder {
 //			TrpTranscriptMetadata md = page.getCurrentTranscript();
 //			JAXBPageTranscript tr = new JAXBPageTranscript(md);
 //			tr.build();
-			
-			JAXBPageTranscript tr = ExportUtils.getPageTranscriptAtIndex(i);
+			JAXBPageTranscript tr = null;
+			if(cache != null) {
+				tr = cache.getPageTranscriptAtIndex(i);
+			}
 			if (tr == null){
 				TrpPage page = pages.get(i);
 				TrpTranscriptMetadata md = page.getCurrentTranscript();
@@ -352,12 +359,11 @@ public class DocxBuilder {
 			 * page break after first page for each page except the last one
 			 * 
 			 * New:
-			 * no page break - lets do this automatically
+			 * let user choose if he wants to have a new page in docx for each doc page
 			 */
-//			if (atLeastOnePageWritten && c < pageIndices.size()){
-//				mdp.addObject(pageBreakP);
-//			}
-			
+			if (forcePageBreaks && atLeastOnePageWritten && c < pageIndices.size()){
+				mdp.addObject(pageBreakP);
+			}			
 			
 			if (monitor!=null) {
 				monitor.worked(c);
@@ -390,7 +396,7 @@ public class DocxBuilder {
 			for (String currTagname : tagnames){
 				//logger.debug("curr tagname " + currTagname);
 				//get all custom tags with currTagname and text
-				HashMap<CustomTag, String> allTagsOfThisTagname = ExportUtils.getTags(currTagname);
+				HashMap<CustomTag, String> allTagsOfThisTagname = cache.getTags(currTagname);
 				
 				//one paragraph for each tagname
 				org.docx4j.wml.P  p4Tag = factory.createP();
@@ -454,11 +460,11 @@ public class DocxBuilder {
 		wordMLPackage.save( file );
 		
 
-		System.out.println("Saved " + file.getAbsolutePath());
+		logger.info("Saved " + file.getAbsolutePath());
 		
 	}
 	
-	public static void addTitlePage(TrpDoc doc, MainDocumentPart mdp) {
+	public void addTitlePage(TrpDoc doc, MainDocumentPart mdp) {
 		
 		mdp.getPropertyResolver().activateStyle("Light Shading");
 		mdp.getPropertyResolver().activateStyle("Medium List 1");
@@ -468,6 +474,14 @@ public class DocxBuilder {
 		TrpDocMetadata docMd = doc.getMd();
 		
 		addParagraph("Title: ", docMd.getTitle(), mdp, "Subtitle");
+		
+		addParagraph("Authority: ", docMd.getAuthority(), mdp, "Subtitle");
+		
+		addParagraph("External ID: ", docMd.getExternalId(), mdp, "Subtitle");
+		
+		addParagraph("Hierarchy: ", docMd.getHierarchy(), mdp, "Subtitle");
+		
+		addParagraph("Backlink: ", docMd.getBacklink(), mdp, "Subtitle");
 	    
 		addParagraph("Author: ", docMd.getAuthor(), mdp, "Subtitle");
 
@@ -478,7 +492,7 @@ public class DocxBuilder {
 		addParagraph("Writer: ", docMd.getWriter(), mdp, "Subtitle");
 		
 		if (docMd.getScriptType() != null){
-			addParagraph("Sripttype: ", docMd.getScriptType().toString(), mdp, "Subtitle");
+			addParagraph("Scripttype: ", docMd.getScriptType().toString(), mdp, "Subtitle");
 		}
 		
 		addParagraph("Language: ", docMd.getLanguage(), mdp, "Subtitle");
@@ -517,7 +531,7 @@ public class DocxBuilder {
 		}		
 	}
 	
-	private static void addParagraph(String mdName, String mdValue, MainDocumentPart mdp, String style) {
+	private void addParagraph(String mdName, String mdValue, MainDocumentPart mdp, String style) {
 		
 		if (mdValue != null && !mdValue.equals("")){
 			org.docx4j.wml.P  p = mdp.createStyledParagraphOfText(style, mdName + mdValue);
@@ -542,7 +556,7 @@ public class DocxBuilder {
 		
 	}
 	
-	private static void writeDocxForTranscriptWithTables(MainDocumentPart mdp, TrpPageType trpPage,
+	private void writeDocxForTranscriptWithTables(MainDocumentPart mdp, TrpPageType trpPage,
 			boolean wordBased, boolean preserveLineBreaks) {
 		boolean rtl = false;
 		
@@ -604,10 +618,10 @@ public class DocxBuilder {
 					e.printStackTrace();
 				}
 
-				Br br = factory.createBr(); // this Br element is used break the current and go for next line
+				//Br br = factory.createBr(); // this Br element is used break the current and go for next line
 				org.docx4j.wml.P  p = factory.createP();
 				mdp.addObject(p);
-				p.getContent().add(br);
+				//p.getContent().add(br);
 
 			}
 			else if (r instanceof TrpTextRegionType){
@@ -624,14 +638,14 @@ public class DocxBuilder {
 				
 				if (!helper.equals("")){
 					
-					exportTextRegion(tr, wordBased, null, mdp);
+					exportTextRegion(tr, wordBased, null, null, mdp);
 		
 				}
 			}
 		}				
 	}
 	
-	private static void exportTextRegion(TrpTextRegionType tr, boolean wordBased, P p, MainDocumentPart mdp) {
+	private void exportTextRegion(TrpTextRegionType tr, boolean wordBased, P p, Tc cell, MainDocumentPart mdp) {
 		
 		if (p == null){
 			p = factory.createP();
@@ -661,8 +675,15 @@ public class DocxBuilder {
 			 */
 			if (trpL.getCustomTagList().containsParagraphTag()){
 				//then new paragraph should be used;
+				//logger.debug("paragraph sign detected ");
 				p = factory.createP();
-				mdp.addObject(p);
+				if (cell != null){
+					cell.getContent().add(p);
+				}
+				else{
+					mdp.addObject(p);
+				}
+				
 			}
 			/*add line break after each text line
 			 * or omit this if explicitely wished to have dense lines
@@ -676,7 +697,7 @@ public class DocxBuilder {
 		
 	}
 
-	private static Tbl getDocxTable(WordprocessingMLPackage wPMLpackage, boolean isWordBased, int rows, int cols, List<HashMap<Integer, TrpTableCellType>> allRows, int tablesize, MainDocumentPart mdp) throws Exception {
+	private Tbl getDocxTable(WordprocessingMLPackage wPMLpackage, boolean isWordBased, int rows, int cols, List<HashMap<Integer, TrpTableCellType>> allRows, int tablesize, MainDocumentPart mdp) throws Exception {
 
 	    int writableWidthTwips = wPMLpackage.getDocumentModel().getSections()
 	                                        .get(0).getPageDimensions()
@@ -756,26 +777,26 @@ public class DocxBuilder {
 	            //P columnPara = (P) column.getContent().get(0);
 	            
 	            cell.getContent().add(columnPara);
-	            d++;
-	            Text tx = factory.createText();
-	            R run = factory.createR();
+//	            d++;
+//	            Text tx = factory.createText();
+//	            R run = factory.createR();
 
 	            if (entry.get(key) != null){            	
 	            	//old solution till now: tx.setValue(entry.get(key).getUnicodeTextFromLines());
 	            	if(entry.get(key).getUnicodeTextFromLines() != ""){
-	            		exportTextRegion(entry.get(key), isWordBased, columnPara, mdp);
+	            		exportTextRegion(entry.get(key), isWordBased, columnPara, cell, mdp);
 	            	}
 
 	            }
-	            run.getContent().add(tx);
-	            columnPara.getContent().add(run);
+//	            run.getContent().add(tx);
+//	            columnPara.getContent().add(run);
 	            
 	        }
 	    }
 	    return table;
 	}
 	
-    private static void applyGridSpan( final Tc cell, final int colSpan, final String rowSpan, int w, boolean mergedVertical ) {
+    private void applyGridSpan( final Tc cell, final int colSpan, final String rowSpan, int w, boolean mergedVertical ) {
     	
         TcPr tcPr = factory.createTcPr();
         TblWidth tblWidth = factory.createTblWidth();
@@ -870,7 +891,7 @@ public class DocxBuilder {
 //				
 //	}
 	
-	private static void getFormattedTextForLineElement(List<WordType> words, P p, MainDocumentPart mdp) throws Exception{
+	private void getFormattedTextForLineElement(List<WordType> words, P p, MainDocumentPart mdp) throws Exception{
 		
 		int wordCount = 0;
 		int nrWords = words.size();
@@ -892,7 +913,7 @@ public class DocxBuilder {
 
 	}
 
-	private static void getFormattedTextForShapeElement(ITrpShapeType element, P p, MainDocumentPart mdp) throws Exception {
+	private void getFormattedTextForShapeElement(ITrpShapeType element, P p, MainDocumentPart mdp) throws Exception {
 		
 		ArrayList<R> listOfallRuns = new ArrayList<R>();
 		
@@ -1052,15 +1073,25 @@ public class DocxBuilder {
 	
 		}
 		
+//		for (Entry<Integer, AbbrevTag> at : substituteAbbrevList.entrySet()){
+//			logger.debug("index " + at.getKey());
+//			logger.debug("substitution  " + at.getValue().getExpansion());
+//			
+//		}
+		
+		//System.in.read();
+		
 		
 		List<TextStyleTag> textStylesTags = element.getTextStyleTags();
 		
 		//ArrayList<R> runs = new ArrayList<R>();
 		
 		boolean shapeEnded = false;
+		boolean indexChangedManually = false;
 		
 		for (int i=0; i<=textStr.length(); ++i) {
-			
+			indexChangedManually = false;
+						
 			//use of abbrevIdx: this is necessary for the appearance at the end of a textline
 			//otherwise the abbrev expansion would not appear at the end of a line because then the index i would be too small
 
@@ -1071,7 +1102,12 @@ public class DocxBuilder {
 			 * so if the start of the abbrev was found the expansion is written and we can break the writing of the abbrev
 			 */
 			if(substituteAbbrevList.containsKey(i)){
+
 				String exp = substituteAbbrevList.get(i).getExpansion();
+				
+//				logger.debug("exp: " + exp);
+//				logger.debug("i: " + i);
+//				logger.debug("length: " + AbbrevList.get(i).getLength());
 				
 				if(rtl){
 					exp = reverseString(exp);
@@ -1085,8 +1121,14 @@ public class DocxBuilder {
 				abbrevRun.getContent().add(abbrevText);
 				
 				listOfallRuns.add(abbrevRun);
-				//go to end of the abbreviation and proceed with remaining text
-				i += substituteAbbrevList.get(i).getLength();
+				/*
+				 * go to end of the abbreviation and proceed with remaining text
+				 * next two lines occured through a bug fix when two abbrevs are in one word without a space
+				 * e.g. Bndci with Bn=Bene and dci=dicti as expansions
+				 * previously i was set to the length - now we need length-1 and have to stop adding an additional char later on.
+				 */
+				i += substituteAbbrevList.get(i).getLength()-1;
+				indexChangedManually = true;
 				shapeEnded = (i == textStr.length() ? true : false);
 			}
 			
@@ -1225,7 +1267,11 @@ public class DocxBuilder {
 			 */
 			if ( (currText.equals("¬") || currText.equals("­") || currText.equals("-") ) && !preserveLineBreaks && shapeEnded){
 				break;
-			}				
+			}	
+			
+			if (indexChangedManually){
+				continue;
+			}
 			
 			org.docx4j.wml.Text  t = factory.createText();
 			t.setValue(currText);
@@ -1413,7 +1459,7 @@ public class DocxBuilder {
 
 	}
 	
-	private static void addIndexEntry(int idx, P p, String textStr, boolean rtl) {
+	private void addIndexEntry(int idx, P p, String textStr, boolean rtl) {
 		
 		ArrayList<CustomTag> allTagsAtThisPlace = idxList.get(idx);
 		for (CustomTag ct : allTagsAtThisPlace){
@@ -1450,13 +1496,13 @@ public class DocxBuilder {
 	}
 
 
-	private static String reverseString(String text) {
+	private String reverseString(String text) {
 		StringBuilder sb = new StringBuilder(text);
 		sb.reverse();
 		return (sb.toString());
 	}
 	
-	private static String deleteCharAtIndex(int index, String text) {
+	private String deleteCharAtIndex(int index, String text) {
 		StringBuilder sb = new StringBuilder(text);
 		sb.deleteCharAt(index);
 		return (sb.toString());
@@ -1473,7 +1519,7 @@ public class DocxBuilder {
 	//index: tags get stored as index in word and pressing F9 in word gives than this index list
 	HashMap<Integer, ArrayList<CustomTag>> idxList = new HashMap<Integer, ArrayList<CustomTag>>();
 	 */
-	private static void clearAllLists() {
+	private void clearAllLists() {
 		gapList.clear();
 		commentList.clear();
 		unclearList.clear();
@@ -1485,7 +1531,7 @@ public class DocxBuilder {
 		
 	}
 
-	private static void addComplexField(P p, String instrText, String instrText2) {
+	private void addComplexField(P p, String instrText, String instrText2) {
 
 	    org.docx4j.wml.ObjectFactory wmlObjectFactory = Context.getWmlObjectFactory();
 
@@ -1540,7 +1586,7 @@ public class DocxBuilder {
 
 	}
 
-	public static void createFootnote(String fnComment, R r, MainDocumentPart mdp) throws Exception{
+	public void createFootnote(String fnComment, R r, MainDocumentPart mdp) throws Exception{
 		
 		// Setup FootnotesPart if necessary,
 		// along with DocumentSettings
@@ -1591,7 +1637,7 @@ public class DocxBuilder {
 		
 	}
 	
-	public static void addFootnote(int i, String text, FootnotesPart footnotesPart, R r) throws JAXBException, Docx4JException {
+	public void addFootnote(int i, String text, FootnotesPart footnotesPart, R r) throws JAXBException, Docx4JException {
 		
 		
 		
@@ -1677,7 +1723,7 @@ public class DocxBuilder {
 
 	
 	
-	public static Hyperlink createHyperlink(MainDocumentPart mdp, String url) {
+	public Hyperlink createHyperlink(MainDocumentPart mdp, String url) {
 		
 		try {
 
@@ -1719,7 +1765,7 @@ public class DocxBuilder {
 		
 	}
 	
-	public static P createIt() {
+	public P createIt() {
 
 		org.docx4j.wml.ObjectFactory wmlObjectFactory = new org.docx4j.wml.ObjectFactory();
 
@@ -1767,7 +1813,7 @@ public class DocxBuilder {
 		return p;
 		}
 	
-    private static org.docx4j.wml.Comments.Comment createComment(java.math.BigInteger commentId,
+    private org.docx4j.wml.Comments.Comment createComment(java.math.BigInteger commentId,
     		String author, Calendar date, String message) {
 
 		org.docx4j.wml.Comments.Comment comment = factory.createCommentsComment();
@@ -1792,7 +1838,7 @@ public class DocxBuilder {
     	return comment;
     }
     
-    private static org.docx4j.wml.R createRunCommentReference(java.math.BigInteger commentId) {
+    private org.docx4j.wml.R createRunCommentReference(java.math.BigInteger commentId) {
     	
 		org.docx4j.wml.R run = factory.createR();
 		org.docx4j.wml.R.CommentReference commentRef = factory.createRCommentReference();
@@ -1803,7 +1849,7 @@ public class DocxBuilder {
     	
     }
     
-    private static void addValuesToIdxList(HashMap<Integer, ArrayList<CustomTag>> hashMap, Integer key, CustomTag value) {
+    private void addValuesToIdxList(HashMap<Integer, ArrayList<CustomTag>> hashMap, Integer key, CustomTag value) {
     	   ArrayList<CustomTag> tempList = null;
     	   if (hashMap.containsKey(key)) {
     	      tempList = (ArrayList<CustomTag>) hashMap.get(key);

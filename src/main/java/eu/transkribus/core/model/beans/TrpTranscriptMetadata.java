@@ -19,8 +19,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.apache.commons.io.FileUtils;
-
 import eu.transkribus.core.exceptions.NullValueException;
 import eu.transkribus.core.model.beans.adapters.EditStatusAdapter;
 import eu.transkribus.core.model.beans.enums.EditStatus;
@@ -98,28 +96,28 @@ public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrp
 	private String md5Sum = "";
 
 	@Column(name=N_REGIONS_COL_NAME)
-	private Integer nrOfRegions;
+	private Integer nrOfRegions = 0;
 
 	@Column(name=N_TRANSCRIBED_REGIONS_COL_NAME)
-	private Integer nrOfTranscribedRegions;
+	private Integer nrOfTranscribedRegions = 0;
 
 	@Column(name=N_WORDS_IN_REGIONS_COL_NAME)
-	private Integer nrOfWordsInRegions;
+	private Integer nrOfWordsInRegions = 0;
 	
 	@Column(name=N_LINES_COL_NAME)
-	private Integer nrOfLines;
+	private Integer nrOfLines = 0;
 
 	@Column(name=N_TRANSCRIBED_LINES_COL_NAME)
-	private Integer nrOfTranscribedLines;
+	private Integer nrOfTranscribedLines = 0;
 
 	@Column(name=N_WORDS_IN_LINES_COL_NAME)
-	private Integer nrOfWordsInLines;
+	private Integer nrOfWordsInLines = 0;
 
 	@Column(name=N_WORDS_COL_NAME)
-	private Integer nrOfWords;
+	private Integer nrOfWords = 0;
 
 	@Column(name=N_TRANSCRIBED_WORDS_COL_NAME)
-	private Integer nrOfTranscribedWords;
+	private Integer nrOfTranscribedWords = 0;
 	
 	//TODO tags
 	//TODO annotations
@@ -230,7 +228,7 @@ public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrp
 	public String getXmlFileName() {
 		String name = null;
 		if(this.isLocalTranscript()) {
-			name = this.getXmlFile().getName();
+			name = this.getFile().getName();
 		}
 		return name;
 	}
@@ -372,7 +370,7 @@ public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrp
 	
 	/**
 	 * Check key and URL protocol.<br/>
-	 * This method returns false, if there is a filekey set which matches the pattern defined in FimagestoreClient.<br/>
+	 * This method returns false, if there is a filekey set.<br/>
 	 * It returns true, if there is no filekey and the URL points to an existing file.<br/>
 	 * 
 	 * @return
@@ -383,28 +381,8 @@ public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrp
 	 * </ul>
 	 */
 	public boolean isLocalTranscript() {
-		if(key == null) {
-			if(!this.getXmlFile().isFile()) {
-				throw new IllegalStateException("Key of transcript is null, but file URL does not exist: " + url.getFile());			
-			}
-			return true;
-		} else {
-//			if(!FimgStoreUtils.isFimgStoreKey(key)) {
-//				throw new IllegalStateException("Key of transcript is not a valid fimagestore key!");
-//			}
-			return false;
-		}
+		return isLocalFile();
 	}
-	
-	private File getXmlFile() {
-		final String prot = url.getProtocol();
-		if(!"file".equals(prot)) {
-			throw new IllegalStateException("Key of transcript is null, but URL protocol is not \"file\"!");
-		}
-		return FileUtils.toFile(url);
-	}
-
-
 
 	@Override 
 	public boolean equals(Object o) {

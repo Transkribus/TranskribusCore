@@ -41,17 +41,57 @@ public class CustomTagList {
 	public CustomTagList(ITrpShapeType shape) {
 		Assert.assertNotNull(shape);
 		this.shape = shape;
-
+		
+		initFromCustomTagString(shape.getCustom(), false);
+//		List<CustomTag> cts = CustomTagUtil.getCustomTags(shape.getCustom());
+//		logger.trace("nr of custom tags: " + cts.size() + " id: " + shape.getId());
+//		for (CustomTag ct : CustomTagUtil.getCustomTags(shape.getCustom())) {
+//			logger.trace("adding custom tag: " + ct);
+//			try {
+//				addOrMergeTag(ct, null);
+//			} catch (IndexOutOfBoundsException e) {
+//				logger.error(e.getMessage(), e);
+//			}
+//		}
+	}
+	
+	public void initFromCustomTagString(String customTag, boolean registerNewTags) {
+		if (shape == null) { // cannot happen, but just to be sure...
+			return;
+		}
+		
+		if (shape.getObservable()!=null) { // is this check really needed??
+			shape.getObservable().setActive(false);
+		}
+		
+		if (!tags.isEmpty()) {
+			logger.warn("Warning - taglist not empty on initFromCustomTagString -> this can cause major trouble!");
+			removeTags();
+		}
+		
 		List<CustomTag> cts = CustomTagUtil.getCustomTags(shape.getCustom());
 		logger.trace("nr of custom tags: " + cts.size() + " id: " + shape.getId());
-
-		for (CustomTag ct : CustomTagUtil.getCustomTags(shape.getCustom())) {
+		for (CustomTag ct : cts) {
+			if (registerNewTags) {
+				try {
+					boolean canBeEmpty = ct.isEmpty();
+					logger.trace("t = "+ct+" canBeEmpty = "+canBeEmpty);
+					CustomTagFactory.addToRegistry(ct, null, canBeEmpty, false);
+				} catch (NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e) {
+					logger.error("Could not register the tag: "+ct.getCssStr()+", reason: "+e.getMessage(), e);
+				}
+			}			
+			
 			logger.trace("adding custom tag: " + ct);
 			try {
 				addOrMergeTag(ct, null);
 			} catch (IndexOutOfBoundsException e) {
 				logger.error(e.getMessage(), e);
 			}
+		}
+		
+		if (shape.getObservable()!=null) {
+			shape.getObservable().setActive(true);
 		}
 	}
 
@@ -460,7 +500,7 @@ public class CustomTagList {
 	}
 
 	void notifyTagsChanged() {
-		// if (true) return;
+//		CustomTagUtil.writeCustomTagListToCustomTag(shape); // FIXME: may not be a good idea here!! --> probably in TranscriptObserver!
 		shape.getObservable().setChangedAndNotifyObservers(new TrpTagsChangedEvent(shape, this, Type.CHANGED));
 	}
 	
@@ -496,6 +536,15 @@ public class CustomTagList {
 			if (t.getTagName().equals(tagName)) {
 				removeCustomTagFromList(t);
 			}
+		}
+		sortTags();
+		notifyTagsChanged();
+	}
+	
+	public void removeTags() {
+		List<CustomTag> tagsCopy = new ArrayList<>(tags);
+		for (CustomTag t : tagsCopy) {
+			removeCustomTagFromList(t);
 		}
 		sortTags();
 		notifyTagsChanged();
@@ -950,10 +999,10 @@ public class CustomTagList {
 		return str;
 	}
 
-	public void writeToCustomTag() {
-		logger.trace("writeToCustomTag, shape = " + shape);
-		shape.setCustom(this.getCustomTag());
-	}
+//	public void writeToCustomTag() {
+//		logger.debug("writeToCustomTag, shape = " + shape);
+//		shape.setCustom(this.getCustomTag());
+//	}
 
 	private void addCustomTagToList(CustomTag tag) {
 		tags.add(tag);

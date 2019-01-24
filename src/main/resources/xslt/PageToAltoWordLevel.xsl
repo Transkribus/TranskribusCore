@@ -383,7 +383,8 @@
             <xsl:attribute name="CONTENT" select="$actString"/>
         </String>
         <xsl:call-template name="getWords">
-          <xsl:with-param name="remainingContent" select="$restString"/>
+	       	<xsl:with-param name="remainingContent" select="replace($restString, '[\p{Zs}]', ' ')"/>
+<!--           <xsl:with-param name="remainingContent" select="$restString"/> -->
           <xsl:with-param name="lineLength" select="$lineLength"/>
           <xsl:with-param name="maxX" select="$maxX"/>
           <xsl:with-param name="maxY" select="$maxY"/>

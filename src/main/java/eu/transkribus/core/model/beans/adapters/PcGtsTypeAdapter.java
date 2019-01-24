@@ -1,7 +1,5 @@
 package eu.transkribus.core.model.beans.adapters;
 
-import java.io.StringWriter;
-
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.slf4j.Logger;

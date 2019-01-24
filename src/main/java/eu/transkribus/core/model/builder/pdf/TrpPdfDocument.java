@@ -5,7 +5,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,15 +22,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 
-import javax.imageio.ImageIO;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.IOUtils;
-import org.dea.fimgstoreclient.beans.FimgStoreImgMd;
+import org.dea.fimagestore.core.beans.ImageMetadata;
+import org.dea.fimgstoreclient.beans.ImgType;
 import org.dea.util.pdf.APdfDocument;
-import org.docx4j.wml.Br;
-import org.docx4j.wml.Tbl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +38,7 @@ import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.BaseFont;
@@ -49,7 +48,6 @@ import eu.transkribus.core.model.beans.EdFeature;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.customtags.AbbrevTag;
-import eu.transkribus.core.model.beans.customtags.BlackeningTag;
 import eu.transkribus.core.model.beans.customtags.CommentTag;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
 import eu.transkribus.core.model.beans.customtags.CustomTagFactory;
@@ -59,6 +57,7 @@ import eu.transkribus.core.model.beans.customtags.TextStyleTag;
 import eu.transkribus.core.model.beans.pagecontent.BaselineType;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
+import eu.transkribus.core.model.beans.pagecontent.TableRegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.UnknownRegionType;
@@ -73,10 +72,11 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
+import eu.transkribus.core.model.builder.ExportCache;
 import eu.transkribus.core.model.builder.ExportUtils;
 import eu.transkribus.core.util.CoreUtils;
-import eu.transkribus.core.util.PageXmlUtils;
 import eu.transkribus.core.util.PointStrUtils;
+import eu.transkribus.interfaces.types.util.TrpImageIO;
 
 
 /**
@@ -95,23 +95,35 @@ public class TrpPdfDocument extends APdfDocument {
 	private boolean imgOnly = false;
 	private boolean extraTextPage = false;
 	
-	InputStream is1 = this.getClass().getClassLoader().getResourceAsStream("fonts/ARIAL.TTF");
+	InputStream is1 = this.getClass().getClassLoader().getResourceAsStream("fonts/FreeSerif.ttf");
 	byte[] rBytes1 = IOUtils.toByteArray(is1);
-	InputStream is2 = this.getClass().getClassLoader().getResourceAsStream("fonts/ARIALBD.TTF");
+	InputStream is2 = this.getClass().getClassLoader().getResourceAsStream("fonts/FreeSerifBold.ttf");
 	byte[] rBytes2 = IOUtils.toByteArray(is2);
-	InputStream is3 = this.getClass().getClassLoader().getResourceAsStream("fonts/ARIALBI.TTF");
+	InputStream is3 = this.getClass().getClassLoader().getResourceAsStream("fonts/FreeSerifItalic.ttf");
 	byte[] rBytes3 = IOUtils.toByteArray(is3);
-	InputStream is4 = this.getClass().getClassLoader().getResourceAsStream("fonts/ARIALI.TTF");
+	InputStream is4 = this.getClass().getClassLoader().getResourceAsStream("fonts/FreeSerifBoldItalic.ttf");
 	byte[] rBytes4 = IOUtils.toByteArray(is4);
-	BaseFont bfArial = BaseFont.createFont("arial.ttf", BaseFont.IDENTITY_H, false, false, rBytes1, null);
-	BaseFont bfArialBold = BaseFont.createFont("arialbd.ttf", BaseFont.IDENTITY_H, false, false, rBytes2, null);
-	BaseFont bfArialBoldItalic = BaseFont.createFont("arialbi.ttf", BaseFont.IDENTITY_H, false, false, rBytes3, null);
-	BaseFont bfArialItalic = BaseFont.createFont("ariali.ttf", BaseFont.IDENTITY_H, false, false, rBytes4, null);
 	
-	Font fontArial = new Font(bfArial);
-	Font fontArialBold = new Font(bfArialBold);
-	Font fontArialBoldItalic = new Font(bfArialBoldItalic);
-	Font fontArialItalic = new Font(bfArialItalic);
+	BaseFont bfSerif = BaseFont.createFont("freeserif.ttf", BaseFont.IDENTITY_H, true, false, rBytes1, null);
+	BaseFont bfSerifBold = BaseFont.createFont("freeserifbold.ttf", BaseFont.IDENTITY_H, true, false, rBytes2, null);
+	BaseFont bfSerifItalic = BaseFont.createFont("freeserifitalic.ttf", BaseFont.IDENTITY_H, true, false, rBytes3, null);
+	BaseFont bfSerifBoldItalic = BaseFont.createFont("freeserifbolditalic.ttf", BaseFont.IDENTITY_H, true, false, rBytes4, null);	
+//	BaseFont bfUnifontBold = BaseFont.createFont("unifont.ttf", BaseFont.IDENTITY_H, true, false, rBytes5, null);
+
+//	Font fontSerifBold = new Font(bfSerifBold);
+//	Font fontSerifItalic = new Font(bfSerifItalic);
+
+	Font mainExportFont;
+	Font boldFont;
+	Font italicFont;
+	Font boldItalicFont;
+	
+	BaseFont mainExportBaseFont;
+	BaseFont boldBaseFont;
+	BaseFont italicBaseFont;
+	BaseFont boldItalicBaseFont;
+	
+	ImgType imgType = ImgType.view;
 	
 	/*
 	 * divide page into twelth * twelth regions to have a nice print
@@ -120,8 +132,8 @@ public class TrpPdfDocument extends APdfDocument {
 	 */
 	float[][] twelfthPoints = new float[13][2];
 
-	protected float scaleFactorX = 1.0f;
-	protected float scaleFactorY = 1.0f;
+	//protected float scaleFactorX = 1.0f;
+	//protected float scaleFactorY = 1.0f;
 	float lineMeanHeight = 0;
 	float prevLineMeanHeight = 0;
 	//float overallLineMeanHeight = 0;
@@ -131,26 +143,60 @@ public class TrpPdfDocument extends APdfDocument {
 	int wordOffset = 0;
 	
 	java.util.List<java.util.Map.Entry<Line2D,String>> lineAndColorList= new java.util.ArrayList<>();
+
+//	public TrpPdfDocument(final File pdfFile) throws DocumentException, IOException {
+//		this(pdfFile, 0, 0, 0, 0, false, false, false, false);
+//	}
 	
-	public TrpPdfDocument(final File pdfFile) throws DocumentException, IOException {
-		this(pdfFile, 0, 0, 0, 0, false, false, false, false);
+	public TrpPdfDocument(final File pdfFile, boolean useWordLevel, boolean highlightTags, boolean doBlackening, boolean createTitle, String exportFontname, ImgType pdfImgType) throws DocumentException, IOException {
+		this(pdfFile, 0, 0, 0, 0, useWordLevel, highlightTags, doBlackening, createTitle, exportFontname, pdfImgType);
 	}
 	
-	public TrpPdfDocument(final File pdfFile, boolean useWordLevel, boolean highlightTags, boolean doBlackening, boolean createTitle) throws DocumentException, IOException {
-		this(pdfFile, 0, 0, 0, 0, useWordLevel, highlightTags, doBlackening, createTitle);
-	}
-	
-	public TrpPdfDocument(final File pdfFile, final int marginLeft, final int marginTop, final int marginBottom, final int marginRight, final boolean useWordLevel, final boolean highlightTags, final boolean doBlackening, boolean createTitle) throws DocumentException, IOException {
+	public TrpPdfDocument(final File pdfFile, final int marginLeft, final int marginTop, final int marginBottom, final int marginRight, final boolean useWordLevel, final boolean highlightTags, final boolean doBlackening, boolean createTitle, final String exportFontname, ImgType pdfImgType) throws DocumentException, IOException {
 		super(pdfFile, marginLeft, marginTop, marginBottom, marginRight);
 		this.useWordLevel = useWordLevel;
 		this.highlightTags = highlightTags;
 		this.doBlackening = doBlackening;
 		this.createTitle = createTitle;
+		
+		if (pdfImgType != null){
+			this.imgType = pdfImgType;
+		}
+		
+		//logger.debug(" path to fonts : " + this.getClass().getClassLoader().getResource("fonts").getPath());
+		FontFactory.registerDirectory(this.getClass().getClassLoader().getResource("fonts").getPath());
+	    Set<String> fonts = new TreeSet<String>(FontFactory.getRegisteredFonts());
+//	    for (String fontname : fonts) {
+//	        logger.debug("registered font name : " + fontname);
+//	    }
+	    
+	    if (exportFontname != null){
+		    logger.debug("chosen font name: " + exportFontname);
+		    mainExportFont = FontFactory.getFont(exportFontname, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+		    boldFont = FontFactory.getFont(exportFontname + " bold", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+		    italicFont = FontFactory.getFont(exportFontname + " italic", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+		    boldItalicFont = FontFactory.getFont(exportFontname + " bold italic", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+	    }
+	    
+	    mainExportFont = (mainExportFont != null && mainExportFont.getFamilyname() != "unknown")? mainExportFont : new Font(bfSerif);
+	    mainExportBaseFont = (mainExportFont.getBaseFont() != null)? mainExportFont.getBaseFont() : bfSerif;
+	    
+	    boldFont = (boldFont != null && boldFont.getFamilyname() != "unknown")? boldFont : new Font(bfSerifBold);
+	    boldBaseFont = (boldFont.getBaseFont() != null)? boldFont.getBaseFont() : bfSerifBold;
+	    
+	    italicFont = (italicFont != null && italicFont.getFamilyname() != "unknown")? italicFont : new Font(bfSerifItalic);
+	    italicBaseFont = (italicFont.getBaseFont() != null)? italicFont.getBaseFont() : bfSerifItalic;
+		
+	    boldItalicFont = (boldItalicFont != null && boldItalicFont.getFamilyname() != "unknown")? boldItalicFont : new Font(bfSerifBoldItalic);
+	    boldItalicBaseFont = (boldItalicFont.getBaseFont() != null)? boldItalicFont.getBaseFont() : bfSerifBoldItalic;
+
+		logger.debug("main font family found: " + mainExportFont.getFamilyname());
+    	logger.info("main base font for PDF export is: " + mainExportBaseFont.getPostscriptFontName());
 	}
 	
 
 	@SuppressWarnings("unused")
-	public void addPage(URL imgUrl, TrpDoc doc, PcGtsType pc, boolean addAdditionalPlainTextPage, boolean imageOnly, FimgStoreImgMd md, boolean doBlackening) throws MalformedURLException, IOException, DocumentException, JAXBException, URISyntaxException {
+	public void addPage(URL imgUrl, TrpDoc doc, PcGtsType pc, boolean addAdditionalPlainTextPage, boolean imageOnly, ImageMetadata md, boolean doBlackening, ExportCache cache) throws MalformedURLException, IOException, DocumentException, JAXBException, URISyntaxException {
 		
 		imgOnly = imageOnly;
 		extraTextPage = addAdditionalPlainTextPage;
@@ -161,22 +207,24 @@ public class TrpPdfDocument extends APdfDocument {
 //			printspace = psPoly.getBounds();
 //		}
 		
+		/*
+		 * try to read image - if the image is not readable try the original one
+		 */
 		BufferedImage imgBuffer = null;
-		InputStream input;
-		try {
-			input = imgUrl.openStream();
-			
-			imgBuffer = ImageIO.read(input);
+		try {			
+			imgBuffer = TrpImageIO.read(imgUrl);
 		} catch (FileNotFoundException e) {
-	
 			logger.error("File was not found at url " + imgUrl);
-			URL origUrl = new URL(imgUrl.getProtocol(), imgUrl.getHost(), imgUrl.getFile().replace("view", "orig"));			
-			logger.debug("try orig file location " + origUrl);
-			input = origUrl.openStream();
-			imgBuffer = ImageIO.read(input);
-			
+			if (imgUrl.getFile().endsWith("view")){
+				imgUrl = new URL(imgUrl.getProtocol(), imgUrl.getHost(), imgUrl.getFile().replace("view", "orig"));	
+			}
+			else if (imgUrl.getFile().endsWith("orig")){
+				imgUrl = new URL(imgUrl.getProtocol(), imgUrl.getHost(), imgUrl.getFile().replace("orig", "view"));	
+			}
+			logger.debug("try alternative file location " + imgUrl);
+			imgBuffer = TrpImageIO.read(imgUrl);
 		}
-		
+				
 	    Graphics2D graph = imgBuffer.createGraphics();
 	    graph.setColor(Color.BLACK);
 	    
@@ -189,8 +237,8 @@ public class TrpPdfDocument extends APdfDocument {
 		for(RegionType r : regions){
 			//TODO add paths for tables etc.
 			
-			//used later to decide if new page is necessary if there is at least one text region 
-			if(r instanceof TextRegionType){
+			//used later to decide if new page is necessary if there is at least one text OR table region 
+			if(r instanceof TextRegionType || r instanceof TableRegionType){
 				nrOfTextRegions++;
 			}
 			else if (r instanceof UnknownRegionType && doBlackening){
@@ -205,15 +253,18 @@ public class TrpPdfDocument extends APdfDocument {
 				}
 			}
 		}
-		
+				
 		graph.dispose();
 		
-		ByteArrayOutputStream baos=new ByteArrayOutputStream();
-		ImageIO.write(imgBuffer,"JPEG",baos);
-		byte[] imageBytes = baos.toByteArray();
-		Image img = Image.getInstance(imageBytes);
+//		ByteArrayOutputStream baos=new ByteArrayOutputStream();
+//		ImageIO.write(imgBuffer,"JPEG",baos);
+//		byte[] imageBytes = baos.toByteArray();
+//		Image img = Image.getInstance(imageBytes);
 		
-		baos.close();
+		//direct access instead of the version above
+		Image img = Image.getInstance(imgUrl);
+		
+		//baos.close();
 		imgBuffer.flush();
 		imgBuffer = null;
 		
@@ -221,8 +272,8 @@ public class TrpPdfDocument extends APdfDocument {
 		 * take resolution from metadata of image store, values in img are not always set
 		 */
 		if(md != null){
-			double resolutionX = (float) md.getXResolution();
-			double resolutionY = (float) md.getYResolution();
+			double resolutionX = (float) md.getxResolution();
+			double resolutionY = (float) md.getyResolution();
 			//logger.debug("Dpi: " + md.getXResolution());
 			img.setDpi((int)resolutionX, (int)resolutionY);
 		}
@@ -322,21 +373,21 @@ public class TrpPdfDocument extends APdfDocument {
 		}
 		
 		document.newPage();
-		addTextAndImage(pc ,cutoffLeft,cutoffTop, img, imageOnly);	
+		addTextAndImage(pc ,cutoffLeft,cutoffTop, img, imageOnly, cache);	
 		
 		if(addAdditionalPlainTextPage){
 
 			if (nrOfTextRegions > 0){
 				logger.debug("add uniform text");
 				document.newPage();			
-				addUniformText(pc ,cutoffLeft,cutoffTop);
+				addUniformText(pc ,cutoffLeft,cutoffTop, cache);
 			}
 		}
 	}
 	
 
 
-	private void addTextAndImage(PcGtsType pc, int cutoffLeft, int cutoffTop, Image img, boolean imageOnly) throws DocumentException, IOException {
+	private void addTextAndImage(PcGtsType pc, int cutoffLeft, int cutoffTop, Image img, boolean imageOnly, ExportCache cache) throws DocumentException, IOException {
 		lineAndColorList.clear();
 		
 		PdfContentByte cb = writer.getDirectContentUnder();
@@ -346,7 +397,8 @@ public class TrpPdfDocument extends APdfDocument {
 		//BaseFont bf = BaseFont.createFont(BaseFont.TIMES_ROMAN, "UTF-8", BaseFont.NOT_EMBEDDED);
 		if (!imageOnly){
 			cb.beginLayer(ocrLayer);
-			cb.setFontAndSize(bfArial, 32);
+			//cb.setFontAndSize(bfArial, 32);
+			cb.setFontAndSize(mainExportBaseFont, 32);
 					
 			List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 			
@@ -360,13 +412,13 @@ public class TrpPdfDocument extends APdfDocument {
 				//TODO add paths for tables etc.
 				if (r instanceof TrpTableRegionType){
 					
-					exportTable(r, cb, cutoffLeft, cutoffTop, false);
+					exportTable(r, cb, cutoffLeft, cutoffTop, false, cache);
 
 				}
 				else if(r instanceof TextRegionType){
 					TextRegionType tr = (TextRegionType)r;
 					//PageXmlUtils.buildPolygon(tr.getCoords().getPoints()).getBounds().getMinX();
-					addTextFromTextRegion(tr, cb, cutoffLeft, cutoffTop, bfArial);
+					addTextFromTextRegion(tr, cb, cutoffLeft, cutoffTop, mainExportBaseFont, cache);
 				}
 			}
 			
@@ -394,7 +446,7 @@ public class TrpPdfDocument extends APdfDocument {
 //		addTocLinks(doc, page,cutoffTop);
 	}
 	
-	private void exportTable(RegionType r, PdfContentByte cb, int cutoffLeft, int cutoffTop, boolean addUniformText) throws IOException, DocumentException {
+	private void exportTable(RegionType r, PdfContentByte cb, int cutoffLeft, int cutoffTop, boolean addUniformText, ExportCache cache) throws IOException, DocumentException {
 		logger.debug("is table");
 		TrpTableRegionType table = (TrpTableRegionType) r;
 		
@@ -434,13 +486,16 @@ public class TrpPdfDocument extends APdfDocument {
         
         for (HashMap<Integer, TrpTableCellType> entry : allRows) {
         	for (Integer key : entry.keySet()) {
+        		if (entry.get(key) == null){
+        			continue;
+        		}
         		if (addUniformText){
 					float textBlockXStart = getAverageBeginningOfBaselines(entry.get(key));
 					textBlockXStart += 40;
-					addUniformTextFromTextRegion(entry.get(key), cb, cutoffLeft, cutoffTop, bfArial, textBlockXStart);
+					addUniformTextFromTextRegion(entry.get(key), cb, cutoffLeft, cutoffTop, mainExportBaseFont, textBlockXStart, cache);
 				}
         		else{
-        			addTextFromTextRegion(entry.get(key), cb, cutoffLeft, cutoffTop, bfArial);
+        			addTextFromTextRegion(entry.get(key), cb, cutoffLeft, cutoffTop, mainExportBaseFont, cache);
         		}
 
         	}
@@ -448,7 +503,7 @@ public class TrpPdfDocument extends APdfDocument {
 		
 	}
 
-	private void addUniformText(PcGtsType pc, int cutoffLeft, int cutoffTop) throws DocumentException, IOException {
+	private void addUniformText(PcGtsType pc, int cutoffLeft, int cutoffTop, ExportCache cache) throws DocumentException, IOException {
 		PdfContentByte cb = writer.getDirectContentUnder();
 		cb.setColorFill(BaseColor.BLACK);
 		cb.setColorStroke(BaseColor.BLACK);
@@ -460,7 +515,7 @@ public class TrpPdfDocument extends APdfDocument {
 		//FontFactory.register("arialbd.ttf", "my_bold_font");
 		//Font fontTest = FontFactory.getFont("arialbd.ttf", Font.BOLDITALIC);
 		
-		cb.setFontAndSize(bfArial, 10);
+		cb.setFontAndSize(mainExportBaseFont, 10);
 				
 		List<TrpRegionType> regions = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
 		
@@ -477,7 +532,7 @@ public class TrpPdfDocument extends APdfDocument {
 		for(TrpRegionType r : regions){
 			//TODO add paths for tables etc.			
 			if (r instanceof TrpTableRegionType){
-				exportTable(r, cb, cutoffLeft, cutoffTop, true);
+				exportTable(r, cb, cutoffLeft, cutoffTop, true, cache);
 			}
 			else if(r instanceof TrpTextRegionType){
 				TrpTextRegionType tr = (TrpTextRegionType) r;
@@ -530,7 +585,7 @@ public class TrpPdfDocument extends APdfDocument {
 
 				}
 				//logger.debug("textBlockXStart " + textBlockXStart);
-				addUniformTextFromTextRegion(tr, cb, cutoffLeft, cutoffTop, bfArial, textBlockXStart);
+				addUniformTextFromTextRegion(tr, cb, cutoffLeft, cutoffTop, mainExportBaseFont, textBlockXStart, cache);
 			}
 		}
 		
@@ -624,13 +679,16 @@ public class TrpPdfDocument extends APdfDocument {
 		//logger.debug("calculate average beginning of baselines ");
 		
 		float avgStartOfLines = 0;
+		if (tr == null){
+			return -1;
+		}
 		double width = tr.getBoundingBox().getWidth();
 		float firstTenth = (float) (width/10);
 		int nrOfLines = 0;
 
 		for (TextLineType l : tr.getTextLine()){
 			TrpBaselineType bl = (TrpBaselineType) l.getBaseline();
-			if (bl.getBoundingBox().getMinX() <= firstTenth){
+			if (bl != null && bl.getBoundingBox().getMinX() <= firstTenth){
 				avgStartOfLines += bl.getBoundingBox().getMinX();
 				nrOfLines += 1;
 			}
@@ -740,7 +798,7 @@ public class TrpPdfDocument extends APdfDocument {
     }	
 	
 
-	private void addUniformTextFromTextRegion(final TextRegionType tr, final PdfContentByte cb, int cutoffLeft, int cutoffTop, BaseFont bf, float lineStartX) throws IOException, DocumentException {
+	private void addUniformTextFromTextRegion(final TextRegionType tr, final PdfContentByte cb, int cutoffLeft, int cutoffTop, BaseFont bf, float lineStartX, ExportCache cache) throws IOException, DocumentException {
 		List<TextLineType> lines = tr.getTextLine();
 		if(lines != null && !lines.isEmpty()){
 			int i = 0;
@@ -770,7 +828,7 @@ public class TrpPdfDocument extends APdfDocument {
 			
 			//first and last line rotated -> seems to be vertical
 			//use X coords to compute the total line gap
-			if (firstLineRotation == 90 && lastLineRotation == 90){
+			if (Math.abs(firstLineRotation) == 90 && Math.abs(lastLineRotation) == 90){
 				
 				//since the reading order is not clear if the text is vertically -> could be right to left or vice versa
 				double tmpMinX1 = firstLineRect.getMinX();
@@ -1035,7 +1093,7 @@ public class TrpPdfDocument extends APdfDocument {
 								
 								String currentCharacter = wordText.substring(j, j+1);
 
-								chunkList.add(chunkIndex, formatText(currentCharacter, styleTags, j, w));
+								chunkList.add(chunkIndex, formatText(currentCharacter, styleTags, j, w, cache));
 								chunkIndex++;
 
 							}
@@ -1052,7 +1110,7 @@ public class TrpPdfDocument extends APdfDocument {
 						
 						String currentCharacter = lineText.substring(j, j+1);
 
-						chunkList.add(j, formatText(currentCharacter, styleTags, j, l));
+						chunkList.add(j, formatText(currentCharacter, styleTags, j, l, cache));
 
 					}
 				}
@@ -1113,11 +1171,14 @@ public class TrpPdfDocument extends APdfDocument {
 								tmpLineStartX = (float) baseLineRect.getMinX();
 							}
 							
-							lineStartY = (float) baseLineRect.getMaxY();
+							lineStartY = (rotation < 0) ? (float) baseLineRect.getY() : (float) baseLineRect.getMaxY();
+//							logger.debug("bl_rect maxY " + baseLineRect.getMaxY());
+//							logger.debug("bl_rect minY " + baseLineRect.getMinY());
+//							logger.debug("bl_rect Y " + baseLineRect.getY());
 						}
 						else if(lineRect != null){
 							tmpLineStartX = lineRect.x;
-							lineStartY = (float) lineRect.getMaxY();
+							lineStartY = (float) lineRect.getY();
 						}
 						
 					}
@@ -1224,7 +1285,7 @@ public class TrpPdfDocument extends APdfDocument {
 	//		logger.debug("p2.y " + p2.y);
 	//		
 	//		logger.debug("Rotate this content? " + phrase.getContent());
-	//		logger.debug("alpha to rotate " + alpha);
+			
 			
 			// if rotation is not over this border keep it straight
 			if (Math.abs(alpha) > Math.PI/16){
@@ -1236,7 +1297,9 @@ public class TrpPdfDocument extends APdfDocument {
 			if (Math.abs(alpha) > 7*Math.PI/16){
 	//			tmpLineStartX = p1.x;
 	//			lineStartY = p1.y;
-				rotation = 90;
+				rotation = ((p1.y < p2.y)? -90 : 90);
+				
+				//logger.debug("alpha to rotate " + alpha);
 			}
 					
 	//					if (alpha > Math.PI/8 && alpha <= Math.PI/3){
@@ -1254,7 +1317,7 @@ public class TrpPdfDocument extends APdfDocument {
 		return rotation;
 	}
 
-	private Chunk formatText(String currCharacter, List<TextStyleTag> styleTags, int currentIndex, ITrpShapeType currShape) throws IOException {
+	private Chunk formatText(String currCharacter, List<TextStyleTag> styleTags, int currentIndex, ITrpShapeType currShape, ExportCache cache) throws IOException {
 		
 		//first blacken char if needed
 		Set<Entry<CustomTag, String>> blackSet = ExportUtils.getAllTagsOfThisTypeForShapeElement(currShape, RegionTypeUtil.BLACKENING_REGION.toLowerCase()).entrySet();
@@ -1278,7 +1341,8 @@ public class TrpPdfDocument extends APdfDocument {
 //		Font arial = new Font(bfArial, lineMeanHeight);
 //		Font arialBold = new Font(bfArialBold, lineMeanHeight);
 //		Font arialItalic = new Font(bfArialItalic, lineMeanHeight);
-		currChunk.setFont(fontArial);
+		//currChunk.setFont(FontFactory.getFont("times-roman", BaseFont.CP1252, BaseFont.EMBEDDED));
+		currChunk.setFont(mainExportFont);
 		
 		Set<Entry<CustomTag, String>> commentSet = ExportUtils.getAllTagsOfThisTypeForShapeElement(currShape, "comment").entrySet();
 		for (Map.Entry<CustomTag, String> currEntry : commentSet){
@@ -1320,16 +1384,65 @@ public class TrpPdfDocument extends APdfDocument {
 		for (TextStyleTag styleTag : styleTags){
 			
 			if (currentIndex >= (wordOffset+styleTag.getOffset()) && currentIndex < (wordOffset+styleTag.getOffset()+styleTag.getLength())){
-								
-				if (CoreUtils.val(styleTag.getBold())) {
-					//logger.debug("BOOOOOOOOOLD");
-					
-					currChunk.setFont(fontArialBold);
-				}			
-				if (CoreUtils.val(styleTag.getItalic())) {
-					//logger.debug("ITAAAAAAAAAAAALIC");
-					currChunk.setFont(fontArialItalic);
+				
+				boolean bold = CoreUtils.val(styleTag.getBold());
+				boolean italic = CoreUtils.val(styleTag.getItalic());
+				
+				Font styleFont = null;
+				if (bold && italic){
+					styleFont = boldItalicFont;
 				}
+				else if (bold){
+					styleFont = boldFont;
+				}
+				else if (italic){
+					styleFont = italicFont;
+				}
+				
+				if (styleFont != null){
+					currChunk.setFont(styleFont);
+				}
+				
+				/*
+				 * idea was to take the user set font size but it destroys the overall uniformity - the generated size is normally bigger then the set size (e.g. 9.5 is rather small)
+				 * use case: It would help a lot if at least bold, italics and font-size where represented properly in the PDF produced by Transkribus, 
+				 * because we use GROBID-dictionaries for entry segmentation, a tool that wants PDF as input and extracts features like font-style from the text layer; 
+				 * these features are then used to train the tool so it learns where to insert segmentation markup. (docId 53351, page 1)
+				 * 
+				 * bodl and italics is contained
+				 */
+//				if (styleTag.getFontSize() != null && styleTag.getFontSize() > 0){
+//					//currChunk.setLineHeight(styleTag.getFontSize()/scaleFactorY);
+//					//logger.debug("SIIIIIIIZE" + styleTag.getFontSize());
+//					//currChunk.setFont(FontFactory.getFont(BaseFont.TIMES_BOLD, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 12));
+//					Font fontToUse = styleFont != null ? new Font(styleFont.getBaseFont(), styleTag.getFontSize()) : new Font(mainExportFont.getBaseFont(), styleTag.getFontSize());
+//					currChunk.setFont(fontToUse);
+//				}
+				
+//				if (styleTag.getFontFamily() != null){
+//					currChunk.setFont(new Font();
+//				}
+								
+//				if (CoreUtils.val(styleTag.getBold())) {
+//					//logger.debug("BOOOOOOOOOLD");
+//					if (styleTag.getFontSize() != null && styleTag.getFontSize() > 0){
+//						currChunk.setFont(new Font(bfSerifBold, styleTag.getFontSize()));
+//					}
+//					else{
+//						currChunk.setFont(boldFont);
+//					}
+//					
+//				}			
+//				if (CoreUtils.val(styleTag.getItalic())) {
+//					//logger.debug("ITAAAAAAAAAAAALIC");
+//					if (styleTag.getFontSize() != null && styleTag.getFontSize() > 0){
+//						currChunk.setFont(new Font(bfSerifItalic, styleTag.getFontSize()));
+//					}
+//					else{
+//						currChunk.setFont(italicFont);
+//					}
+//					
+//				}
 				if (CoreUtils.val(styleTag.getStrikethrough())) {
 					//logger.debug("Striiiiiiiiikethrough");
 					currChunk.setUnderline(0.2f, 3f);
@@ -1363,7 +1476,7 @@ public class TrpPdfDocument extends APdfDocument {
 			for (Map.Entry<CustomTag, String> currEntry : entrySet){
 				
 				//Set<String> wantedTags = ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames());
-				Set<String> wantedTags = ExportUtils.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
+				Set<String> wantedTags = cache.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
 				
 				if (wantedTags.contains(currEntry.getKey().getTagName())){
 
@@ -1494,8 +1607,8 @@ public class TrpPdfDocument extends APdfDocument {
 		return countOverlaps;
 	}
 
-	private void addTextFromTextRegion(final TextRegionType tr, final PdfContentByte cb, int cutoffLeft, int cutoffTop, BaseFont bf) throws IOException {
-		List<TextLineType> lines = tr.getTextLine();
+	private void addTextFromTextRegion(final TextRegionType tr, final PdfContentByte cb, int cutoffLeft, int cutoffTop, BaseFont bf, ExportCache cache) throws IOException {
+		List<TextLineType> lines = (tr != null ? tr.getTextLine() : null);
 		
 		boolean firstLine;
 		if(lines != null && !lines.isEmpty()){
@@ -1605,18 +1718,15 @@ public class TrpPdfDocument extends APdfDocument {
 						List<WordType> words = l.getWord();
 						for(WordType wt : words){
 							TrpWordType w = (TrpWordType)wt;
-							highlightTagsForShape(w, rtl);
+							highlightTagsForShape(w, rtl, cache);
 						}
 					}
 					else{
-						highlightTagsForShape(l, rtl);
+						highlightTagsForShape(l, rtl, cache);
 					}
 					
 				}
-			}
-			
-
-			
+			}		
 		}	
 	}
 
@@ -1633,13 +1743,13 @@ public class TrpPdfDocument extends APdfDocument {
 	}
 		
 
-	private void highlightTagsForShape(ITrpShapeType shape, boolean rtl) throws IOException {
+	private void highlightTagsForShape(ITrpShapeType shape, boolean rtl, ExportCache cache) throws IOException {
 		int tagId = 0;
 		int k = 1;
 		Set<Entry<CustomTag, String>> entrySet = ExportUtils.getAllTagsForShapeElement(shape).entrySet();
 		
 		//Set<String> wantedTags = ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames());
-		Set<String> wantedTags = ExportUtils.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
+		Set<String> wantedTags = cache.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
 		
 		//logger.debug("wanted tags in TRPPDFDOC " + wantedTags.size());
 
@@ -1916,7 +2026,7 @@ public class TrpPdfDocument extends APdfDocument {
 
 	}
 
-	public void addTags(TrpDoc doc, Set<Integer> pageIndices, boolean useWordLevel2) throws DocumentException, IOException {
+	public void addTags(TrpDoc doc, Set<Integer> pageIndices, boolean useWordLevel2, ExportCache cache) throws DocumentException, IOException {
 		PdfContentByte cb = writer.getDirectContentUnder();
 		document.newPage();
 				
@@ -1924,7 +2034,7 @@ public class TrpPdfDocument extends APdfDocument {
 		float posY;
 		//BaseFont bf = BaseFont.createFont(BaseFont.TIMES_ROMAN, "UTF-8", BaseFont.NOT_EMBEDDED, true, null, null);
 		
-		Set<String> wantedTags = ExportUtils.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
+		Set<String> wantedTags = cache.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
 		
 		//logger.debug("selectedTags Size " + selectedTags.size());
 		for (String currTagname : wantedTags){
@@ -1932,7 +2042,7 @@ public class TrpPdfDocument extends APdfDocument {
 			double lineGap = 4/scaleFactorY;
 			//logger.debug("currTagname " + currTagname);
 			//get all custom tags with currTagname and text
-			HashMap<CustomTag, String> allTagsOfThisTagname = ExportUtils.getTags(currTagname);
+			HashMap<CustomTag, String> allTagsOfThisTagname = cache.getTags(currTagname);
 			//logger.debug("all Tags Of This Tagname " + currTagname);
 			if(allTagsOfThisTagname.size()>0){
 				
@@ -1947,7 +2057,7 @@ public class TrpPdfDocument extends APdfDocument {
 				String color = CustomTagFactory.getTagColor(currTagname);
 				
 
-				addUniformTagList(lineHeight, twelfthPoints[1][0], posY, "", currTagname + " Tags:", "", cb, 0, 0, bfArial, twelfthPoints[1][0], false, color, 0, false);
+				addUniformTagList(lineHeight, twelfthPoints[1][0], posY, "", currTagname + " Tags:", "", cb, 0, 0, mainExportBaseFont, twelfthPoints[1][0], false, color, 0, false);
 				//addUniformStringTest(lineMeanHeight, twelfthPoints[1][0], posY, currTagname + " Tags:", cb, 0, 0, bfArial, twelfthPoints[1][0], false, color, 0);
 				
 				Collection<String> valueSet = allTagsOfThisTagname.values();
@@ -2063,7 +2173,7 @@ public class TrpPdfDocument extends APdfDocument {
 							l = 1;
 						}
 
-						addUniformTagList(lineHeight, twelfthPoints[1][0], posY, searchText, currValue, expansion, cb, 0, 0, bfArial, twelfthPoints[1][0], true, null, 0, rtl);
+						addUniformTagList(lineHeight, twelfthPoints[1][0], posY, searchText, currValue, expansion, cb, 0, 0, mainExportBaseFont, twelfthPoints[1][0], true, null, 0, rtl);
 						//logger.debug("tag value is " + currValue);
 						l++;
 					}
@@ -2092,61 +2202,77 @@ public class TrpPdfDocument extends APdfDocument {
 		float lineHeight = twelfthPoints[1][0]/3;
 		float posY = twelfthPoints[1][1];
 		
-		addTitleString("Title Page", posY, 0, (float) (lineHeight*1.5), cb, bfArialBoldItalic);
+		addTitleString("Title Page", posY, 0, (float) (lineHeight*1.5), cb, boldItalicBaseFont);
 		posY += lineHeight*2;
 		
 		TrpDocMetadata docMd = doc.getMd();
 		
-		if (writeDocMd("Title: ", docMd.getTitle(), posY, 0, lineHeight, cb, bfArialItalic)){
+		if (writeDocMd("Title: ", docMd.getTitle(), posY, 0, lineHeight, cb, italicBaseFont)){
 			posY += lineHeight*1.5;
 		}
 		
-		if (writeDocMd("Author: ", docMd.getAuthor(), posY, 0, lineHeight, cb, bfArialItalic)){
+		if (writeDocMd("Author: ", docMd.getAuthor(), posY, 0, lineHeight, cb, italicBaseFont)){
 			posY += lineHeight*1.5;
 		}
 
 		lineHeight = twelfthPoints[1][0]/6;
 		
-		if (writeDocMd("Description: ", docMd.getDesc(), posY, 0, lineHeight, cb, bfArialItalic)){
+		if (writeDocMd("Authority: ", docMd.getAuthority(), posY, 0, lineHeight, cb, italicBaseFont)){
+			posY += lineHeight*1.5;
+		}
+		
+		if (writeDocMd("External ID: ", docMd.getExternalId(), posY, 0, lineHeight, cb, italicBaseFont)){
+			posY += lineHeight*1.5;
+		}
+		
+		if (writeDocMd("Hierarchy: ", docMd.getHierarchy(), posY, 0, lineHeight, cb, italicBaseFont)){
+			posY += lineHeight*1.5;
+		}
+		
+		if (writeDocMd("Backlink: ", docMd.getBacklink(), posY, 0, lineHeight, cb, italicBaseFont)){
+			posY += lineHeight*1.5;
+		}
+		
+		if (writeDocMd("Description: ", docMd.getDesc(), posY, 0, lineHeight, cb, italicBaseFont)){
 			posY += lineHeight*1.2;
 		}
 		
-		if (writeDocMd("Genre: ", docMd.getGenre(), posY, 0, lineHeight, cb, bfArialItalic)){
+		if (writeDocMd("Genre: ", docMd.getGenre(), posY, 0, lineHeight, cb, italicBaseFont)){
 			posY += lineHeight*1.2;
 		}
 		
-		if (writeDocMd("Writer: ", docMd.getWriter(), posY, 0, lineHeight, cb, bfArialItalic)){
+		if (writeDocMd("Writer: ", docMd.getWriter(), posY, 0, lineHeight, cb, italicBaseFont)){
 			posY += lineHeight*1.2;
 		}
 		
 		if (docMd.getScriptType() != null){
-			if (writeDocMd("Scripttype: ", docMd.getScriptType().toString(), posY, 0, lineHeight, cb, bfArialItalic)){
+			if (writeDocMd("Scripttype: ", docMd.getScriptType().toString(), posY, 0, lineHeight, cb, italicBaseFont)){
 				posY += lineHeight*1.2;
 			}
 		}
 		
-		if (writeDocMd("Language: ", docMd.getLanguage(), posY, 0, lineHeight, cb, bfArialItalic)){
+		if (writeDocMd("Language: ", docMd.getLanguage(), posY, 0, lineHeight, cb, italicBaseFont)){
 			posY += lineHeight*1.2;
 		}
 		
-		if (writeDocMd("Number of Pages in whole Document: ", String.valueOf(docMd.getNrOfPages()), posY, 0, lineHeight, cb, bfArialItalic)){
+		if (writeDocMd("Number of Pages in whole Document: ", String.valueOf(docMd.getNrOfPages()), posY, 0, lineHeight, cb, italicBaseFont)){
 			posY += lineHeight*1.2;
 		}
 		
 		if (docMd.getCreatedFromDate() != null){
-			if (writeDocMd("Created From: ", docMd.getCreatedFromDate().toString(), posY, 0, lineHeight, cb, bfArialItalic)){
+			if (writeDocMd("Created From: ", docMd.getCreatedFromDate().toString(), posY, 0, lineHeight, cb, italicBaseFont)){
 				posY += lineHeight*1.2;
 			}
 		}
 		
 		if (docMd.getCreatedToDate() != null){
-			if (writeDocMd("Created To: ", docMd.getCreatedToDate().toString(), posY, 0, lineHeight, cb, bfArialItalic)){
+			if (writeDocMd("Created To: ", docMd.getCreatedToDate().toString(), posY, 0, lineHeight, cb, italicBaseFont)){
 				posY += lineHeight*1.5;
 			}
 		}
 		//--- Export settings section
 		lineHeight = twelfthPoints[1][0]/3;
-		addTitleString("Export Settings: ", posY, twelfthPoints[1][0], lineHeight, cb, bfArialBoldItalic);
+		addTitleString("Export Settings: ", posY, twelfthPoints[1][0], lineHeight, cb, boldItalicBaseFont);
 		
 		String imageSetting = (imgOnly ? "Images without text layer" : "Images with text layer");
 		String extraTextSetting = (extraTextPage ? "Extra pages for transcribed text are added" : "");
@@ -2155,7 +2281,7 @@ public class TrpPdfDocument extends APdfDocument {
 		
 		lineHeight = twelfthPoints[1][0]/6;
 		posY += lineHeight*1.5;
-		addTitleString(imageSetting + " / " + extraTextSetting + " / " + blackeningSetting + " / " + tagSetting, posY, twelfthPoints[1][0], lineHeight, cb, bfArialBoldItalic);
+		addTitleString(imageSetting + " / " + extraTextSetting + " / " + blackeningSetting + " / " + tagSetting, posY, twelfthPoints[1][0], lineHeight, cb, boldItalicBaseFont);
 		//--- Export settings section end
 		
 		//--- Editorial declaration section		
@@ -2165,14 +2291,14 @@ public class TrpPdfDocument extends APdfDocument {
 		List<EdFeature> efl = doc.getEdDeclList();
 		
 		if (efl.size() >= 0){
-			addTitleString("Editorial Declaration: ", posY, twelfthPoints[1][0], lineHeight, cb, bfArialBoldItalic);
+			addTitleString("Editorial Declaration: ", posY, twelfthPoints[1][0], lineHeight, cb, boldItalicBaseFont);
 			posY += lineHeight*1.5;
 			
 			lineHeight = twelfthPoints[1][0]/6;
 		}
 
 		for (EdFeature edfeat : efl){
-			addTitleString(edfeat.getTitle() + ": " + edfeat.getDescription() +"\n" + edfeat.getSelectedOption().toString(), posY, twelfthPoints[1][0], lineHeight, cb, bfArial);
+			addTitleString(edfeat.getTitle() + ": " + edfeat.getDescription() +"\n" + edfeat.getSelectedOption().toString(), posY, twelfthPoints[1][0], lineHeight, cb, mainExportBaseFont);
 			//posY += lineHeight;
 			//addTitleString(edfeat.getSelectedOption().toString(), posY, twelfthPoints[1][0], lineHeight, cb, bfArial);
 			posY += lineHeight*1.5;

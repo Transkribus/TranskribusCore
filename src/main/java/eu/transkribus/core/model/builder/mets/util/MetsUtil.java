@@ -75,7 +75,7 @@ public class MetsUtil {
 
 		XPathFactory xpathFactory = XPathFactory.newInstance();
 		XPath xpath = xpathFactory.newXPath();
-		XPathExpression expr = xpath.compile("//*[local-name()='rightsMD'][(@ID,'RIGHTS')][1]");
+		XPathExpression expr = xpath.compile("//*[local-name()='rightsMD'][@ID='RIGHTS'][1]");
 		Element rightsElement = (Element) expr.evaluate(doc, XPathConstants.NODE);
 
 		if (rightsElement != null) {
@@ -251,7 +251,6 @@ public class MetsUtil {
 	public static List<PageUploadDescriptor> getImagesToUpload(Mets mets) {
 		//check filesection. needs img group and xml group to distinguish them without going for mimetypes
 		List<FileGrpType> typeGrps = getMasterFileGrp(mets);
-		boolean hasXml = true;
 		List<FileType> xmlGrp = null;
 		List<FileType> imgGrp = null;
 		for (FileGrpType type : typeGrps) {
@@ -284,7 +283,7 @@ public class MetsUtil {
 		return images;
 	}
 
-	private static List<DivType> getPageDivsFromStructMap(Mets mets) {
+	public static List<DivType> getPageDivsFromStructMap(Mets mets) {
 		List<DivType> pageDivs = null;
 		for(StructMapType sMap : mets.getStructMap()){
 			if(sMap.getID().equals(TrpMetsBuilder.TRP_STRUCTMAP_ID) 

@@ -88,8 +88,8 @@ public class TrpRegionType extends RegionType implements ITrpShapeType {
 				src.textRegionOrImageRegionOrLineDrawingRegion != null ? 
 				new ArrayList<TrpRegionType>(src.textRegionOrImageRegionOrLineDrawingRegion) : null;
 	    
-	    if (src.getCustomTagList() != null)
-	    	src.getCustomTagList().writeToCustomTag();
+//	    if (src.getCustomTagList() != null)
+//	    	src.getCustomTagList().writeToCustomTag();
 	    if (src.custom != null)
 	    	custom = new String(src.custom);
 	    
@@ -191,8 +191,8 @@ public class TrpRegionType extends RegionType implements ITrpShapeType {
 		else if (parent instanceof TrpRegionType) {
 			return ((TrpRegionType)parent).getPage();
 		}
-		else
-			return null;
+		
+		return null;
 	}
 	
 	@Override public ITrpShapeType getSiblingShape(boolean previous) {
@@ -233,10 +233,10 @@ public class TrpRegionType extends RegionType implements ITrpShapeType {
 		return !getTextRegionOrImageRegionOrLineDrawingRegion().isEmpty();
 	}
 	
-	@Override public void setCustom(String custom) {
-		super.setCustom(custom);
-		customTagList = new CustomTagList(this);
-	}
+//	@Override public void setCustom(String custom) {
+//		super.setCustom(custom);
+//		customTagList = new CustomTagList(this);
+//	}
 				
 	@Override
 	public void setCoordinates(String value, Object who) {

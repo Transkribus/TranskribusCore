@@ -14,7 +14,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.zip.GZIPInputStream;
+
+import org.apache.commons.io.Charsets;
 
 /**
  * Some handy functions for file processing.<br/>
@@ -28,6 +31,7 @@ import java.util.zip.GZIPInputStream;
 public class DeaFileUtils {
 
 	private static final String SEP = File.separator;
+	public static final Charset DEFAULT_CHARSET = Charsets.UTF_8;
 	
 	
 	/**

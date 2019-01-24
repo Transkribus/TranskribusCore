@@ -1,30 +1,26 @@
 package eu.transkribus.core.model.beans.pagecontent_trp;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.customtags.CustomTagUtil;
-import eu.transkribus.core.model.beans.pagecontent.LayerType;
-import eu.transkribus.core.model.beans.pagecontent.OrderedGroupIndexedType;
-import eu.transkribus.core.model.beans.pagecontent.OrderedGroupType;
 import eu.transkribus.core.model.beans.pagecontent.PageType;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.RegionRefType;
 import eu.transkribus.core.model.beans.pagecontent.RelationType;
 import eu.transkribus.core.model.beans.pagecontent.RelationsType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
-import eu.transkribus.core.model.beans.pagecontent.UnorderedGroupIndexedType;
-import eu.transkribus.core.model.beans.pagecontent.UnorderedGroupType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
-import eu.transkribus.core.util.SebisStopWatch;
 
 public class TrpPageType extends PageType {
 	private final static Logger logger = LoggerFactory.getLogger(TrpPageType.class);
@@ -32,11 +28,12 @@ public class TrpPageType extends PageType {
 	PcGtsType pcGtsType;
 	
 	boolean edited=false;
+	Long lastEditTime=null;
 	
 //	Set<String> tagNames=new HashSet<>();	
 	TrpTranscriptMetadata md;
 	
-	Map<String, Object> idRegistry = new HashMap<>(); // TEST
+//	Map<String, Object> idRegistry = new HashMap<>(); // TEST
 
 	public TrpPageType() {
 	}
@@ -46,54 +43,56 @@ public class TrpPageType extends PageType {
 		
 		// new elements
 		this.edited = src.edited;
+		this.lastEditTime = src.lastEditTime;
 		this.pcGtsType = src.pcGtsType;
+//		this.md = new TrpTranscriptMetadata(src.md); // TODO - copy TrpTranscriptMetadata??
 	}
 	
-	public boolean registerObjectId(Object o) {
-		if (o instanceof ITrpShapeType) {
-			idRegistry.put(((ITrpShapeType)o).getId(), o);
-			return true;
-		}		
-		if (o instanceof PcGtsType) {
-			idRegistry.put(((PcGtsType)o).getPcGtsId(), o);
-			return true;
-		}
-		if (o instanceof OrderedGroupIndexedType) {
-			idRegistry.put(((OrderedGroupIndexedType)o).getId(), o);
-			return true;
-		}
-		if (o instanceof UnorderedGroupIndexedType) {
-			idRegistry.put(((UnorderedGroupIndexedType)o).getId(), o);
-			return true;
-		}
-		if (o instanceof OrderedGroupType) {
-			idRegistry.put(((OrderedGroupType)o).getId(), o);
-			return true;
-		}
-		if (o instanceof UnorderedGroupType) {
-			idRegistry.put(((UnorderedGroupType)o).getId(), o);
-			return true;
-		}
-		if (o instanceof LayerType) {
-			idRegistry.put(((LayerType)o).getId(), o);
-			return true;
-		}
-		
-		return false;
-	}
+//	public boolean registerObjectId(Object o) {
+//		if (o instanceof ITrpShapeType) {
+//			idRegistry.put(((ITrpShapeType)o).getId(), o);
+//			return true;
+//		}		
+//		if (o instanceof PcGtsType) {
+//			idRegistry.put(((PcGtsType)o).getPcGtsId(), o);
+//			return true;
+//		}
+//		if (o instanceof OrderedGroupIndexedType) {
+//			idRegistry.put(((OrderedGroupIndexedType)o).getId(), o);
+//			return true;
+//		}
+//		if (o instanceof UnorderedGroupIndexedType) {
+//			idRegistry.put(((UnorderedGroupIndexedType)o).getId(), o);
+//			return true;
+//		}
+//		if (o instanceof OrderedGroupType) {
+//			idRegistry.put(((OrderedGroupType)o).getId(), o);
+//			return true;
+//		}
+//		if (o instanceof UnorderedGroupType) {
+//			idRegistry.put(((UnorderedGroupType)o).getId(), o);
+//			return true;
+//		}
+//		if (o instanceof LayerType) {
+//			idRegistry.put(((LayerType)o).getId(), o);
+//			return true;
+//		}
+//		
+//		return false;
+//	}
 	
-	public void printIdRegistry() {
-		logger.trace("nr of elements with id: "+idRegistry.size());
-		for (String id : idRegistry.keySet()) {
-			logger.trace("id: "+id+" element: "+idRegistry.get(id));
-		}
-		
-//		SebisStopWatch.SW.start();
-		for (int i=0; i<10000; ++i) {
-			idRegistry.containsKey("tc_"+i);
-		}
-//		SebisStopWatch.SW.stop(true);
-	}
+//	public void printIdRegistry() {
+//		logger.trace("nr of elements with id: "+idRegistry.size());
+//		for (String id : idRegistry.keySet()) {
+//			logger.trace("id: "+id+" element: "+idRegistry.get(id));
+//		}
+//		
+////		SebisStopWatch.SW.start();
+//		for (int i=0; i<10000; ++i) {
+//			idRegistry.containsKey("tc_"+i);
+//		}
+////		SebisStopWatch.SW.stop(true);
+//	}
 	
 //	public void replaceLinkId(String idOld, String idNew) {
 //		List<RelationType> links = getLinks(idOld);
@@ -133,6 +132,7 @@ public class TrpPageType extends PageType {
 //		this.tagNames = tagNames;
 //	}
 	
+	// LINK STUFF
 	public int removeDeadLinks() {
 		if (relations==null) {
 			return 0;
@@ -140,55 +140,87 @@ public class TrpPageType extends PageType {
 		
 		int c=0;
 		for (RelationType r : new ArrayList<>(relations.getRelation())) {
-			ITrpShapeType s1 = (ITrpShapeType) r.getRegionRef().get(0).getRegionRef();
-			ITrpShapeType s2 = (ITrpShapeType) r.getRegionRef().get(1).getRegionRef();
-			
-			if (s1 == null || s2 == null) {
+			RegionRefType ref = r.getRegionRef().stream().filter(ref1 -> ref1.getRegionRef()==null).findFirst().orElse(null);
+			if (ref != null) { // there is a RegionRefType whose shape is null!
 				logger.debug("removing dead link "+r);
 				getRelations().getRelation().remove(r);
 				++c;
 			}
 		}
-		if (relations.getRelation().isEmpty())
+		if (relations.getRelation().isEmpty()) {
 			relations = null;
+		}
 		
 		logger.debug("removed "+c+" dead links!");
 		
 		return c;
 	}
 	
-	public boolean hasLink(ITrpShapeType s1, ITrpShapeType s2) {
-		if (s1 == null || s2 == null) return false;
-		
-		return hasLink(s1.getId(), s2.getId());
+	public boolean hasLinkWithShapes(List<ITrpShapeType> shapes) {
+		return getLinkWithShapes(shapes) != null;
 	}
 	
-	public boolean hasLink(String id1, String id2) {
-		if (relations==null) return false;
+	public boolean hasLinkWithIds(List<String> ids) {
+		return getLinkWithIds(ids) != null;
+	}
+	
+	public RelationType getLinkWithShapes(List<ITrpShapeType> shapes) {
+		if (shapes == null) {
+			return null;
+		}
 		
-		for (RelationType r : relations.getRelation()) {			
-			ITrpShapeType s1 =  (ITrpShapeType) r.getRegionRef().get(0).getRegionRef();
-			ITrpShapeType s2 =  (ITrpShapeType) r.getRegionRef().get(1).getRegionRef();
-			
-//			logger.debug(s1.getId()+" - "+s2.getId());
-			
-			if (s1.getId().equals(id1) && s2.getId().equals(id2)) {
-				return true;
+		return getLinkWithIds(shapes.stream().map(s -> s.getId()).collect(Collectors.toList()));
+	}
+	
+	public static List<String> getRegionRefsIds(List<RegionRefType> regionRefs) {
+		return regionRefs.stream().filter(r -> r.getRegionRef()!=null && r.getRegionRef() instanceof ITrpShapeType).map(r -> ((ITrpShapeType)r.getRegionRef()).getId()).collect(Collectors.toList());
+	}
+	
+	public RelationType getLinkWithIds(List<String> ids) {
+		if (relations==null || ids == null) {
+			return null;
+		}
+		
+		for (RelationType r : relations.getRelation()) {
+			List<String> regionRefIds = getRegionRefsIds(r.getRegionRef());
+			if (regionRefIds.size()==ids.size() && regionRefIds.containsAll(ids)) {
+				return r;
 			}
 		}
-		return false;
+		return null;
 	}
 	
-	public List<RelationType> getLinks(ITrpShapeType s1) {
-		List<RelationType> links = new ArrayList<>();
-		if (s1 == null) return links;
+	public List<RelationType> getLinks(ITrpShapeType s) {
+		if (s == null) {
+			return new ArrayList<>();
+		}
 		
-		return getLinks(s1.getId());
+		return getLinks(s.getId());
 	}
 	
-	public void removeLinks(ITrpShapeType s1) {
-		// remove all links related to this shape:
-		for (RelationType r : getLinks(s1)) {
+	public List<RelationType> getLinks(String id) {
+		if (id == null || relations==null) {
+			return new ArrayList<>();
+		}
+		
+		List<RelationType> links = new ArrayList<>();
+		for (ITrpShapeType s : getAllShapes(true)) {
+			if (s==null || s.getId() == null || s.getId().equals(id)) {
+				continue;
+			}
+			
+			for (RelationType r : relations.getRelation()) {
+				List<String> regionRefIds = getRegionRefsIds(r.getRegionRef());
+				if (regionRefIds.contains(id)) {
+					links.add(r);
+				}
+			}
+		}
+		return links;
+	}
+	
+	public void removeLinks(ITrpShapeType s) {
+		for (RelationType r : getLinks(s)) {
 			removeLink(r);
 		}
 	}
@@ -198,97 +230,90 @@ public class TrpPageType extends PageType {
 		
 		boolean removed = relations.getRelation().remove(link);
 		
-		if (relations.getRelation().isEmpty())
+		if (relations.getRelation().isEmpty()) {
 			relations = null;
+		}
 		
 		return removed;
 	}
 	
-	/** Returns all links for a given shape. */
-	public List<RelationType> getLinks(String id1) {
-		List<RelationType> links = new ArrayList<>();
-		if (id1 == null) return links;
-		
-		for (ITrpShapeType s : getAllShapes(true)) {
-			if (s==null || s.getId() == null || s.getId().equals(id1))
-				continue;
-			
-			RelationType l = getLink(id1, s.getId());
-			if (l != null)
-				links.add(l);
+//	/** Returns the link between the two shapes or null if none exists. */
+//	public RelationType getLink(ITrpShapeType s1, ITrpShapeType s2) {
+//		if (s1 == null || s2 == null) return null;
+//	
+//		return getLink(s1.getId(), s2.getId());
+//	}
+//	
+//	public RelationType getLink(String id1, String id2) {
+//		if (relations==null) return null;
+//		
+//		for (RelationType r : relations.getRelation()) {
+//			ITrpShapeType s1 =  (ITrpShapeType) r.getRegionRef().get(0).getRegionRef();
+//			ITrpShapeType s2 =  (ITrpShapeType) r.getRegionRef().get(1).getRegionRef();
+//			
+//			if (s1.getId().equals(id1) && s2.getId().equals(id2)) {
+//				return r;
+//			}		
+//		}
+//		return null;
+//	}
+//	
+//	public boolean removeLink(ITrpShapeType s1, ITrpShapeType s2) {
+//		if (s1 == null || s2 == null) return false;
+//		
+//		return removeLink(s1.getId(), s2.getId());
+//	}
+//	
+//	public boolean removeLink(String id1, String id2) {
+//		if (relations==null) return false;
+//		
+//		for (RelationType r : relations.getRelation()) {
+//			ITrpShapeType s1 =  (ITrpShapeType) r.getRegionRef().get(0).getRegionRef();
+//			ITrpShapeType s2 =  (ITrpShapeType) r.getRegionRef().get(1).getRegionRef();
+//			
+//			if (s1.getId().equals(id1) && s2.getId().equals(id2)) {
+//				getRelations().getRelation().remove(r);
+//				if (relations.getRelation().isEmpty())
+//					relations = null;				
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
+	
+	public static boolean isLinkableShape(ITrpShapeType shape) {
+		return shape!=null && !(shape instanceof TrpPrintSpaceType) && !(shape instanceof TrpBaselineType);
+	}
+	
+	public RelationType addLink(List<ITrpShapeType> shapes) {
+		if (hasLinkWithShapes(shapes)) {
+			return null;
 		}
-		return links;
-	}
-	
-	/** Returns the link between the two shapes or null if none exists. */
-	public RelationType getLink(ITrpShapeType s1, ITrpShapeType s2) {
-		if (s1 == null || s2 == null) return null;
-	
-		return getLink(s1.getId(), s2.getId());
-	}
-	
-	public RelationType getLink(String id1, String id2) {
-		if (relations==null) return null;
-		
-		for (RelationType r : relations.getRelation()) {
-			ITrpShapeType s1 =  (ITrpShapeType) r.getRegionRef().get(0).getRegionRef();
-			ITrpShapeType s2 =  (ITrpShapeType) r.getRegionRef().get(1).getRegionRef();
-			
-			if (s1.getId().equals(id1) && s2.getId().equals(id2)) {
-				return r;
-			}		
-		}
-		return null;
-	}
-	
-	public boolean removeLink(ITrpShapeType s1, ITrpShapeType s2) {
-		if (s1 == null || s2 == null) return false;
-		
-		return removeLink(s1.getId(), s2.getId());
-	}
-	
-	public boolean removeLink(String id1, String id2) {
-		if (relations==null) return false;
-		
-		for (RelationType r : relations.getRelation()) {
-			ITrpShapeType s1 =  (ITrpShapeType) r.getRegionRef().get(0).getRegionRef();
-			ITrpShapeType s2 =  (ITrpShapeType) r.getRegionRef().get(1).getRegionRef();
-			
-			if (s1.getId().equals(id1) && s2.getId().equals(id2)) {
-				getRelations().getRelation().remove(r);
-				if (relations.getRelation().isEmpty())
-					relations = null;				
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public boolean addLink(ITrpShapeType s1, ITrpShapeType s2) {
-		if (s1 == null || s2 == null || s1==s2) return false;
-		if (s1 instanceof TrpPrintSpaceType || s1 instanceof TrpBaselineType) return false;
-		if (s2 instanceof TrpPrintSpaceType || s2 instanceof TrpBaselineType) return false;
-		
-		if (hasLink(s1, s2))
-			return false;
 		
 		RelationType rt = new RelationType();
-		RegionRefType regRef1 = new RegionRefType();
-		regRef1.setRegionRef(s1);
-		RegionRefType regRef2 = new RegionRefType();
-		regRef2.setRegionRef(s2);
+		for (ITrpShapeType st : shapes) {
+			if (!isLinkableShape(st)) {
+				continue;
+			}
+			
+			RegionRefType regRef = new RegionRefType();
+			regRef.setRegionRef(st);
+			rt.getRegionRef().add(regRef);
+		}
 		rt.setType("link");
 		
-		rt.getRegionRef().add(regRef1);
-		rt.getRegionRef().add(regRef2);
+		if (rt.getRegionRef().isEmpty()) {
+			return null;
+		}
 		
 		if (relations==null) {
 			relations = new RelationsType();
 		}
 		
 		relations.getRelation().add(rt);
-		return true;
+		return rt;
 	}
+	// END OF LINK STUFF
 	
 	public int countCharactersInWords() {
 		int c=0;
@@ -508,7 +533,7 @@ public class TrpPageType extends PageType {
 		
 		for (TrpTextRegionType r : getTextRegions(true)) {
 			r.sortLines();
-			for (TextLineType l : getLines()) {
+			for (TextLineType l : r.getTextLine()) {
 				((TrpTextLineType) l).sortWords();
 			}
 		}
@@ -566,8 +591,20 @@ public class TrpPageType extends PageType {
 
 	public void setEdited(boolean edited) {
 		this.edited = edited;
+		lastEditTime = this.edited ? System.currentTimeMillis() : null;
 	}
-	public boolean isEdited() { return edited; }
+	
+	public boolean isEdited() { 
+		return edited;
+	}
+	
+	public boolean isEditedSince(long time) {
+		return lastEditTime!=null && lastEditTime>time;
+	}
+	
+	public Long getLastEditTime() {
+		return lastEditTime;
+	}
 
 	public PcGtsType getPcGtsType() {
 		return pcGtsType;
