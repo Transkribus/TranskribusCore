@@ -3,8 +3,11 @@ package eu.transkribus.core.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -16,6 +19,18 @@ import org.slf4j.LoggerFactory;
  */
 public class UrlUtils {
 	private static final Logger logger = LoggerFactory.getLogger(UrlUtils.class);
+	
+	public static String urlEncode(String s) throws UnsupportedEncodingException {
+		return URLEncoder.encode(s, "UTF-8");
+	}
+	
+	public static String urlDecode(String s, boolean specialTreatmentForPlusAndPercentSign) throws UnsupportedEncodingException {
+		if (specialTreatmentForPlusAndPercentSign) {
+			s = s.replaceAll("%(?![0-9a-fA-F]{2})", "%25");
+			s = s.replaceAll("\\+", "%2B");
+		}
+        return URLDecoder.decode(s, "utf-8");
+	}
 	
 	/**
 	 * This method essentially does the same as FileUtils.copyUrlToFile() but 

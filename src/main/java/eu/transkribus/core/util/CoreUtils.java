@@ -19,7 +19,6 @@ import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1278,5 +1277,17 @@ public class CoreUtils {
 		}
 		
 		return collection.stream().anyMatch(s -> caseSensitive ? StringUtils.equals(s, searchFor) : StringUtils.equalsIgnoreCase(s, searchFor));
+	}
+	
+	public static String mapToString(Map<?,?> map) {
+		if (map==null) {
+			return "";
+		}
+		
+		String str="";
+		for (Object key : map.keySet()) {
+			str+=key+":"+map.get(key)+"\n";
+		}
+		return str;
 	}
 }
