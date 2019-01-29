@@ -277,6 +277,10 @@ public class TrpProperties {
 			}
 			return setProperty(key, ""+value);
 		}
+		
+		public Object setProperty(String key, boolean value) {
+			return setProperty(key, ""+value);
+		}
 
 		public Object remove(String key) {
 			return props.remove(key);	
