@@ -5,22 +5,37 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import eu.transkribus.core.model.beans.customtags.CssSyntaxTag;
 
 public class CssSyntaxTagTest {
 	private final static Logger logger = LoggerFactory.getLogger(CssSyntaxTagTest.class);
 		
 	String TAG_FILENAME = "./cssTagText.txt";
 	String OUT_FN = "cssTagOut.txt";
+	
+	@Test public void testRemovingAttribues() {
+		List<Object[]> tests = new ArrayList<>();
+		tests.add(new Object[] {"   type  :  catch-word; att1  : value2; att2: value3;    escaped:\\u2fe3whatever", "type:catch-word; att1:value2;", new String[] {"att2", "escaped", "michgibtesnicht" } });
+		tests.add(new Object[] {" tag:value; tag:value2", "", new String[] {"tag"} });
+		tests.add(new Object[] {" irgendwas asdf", "irgendwasasdf;", new String[] {"irgendwas"} });
+		
+		for (Object[] test : tests) {
+			String attributes = (String) test[0];
+			String expected = (String) test[1];
+			String[] attributesToFilterOut = (String[]) test[2];
+			
+			attributes = CssSyntaxTag.removeAttributes(attributes, attributesToFilterOut);
+			logger.info("out = "+attributes);
+			Assert.assertEquals("Removing attributes from css attributes string was not successful!", expected, attributes);
+		}
+	}
 	
 	public static String readFileAsString(String fn) throws IOException {
 		InputStream stream = Thread.currentThread().getContextClassLoader()
@@ -112,11 +127,14 @@ public class CssSyntaxTagTest {
 	public static void main(String[] args) throws Exception {
 //		StructureTag st = new StructureTag("paragraph, marginalia");
 		
-		CssSyntaxTag t = CssSyntaxTag.parseSingleCssTag("structure { type: paragraph, marginalia; }");
+//		CssSyntaxTag t = CssSyntaxTag.parseSingleCssTag("structure { type: paragraph, marginalia; }");
 //		logger.info(t.toString());
 		
-		System.out.println(t.toString());
-		System.out.println(t.getAttributeValue("type"));
+//		System.out.println(t.toString());
+//		System.out.println(t.getAttributeValue("type"));
+		
+		CssSyntaxTagTest t = new CssSyntaxTagTest();
+		t.testRemovingAttribues();
 		
 		
 		

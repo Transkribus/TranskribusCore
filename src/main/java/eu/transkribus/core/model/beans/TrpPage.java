@@ -321,7 +321,7 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		
 		Collections.sort(tList, Collections.reverseOrder());
 		for (TrpTranscriptMetadata md : tList){
-			if (md.getStatus().getStr().equals(status)){
+			if (md.getStatus().getStr().equals(status) || (md.getToolName() != null && md.getToolName().equals(status))){
 				return md;
 			}
 				

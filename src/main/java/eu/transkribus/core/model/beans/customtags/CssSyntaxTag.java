@@ -2,6 +2,7 @@ package eu.transkribus.core.model.beans.customtags;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -215,6 +216,39 @@ public class CssSyntaxTag {
 		}
 		
 		return attrs;
+	}
+	
+	public Integer getIntegerAttribute(String attribute) {
+		try {
+			return getAttributeValueAsInt(attribute);
+//			Object value = getAttributeValue(attribute);
+//			return Integer.parseInt((String) value);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	public int getOffset() {
+		Integer offset = getIntegerAttribute("offset");
+		return offset!=null ? offset : -1;
+	}
+	
+	public int getLength() {
+		Integer length = getIntegerAttribute("length");
+		return length!=null ? length : -1;
+	}
+
+	public static String removeAttributes(String attributesCssString, String... attributesToFilterOut) {
+		attributesCssString = attributesCssString.replaceAll("\\s+","");
+		for (String att : attributesToFilterOut) {
+			attributesCssString = Arrays.stream(attributesCssString.toLowerCase().split(";")).map(s -> s.trim()).filter(s -> !s.startsWith(att+":")).reduce((a,b) -> a+"; "+b).orElse("");
+//			attributes = attributes.replaceAll(att+":[.\\]+?;", "");
+		}
+		attributesCssString = attributesCssString.trim();
+		if (!StringUtils.isEmpty(attributesCssString) && !attributesCssString.endsWith(";")) {
+			attributesCssString += ";";
+		}
+		return attributesCssString;
 	}
 	
 	public boolean isSameTag(CssSyntaxTag tag) {
