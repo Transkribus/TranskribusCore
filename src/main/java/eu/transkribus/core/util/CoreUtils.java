@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -1308,17 +1309,20 @@ public class CoreUtils {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		System.out.println(timeDiffToString(-1));
-		System.out.println(timeDiffToString(0));
-		System.out.println(timeDiffToString(1));
-		System.out.println(timeDiffToString(1000));
-		System.out.println(timeDiffToString(10000));
-		System.out.println(timeDiffToString(100000));
-		System.out.println(timeDiffToString(1000000));
-		System.out.println(timeDiffToString(10000000));
-		System.out.println(timeDiffToString(100000000));
-		System.out.println(timeDiffToString(1000000000));
-		System.out.println(timeDiffToString(9999999999l));
+//		System.out.println(timeDiffToString(-1));
+//		System.out.println(timeDiffToString(0));
+//		System.out.println(timeDiffToString(1));
+//		System.out.println(timeDiffToString(1000));
+//		System.out.println(timeDiffToString(10000));
+//		System.out.println(timeDiffToString(100000));
+//		System.out.println(timeDiffToString(1000000));
+//		System.out.println(timeDiffToString(10000000));
+//		System.out.println(timeDiffToString(100000000));
+//		System.out.println(timeDiffToString(1000000000));
+//		System.out.println(timeDiffToString(9999999999l));
+		
+//		System.out.println(parseDate("Thu Jan 31 15:49:38 2019", new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy")));
+		System.out.println(parseDate("Thu Jan 31 15:49:38 2019", new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy", Locale.ENGLISH)));
 	}
 	
 }
