@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -101,6 +102,43 @@ public class CoreUtils {
 	// }
 	//
 	// }
+	
+	public static String timeDiffToString(long diff) {
+		if (diff <= 0) {
+			return "0s";
+		}
+		
+		String str = "";
+		long millis = diff % 1000;
+		if (millis > 0) {
+			str = millis+"ms";
+		}
+		diff /= 1000;
+
+		long seconds = diff % 60;
+		if (seconds>0) {
+			str = seconds+"s"+" "+str;
+		}
+		
+		diff /= 60;
+		long minutes = diff % 60;
+		if (minutes>0) {
+			str = minutes+"m"+" "+str;
+		}		
+		diff /= 60;
+		
+		long hours = diff%24;
+		if (hours>0) {
+			str = hours+"h"+" "+str;
+		}
+		
+		long days = diff /= 24;
+		if (diff > 0) {
+			str = days+"d"+" "+str;
+		}
+		
+		return str;
+	}
 
 	public static long countNrOfLines(String filename) throws IOException {
 		return Files.lines(Paths.get(new File(filename).getPath())).count();
@@ -1217,33 +1255,6 @@ public class CoreUtils {
 	// return str.replaceAll("[\\/:*?\"<>|]", replace);
 	// }
 
-	public static void main(String[] args) throws Exception {
-
-		List<Path> paths = CoreUtils.listFilesRecursive(".", null, false);
-		paths.stream().forEach(p -> System.out.println(p.toAbsolutePath()));
-
-		// Files.walk(Paths.get("."), 10).
-		// filter(Files::isRegularFile).forEach(p ->
-		// System.out.println(p.toAbsolutePath()));
-
-		// List<Integer> base = Arrays.asList(1, 3, 4, 5, 7, 10);
-		// List<Integer> search = Arrays.asList(111, 45, 3, 4, 6, 8, 12);
-		//
-		// List<Integer> common = CoreUtils.getFirstCommonSequence(base, search);
-
-		// System.out.println("common = "+StringUtils.join(common));
-
-		// String pageTxt =
-		// CoreUtils.extractTextFromDocx("/home/sebastian/Downloads/Ms__orient__A_2654/Ms__orient__A_2654/docx/0001.docx");
-		//
-		// logger.info("pageTxt:");
-		// logger.info(pageTxt);
-		// logger.info("nr of lines: "+pageTxt.split("\n").length);
-
-		// convertDocxFilesToTxtFiles("/mnt/dea_scratch/TRP/test/Ms__orient__A_2654/Ms__orient__A_2654/docx",
-		// "/mnt/dea_scratch/TRP/test/Ms__orient__A_2654/Ms__orient__A_2654/txt", true);
-	}
-
 	public static int size(Collection<?> collection) {
 		return collection == null ? 0 : collection.size();
 	}
@@ -1290,4 +1301,28 @@ public class CoreUtils {
 		}
 		return str;
 	}
+	
+	public static List<Path> listTrpImgFiles(String path, int maxDepth) throws IOException {
+		String[] exts = new String[] {".jpeg", ".jpg", ".jpe", ".jfif", ".png", ".tiff", ".tif"};
+//		String[] exts = new String[] {".jpeg", ".jpg", ".png", ".tiff", ".tif"};
+		return CoreUtils.listFiles(maxDepth, path, exts, false);
+	}
+	
+	public static void main(String[] args) throws Exception {
+//		System.out.println(timeDiffToString(-1));
+//		System.out.println(timeDiffToString(0));
+//		System.out.println(timeDiffToString(1));
+//		System.out.println(timeDiffToString(1000));
+//		System.out.println(timeDiffToString(10000));
+//		System.out.println(timeDiffToString(100000));
+//		System.out.println(timeDiffToString(1000000));
+//		System.out.println(timeDiffToString(10000000));
+//		System.out.println(timeDiffToString(100000000));
+//		System.out.println(timeDiffToString(1000000000));
+//		System.out.println(timeDiffToString(9999999999l));
+		
+//		System.out.println(parseDate("Thu Jan 31 15:49:38 2019", new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy")));
+		System.out.println(parseDate("Thu Jan 31 15:49:38 2019", new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy", Locale.ENGLISH)));
+	}
+	
 }

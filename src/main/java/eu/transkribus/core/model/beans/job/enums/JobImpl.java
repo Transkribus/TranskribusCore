@@ -48,6 +48,7 @@ public enum JobImpl {
 	CITlabHtrPlusTrainingJob(JobTask.HtrTraining, "CITlab HTR+ Training", "CITlabHtrPlusTrainingJob", null),
 	CITlabSemiSupervisedHtrTrainingJob(JobTask.HtrTraining, "CITlab Text2Image", "CITlabSemiSupervisedHtrTrainingJob", null),
 	CITlabHtrJob(JobTask.Htr, "CITlab " + JobTask.Htr.getLabel(), "CITlabHtrJob", null),
+	CITlabLocalHtrJob(JobTask.Htr, "Local CITlab " + JobTask.Htr.getLabel(), "CITlabLocalHtrJob", null),
 	FinereaderOcrJob(JobTask.Ocr, JobTask.Ocr.getLabel(), "OcrJob", null),
 	
 	CITlabKwsJob(JobTask.Kws, "CITlab " + JobTask.Kws.getLabel(), "CITlabKwsJob", null),
