@@ -27,6 +27,7 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -164,7 +165,7 @@ public class IngestHTRIntoAbbyyXML {
 			        return pathname.isFile();
 			    }
 			});
-			
+						
 			File resultDir = new File(htrAndImgDir.getParentFile().getAbsolutePath() + "/converted" + File.separator + imgFileDir.getName() + File.separator + "ocr");
 //			if (resultDir.exists()){
 //				logger.debug(resultDir.getAbsolutePath() + " Result dir exists already - try next one");
@@ -186,7 +187,9 @@ public class IngestHTRIntoAbbyyXML {
 				return;
 			}
 	
-			//Arrays.sort(htrFiles, (a, b) -> a.getName().compareToIgnoreCase(b.getName()));
+			Arrays.sort(htrFiles, (a, b) -> a.getName().compareToIgnoreCase(b.getName()));
+			Arrays.sort(ocrFiles, (a, b) -> a.getName().compareToIgnoreCase(b.getName()));
+			Arrays.sort(imgFiles, (a, b) -> a.getName().compareToIgnoreCase(b.getName()));
 //			
 //			displayFiles(htrFiles);
 //			displayFiles(ocrFiles);
@@ -212,6 +215,7 @@ public class IngestHTRIntoAbbyyXML {
 					
 					if (convertedFile.exists()){
 						logger.debug("Already converted (" + countAllConverted++ + ")");
+						nr++;
 						continue;
 					}
 					
@@ -219,7 +223,7 @@ public class IngestHTRIntoAbbyyXML {
 					File abbyyXml = combineHTRAndOCR(htr, ocrFile, convertedFile);
 					
 					//take test sample for every 500th page
-					if  (abbyyXml != null && nr % 500 == 10){
+					if  (abbyyXml != null && nr % 500 == 13){
 						
 						String resultPageDir = sampleDir.getAbsolutePath()+"/page/";
 						new File(resultPageDir).mkdirs();
@@ -623,13 +627,17 @@ public class IngestHTRIntoAbbyyXML {
 			
 			XPath xPath = XPathFactory.newInstance().newXPath();
 			String expressionHTR = "//TextLine/TextEquiv/Unicode";
-			String expressionOCR = "//line";
+			String expressionOCR = "//block[@blockType='Text']//line";
+			String expressionOCRTables = "//block[@blockType='Table']//line";
 			//xPath: get all charParams for current node
 			String expAllCharParamsOfLine = ".//charParams";
 			
 			
 			NodeList nodeListOCR = (NodeList) xPath.compile(expressionOCR).evaluate(ocrDocument, XPathConstants.NODESET);
+			NodeList nodeListOCRTables = (NodeList) xPath.compile(expressionOCRTables).evaluate(ocrDocument, XPathConstants.NODESET);
 			NodeList nodeListHTR = (NodeList) xPath.compile(expressionHTR).evaluate(htrDocument, XPathConstants.NODESET);
+			
+
 			
 			int countEqualLines = 0;
 			int countUnequalLines = 0;
@@ -642,6 +650,7 @@ public class IngestHTRIntoAbbyyXML {
 //				
 //			}
 			
+			int tableNr = 0;
 			//System.out.println("result is " + result);
 			//		// and iterate on links
 			//System.out.println("nodeList length " + nodeListHTR.getLength());
@@ -659,14 +668,19 @@ public class IngestHTRIntoAbbyyXML {
 					Node ocrLine = (Node) nodeListOCR.item(i);
 					Node formatting = null;
 					if (ocrLine != null){
+						logger.debug("ocr line not null");
 						formatting = ocrLine.getLastChild();
 					}
 					else{
+						logger.debug("ocr line is null - try table lines");
+						ocrLine = (Node) nodeListOCRTables.item(tableNr++);
+					}
+					
+					if (ocrLine == null){
 						logger.debug("ocr line is null");
 						logger.debug("htr file name: " + htrFile.getName());
 						logger.debug("ocr file name: " + ocrFile.getName());
 					}
-					
 					//logger.debug(ocrLine.getLastChild().getNodeName());
 					
 					String left = "", right = "", top = "", bottom = "";
@@ -676,10 +690,10 @@ public class IngestHTRIntoAbbyyXML {
 		        		Node currAttr = ocrLineAttributes.item(l);
 		        		//logger.debug("node map name " + currAttr.getNodeName());
 		        		switch (currAttr.getNodeName()){
-			        		case "l": left=currAttr.getNodeValue();
-			        		case "r": right=currAttr.getNodeValue();
-			        		case "t": top=currAttr.getNodeValue();
-			        		case "b": bottom=currAttr.getNodeValue();
+			        		case "l": left=currAttr.getNodeValue();break;
+			        		case "r": right=currAttr.getNodeValue();break;
+			        		case "t": top=currAttr.getNodeValue();break;
+			        		case "b": bottom=currAttr.getNodeValue();break;
 			        		default: break;
 		        		}
 		        	}
@@ -809,21 +823,21 @@ public class IngestHTRIntoAbbyyXML {
 			        		continue;
 			        	}
 			        	
+		        		//if we deal with different length of htr and ocr we newly calculate the coordinates of the bounding box of each character 
+		        		if (differentLength){
+		        			int l = (int) (lineLeft+newCharWidth*k);
+		        			int r = (int) (lineLeft+newCharWidth*(k+1));
+		        			
+		        			Node leftCoord = charParamInOCR.getAttributes().getNamedItem("l");
+		        			leftCoord.setNodeValue(Integer.toString(l));
+		        			
+		        			Node rightCoord = charParamInOCR.getAttributes().getNamedItem("r");
+		        			rightCoord.setNodeValue(Integer.toString(r));
+		        		}
+			        	
 			        	//if chars differ: replace ocr with htr (includes case 3, valid for case 1 and 2 too)
 			        	if (ocrChar != htrChar){
-			        		
-			        		//if we deal with different length of htr and ocr we newly calculate the coordinates of the bounding box of each character 
-			        		if (differentLength){
-			        			int l = (int) (lineLeft+newCharWidth*k);
-			        			int r = (int) (lineLeft+newCharWidth*(k+1));
-			        			
-			        			Node leftCoord = charParamInOCR.getAttributes().getNamedItem("l");
-			        			leftCoord.setNodeValue(Integer.toString(l));
-			        			
-			        			Node rightCoord = charParamInOCR.getAttributes().getNamedItem("r");
-			        			rightCoord.setNodeValue(Integer.toString(r));
-			        		}
-			        		
+
 			        		//empty space - insert and add wordStart = 1;
 			        		if (Character.isSpaceChar(htrChar)){//.equals("\u0020")){
 			        			if (charParamInOCR.getNextSibling() != null && charParamInOCR.getNextSibling().getNextSibling() != null){
@@ -831,6 +845,11 @@ public class IngestHTRIntoAbbyyXML {
 				        			if (wordStart != null){
 				        				wordStart.setNodeValue("1");
 				        			}
+				        			else{
+				        				Element currNode = (Element) charParamInOCR.getNextSibling().getNextSibling();
+				        				currNode.setAttribute("wordStart", "1");
+				        			}
+				        			
 			        			}
 			        		}
 			        		//set wordStart=0
@@ -840,6 +859,10 @@ public class IngestHTRIntoAbbyyXML {
 				        			Node wordStart = charParamInOCR.getNextSibling().getNextSibling().getAttributes().getNamedItem("wordStart");
 				        			if (wordStart != null){
 				        				wordStart.setNodeValue("0");
+				        			}
+				        			else{
+				        				Element currNode = (Element) charParamInOCR.getNextSibling().getNextSibling();
+				        				currNode.setAttribute("wordStart", "0");
 				        			}
 			        			}
 			        		}
