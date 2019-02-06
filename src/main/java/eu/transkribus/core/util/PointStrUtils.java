@@ -170,13 +170,15 @@ public class PointStrUtils {
 		List<Point> ptsList = new ArrayList<Point>();
 		try {
 			for (String pt : pts.trim().split("\\s+")) {
-				if (pt.isEmpty())
+				if (pt != null && pt.isEmpty())
 					continue;
 				logger.trace("pt = "+pt);
 				String [] tmp = pt.split(",");
-				int x = Integer.valueOf(tmp[0].trim());
-				int y = Integer.valueOf(tmp[1].trim());
-				ptsList.add(new Point(x, y));
+				if (tmp.length>1){
+					int x = Integer.valueOf(tmp[0].trim());
+					int y = Integer.valueOf(tmp[1].trim());
+					ptsList.add(new Point(x, y));
+				}
 			}
 		}
 		catch (Exception e) {
