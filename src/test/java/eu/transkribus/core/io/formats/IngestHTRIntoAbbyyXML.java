@@ -703,7 +703,7 @@ public class IngestHTRIntoAbbyyXML {
 		        	int lineTop = Integer.valueOf(top);
 		        	int lineBottom = Integer.valueOf(bottom);
 				
-					NodeList nlCharParams = (NodeList) xPath.compile(expAllCharParamsOfLine).evaluate((Node) nodeListOCR.item(i), XPathConstants.NODESET);
+					NodeList nlCharParams = (NodeList) xPath.compile(expAllCharParamsOfLine).evaluate(ocrLine, XPathConstants.NODESET);
 //					logger.debug("ocr length: " + nlCharParams.getLength());
 //					logger.debug("htr length: " + htrLineString.length());
 									
