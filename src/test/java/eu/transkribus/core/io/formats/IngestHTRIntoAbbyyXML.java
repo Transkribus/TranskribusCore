@@ -167,16 +167,16 @@ public class IngestHTRIntoAbbyyXML {
 			});
 						
 			File resultDir = new File(htrAndImgDir.getParentFile().getAbsolutePath() + "/converted" + File.separator + imgFileDir.getName() + File.separator + "ocr");
-//			if (resultDir.exists()){
-//				logger.debug(resultDir.getAbsolutePath() + " Result dir exists already - try next one");
-//				continue;
-//			}
+			if (resultDir.exists()){
+				logger.debug(resultDir.getAbsolutePath() + " Result dir exists already - try next one");
+				continue;
+			}
 			
 			resultDir.mkdirs();
 			
 			logger.debug("resultDir folder: " + resultDir.getAbsolutePath());
 			
-			File sampleDir = new File(htrAndImgDir.getParentFile().getAbsolutePath() + "/samples" + File.separator + imgFileDir.getName());
+			File sampleDir = new File(htrAndImgDir.getParentFile().getAbsolutePath() + "/samples" + File.separator);
 			sampleDir.mkdirs();
 			
 			logger.debug("sampleDir folder: " + sampleDir.getAbsolutePath());
@@ -668,7 +668,7 @@ public class IngestHTRIntoAbbyyXML {
 					Node ocrLine = (Node) nodeListOCR.item(i);
 					Node formatting = null;
 					if (ocrLine != null){
-						logger.debug("ocr line not null");
+						//logger.debug("ocr line not null");
 						formatting = ocrLine.getLastChild();
 					}
 					else{
