@@ -1,7 +1,7 @@
 package eu.transkribus.core.model.beans;
 
 import java.net.URL;
-import java.sql.Timestamp;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -31,6 +31,7 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 	private int gtId;
 	
 	@Column(name = "XMLKEY")
+	@Transient
 	private String key;
 	
 	@Column
@@ -59,8 +60,8 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 	/**
 	 * The pageNr is joined in from a relation table containing this value
 	 */
-	@Transient
 	@Column
+	@Transient
 	private Integer pageNr;
 	
 	/**
@@ -83,15 +84,18 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 	private Integer originJobId;
 	
 	/*
-	 * Some fields copied from the TrpTranscriptMetadata in case the original transcript/document is deleted at a later point
+	 * Transcript-related fields
 	 */
 	@Column
-	private Timestamp created;
+	@Transient
+	private Date created;
 	
 	@Column
+	@Transient
 	private String userName;
 	
 	@Column(name = "USER_ID")
+	@Transient
 	private int userId;
 	
 	public TrpGroundTruthPage() {
@@ -195,11 +199,11 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 		this.originJobId = originJobId;
 	}
 
-	public Timestamp getCreated() {
+	public Date getCreated() {
 		return created;
 	}
 
-	public void setCreated(Timestamp created) {
+	public void setCreated(Date created) {
 		this.created = created;
 	}
 
