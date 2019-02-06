@@ -779,8 +779,10 @@ public class IngestHTRIntoAbbyyXML {
 					boolean differentLength = nlCharParams.getLength() != htrLineString.length();
 					
 					int nrOfChars = (htrLineString.length()>0 ? htrLineString.length() : ocrLineString.length());
-					float newCharWidth = ( (Integer.valueOf(right)-Integer.valueOf(left))/nrOfChars);
+					double newCharWidth = Math.ceil(( (Integer.valueOf(right)-Integer.valueOf(left))/nrOfChars));
 					
+					//logger.debug("new CharWidth is " + newCharWidth);
+										
 //					if (ocrLineString.length() > htrLineString.length()){
 //						System.in.read();
 //					}
@@ -819,6 +821,8 @@ public class IngestHTRIntoAbbyyXML {
 			                }
 			        		//System.in.read();
 			        		charParamInOCR.getParentNode().removeChild(charParamInOCR);
+			        		
+			        		
 			        		
 			        		continue;
 			        	}
