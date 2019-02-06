@@ -511,16 +511,24 @@
 	            			<xsl:value-of select="$leftCoord"/>
 	                		<xsl:value-of>,</xsl:value-of>
 			                <xsl:value-of select="$leftBottom"/>
-			                <xsl:text> </xsl:text>
-		                	<xsl:value-of select="$rightCoord"/>
-		                	<xsl:value-of>,</xsl:value-of>
-	                		<xsl:value-of select="$rightBottom"/>
+	            			<xsl:choose>
+		            			<xsl:when test="$rightCoord != '0' and $rightBottom != '0'">
+		            				<xsl:text> </xsl:text>
+				                	<xsl:value-of select="$rightCoord"/>
+				                	<xsl:value-of>,</xsl:value-of>
+			                		<xsl:value-of select="$rightBottom"/>
+		            			</xsl:when>
+	            			</xsl:choose>
 	            		</xsl:when>
 	            		<xsl:otherwise>
-	            			<xsl:text> </xsl:text>
-		                	<xsl:value-of select="$rightCoord"/>
-		                	<xsl:value-of>,</xsl:value-of>
-	                		<xsl:value-of select="$rightBottom"/>
+	            			<xsl:choose>
+		            			<xsl:when test="$rightCoord != '0' and $rightBottom != '0'">
+		            				<xsl:text> </xsl:text>
+				                	<xsl:value-of select="$rightCoord"/>
+				                	<xsl:value-of>,</xsl:value-of>
+			                		<xsl:value-of select="$rightBottom"/>
+		            			</xsl:when>
+	            			</xsl:choose>
 	            		</xsl:otherwise>
 	            	</xsl:choose>
 	            </xsl:if>
