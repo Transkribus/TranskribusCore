@@ -167,16 +167,16 @@ public class IngestHTRIntoAbbyyXML {
 			});
 						
 			File resultDir = new File(htrAndImgDir.getParentFile().getAbsolutePath() + "/converted" + File.separator + imgFileDir.getName() + File.separator + "ocr");
-//			if (resultDir.exists()){
-//				logger.debug(resultDir.getAbsolutePath() + " Result dir exists already - try next one");
-//				continue;
-//			}
+			if (resultDir.exists()){
+				logger.debug(resultDir.getAbsolutePath() + " Result dir exists already - try next one");
+				continue;
+			}
 			
 			resultDir.mkdirs();
 			
 			logger.debug("resultDir folder: " + resultDir.getAbsolutePath());
 			
-			File sampleDir = new File(htrAndImgDir.getParentFile().getAbsolutePath() + "/samples" + File.separator + imgFileDir.getName());
+			File sampleDir = new File(htrAndImgDir.getParentFile().getAbsolutePath() + "/samples" + File.separator);
 			sampleDir.mkdirs();
 			
 			logger.debug("sampleDir folder: " + sampleDir.getAbsolutePath());
@@ -668,7 +668,7 @@ public class IngestHTRIntoAbbyyXML {
 					Node ocrLine = (Node) nodeListOCR.item(i);
 					Node formatting = null;
 					if (ocrLine != null){
-						logger.debug("ocr line not null");
+						//logger.debug("ocr line not null");
 						formatting = ocrLine.getLastChild();
 					}
 					else{
@@ -703,7 +703,7 @@ public class IngestHTRIntoAbbyyXML {
 		        	int lineTop = Integer.valueOf(top);
 		        	int lineBottom = Integer.valueOf(bottom);
 				
-					NodeList nlCharParams = (NodeList) xPath.compile(expAllCharParamsOfLine).evaluate((Node) nodeListOCR.item(i), XPathConstants.NODESET);
+					NodeList nlCharParams = (NodeList) xPath.compile(expAllCharParamsOfLine).evaluate(ocrLine, XPathConstants.NODESET);
 //					logger.debug("ocr length: " + nlCharParams.getLength());
 //					logger.debug("htr length: " + htrLineString.length());
 									
@@ -779,8 +779,10 @@ public class IngestHTRIntoAbbyyXML {
 					boolean differentLength = nlCharParams.getLength() != htrLineString.length();
 					
 					int nrOfChars = (htrLineString.length()>0 ? htrLineString.length() : ocrLineString.length());
-					float newCharWidth = ( (Integer.valueOf(right)-Integer.valueOf(left))/nrOfChars);
+					double newCharWidth = Math.ceil(( (Integer.valueOf(right)-Integer.valueOf(left))/nrOfChars));
 					
+					//logger.debug("new CharWidth is " + newCharWidth);
+										
 //					if (ocrLineString.length() > htrLineString.length()){
 //						System.in.read();
 //					}
@@ -819,6 +821,8 @@ public class IngestHTRIntoAbbyyXML {
 			                }
 			        		//System.in.read();
 			        		charParamInOCR.getParentNode().removeChild(charParamInOCR);
+			        		
+			        		
 			        		
 			        		continue;
 			        	}
