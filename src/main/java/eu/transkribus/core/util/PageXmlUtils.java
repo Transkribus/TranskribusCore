@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -24,6 +26,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -38,13 +41,16 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.dea.fimagestore.core.beans.ImageMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import eu.transkribus.core.io.FimgStoreReadConnection;
+import eu.transkribus.core.io.LocalDocConst;
 import eu.transkribus.core.io.formats.XmlFormat;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
@@ -1309,7 +1315,37 @@ public class PageXmlUtils {
 		return false;
 	}
 	
+	public static List<File> listAllPageXmlFilesInFolderRecursively(String path) throws IOException {
+		return Files.walk(Paths.get(path)).filter(Files::isRegularFile).map(p -> p.toFile()).filter(f -> {
+			boolean isXml = f.getName().toLowerCase().endsWith(".xml");
+			return isXml && StringUtils.equals(FilenameUtils.getName(f.getParent()), LocalDocConst.PAGE_FILE_SUB_FOLDER);
+		}).collect(Collectors.toList());
+	}
+	
+	public static List<Pair<File, Exception>> checkPageXMLInFolder(String path, boolean printErrors) throws IOException {
+		List<File> pageXmlFiles = listAllPageXmlFilesInFolderRecursively(path);
+		List<Pair<File, Exception>> errorFiles = new ArrayList<>();
+		for (File f : pageXmlFiles) {
+        	try {
+				PageXmlUtils.unmarshal(f);
+			} catch (JAXBException e) {
+				if (printErrors) {
+					logger.error(e.getMessage(), e);	
+				}
+				errorFiles.add(Pair.of(f, e));
+			}
+		}
+		return errorFiles;
+	}
+	
 	public static void main(String[] args) throws Exception {
+		List<Pair<File, Exception>> errorFiles = checkPageXMLInFolder("\\\\na03.uibk.ac.at\\dea_scratch\\tmp_sebastian\\VeryLargeDocument", true);
+		for (Pair<File, Exception> p : errorFiles) {
+			Exception e = p.getRight();
+			String msg = e.getCause()!=null ? e.getCause().getMessage() : e.getMessage();
+			logger.info("Error in file: "+p.getLeft().toString()+", m = "+msg);
+		}
+		
 //		final String path = "/mnt/dea_scratch/TRP/Bentham_box_002/page/002_080_001.xml";
 //		try {
 //			logger.info(""+PageXmlUtils.isValid(new File(path)));
@@ -1318,9 +1354,9 @@ public class PageXmlUtils {
 //			e.printStackTrace();
 //		}
 		
-		PcGtsType page = PageXmlUtils.createEmptyPcGtsType("imgfilename.jpg", 45, 500);
-		String str = Arrays.toString(PageXmlUtils.marshalToBytes(page));
-		System.out.println(str);
+//		PcGtsType page = PageXmlUtils.createEmptyPcGtsType("imgfilename.jpg", 45, 500);
+//		String str = Arrays.toString(PageXmlUtils.marshalToBytes(page));
+//		System.out.println(str);
 		
 		
 	}

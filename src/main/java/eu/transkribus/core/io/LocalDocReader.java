@@ -891,6 +891,13 @@ public class LocalDocReader {
 			}
 		}
 	}
+	
+	public static File findDefaultPageXmlForImage(String imagePath) {
+		String folder = FilenameUtils.getFullPathNoEndSeparator(imagePath);
+		String basename = FilenameUtils.getBaseName(imagePath);
+		
+		return findXml(basename, new File(folder+File.separator+LocalDocConst.PAGE_FILE_SUB_FOLDER));
+	}
 
 	/**
 	 * Searches for a corresponding XML for an image file, i.e. an XML with the
