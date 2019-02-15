@@ -19,12 +19,6 @@ import eu.transkribus.core.model.beans.enums.EditStatus;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpFile, Comparable<TrpGroundTruthPage> {
-
-	/**
-	 * GT pages are labeled according the content of the XML that is considered as
-	 * ground truth
-	 */
-	public final static String FULLTEXT_GT = "text";
 	
 	@Id
 	@Column(name = "ID")
@@ -50,9 +44,6 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 	
 	/**
 	 * The type field is for storing a label like {@link #FULLTEXT_GT}, layout or struct(-ure).
-	 * TODO check if a String label is ok or if an Integer should be used for faster filtering
-	 * Maybe there is another field needed to mark if this was used for training or validation, but I'd rather put that into the relation table linking
-	 * the GT with the trained model.
 	 */
 	@Column(name="GT_TYPE")
 	private String gtType;
@@ -266,9 +257,7 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 			return -1;
 		}
 		return 0;
-	}
-	
-	
+	}	
 
 	@Override
 	public int hashCode() {
