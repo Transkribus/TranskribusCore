@@ -64,8 +64,8 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 	/**
 	 * Backlink to the transcript and thereby all related metadata
 	 */
-	@Column(name = "ORIGIN_TSID")
-	private Integer originTsId;
+	@Column(name = "TSID")
+	private Integer tsId;
 	
 	/**
 	 * Backlink to the job that created this GT entity. A training result, such as an HTR, has the same backlink.
@@ -174,12 +174,12 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 		this.originPageId = originPageId;
 	}
 
-	public Integer getOriginTsId() {
-		return originTsId;
+	public Integer getTsId() {
+		return tsId;
 	}
 
-	public void setOriginTsId(Integer originTsId) {
-		this.originTsId = originTsId;
+	public void setOriginTsId(Integer tsId) {
+		this.tsId = tsId;
 	}
 
 	public Integer getOriginJobId() {
@@ -227,7 +227,7 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 		t.setTime(this.created);
 		t.setStatus(EditStatus.GT);
 		t.setUrl(this.url);
-		t.setTsId(this.originTsId);
+		t.setTsId(this.tsId);
 		t.setStats(this.getStats());
 		
 		p.getTranscripts().add(t);
@@ -273,7 +273,7 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 		result = prime * result + ((md5Sum == null) ? 0 : md5Sum.hashCode());
 		result = prime * result + ((originJobId == null) ? 0 : originJobId.hashCode());
 		result = prime * result + ((originPageId == null) ? 0 : originPageId.hashCode());
-		result = prime * result + ((originTsId == null) ? 0 : originTsId.hashCode());
+		result = prime * result + ((tsId == null) ? 0 : tsId.hashCode());
 		result = prime * result + ((pageNr == null) ? 0 : pageNr.hashCode());
 		result = prime * result + ((url == null) ? 0 : url.hashCode());
 		result = prime * result + userId;
@@ -334,10 +334,10 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 				return false;
 		} else if (!originPageId.equals(other.originPageId))
 			return false;
-		if (originTsId == null) {
-			if (other.originTsId != null)
+		if (tsId == null) {
+			if (other.tsId != null)
 				return false;
-		} else if (!originTsId.equals(other.originTsId))
+		} else if (!tsId.equals(other.tsId))
 			return false;
 		if (pageNr == null) {
 			if (other.pageNr != null)
@@ -363,7 +363,7 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 	public String toString() {
 		return "TrpGroundTruthPage [gtId=" + gtId + ", key=" + key + ", url=" + url + ", md5Sum=" + md5Sum
 				+ ", imageId=" + imageId + ", image= [ " + image + " ], type=" + gtType + ", pageNr=" + pageNr
-				+ ", originPageId=" + originPageId + ", originTsId=" + originTsId + ", originJobId=" + originJobId
+				+ ", originPageId=" + originPageId + ", tsId=" + tsId + ", originJobId=" + originJobId
 				+ ", created=" + created + ", username=" + userName + ", userId=" + userId + "]";
 	}
 }
