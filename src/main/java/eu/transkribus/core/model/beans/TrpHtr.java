@@ -229,7 +229,9 @@ public class TrpHtr {
 	 */
 	@Deprecated
 	public void setCharList(String charList) {
-		this.charList = charList;
+		if(charList != null && !charList.isEmpty()) {
+			this.charList = charList;
+		}
 	}
 	
 	/**
@@ -367,7 +369,7 @@ public class TrpHtr {
 				+ ", path=" + path + ", created=" + created + ", gtDocId=" + gtDocId + ", testGtDocId=" + testGtDocId
 				+ ", language=" + language + ", baseHtrId=" + baseHtrId + ", trainJobId=" + trainJobId + ", cerString="
 				+ cerString + ", cerTestString=" + cerTestString + ", charSet=" + charSetString
-				+ ", bestNetStored=" + bestNetStored + ", nrOfLines=" + nrOfLines + ", nrOfWords=" + nrOfWords
+				+ ", charListLegacy=" + charList + ", bestNetStored=" + bestNetStored + ", nrOfLines=" + nrOfLines + ", nrOfWords=" + nrOfWords
 				+ ", params=" + params + ", userName=" + userName + ", userId=" + userId + ", cerLog="
 				+ Arrays.toString(cerLog) + ", cerTestLog=" + Arrays.toString(cerTestLog) + "]";
 	}
