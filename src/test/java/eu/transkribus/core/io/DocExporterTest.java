@@ -4,15 +4,17 @@ import org.dea.fimgstoreclient.FimgStoreGetClient;
 
 import eu.transkribus.core.TrpFimgStoreConf;
 import eu.transkribus.core.model.beans.TrpDoc;
-import eu.transkribus.core.model.builder.CommonExportPars;
 import eu.transkribus.core.model.beans.TrpFImagestore;
+import eu.transkribus.core.model.builder.CommonExportPars;
 
 public class DocExporterTest {
 	public static void main(String[] args) throws Exception {
 		testTeiExport();
 	}
 	
-	public static void testTeiExport() {
+	
+public static void testTeiExport() {
+
 		TrpFImagestore storeConfig = TrpFimgStoreConf.getFImagestore();
 		DocExporter ex = new DocExporter(new FimgStoreGetClient(storeConfig));
 		try {

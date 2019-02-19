@@ -69,19 +69,6 @@ public class TrpFimgStoreConf {
 			}
 			return value;
 		}
-		
-		public static Pattern getPattern(String name){
-			return Pattern.compile(props.getProperty(name));
-		}
-		
-		public static boolean getBool(String name){
-			final String value = props.getProperty(name);
-			boolean bool = false;
-			if(value.equals("1") || value.equalsIgnoreCase("true")){
-				bool = true;
-			}
-			return bool;
-		}
 
 		protected static Properties loadProps(String filename){
 			logger.debug("Load properties file: " + filename);

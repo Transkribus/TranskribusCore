@@ -119,6 +119,10 @@ public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrp
 	@Column(name=N_TRANSCRIBED_WORDS_COL_NAME)
 	private Integer nrOfTranscribedWords = 0;
 	
+	@Column
+	@Transient
+	private Integer gtId = null;
+	
 	//TODO tags
 	//TODO annotations
 
@@ -248,16 +252,6 @@ public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrp
 	public void setUserName(String userName) {
 		this.userName = userName;
 	}
-	
-//	@Deprecated
-//	public Date getTime() {
-//		return time;
-//	}
-//
-//	@Deprecated
-//	public void setTime(Date time) {
-//		this.time = time;
-//	}
 
 	public int getUserId() {
 		return userId;
@@ -366,7 +360,15 @@ public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrp
 	}
 	public void setNrOfTranscribedWords(Integer nrOfTranscribedWords) {
 		this.nrOfTranscribedWords = nrOfTranscribedWords;
-	}	
+	}
+	
+	public Integer getGtId() {
+		return gtId;
+	}
+	
+	public void setGtId(Integer gtId) {
+		this.gtId = gtId;
+	}
 	
 	/**
 	 * Check key and URL protocol.<br/>
@@ -456,21 +458,45 @@ public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrp
 				return false;
 		} else if (!note.equals(other.note))
 			return false;
-		if (nrOfLines != other.nrOfLines)
+		if (nrOfLines == null) {
+			if (other.nrOfLines != null)
+				return false;
+		} else if (!nrOfLines.equals(other.nrOfLines))
 			return false;
-		if (nrOfRegions != other.nrOfRegions)
+		if (nrOfRegions == null) {
+			if (other.nrOfRegions != null)
+				return false;
+		} else if (!nrOfRegions.equals(other.nrOfRegions))
 			return false;
-		if (nrOfTranscribedLines != other.nrOfTranscribedLines)
+		if (nrOfTranscribedLines == null) {
+			if (other.nrOfTranscribedLines != null)
+				return false;
+		} else if (!nrOfTranscribedLines.equals(other.nrOfTranscribedLines))
 			return false;
-		if (nrOfTranscribedRegions != other.nrOfTranscribedRegions)
+		if (nrOfTranscribedRegions == null) {
+			if (other.nrOfTranscribedRegions != null)
+				return false;
+		} else if (!nrOfTranscribedRegions.equals(other.nrOfTranscribedRegions))
 			return false;
-		if (nrOfTranscribedWords != other.nrOfTranscribedWords)
+		if (nrOfTranscribedWords == null) {
+			if (other.nrOfTranscribedWords != null)
+				return false;
+		} else if (!nrOfTranscribedWords.equals(other.nrOfTranscribedWords))
 			return false;
-		if (nrOfWords != other.nrOfWords)
+		if (nrOfWords == null) {
+			if (other.nrOfWords != null)
+				return false;
+		} else if (!nrOfWords.equals(other.nrOfWords))
 			return false;
-		if (nrOfWordsInLines != other.nrOfWordsInLines)
+		if (nrOfWordsInLines == null) {
+			if (other.nrOfWordsInLines != null)
+				return false;
+		} else if (!nrOfWordsInLines.equals(other.nrOfWordsInLines))
 			return false;
-		if (nrOfWordsInRegions != other.nrOfWordsInRegions)
+		if (nrOfWordsInRegions == null) {
+			if (other.nrOfWordsInRegions != null)
+				return false;
+		} else if (!nrOfWordsInRegions.equals(other.nrOfWordsInRegions))
 			return false;
 		if (pageId != other.pageId)
 			return false;
@@ -508,44 +534,13 @@ public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrp
 			return false;
 		return true;
 	}
-
 	
-
 	public PcGtsType unmarshallTranscript() throws NullValueException, JAXBException {
 		if (getUrl()==null)
 			throw new NullValueException("URL of transcript is null!");
 				
 		return PageXmlUtils.unmarshal(getUrl());	
 	}
-
-//	@Override
-//	public int compareTo(TrpTranscriptMetadata md) {
-//		if (md.getTime() == null && this.getTime() == null) {
-//			return 0;
-//		}
-//		if (this.getTime() == null) {
-//			return 1;
-//		}
-//		if (md.getTime() == null) {
-//			return -1;
-//		}
-//		return this.getTime().compareTo(md.getTime());
-//	}
-	
-	
-	
-////	@Override
-//	public String toString2(){
-//		StringBuffer sb = new StringBuffer(this.getClass().getSimpleName() + " {");
-//		sb.append(this.getTsId() + " - ");
-//		sb.append(this.getPageId() + " - ");
-//		sb.append(this.getStatus() + " - ");
-//		sb.append(this.getKey() + " - ");
-//		sb.append((new Date(this.getTimestamp())).toString() + " - ");
-//		sb.append(this.getUserName() + " - ");
-//		sb.append(this.getUrl() + "}");
-//		return sb.toString();
-//	}
 
 	@Override
 	public String toString() {
@@ -557,6 +552,6 @@ public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrp
 				+ ", nrOfTranscribedRegions=" + nrOfTranscribedRegions + ", nrOfWordsInRegions=" + nrOfWordsInRegions
 				+ ", nrOfLines=" + nrOfLines + ", nrOfTranscribedLines=" + nrOfTranscribedLines + ", nrOfWordsInLines="
 				+ nrOfWordsInLines + ", nrOfWords=" + nrOfWords + ", nrOfTranscribedWords=" + nrOfTranscribedWords
-				+ "]";
+				+ ", gtId=" + gtId + "]";
 	}
 }
