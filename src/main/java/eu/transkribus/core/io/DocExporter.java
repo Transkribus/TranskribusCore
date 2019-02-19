@@ -7,9 +7,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -28,7 +28,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.dea.fimgstoreclient.FimgStoreGetClient;
+import org.dea.fimgstoreclient.IFimgStoreGetClient;
 import org.dea.fimgstoreclient.beans.ImgType;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.slf4j.Logger;
@@ -71,32 +71,26 @@ public class DocExporter extends APassthroughObservable {
 	
 	private final ExportCache cache;
 	private final AltoExporter altoEx;
-	private final FimgStoreGetClient getter;
-	static DocumentBuilder dBuilder;
+	private final IFimgStoreGetClient getter;
 	
 	private CommonExportPars pars;
 	private OutputDirStructure outputDir;
 	
-	public DocExporter() {
-		this(new ExportCache());
+	public DocExporter(IFimgStoreGetClient getClient) {
+		this(getClient, new ExportCache());
 	}
 	
-	public DocExporter(ExportCache cache) {
+	public DocExporter(IFimgStoreGetClient getClient, ExportCache cache) {
+		if(getClient == null) {
+			throw new IllegalArgumentException("FImagestoreClient is null!");
+		}
 		if(cache == null) {
 			this.cache = new ExportCache();
 		} else {
 			this.cache = cache;
 		}
-		DocumentBuilderFactory dFactory = DocumentBuilderFactory.newInstance();
-		dFactory.setNamespaceAware(true);
-        try {
-			dBuilder = dFactory.newDocumentBuilder();
-		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
         altoEx = new AltoExporter();
-        getter = FimgStoreReadConnection.getGetClient();
+        getter = getClient;
 	}
 	
 	/**
@@ -300,15 +294,19 @@ public class DocExporter extends APassthroughObservable {
 		
 		InputStream xslIS = new BufferedInputStream(is);
 
+		
+		DocumentBuilderFactory dFactory = DocumentBuilderFactory.newInstance();
+		dFactory.setNamespaceAware(true);
+		DocumentBuilder dBuilder = dFactory.newDocumentBuilder();
+
         InputSource xslInputSource = new InputSource(xslIS);
         Document xslDoc = dBuilder.parse(xslInputSource);
         DOMSource xslDomSource = new DOMSource(xslDoc);
 		
         TransformerFactory transFact = TransformerFactory.newInstance();
         
-        DocExporter docEx = new DocExporter();
         //may? this is the only way to dynamically include a xsl in the xsl-source
-        transFact.setURIResolver(docEx.new MyURIResolver());
+        transFact.setURIResolver(new MyURIResolver(dBuilder));
 
         //would be the short way from MyURIResolver: lambda expression -> brought some .NullPointerException, I/O error reported by XML parser
 //        transFact.setURIResolver((href, base) -> {
@@ -338,7 +336,6 @@ public class DocExporter extends APassthroughObservable {
 	 */
 	public File exportDoc(TrpDoc doc, CommonExportPars pars) throws IOException, IllegalArgumentException,
 			URISyntaxException, JAXBException, TransformerException {
-		
 		//create copy of object, as we alter it here while exporting
 		TrpDoc doc2 = new TrpDoc(doc);
 		
@@ -369,8 +366,6 @@ public class DocExporter extends APassthroughObservable {
 			if (pageIndices!=null && !pageIndices.contains(i)) {
 				continue;
 			}
-
-			
 			exportPage(pages.get(i));
 		}
 		
@@ -446,19 +441,44 @@ public class DocExporter extends APassthroughObservable {
 
 	/**
 	 * Exports files for a ground truth entity, according to the parameters set on this DocExporter instance.
+	 * In contrast to the exportDoc method, the parameters have be set via the init method beforehand!
 	 * <br><br>
 	 * If the parameters include a export filename pattern, note that the document ID of ground truth is never set (i.e. "docId == -1").
 	 * To avoid collisions, rather use the page ID in a pattern ({@link TrpGroundTruthPage#getOriginPageId()} will be used), 
 	 * instead of a doc. ID + page nr. combination.
 	 *  
 	 * @param gtPage
+	 * @return TrpPage object including URLs pointing to the export files.
 	 * @throws IOException
 	 */
-	public void exportPage(TrpGroundTruthPage gtPage) throws IOException {
-		exportPage(gtPage.toTrpPage());
+	public TrpPage exportPage(TrpGroundTruthPage gtPage) throws IOException {
+		return exportPage(gtPage.toTrpPage());
 	}
 	
-	public void exportPage(TrpPage page) throws IOException {
+	/**
+	 * Exports files for a list of ground truth entities, according to the parameters set on this DocExporter instance.
+	 * In contrast to the exportDoc method, the parameters have be set via the init method beforehand!
+	 * <br><br>
+	 * If the parameters include a export filename pattern, note that the document ID of ground truth is never set (i.e. "docId == -1").
+	 * To avoid collisions, rather use the page ID in a pattern ({@link TrpGroundTruthPage#getOriginPageId()} will be used), 
+	 * instead of a doc. ID + page nr. combination.
+	 *  
+	 * @param gtPage
+	 * @return TrpPage object including URLs pointing to the export files.
+	 * @throws IOException
+	 */
+	public List<TrpPage> exportPages(List<TrpGroundTruthPage> gtPages) throws IOException {
+		if(gtPages == null) {
+			return new ArrayList<>(0);
+		}
+		List<TrpPage> exportedPages = new ArrayList<>(gtPages.size());
+		for(TrpGroundTruthPage gtp : gtPages) {
+			exportedPages.add(exportPage(gtp));
+		}
+		return exportedPages;
+	}
+	
+	public TrpPage exportPage(TrpPage page) throws IOException {
 		if(pars == null || outputDir == null) {
 			throw new IllegalStateException("Export parameters are not set or output directory has not been initialized!");
 		}
@@ -480,8 +500,10 @@ public class DocExporter extends APassthroughObservable {
 				final String msg = "Downloading " + pars.getRemoteImgQuality().toString() + " image for page nr. " + page.getPageNr();
 				logger.debug(msg);
 				updateStatus(msg);
-				final URI imgUri = getter.getUriBuilder().getImgUri(page.getKey(), pars.getRemoteImgQuality());
-				imgFile = getter.saveFile(imgUri, outputDir.getImgOutputDir().getAbsolutePath(), baseFileName + imgExt);
+//				final URI imgUri = getter.getUriBuilder().getImgUri(page.getKey(), pars.getRemoteImgQuality());
+//				imgFile = getter.saveFile(imgUri, outputDir.getImgOutputDir().getAbsolutePath(), baseFileName + imgExt);
+				imgFile = getter.saveImg(page.getKey(), pars.getRemoteImgQuality(),
+						outputDir.getImgOutputDir().getAbsolutePath(), baseFileName + imgExt);
 				page.setUrl(imgFile.toURI().toURL());
 				page.setKey(null);
 			}
@@ -586,18 +608,13 @@ public class DocExporter extends APassthroughObservable {
 		
 		setChanged();
 		notifyObservers(Integer.valueOf(page.getPageNr()));
+		return page;
 	}
 
 	public ExportCache getCache() {
 		return cache;
 	}
 		
-	public static void main(String[] args){
-		final String p = "${filename}_${${pageId}_${pageNr}";
-		System.out.println(ExportFilePatternUtils.isFileNamePatternValid(p));
-		System.out.println(ExportFilePatternUtils.buildBaseFileName(p, "test.jpg", 123, 456, "AAAAA", 7));
-	}
-	
 	private static class OutputDirStructure {
 		final File rootOutputDir, imgOutputDir, pageOutputDir, altoOutputDir;
 		
@@ -625,7 +642,14 @@ public class DocExporter extends APassthroughObservable {
 		}
 	}
 	
-	class MyURIResolver implements URIResolver {
+	protected static class MyURIResolver implements URIResolver {
+		private DocumentBuilder dBuilder;
+		/**
+		 * @param dBuilder a DocumentBuilder configured for the current purpose
+		 */
+		public MyURIResolver(DocumentBuilder dBuilder) {
+			this.dBuilder = dBuilder;
+		}
 		@Override
 		public Source resolve(String href, String base) throws TransformerException {
 
