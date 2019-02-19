@@ -76,7 +76,7 @@
         <xd:desc>Create tei:facsimile with @xml:id</xd:desc>
     </xd:doc>
     <xsl:template match="mets:file" mode="facsimile">
-        <xsl:variable name="file" select="document(mets:FLocat/@xlink:href, /)"/>
+        <xsl:variable name="file" select="document(encode-for-uri(mets:FLocat/@xlink:href), /)"/>
         <xsl:variable name="numCurr" select="@SEQ"/>
         
         <facsimile xml:id="facs_{$numCurr}">
@@ -91,7 +91,7 @@
         <xd:desc>Apply by-page</xd:desc>
     </xd:doc>
     <xsl:template match="mets:file" mode="text">
-        <xsl:variable name="file" select="document(mets:FLocat/@xlink:href, /)"/>
+        <xsl:variable name="file" select="document(encode-for-uri(mets:FLocat/@xlink:href), /)"/>
         <xsl:variable name="numCurr" select="@SEQ"/>
         
         <xsl:apply-templates select="$file//p:Page" mode="text">
