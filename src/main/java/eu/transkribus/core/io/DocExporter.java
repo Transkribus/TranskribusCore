@@ -57,7 +57,9 @@ import eu.transkribus.core.model.builder.mets.TrpMetsBuilder;
 import eu.transkribus.core.model.builder.ms.TrpXlsxBuilder;
 import eu.transkribus.core.model.builder.ms.TrpXlsxTableBuilder;
 import eu.transkribus.core.model.builder.pdf.PdfExporter;
+import eu.transkribus.core.model.builder.tei.ATeiBuilder;
 import eu.transkribus.core.model.builder.tei.TeiExportPars;
+import eu.transkribus.core.model.builder.tei.TrpTeiStringBuilder;
 import eu.transkribus.core.model.builder.txt.TrpTxtBuilder;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.JaxbUtils;
@@ -147,11 +149,15 @@ public class DocExporter extends APassthroughObservable {
 	public void writeTEI(final TrpDoc doc, final String exportFilename, CommonExportPars commonPars, final TeiExportPars pars) throws Exception{
 		/*
 		 * old TEI export
+		 * if pars are given we know it is a client export resp. some API user wants to have the old solution
 		 */
-//		ATeiBuilder builder = new TrpTeiStringBuilder(doc, commonPars, pars, null);
-//		builder.addTranscriptsFromCache(cache);
-//		builder.buildTei();
-//		builder.writeTeiXml(new File(path));
+		if (pars != null){
+			ATeiBuilder builder = new TrpTeiStringBuilder(doc, commonPars, pars, null);
+			builder.addTranscriptsFromCache(cache);
+			builder.buildTei();
+			builder.writeTeiXml(new File(exportFilename));
+			return;
+		}
 		
 		/*
 		 * from now on we take the 'TEI base export' from Dario Kampaskar 'https://github.com/dariok/page2tei'
@@ -304,7 +310,7 @@ public class DocExporter extends APassthroughObservable {
         //may? this is the only way to dynamically include a xsl in the xsl-source
         transFact.setURIResolver(docEx.new MyURIResolver());
 
-        //would be the short way from MyURIResolver: lambda expression
+        //would be the short way from MyURIResolver: lambda expression -> brought some .NullPointerException, I/O error reported by XML parser
 //        transFact.setURIResolver((href, base) -> {
 //            final InputStream s = DocExporter.class.getClassLoader().getResourceAsStream("xslt/" + href);
 //            return new StreamSource(s);
