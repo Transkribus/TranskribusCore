@@ -19,6 +19,9 @@ public class ExportFilePatternUtils {
 	public static final String[] ALL_PATTERNS = new String[] {
 			DOCID_PATTERN, FILENAME_PATTERN, PAGEID_PATTERN, PAGENR_PATTERN, FILEKEY_PATTERN
 	};
+	
+	static final int PAGE_NR_LEFTPAD_TO_SIZE = 4;
+	static final int DOC_ID_LEFTPAD_TO_SIZE = 6;
 			
 	public static String buildBaseFileName(String fileNamePattern, TrpPage p) {
 		if(StringUtils.isEmpty(fileNamePattern) || fileNamePattern.equals(FILENAME_PATTERN)) {
@@ -37,8 +40,8 @@ public class ExportFilePatternUtils {
 			throw new IllegalArgumentException("Filename pattern is invalid: " + fileNamePattern);
 		}
 
-		final String pageNrStr = StringUtils.leftPad(""+pageNr, 4, '0');
-		final String docIdStr = StringUtils.leftPad(""+docId, 6, '0');
+		final String pageNrStr = StringUtils.leftPad(""+pageNr, PAGE_NR_LEFTPAD_TO_SIZE, '0');
+		final String docIdStr = StringUtils.leftPad(""+docId, DOC_ID_LEFTPAD_TO_SIZE, '0');
 		
 		String fileName = replacePatterns(fileNamePattern, FilenameUtils.getBaseName(imgFileName), ""+pageId, ""+docIdStr, key, pageNrStr);
 		

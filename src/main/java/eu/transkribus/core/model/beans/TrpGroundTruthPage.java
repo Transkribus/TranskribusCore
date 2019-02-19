@@ -1,7 +1,7 @@
 package eu.transkribus.core.model.beans;
 
 import java.net.URL;
-import java.sql.Timestamp;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,18 +19,13 @@ import eu.transkribus.core.model.beans.enums.EditStatus;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpFile, Comparable<TrpGroundTruthPage> {
-
-	/**
-	 * GT pages are labeled according the content of the XML that is considered as
-	 * ground truth
-	 */
-	public final static String FULLTEXT_GT = "text";
 	
 	@Id
 	@Column(name = "ID")
 	private int gtId;
 	
 	@Column(name = "XMLKEY")
+	@Transient
 	private String key;
 	
 	@Column
@@ -49,9 +44,6 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 	
 	/**
 	 * The type field is for storing a label like {@link #FULLTEXT_GT}, layout or struct(-ure).
-	 * TODO check if a String label is ok or if an Integer should be used for faster filtering
-	 * Maybe there is another field needed to mark if this was used for training or validation, but I'd rather put that into the relation table linking
-	 * the GT with the trained model.
 	 */
 	@Column(name="GT_TYPE")
 	private String gtType;
@@ -59,8 +51,8 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 	/**
 	 * The pageNr is joined in from a relation table containing this value
 	 */
-	@Transient
 	@Column
+	@Transient
 	private Integer pageNr;
 	
 	/**
@@ -72,8 +64,8 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 	/**
 	 * Backlink to the transcript and thereby all related metadata
 	 */
-	@Column(name = "ORIGIN_TSID")
-	private Integer originTsId;
+	@Column(name = "TSID")
+	private Integer tsId;
 	
 	/**
 	 * Backlink to the job that created this GT entity. A training result, such as an HTR, has the same backlink.
@@ -83,15 +75,18 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 	private Integer originJobId;
 	
 	/*
-	 * Some fields copied from the TrpTranscriptMetadata in case the original transcript/document is deleted at a later point
+	 * Transcript-related fields
 	 */
 	@Column
-	private Timestamp created;
+	@Transient
+	private Date created;
 	
 	@Column
+	@Transient
 	private String userName;
 	
 	@Column(name = "USER_ID")
+	@Transient
 	private int userId;
 	
 	public TrpGroundTruthPage() {
@@ -179,12 +174,12 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 		this.originPageId = originPageId;
 	}
 
-	public Integer getOriginTsId() {
-		return originTsId;
+	public Integer getTsId() {
+		return tsId;
 	}
 
-	public void setOriginTsId(Integer originTsId) {
-		this.originTsId = originTsId;
+	public void setOriginTsId(Integer tsId) {
+		this.tsId = tsId;
 	}
 
 	public Integer getOriginJobId() {
@@ -195,11 +190,11 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 		this.originJobId = originJobId;
 	}
 
-	public Timestamp getCreated() {
+	public Date getCreated() {
 		return created;
 	}
 
-	public void setCreated(Timestamp created) {
+	public void setCreated(Date created) {
 		this.created = created;
 	}
 
@@ -232,7 +227,7 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 		t.setTime(this.created);
 		t.setStatus(EditStatus.GT);
 		t.setUrl(this.url);
-		t.setTsId(this.originTsId);
+		t.setTsId(this.tsId);
 		t.setStats(this.getStats());
 		
 		p.getTranscripts().add(t);
@@ -262,13 +257,113 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 			return -1;
 		}
 		return 0;
+	}	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((created == null) ? 0 : created.hashCode());
+		result = prime * result + gtId;
+		result = prime * result + ((gtType == null) ? 0 : gtType.hashCode());
+		//image does not yet implement equals(). imageId is sufficient for now
+		//result = prime * result + ((image == null) ? 0 : image.hashCode());
+		result = prime * result + ((imageId == null) ? 0 : imageId.hashCode());
+		result = prime * result + ((key == null) ? 0 : key.hashCode());
+		result = prime * result + ((md5Sum == null) ? 0 : md5Sum.hashCode());
+		result = prime * result + ((originJobId == null) ? 0 : originJobId.hashCode());
+		result = prime * result + ((originPageId == null) ? 0 : originPageId.hashCode());
+		result = prime * result + ((tsId == null) ? 0 : tsId.hashCode());
+		result = prime * result + ((pageNr == null) ? 0 : pageNr.hashCode());
+		result = prime * result + ((url == null) ? 0 : url.hashCode());
+		result = prime * result + userId;
+		result = prime * result + ((userName == null) ? 0 : userName.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TrpGroundTruthPage other = (TrpGroundTruthPage) obj;
+		if (created == null) {
+			if (other.created != null)
+				return false;
+		} else if (!created.equals(other.created))
+			return false;
+		if (gtId != other.gtId)
+			return false;
+		if (gtType == null) {
+			if (other.gtType != null)
+				return false;
+		} else if (!gtType.equals(other.gtType))
+			return false;
+		if (image == null) {
+			if (other.image != null)
+				return false;
+		} 
+		//image does not yet implement equals(). imageId is sufficient for now
+//		else if (!image.equals(other.image))
+//			return false;
+		if (imageId == null) {
+			if (other.imageId != null)
+				return false;
+		} else if (!imageId.equals(other.imageId))
+			return false;
+		if (key == null) {
+			if (other.key != null)
+				return false;
+		} else if (!key.equals(other.key))
+			return false;
+		if (md5Sum == null) {
+			if (other.md5Sum != null)
+				return false;
+		} else if (!md5Sum.equals(other.md5Sum))
+			return false;
+		if (originJobId == null) {
+			if (other.originJobId != null)
+				return false;
+		} else if (!originJobId.equals(other.originJobId))
+			return false;
+		if (originPageId == null) {
+			if (other.originPageId != null)
+				return false;
+		} else if (!originPageId.equals(other.originPageId))
+			return false;
+		if (tsId == null) {
+			if (other.tsId != null)
+				return false;
+		} else if (!tsId.equals(other.tsId))
+			return false;
+		if (pageNr == null) {
+			if (other.pageNr != null)
+				return false;
+		} else if (!pageNr.equals(other.pageNr))
+			return false;
+		if (url == null) {
+			if (other.url != null)
+				return false;
+		} else if (!url.equals(other.url))
+			return false;
+		if (userId != other.userId)
+			return false;
+		if (userName == null) {
+			if (other.userName != null)
+				return false;
+		} else if (!userName.equals(other.userName))
+			return false;
+		return true;
 	}
 
 	@Override
 	public String toString() {
 		return "TrpGroundTruthPage [gtId=" + gtId + ", key=" + key + ", url=" + url + ", md5Sum=" + md5Sum
-				+ ", imageId=" + imageId + ", image=" + image + ", type=" + gtType + ", pageNr=" + pageNr
-				+ ", originPageId=" + originPageId + ", originTsId=" + originTsId + ", originJobId=" + originJobId
+				+ ", imageId=" + imageId + ", image= [ " + image + " ], type=" + gtType + ", pageNr=" + pageNr
+				+ ", originPageId=" + originPageId + ", tsId=" + tsId + ", originJobId=" + originJobId
 				+ ", created=" + created + ", username=" + userName + ", userId=" + userId + "]";
 	}
 }

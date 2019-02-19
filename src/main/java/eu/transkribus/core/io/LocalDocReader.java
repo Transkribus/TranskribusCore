@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import com.google.common.io.Files;
 import com.itextpdf.text.DocumentException;
 
 import eu.transkribus.core.exceptions.CorruptImageException;
@@ -371,12 +370,17 @@ public class LocalDocReader {
 				XmlFormat xmlFormat = XmlUtils.getXmlFormat(pageXml);
 				switch(xmlFormat){
 				case PAGE_2010:
-					File tmp = new File(pageXml.getParent().concat("/page2010/"));
-					tmp.mkdir();
-					File dest = new File(tmp.getAbsolutePath()+"/"+pageXml.getName());
-					FileUtils.moveFile(pageXml,dest);	
+					//initial solution for Windows concurrent access bug: do not use backup mechanism of Page2010Converter
+					File tmp = new File(backupPath);
+					if(!tmp.isDirectory()) {
+						tmp.mkdir();
+					}
+					File dest = new File(tmp.getAbsolutePath(), pageXml.getName());
+					FileUtils.moveFile(pageXml, dest);
+					pageXml = Page2010Converter.convert(dest, pageXml);
 					
-					pageXml = Page2010Converter.updatePageFormatSingleFile(pageXml, dest);
+					//updated method including backup creation using FileUtils#moveFile
+//					pageXml = Page2010Converter.updatePageFormatSingleFile(pageXml, backupPath);
 					break;
 				case PAGE_2013:
 					break;
