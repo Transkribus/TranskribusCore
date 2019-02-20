@@ -17,6 +17,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +26,7 @@ import eu.transkribus.core.model.beans.adapters.DocTypeAdapter;
 import eu.transkribus.core.model.beans.adapters.ScriptTypeAdapter;
 import eu.transkribus.core.model.beans.enums.DocType;
 import eu.transkribus.core.model.beans.enums.ScriptType;
+import io.swagger.v3.oas.annotations.Hidden;
 
 @Entity
 @Table(name="DOC_MD")
@@ -33,6 +35,10 @@ import eu.transkribus.core.model.beans.enums.ScriptType;
 public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serializable, Comparable<TrpDocMetadata> {
 	private static final long serialVersionUID = 1L;
 
+	@Hidden
+	@XmlTransient
+	public static final int STATUS_SAMPLE_DOC = 2;
+	
 	@Id
 	@Column
 	private int docId=-1;
@@ -409,6 +415,11 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 
 	public void setStatus(Integer status) {
 		this.status = status;
+	}
+	
+	@Hidden
+	public boolean isSampleDoc() {
+		return status == STATUS_SAMPLE_DOC;
 	}
 	
 	public Integer getOrigDocId(){
