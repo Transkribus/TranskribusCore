@@ -178,7 +178,7 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 		return tsId;
 	}
 
-	public void setOriginTsId(Integer tsId) {
+	public void setTsId(Integer tsId) {
 		this.tsId = tsId;
 	}
 
