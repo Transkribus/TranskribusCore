@@ -43,6 +43,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -52,6 +54,12 @@ import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSSerializer;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 public class CoreUtils {
 	private final static Logger logger = LoggerFactory.getLogger(CoreUtils.class);
@@ -1306,6 +1314,44 @@ public class CoreUtils {
 		String[] exts = new String[] {".jpeg", ".jpg", ".jpe", ".jfif", ".png", ".tiff", ".tif"};
 //		String[] exts = new String[] {".jpeg", ".jpg", ".png", ".tiff", ".tif"};
 		return CoreUtils.listFiles(maxDepth, path, exts, false);
+	}
+	
+	/**
+	 * from: https://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java
+	 * @param xml The string representation of the unformatted XML
+	 * @return The string representation of the formatted XML
+	 * @throws ClassCastException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
+	 * @throws ClassNotFoundException 
+	 * @throws ParserConfigurationException 
+	 * @throws IOException 
+	 * @throws SAXException 
+	 */
+	public static String formatXml(String xml) throws ClassNotFoundException, InstantiationException, IllegalAccessException, ClassCastException, SAXException, IOException, ParserConfigurationException {
+//		try {
+			final InputSource src = new InputSource(new StringReader(xml));
+			final Node document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(src)
+					.getDocumentElement();
+			final Boolean keepDeclaration = Boolean.valueOf(xml.startsWith("<?xml"));
+
+			// May need this:
+			// System.setProperty(DOMImplementationRegistry.PROPERTY,"com.sun.org.apache.xerces.internal.dom.DOMImplementationSourceImpl");
+
+			final DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
+			final DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
+			final LSSerializer writer = impl.createLSSerializer();
+
+			writer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE); // Set this to true if the output
+																						// needs to be beautified.
+			writer.getDomConfig().setParameter("xml-declaration", keepDeclaration); // Set this to true if the
+																					// declaration is needed to be
+																					// outputted.
+
+			return writer.writeToString(document);
+//		} catch (Exception e) {
+//			throw new RuntimeException(e);
+//		}
 	}
 	
 	public static void main(String[] args) throws Exception {
