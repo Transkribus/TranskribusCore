@@ -57,6 +57,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -1327,6 +1328,7 @@ public class CoreUtils {
 	 * @throws ParserConfigurationException 
 	 * @throws IOException 
 	 * @throws SAXException 
+	 * @deprecated does it work with correct encoding?
 	 */
 	public static String formatXml(String xml) throws ClassNotFoundException, InstantiationException, IllegalAccessException, ClassCastException, SAXException, IOException, ParserConfigurationException {
 //		try {
@@ -1347,8 +1349,15 @@ public class CoreUtils {
 			writer.getDomConfig().setParameter("xml-declaration", keepDeclaration); // Set this to true if the
 																					// declaration is needed to be
 																					// outputted.
+			             
+			LSOutput lsOutput = impl.createLSOutput();
+			lsOutput.setEncoding("UTF-8");
+			             StringWriter stringWriter = new StringWriter();
+			             lsOutput.setCharacterStream(stringWriter);
+			             writer.write(document, lsOutput);
+			             return stringWriter.toString();
 
-			return writer.writeToString(document);
+//			return writer.writeToString(document);
 //		} catch (Exception e) {
 //			throw new RuntimeException(e);
 //		}
