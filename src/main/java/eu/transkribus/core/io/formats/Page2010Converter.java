@@ -153,13 +153,6 @@ public class Page2010Converter {
 		//this method may fail but throws no Exception
 		conv.run(input.getAbsolutePath(), output.getAbsolutePath());
 		
-		CodeSource codeSource = conv.getClass().getProtectionDomain().getCodeSource();
-	    if ( codeSource != null) {
-	        System.out.println("PAGECONVERTER SOURCE = "+codeSource.getLocation());
-	    }
-		
-		
-		
 		//check result roughly
 		if (!output.exists() || output.length() == 0) {
 			throw new IOException("PageConverter failed on file: " + input.getAbsolutePath());
