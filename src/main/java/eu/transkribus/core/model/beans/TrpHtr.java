@@ -107,6 +107,14 @@ public class TrpHtr {
 	@Column
 	private int userId;
 	
+	@Transient
+	@Column(name="NR_OF_TRAIN_GT_PAGES")
+	private Integer nrOfTrainGtPages;
+	
+	@Transient
+	@Column(name="NR_OF_VALIDATION_GT_PAGES")
+	private Integer nrOfValidationGtPages;
+	
 	//those fields just cache the split result from cerString and cerTestString
 	private double[] cerLog = null;
 	private double[] cerTestLog = null;
@@ -363,6 +371,30 @@ public class TrpHtr {
 		this.userId = userId;
 	}
 
+	public Integer getNrOfTrainGtPages() {
+		return nrOfTrainGtPages;
+	}
+	
+	public void setNrOfTrainGtPages(Integer nrOfTrainGtPages) {
+		this.nrOfTrainGtPages = nrOfTrainGtPages;
+	}
+	
+	public Integer getNrOfValidationGtPages() {
+		return nrOfValidationGtPages;
+	}
+	
+	public void setNrOfValidationGtPages(Integer nrOfValidationGtPages) {
+		this.nrOfValidationGtPages = nrOfValidationGtPages;
+	}
+	
+	public boolean hasTrainGt() {
+		return getNrOfTrainGtPages() != null && getNrOfTrainGtPages() > 0;
+	}
+	
+	public boolean hasValidationGt() {
+		return getNrOfValidationGtPages() != null && getNrOfValidationGtPages() > 0;
+	}
+	
 	@Override
 	public String toString() {
 		return "TrpHtr [htrId=" + htrId + ", name=" + name + ", description=" + description + ", provider=" + provider
@@ -371,7 +403,7 @@ public class TrpHtr {
 				+ cerString + ", cerTestString=" + cerTestString + ", charSet=" + charSetString
 				+ ", charListLegacy=" + charList + ", bestNetStored=" + bestNetStored + ", nrOfLines=" + nrOfLines + ", nrOfWords=" + nrOfWords
 				+ ", params=" + params + ", userName=" + userName + ", userId=" + userId + ", cerLog="
-				+ Arrays.toString(cerLog) + ", cerTestLog=" + Arrays.toString(cerTestLog) + "]";
+				+ Arrays.toString(cerLog) + ", cerTestLog=" + Arrays.toString(cerTestLog) 
+				+ ", nrOfTrainGtPages=" + nrOfTrainGtPages + ", nrOfValidationGtPages=" + nrOfValidationGtPages + "]";
 	}
-	
 }

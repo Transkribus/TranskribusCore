@@ -280,8 +280,13 @@ public final class RESTConst {
 	public static final String ERROR_RATE = "errorRate";
 	public static final String COMPUTE_SAMPLE = "computeSample";
 
+	@Deprecated
 	public static final String TEST_DOC_PATH = "testSet";
+	@Deprecated
 	public static final String TRAIN_DOC_PATH = "trainSet";
+	
+	public static final String VALIDATION_GT_PATH = "validationData";
+	public static final String TRAIN_GT_PATH = "trainData";
 	
 	public static final String KWS_SEARCH_PATH = "kwsSearch";
 	
