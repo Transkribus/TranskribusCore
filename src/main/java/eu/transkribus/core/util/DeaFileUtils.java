@@ -14,10 +14,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.io.Charsets;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import eu.transkribus.interfaces.util.URLUtils;
 
 /**
  * Some handy functions for file processing.<br/>
@@ -29,7 +36,8 @@ import org.apache.commons.io.Charsets;
  * @author philip
  */
 public class DeaFileUtils {
-
+	private static final Logger logger = LoggerFactory.getLogger(DeaFileUtils.class);
+	
 	private static final String SEP = File.separator;
 	public static final Charset DEFAULT_CHARSET = Charsets.UTF_8;
 	
@@ -42,7 +50,6 @@ public class DeaFileUtils {
 	 * @throws IOException
 	 */
 	public static String readFileAsString(File file) throws IOException {
-		BufferedReader br = null;
 		String result = "";
 		if(file.canRead()){
 			// Open the file
@@ -136,130 +143,6 @@ public class DeaFileUtils {
 		}
 	
 		return result.toString();
-	}
-
-	/** Uses the classLoader's getResourceAsStream method to obtain the content of file on the classpath as String.
-	 * @param fileName
-	 * @return
-	 * @throws IOException
-	 */
-	public static String readResourceAsString(String fileName)
-			throws IOException {
-		InputStream in = null;
-		String content = null;
-		in = DeaFileUtils.class.getClassLoader().getResourceAsStream(fileName);
-		if (in == null) {
-			throw new FileNotFoundException("File is not at "
-					+ DeaFileUtils.class.getClassLoader().getResource("")
-							.getPath());
-		}
-
-		try {
-			content = new java.util.Scanner(in).useDelimiter("\\A").next();
-		} catch (java.util.NoSuchElementException e) {
-			throw new IOException(fileName + " is empty.");
-		}
-
-		return content;
-	}
-
-	/**
-	 * @param fileName
-	 *            a file name or file path with a certain extension. Works with
-	 *            single file names and with the full path of a file
-	 * @return the file name or file path without the extension
-	 */
-	@Deprecated
-	public static String getFileNameWithoutExtension(String fileName) {
-		int dotIdx = fileName.lastIndexOf(".");
-		return fileName.substring(0, dotIdx);
-	}
-	@Deprecated
-	public static String getFileNameWithoutExtension(File file) {
-		return getFileNameWithoutExtension(file.getName());
-	}
-
-	/**
-	 * @see #getFileNamesWithoutExtension(String[]), but if <i>fileName</i> is a
-	 *      full path, the name is extracted before
-	 */
-	@Deprecated
-	public static String getSimpleFileNameWithoutExtension(String fileName) {
-		return getFileNameWithoutExtension(new File(fileName).getName());
-	}
-	@Deprecated
-	public static String[] getFileNamesWithoutExtension(String[] fileNames) {
-		String[] without = new String[fileNames.length];
-		for (int i = 0; i < fileNames.length; i++) {
-			String fileName = fileNames[i];
-			without[i] = getFileNameWithoutExtension(fileName);
-		}
-		return without;
-	}
-
-	/**
-	 * Retrieve to file extension of a single file or the full path of a file
-	 * 
-	 * @param fileName
-	 *            a file name or file path
-	 * @return the extension of the file specified by <b>fileName</b>
-	 */
-	@Deprecated
-	public static String getFileExtension(String fileName) {
-		String[] parts = fileName.split("\\.");
-		if(parts.length == 1){
-			//just the filename if no extension, i.e parts.length == 1 
-			return "";
-		} else {
-			return parts[parts.length - 1];
-		}
-		/*
-		 * StringTokenizer tokenizer = new StringTokenizer(fileName, ".");
-		 * String ext = ""; while (tokenizer.hasMoreTokens()) { ext =
-		 * tokenizer.nextToken(); } return ext;
-		 */
-	}
-	
-	/**
-	 * Retrieve to file extension of a single file or the full path of a file
-	 * 
-	 * @param file
-	 *            a file 
-	 * @return the extension of the file specified by <b>file.getName()</b>
-	 */
-	@Deprecated
-	public static String getFileExtension(File file) {
-		return getFileExtension(file.getName());
-	}
-
-	/**
-	 * FIXME taken from old FileUtils. Needs StreamingUtils. Use
-	 * writeStreamToFile for now
-	 * 
-	 * Store a file under a certain path
-	 * 
-	 * @param stream
-	 *            the stream which should be stored
-	 * @param fileName
-	 *            the path under which the file should be stored
-	 * @throws IOException
-	 *             if anything goes wrong while storing
-	 */
-	// public static void saveFile(InputStream is, String fileName) throws
-	// IOException
-	// {
-	// OutputStream os = new FileOutputStream(fileName);
-	// StreamingUtils.in2out(is, os);
-	// }
-
-	/**
-	 * @param fPath
-	 *            an absolute or relative file path
-	 * @return true if the file contains an extension
-	 */
-	@Deprecated
-	public static boolean hasExtension(String fPath) {
-		return (fPath.split("\\.").length > 1);
 	}
 
 	/**
@@ -411,7 +294,7 @@ public class DeaFileUtils {
 	 * @throws IOException
 	 */
 	public static Long getFileSizeBytes(String filePath) throws IOException {
-		return getFileSizeBytes(getReadableFile(filePath));
+		return getFileSizeBytes(getReadableFile(new File(filePath)));
 	}
 
 	/**
@@ -422,25 +305,7 @@ public class DeaFileUtils {
 	 * @throws IOException
 	 */
 	public static Double getFileSizeMB(String filePath) throws IOException {
-		return getFileSizeMB(getReadableFile(filePath));
-	}
-	
-	
-	/**
-	 * Opens File at path and checks if it exists, is readable and returns it then. Otherwise throws Exception
-	 * 
-	 * @param path
-	 * @return
-	 * @throws IOException
-	 */
-	@Deprecated
-	public static File getReadableFile(String path) throws IOException {
-		File f = new File(path);
-		if(f.canRead()){
-			return f;
-		} else {
-			throw new IOException("File " + path + " is not readable.");
-		}
+		return getFileSizeMB(getReadableFile(new File(filePath)));
 	}
 	
 	/**
@@ -452,7 +317,6 @@ public class DeaFileUtils {
 	 * @return
 	 * @throws IOException
 	 */
-	@Deprecated
 	public static File getReadableFile(File f) throws IOException {
 		if(f.canRead()){
 			return f;
@@ -496,21 +360,38 @@ public class DeaFileUtils {
 	}
 	
 	/**
-	 *
-	 * Opens file and checks if it exists, is writeable and returns it then. Otherwise throws Exception
+	 * This method essentially does the same as FileUtils.copyUrlToFile() but 
+	 * it does not throw an IOException if the status code is >= 400.
+	 * <br><br>
+	 * The status code is returned.
+	 * <br><br>
+	 * Method was moved here from the legacy core.util.URLUtils.
+	 * Redirects are not handled specifically like methods in new {@link URLUtils} do!
 	 * 
-	 * Use isWriteable instead. Still used by P4BatchIngest
-	 * 
-	 * @param path
-	 * @return
+	 * @param source
+	 * @param dest
+	 * @return status code
 	 * @throws IOException
 	 */
-	@Deprecated
-	public static File getWriteableFile(File f) throws IOException {
-		if(isWriteable(f)){
-			return f;
+	public static int copyUrlToFile(URL source, File dest) throws IOException {
+		HttpURLConnection huc = (HttpURLConnection)source.openConnection(); 
+		huc.setRequestMethod("GET"); //OR  huc.setRequestMethod ("HEAD"); 
+		huc.connect(); 
+		final int code = huc.getResponseCode();
+		if(code < 400) {
+			try (InputStream is = huc.getInputStream()){
+				//do check on URL and handle 404 etc.
+				FileUtils.copyInputStreamToFile(is, dest);
+				logger.info("File loaded from URL: " + source);
+				
+			} catch(IOException ioe) {
+				throw new IOException("Could not get connection to URL: " + source, ioe);
+			} finally {
+				huc.disconnect();
+			}
 		} else {
-			throw new IOException("File " + f.getAbsolutePath() + " is not writeable.");
+			logger.error("Could not download file at " + source + ": HTTP Status = " + code);
 		}
+		return code;
 	}
 }

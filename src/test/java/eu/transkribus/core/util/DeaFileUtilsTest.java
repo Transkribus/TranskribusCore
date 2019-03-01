@@ -12,7 +12,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class UrlUtilsTest {
+public class DeaFileUtilsTest {
+
 	final String workingUrlStr = "https://transkribus.eu";
 	final String workingImageUrlStr = "http://digi.landesbibliothek.at/viewer/content/AC10109954/1000/0/00000024.jpg";
 	final String workingImageUrlStr2 = "https://dbis-thure.uibk.ac.at/f/Get?id=AMUTANLJEUKWITZQJGFFDZYC";
@@ -28,26 +29,26 @@ public class UrlUtilsTest {
 		tmpDir = Files.createTempDirectory(tmp.toPath(), "UrlUtilsTest_").toFile();
 	}
 	
-//	@Test
+	@Test
 	public void testWorkingUrls() throws MalformedURLException {
 		File out = new File(tmpDir.getAbsolutePath() + File.separator + "outFile");
 		for(String s : workingUrls) {
 			URL url = new URL(s);
 			try {
-				int code = UrlUtils.copyUrlToFile(url, out);
+				int code = DeaFileUtils.copyUrlToFile(url, out);
 			} catch (Throwable t) {
 				Assert.fail(t.getMessage());
 			}
 		}
 	}
 	
-//	@Test
+	@Test
 	public void testNonWorkingUrls() throws MalformedURLException {
 		File out = new File(tmpDir.getAbsolutePath() + File.separator + "outFile");
 		for(String s : nonWorkingUrls) {
 			URL url = new URL(s);
 			try {
-				int code = UrlUtils.copyUrlToFile(url, out);
+				int code = DeaFileUtils.copyUrlToFile(url, out);
 				System.out.println(code);
 			} catch (Throwable t) {
 				Assert.fail(t.getMessage());
@@ -61,4 +62,5 @@ public class UrlUtilsTest {
 			FileUtils.deleteDirectory(tmpDir);
 		}
 	}
+
 }
