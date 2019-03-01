@@ -828,7 +828,7 @@ public class CustomTagList {
 		// adjust indices according to edit position:
 		final int adjust = -(end - start) + replacement.length();
 		for (CustomTag t : tags) {
-			logger.debug("tag from tags" + t.getContainedText());
+			logger.trace("tag from tags" + t.getContainedText());
 			if (!t.isIndexed())
 				continue;
 
