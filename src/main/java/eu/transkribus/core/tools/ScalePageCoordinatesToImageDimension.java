@@ -24,16 +24,46 @@ public class ScalePageCoordinatesToImageDimension {
 	private static final Logger logger = LoggerFactory.getLogger(ScalePageCoordinatesToImageDimension.class);
 	public static void main(String[] args) throws IOException, JAXBException {
 		
+		/*
+		 * use LocalDocReader to create pageXMLs from Abbyy XMLs for a complete directory
+		 */
+		final String startDir = "Y:/HTR/Wiener_Adressbuch/4OCR/batch2";
+		loadAllDocsInDir(startDir);
+		//loadSingleDoc(startDir);
+		
 //		fixNLF_GT();
 //		heldenbuch600to300dpi();
 		
-		final String path = "Y:/Newseye/NLF_GT/nlf_ocr_groundtruth_sv";
-
-		TrpDoc doc = LocalDocReader.load(path);
+//		final String path = "Y:/Newseye/NLF_GT/nlf_ocr_groundtruth_sv";
+//
+//		TrpDoc doc = LocalDocReader.load(path);
 		
 //		fixAltoFilenames();
 
-		fixAltoMmToPx(doc);
+		//fixAltoMmToPx(doc);
+	}
+	
+	private static void loadSingleDoc(String startDir) throws IOException {
+		File doc = new File(startDir);
+		logger.debug("try to load doc at path " + doc.getAbsolutePath());
+		LocalDocReader.load(doc.getAbsolutePath());
+		
+	}
+
+	private static void loadAllDocsInDir(String startDir) throws IOException {
+		File[] allDocDirs = new File(startDir).listFiles();
+		for (File doc : allDocDirs){
+			
+			if (new File(doc.getAbsolutePath()+"/page").exists()){
+				logger.debug("page XMLs for " + doc.getAbsolutePath() + "already created");
+			}
+			else{
+				logger.debug("try to load doc at path " + doc.getAbsolutePath());
+				LocalDocReader.load(doc.getAbsolutePath());
+			}
+			
+		}
+		
 	}
 
 	private static void fixAltoFilenames() throws IOException {
