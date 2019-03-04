@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.CodeSource;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -151,6 +152,7 @@ public class Page2010Converter {
 
 		//this method may fail but throws no Exception
 		conv.run(input.getAbsolutePath(), output.getAbsolutePath());
+		
 		//check result roughly
 		if (!output.exists() || output.length() == 0) {
 			throw new IOException("PageConverter failed on file: " + input.getAbsolutePath());

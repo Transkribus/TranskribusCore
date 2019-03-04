@@ -49,11 +49,12 @@ import eu.transkribus.core.model.beans.mets.Mets;
 import eu.transkribus.core.model.beans.mets.MetsType.FileSec.FileGrp;
 import eu.transkribus.core.model.beans.mets.StructMapType;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
+import eu.transkribus.core.util.DeaFileUtils;
 import eu.transkribus.core.util.ImgUtils;
 import eu.transkribus.core.util.JaxbUtils;
 import eu.transkribus.core.util.PageXmlUtils;
-import eu.transkribus.core.util.UrlUtils;
 import eu.transkribus.core.util.XmlUtils;
+import eu.transkribus.interfaces.util.URLUtils;
 
 /**
  * Reader class for loading a TRP Document from the local filesystem.<br>
@@ -313,7 +314,7 @@ public class GoobiMetsImporter extends APassthroughObservable
 			String filename = type.getID() + "." + ext;
 			logger.debug("url.getProtocol() " + url.getProtocol());
 			if (url.getProtocol().startsWith("http")){
-				String tmpFn = UrlUtils.getFilenameFromHeaderField(url);
+				String tmpFn = URLUtils.getFilenameFromHeaderField(url);
 				//logger.debug("tmpFn " + tmpFn);
 				if (tmpFn != null){
 					filename = tmpFn;
@@ -327,7 +328,7 @@ public class GoobiMetsImporter extends APassthroughObservable
 				imgFile = new File(imgDirPath + File.separator + filename);
 				logger.debug("Downloading: " + url);
 				//fetch file from this URL and store locally
-				int imgDownloadStatus = UrlUtils.copyUrlToFile(url, imgFile);
+				int imgDownloadStatus = DeaFileUtils.copyUrlToFile(url, imgFile);
 				if(imgDownloadStatus >= 400) {
 					//the image URL connection attempt returns a response with code > 400
 					problemMsg = getBrokenUrlMsg(url, imgDownloadStatus);
@@ -342,7 +343,7 @@ public class GoobiMetsImporter extends APassthroughObservable
 					logger.debug("Found potential Abbyy XML: " + type.getID());
 					//TODO: implement
 					abbyyFile = new File(abbyyDirPath + File.separator + filename);
-					if(UrlUtils.copyUrlToFile(url, abbyyFile) >= 400) {
+					if(DeaFileUtils.copyUrlToFile(url, abbyyFile) >= 400) {
 						logger.error("Could not download Abbyy XML and it will be ignored!");
 						//don't fail if abbyy XML could not be retrieved
 						abbyyFile = null;
@@ -351,7 +352,7 @@ public class GoobiMetsImporter extends APassthroughObservable
 					logger.debug("Found potential ALTO XML: " + type.getID());
 					//TODO: implement
 					altoFile = new File(altoDirPath + File.separator + filename);
-					if(UrlUtils.copyUrlToFile(url, altoFile) >= 400) {
+					if(DeaFileUtils.copyUrlToFile(url, altoFile) >= 400) {
 						logger.error("Could not download ALTO XML and it will be ignored!");
 						//don't fail if ALTO XML could not be retrieved
 						altoFile = null;

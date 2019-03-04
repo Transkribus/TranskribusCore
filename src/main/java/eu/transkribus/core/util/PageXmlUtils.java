@@ -1338,6 +1338,12 @@ public class PageXmlUtils {
 		return errorFiles;
 	}
 	
+	public static void applyTextFromWordsToLinesAndRegions(TrpPageType page) {
+		for (TrpTextRegionType region : page.getTextRegions(true)) {
+			region.applyTextFromWords();
+		}
+	}
+	
 	public static void main(String[] args) throws Exception {
 		List<Pair<File, Exception>> errorFiles = checkPageXMLInFolder("\\\\na03.uibk.ac.at\\dea_scratch\\tmp_sebastian\\VeryLargeDocument", true);
 		for (Pair<File, Exception> p : errorFiles) {
