@@ -5,12 +5,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import eu.transkribus.core.model.beans.DocumentSelectionDescriptor;
+import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescriptor;
+import eu.transkribus.core.model.beans.GroundTruthSelectionDescriptor;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
+import eu.transkribus.core.model.beans.TrpGroundTruthPage;
+import eu.transkribus.core.model.beans.TrpHtr;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
-import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescriptor;
 import eu.transkribus.core.model.beans.enums.EditStatus;
 
 public class DescriptorUtils {
@@ -104,6 +108,33 @@ public class DescriptorUtils {
 				List<PageDescriptor> pdList = buildPageSelectionDescriptor(selectedPages, status);
 				dsd.setPages(pdList);
 			}
+			list.add(dsd);
+		}
+
+		return list;
+	}
+	
+	/** 
+	 * Method for building a descriptor list on the basis of ground truth data map as it is given in the HtrTrainingDialog of TranskribusSwtGui.
+	 * 
+	 * @param map the document map including the selected pages
+	 * @param status if not null, then the most recent version with this status is chosen
+	 * @return
+	 */
+	public static List<GroundTruthSelectionDescriptor> buildGtSelectionDescriptorList(Map<TrpHtr, List<TrpGroundTruthPage>> map) {
+		List<GroundTruthSelectionDescriptor> list = new LinkedList<>();
+
+		for (Entry<TrpHtr, List<TrpGroundTruthPage>> e : map.entrySet()) {
+			GroundTruthSelectionDescriptor dsd = new GroundTruthSelectionDescriptor();
+			TrpHtr md = e.getKey();
+			dsd.setId(md.getHtrId());
+			List<TrpGroundTruthPage> selectedPages = e.getValue();
+			//TODO how to pass the type of set and its size to this method?
+//			if(selectedPages.size() != md.getNrOfPages()) {
+				//only specify pages in detail if selection does not contain the whole doc. Payload of subsequent POST may get too large
+				List<Integer> pdList = selectedPages.stream().map(g -> g.getGtId()).collect(Collectors.toList());
+				dsd.setPages(pdList);
+//			}
 			list.add(dsd);
 		}
 
