@@ -33,7 +33,7 @@ public class Page2010ConverterTest {
 		
 		File tmpDir = new File(System.getProperty("java.io.tmpdir"), "page2010test-" + UUID.randomUUID());
 		if(!tmpDir.mkdir()) {
-			logger.error("Could create temp dir!");
+			logger.error("Could not create temp dir!");
 			return;
 		}
 		
@@ -41,6 +41,7 @@ public class Page2010ConverterTest {
 		FileUtils.copyFile(page2010Xml, testFile);
 		
 		File backupDir = new File(tmpDir, "backup");
+		
 		Page2010Converter.updatePageFormatSingleFile(testFile, backupDir.getAbsolutePath());
 		
 		try {
