@@ -48,6 +48,7 @@ public class SendMail {
 		props.put("mail.smtp.socketFactory.port", "" + smtpPort);
 		props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 		props.put("mail.smtp.port", "" + smtpPort);
+		props.put("mail.smtp.timeout", 60000);
 
 		authenticator = initAuthenticator();
 	}
