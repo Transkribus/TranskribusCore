@@ -140,6 +140,7 @@ public final class RESTConst {
 	public static final String COLL_STAT_PATH = "collStat";
 	//Just one stats endpoint name for all kinds of stats
 	public static final String STATS_PATH = "stats";
+	public static final String USER_STATS_PATH = "userStats";
 	
 	public static final String SUBSCRIBE_PATH = "subscribe";
 	public static final String UNSUBSCRIBE_PATH = "unsubscribe";
