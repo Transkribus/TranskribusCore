@@ -16,13 +16,13 @@ public class TrpUserInfo implements Serializable {
 	private static final long serialVersionUID = 7847909738857522789L;
 	protected String userName;
 	protected int uploads;
-	protected String training; 
+	protected int training; 
 	
 	protected int htr;
 	protected int ocr;
 	protected int la;
 
-	protected static BigDecimal hosting;
+	protected BigDecimal hosting;
 	
 	protected TrpUserCollection userCollection = null; 
 	
@@ -54,11 +54,11 @@ public class TrpUserInfo implements Serializable {
 		this.uploads = uploads;
 	}
 
-	public String getTraining() {
+	public int getTraining() {
 		return training;
 	}
 
-	public void setTraining(String training) {
+	public void setTraining(int training) {
 		this.training = training;
 	}
 
@@ -83,7 +83,7 @@ public class TrpUserInfo implements Serializable {
 	}
 
 	public void setHosting(BigDecimal hosting) {
-		TrpUserInfo.hosting = hosting;
+		this.hosting = hosting;
 	}
 	
 	public int getLa() {
