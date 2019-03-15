@@ -1363,6 +1363,19 @@ public class CoreUtils {
 //		}
 	}
 	
+	public static void addOptionToCommandList(List<String> commandList, String option, String value) {
+		if (commandList==null) {
+			return;
+		}
+		
+		if (!StringUtils.isEmpty(option)) {
+			commandList.add(option);
+		}
+		if (!StringUtils.isEmpty(value)) {
+			commandList.add(value);
+		}
+	}	
+	
 	public static void main(String[] args) throws Exception {
 //		System.out.println(timeDiffToString(-1));
 //		System.out.println(timeDiffToString(0));

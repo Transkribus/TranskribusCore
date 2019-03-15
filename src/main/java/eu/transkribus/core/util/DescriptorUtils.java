@@ -5,8 +5,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import eu.transkribus.core.model.beans.DocumentSelectionDescriptor;
+import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
@@ -122,5 +124,24 @@ public class DescriptorUtils {
 			pdList.add(pd);
 		}
 		return pdList;
+	}
+	
+	public static List<TrpPage> getPagesFromDocumentSelectionDescriptor(DocumentSelectionDescriptor dsd, TrpDoc doc) {
+		if (dsd.getPages() == null || dsd.getPages().isEmpty())
+			return null;
+		
+		if (CoreUtils.isEmpty(dsd.getPages())) { // return all pages from this document if list of pages is empty
+			return doc.getPages();
+		}
+		else { // return pages from doc that are contained in this DocumentSelectionDescriptor
+			return doc.getPages().stream().filter(p -> {
+				for (PageDescriptor pd : dsd.getPages()) {
+					if (pd.getPageId() == p.getPageId()) {
+						return true;
+					}
+				}
+				return false;
+			}).collect(Collectors.toList());
+		}
 	}
 }
