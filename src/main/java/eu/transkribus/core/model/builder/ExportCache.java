@@ -97,7 +97,7 @@ public class ExportCache {
 				}
 			}
 			else{
-				//logger.debug("We want to export pages with status: " + versionStatus);
+				//logger.debug("We want to export pages with status or toolname: " + versionStatus);
 				md = page.getTranscriptWithStatusOrNull(versionStatus);
 			}
 			
