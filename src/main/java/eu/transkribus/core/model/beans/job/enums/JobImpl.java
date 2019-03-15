@@ -32,6 +32,7 @@ public enum JobImpl {
 	CvlLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", null),
 	CvlTableJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", null),
 	UpvlcLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", null),
+	P2PaLAJob(JobTask.DetectLines, "Layout and structure analysis", "P2PaLAJob", null),
 	
 	//FIXME this could be reduced by stating one impl while the wrapper is merely a job-parameter
 	NcsrOldLaJobMultiThread(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "MultiThreadLaJob", null),
