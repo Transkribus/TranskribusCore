@@ -22,6 +22,8 @@ public class TrpUserInfo implements Serializable {
 	protected int ocr;
 	protected int la;
 
+	protected BigDecimal createDoc;
+	protected BigDecimal deleteDoc;
 	protected BigDecimal hosting;
 	
 	protected TrpUserCollection userCollection = null; 
@@ -70,12 +72,20 @@ public class TrpUserInfo implements Serializable {
 		this.htr = htrRuns;
 	}
 
-	public int getOcr() {
-		return ocr;
+	public BigDecimal getCreateDoc() {
+		return createDoc;
 	}
 
-	public void setOcr(int ocr) {
-		this.ocr = ocr;
+	public void setCreateDoc(BigDecimal createDoc) {
+		this.createDoc = createDoc;
+	}
+
+	public BigDecimal getDeleteDoc() {
+		return deleteDoc;
+	}
+
+	public void setDeleteDoc(BigDecimal deleteDoc) {
+		this.deleteDoc = deleteDoc;
 	}
 
 	public BigDecimal getHosting() {
@@ -84,6 +94,14 @@ public class TrpUserInfo implements Serializable {
 
 	public void setHosting(BigDecimal hosting) {
 		this.hosting = hosting;
+	}
+
+	public int getOcr() {
+		return ocr;
+	}
+
+	public void setOcr(int ocr) {
+		this.ocr = ocr;
 	}
 	
 	public int getLa() {
