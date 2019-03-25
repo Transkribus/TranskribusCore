@@ -1,7 +1,9 @@
 package eu.transkribus.core.util.xpath;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 
 import javax.xml.namespace.QName;
@@ -192,6 +194,24 @@ public class TrpXPathProcessor {
 		}
 		return builder.parse(xmlUrl.openStream());
 	}
+	
+	/**
+	 * Gets Document object from byte array.
+	 * 
+	 * @param xmlUrl
+	 * @return
+	 * @throws SAXException
+	 * @throws IOException
+	 */
+	public Document parse(byte[] data) throws SAXException, IOException {
+		if(data == null) {
+			throw new IllegalArgumentException("Argument is null!");
+		}
+		try(InputStream is = new ByteArrayInputStream(data)) {
+			return builder.parse(is);
+		}
+	}
+	
 	/**
 	 * Gets Document object from File.
 	 * 
