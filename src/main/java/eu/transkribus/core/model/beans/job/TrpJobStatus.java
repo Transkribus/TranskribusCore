@@ -168,6 +168,10 @@ public class TrpJobStatus implements Serializable {
 	@Transient
 	@Column
 	private int nrOfErrors;
+	
+//	@XmlTransient
+	@Column(name="OUTPUT")
+	private String output;
 
 	/**
 	 * Empty, public constructor for Jaxb and DbUtils
@@ -683,6 +687,14 @@ public class TrpJobStatus implements Serializable {
 	public void setJobDataOld(String jobDataOld) {
 		this.jobDataOld = jobDataOld;
 	}
+	
+	public String getOutput() {
+		return output;
+	}
+
+	public void setOutput(String output) {
+		this.output = output;
+	}
 
 	@Override
 	public String toString() {
@@ -695,7 +707,7 @@ public class TrpJobStatus implements Serializable {
 				+ ", moduleVersion=" + moduleVersion + ", started=" + started + ", ended=" + ended + ", created="
 				+ created + ", pid=" + pid + ", batchId=" + batchId + ", pageid=" + pageid + ", tsid=" + tsid
 				+ ", regionids=" + regionids + ", parent_jobid=" + parent_jobid + ", parent_batchid=" + parent_batchid
-				+ ", stackTrace="+stackTrace+", progress="+progress+", totalWork="+totalWork+"]";
+				+ ", stackTrace="+stackTrace+", progress="+progress+", totalWork="+totalWork+", output="+output+"]";
 	}
 
 	/**

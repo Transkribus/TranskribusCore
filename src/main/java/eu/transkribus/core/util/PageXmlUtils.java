@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -51,6 +52,7 @@ import org.xml.sax.SAXException;
 
 import eu.transkribus.core.io.FimgStoreReadConnection;
 import eu.transkribus.core.io.LocalDocConst;
+import eu.transkribus.core.io.LocalDocReader;
 import eu.transkribus.core.io.formats.XmlFormat;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
@@ -1320,6 +1322,55 @@ public class PageXmlUtils {
 			boolean isXml = f.getName().toLowerCase().endsWith(".xml");
 			return isXml && StringUtils.equals(FilenameUtils.getName(f.getParent()), LocalDocConst.PAGE_FILE_SUB_FOLDER);
 		}).collect(Collectors.toList());
+	}
+	
+	public static List<Pair<File, File>> listAllImgPageXmlPairsInFolderRecursively(String path) throws IOException {
+//		List<File> folders = Files.walk(Paths.get(path)).filter(Files::isDirectory).map(p -> p.toFile())
+//				.filter(folder -> new File(folder.getAbsolutePath()+"/"+LocalDocConst.PAGE_FILE_SUB_FOLDER).exists()).collect(Collectors.toList());
+		
+		File[] folders = new File(path).listFiles(new FileFilter() {
+			@Override
+			public boolean accept(File pathname) {
+				return pathname.isDirectory();
+			}
+		});
+		
+		
+		logger.info("got "+folders.length+" PAGE XML folders");
+		List<Pair<File, File>> pairs = new ArrayList<>();
+		for (int i=0; i<folders.length; ++i) {
+			File folder = folders[i];
+			logger.info("parsing folder "+(i+1)+"/"+folders.length+", N-pairs = "+pairs.size());
+			try {
+				pairs.addAll(LocalDocReader.findImgAndPAGEXMLFiles(folder));
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
+			}
+			logger.info("N-pairs = "+pairs.size());
+		}
+		return pairs;
+		
+		
+//		return Files.walk(Paths.get(path)).filter(Files::isDirectory).map(p -> p.toFile())
+//								.filter(folder -> new File(folder.getAbsolutePath()+"/"+LocalDocConst.PAGE_FILE_SUB_FOLDER).exists())
+//								.map(folder -> {
+//									List<Pair<File, File>> pairs = new ArrayList<>();
+//									try {
+//										pairs = LocalDocReader.findImgAndPAGEXMLFiles(folder);
+//									} catch (IOException e) {
+//										logger.error(e.getMessage(), e);
+//									}
+//									return pairs;
+//								})
+//								.flatMap(List::stream)
+//								.collect(Collectors.toList());
+		
+//		return Files.walk(Paths.get(path)).filter(Files::isRegularFile).map(p -> p.toFile()).filter(f -> {
+//			boolean isXml = f.getName().toLowerCase().endsWith(".xml");
+//			return isXml && StringUtils.equals(FilenameUtils.getName(f.getParent()), LocalDocConst.PAGE_FILE_SUB_FOLDER);
+//		})
+//		.map(f -> f.getParentFile().getParentFile())		
+//		.collect(Collectors.toList());
 	}
 	
 	public static List<Pair<File, Exception>> checkPageXMLInFolder(String path, boolean printErrors) throws IOException {

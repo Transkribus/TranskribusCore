@@ -24,6 +24,7 @@ import javax.xml.transform.TransformerException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.dea.util.pdf.PageImageWriter;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.mozilla.universalchardet.UniversalDetector;
@@ -1037,7 +1038,7 @@ public class LocalDocReader {
 			if (!pageMap.containsKey(pageName)) {
 				//new page. add this img in any case
 				pageMap.put(pageName, img);
-				logger.debug(pageName + ": found image: " + img.getName());
+//				logger.debug(pageName + ": found image: " + img.getName());
 			} else if (ImgPriority.getPriority(img) > ImgPriority
 					.getPriority(pageMap.get(pageName))) {
 				logger.debug(pageName + ": found better image: " + img.getName() + " | Removing "
@@ -1260,6 +1261,19 @@ public class LocalDocReader {
 		}
 		//init object as load() would do
 		return initDocMd(docMd, dir, false);
+	}
+	
+	public static List<Pair<File, File>> findImgAndPAGEXMLFiles(File folder) throws IOException {
+		File pageXmlInputDir = getPageXmlInputDir(folder);
+		TreeMap<String, File> imgs = findImgFiles(folder);
+		List<Pair<File, File>> imgXmlPairs = new ArrayList<>();
+		
+		for (Entry<String, File> e : imgs.entrySet()) {
+			File pageXML = findXml(e.getKey(), pageXmlInputDir);
+			imgXmlPairs.add(Pair.of(e.getValue(), pageXML));
+		}
+		
+		return imgXmlPairs;
 	}
 	
 	public static class DocLoadConfig {
