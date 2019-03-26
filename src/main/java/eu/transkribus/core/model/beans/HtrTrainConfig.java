@@ -131,11 +131,7 @@ public class HtrTrainConfig implements Serializable {
 	}
 
 	public void setTrainGt(List<GroundTruthSelectionDescriptor> trainGt) {
-		if (trainGt == null) {
-			trainGt = new LinkedList<>();
-		} else {
-			this.trainGt = trainGt;	
-		}
+		this.trainGt = trainGt;	
 	}
 	
 	public List<GroundTruthSelectionDescriptor> getTestGt() {
@@ -143,11 +139,7 @@ public class HtrTrainConfig implements Serializable {
 	}
 
 	public void setTestGt(List<GroundTruthSelectionDescriptor> testGt) {
-		if (testGt == null) {
-			testGt = new LinkedList<>();
-		} else {
-			this.testGt = testGt;	
-		}
+		this.testGt = testGt;
 	}
 	
 	@Hidden
