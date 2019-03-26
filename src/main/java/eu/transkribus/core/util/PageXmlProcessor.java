@@ -104,6 +104,10 @@ public abstract class PageXmlProcessor extends TrpXPathProcessor {
 
 	public List<String> getAllLineIds(final String xmlKey) throws MalformedURLException, IllegalArgumentException, SAXException, IOException, XPathExpressionException {
 		Document doc = getDocument(xmlKey);
+		return getAllLineIds(doc);
+	}
+	
+	public List<String> getAllLineIds(final Document doc) throws MalformedURLException, IllegalArgumentException, SAXException, IOException, XPathExpressionException {
 		final String xPath = "//TextLine";
 		XPathExpression exp = super.compile(xPath);
 		NodeList lines = super.getNodeList(doc, exp);

@@ -17,11 +17,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.StringUtils;
 
+import eu.transkribus.core.io.RemoteDocConst;
 import eu.transkribus.core.model.beans.adapters.DocTypeAdapter;
 import eu.transkribus.core.model.beans.adapters.ScriptTypeAdapter;
 import eu.transkribus.core.model.beans.enums.DocType;
@@ -35,10 +35,6 @@ import io.swagger.v3.oas.annotations.Hidden;
 public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serializable, Comparable<TrpDocMetadata> {
 	private static final long serialVersionUID = 1L;
 
-	@Hidden
-	@XmlTransient
-	public static final int STATUS_SAMPLE_DOC = 2;
-	
 	@Id
 	@Column
 	private int docId=-1;
@@ -419,7 +415,12 @@ public class TrpDocMetadata extends ATotalTranscriptStatistics implements Serial
 	
 	@Hidden
 	public boolean isSampleDoc() {
-		return status == STATUS_SAMPLE_DOC;
+		return status == RemoteDocConst.STATUS_SAMPLE_DOC;
+	}
+	
+	@Hidden 
+	public boolean isGtDoc() {
+		return status == RemoteDocConst.STATUS_GROUND_TRUTH_DOC;
 	}
 	
 	public Integer getOrigDocId(){
