@@ -19,6 +19,7 @@ public class TrpErrorRate extends TrpErrorRateResult {
 
 	public TrpErrorRate() {
 		list = new ArrayList<>();
+		params = new ParameterMap();
 	}
 
 	public List<TrpErrorRateListEntry> getList() {
