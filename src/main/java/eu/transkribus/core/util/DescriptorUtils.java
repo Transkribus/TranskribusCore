@@ -8,14 +8,14 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import eu.transkribus.core.model.beans.DocumentSelectionDescriptor;
-import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescriptor;
 import eu.transkribus.core.model.beans.GroundTruthSelectionDescriptor;
+import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpGroundTruthPage;
-import eu.transkribus.core.model.beans.TrpHtr;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
+import eu.transkribus.core.model.beans.enums.DataSetType;
 import eu.transkribus.core.model.beans.enums.EditStatus;
 
 public class DescriptorUtils {
@@ -122,20 +122,21 @@ public class DescriptorUtils {
 	 * @param status if not null, then the most recent version with this status is chosen
 	 * @return
 	 */
-	public static List<GroundTruthSelectionDescriptor> buildGtSelectionDescriptorList(Map<TrpHtr, List<TrpGroundTruthPage>> map) {
+	public static List<GroundTruthSelectionDescriptor> buildGtSelectionDescriptorList(Map<GroundTruthDataSetDescriptor, List<TrpGroundTruthPage>> map) {
 		List<GroundTruthSelectionDescriptor> list = new LinkedList<>();
 
-		for (Entry<TrpHtr, List<TrpGroundTruthPage>> e : map.entrySet()) {
+		for (Entry<GroundTruthDataSetDescriptor, List<TrpGroundTruthPage>> e : map.entrySet()) {
 			GroundTruthSelectionDescriptor dsd = new GroundTruthSelectionDescriptor();
-			TrpHtr md = e.getKey();
-			dsd.setId(md.getHtrId());
+			GroundTruthDataSetDescriptor md = e.getKey();
+			dsd.setId(md.getId());
+			dsd.setDataSetType(md.getDataSetType().toString());
 			List<TrpGroundTruthPage> selectedPages = e.getValue();
-			//TODO how to pass the type of set and its size to this method?
-//			if(selectedPages.size() != md.getNrOfPages()) {
-				//only specify pages in detail if selection does not contain the whole doc. Payload of subsequent POST may get too large
+			if(md.getSize() > 0 && selectedPages.size() < md.getSize()) {
+				//only specify pages in detail if selection does not contain the whole set or size is unknown. 
+				//Payload of subsequent POST may get too large if setting large number of pages here.
 				List<Integer> pdList = selectedPages.stream().map(g -> g.getGtId()).collect(Collectors.toList());
 				dsd.setPages(pdList);
-//			}
+			}
 			list.add(dsd);
 		}
 
@@ -172,6 +173,34 @@ public class DescriptorUtils {
 				}
 				return false;
 			}).collect(Collectors.toList());
+		}
+	}
+	
+	/**
+	 * Type for capturing properties of a ground truth data set, 
+	 * needed for building a descriptor with {@link DescriptorUtils#buildGtSelectionDescriptorList(Map)}.
+	 *
+	 */
+	public static class GroundTruthDataSetDescriptor {
+		private final int id;
+		private final DataSetType dataSetType;
+		protected int size;
+		public GroundTruthDataSetDescriptor(final int id, final DataSetType dataSetType, final int size) {
+			this.id = id;
+			this.dataSetType = dataSetType;
+			this.size = size;
+		}
+		public GroundTruthDataSetDescriptor(final int id, final DataSetType dataSetType) {
+			this(id, dataSetType, -1);
+		}
+		public int getId() {
+			return id;
+		}
+		public DataSetType getDataSetType() {
+			return dataSetType;
+		}
+		public int getSize() {
+			return size;
 		}
 	}
 }

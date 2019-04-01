@@ -18,6 +18,12 @@ public class GroundTruthSelectionDescriptor implements Serializable {
 	 * The ID of the entity the selected ground truth is linked to. The entity type is defined by the context, e.g. HTR for HTR training. 
 	 */
 	private int id;
+	/**
+	 * If the entity with given id has different data sets (e.g. train, validation) linked to it,
+	 * this field allows to specify which set the given gtPage IDs belong to or to specify a complete set to use 
+	 * (and not specifying single gtPages at all).
+	 */
+	private String dataSetType;
 	
 	@XmlElementWrapper(name="gtPageList")
 	@XmlElement
@@ -28,6 +34,12 @@ public class GroundTruthSelectionDescriptor implements Serializable {
 	public GroundTruthSelectionDescriptor(int id) {
 		this();
 		this.id = id;
+	}
+	
+	public GroundTruthSelectionDescriptor(int id, String dataSetType) {
+		this();
+		this.id = id;
+		this.dataSetType = dataSetType;
 	}
 	
 	public GroundTruthSelectionDescriptor(int id, int gtPageId) {
@@ -41,6 +53,14 @@ public class GroundTruthSelectionDescriptor implements Serializable {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+	
+	public String getDataSetType() {
+		return dataSetType;
+	}
+	
+	public void setDataSetType(String dataSetType) {
+		this.dataSetType = dataSetType;
 	}
 
 	public List<Integer> getGtPages() {
