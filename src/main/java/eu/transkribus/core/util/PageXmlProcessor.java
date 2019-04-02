@@ -101,6 +101,18 @@ public abstract class PageXmlProcessor extends TrpXPathProcessor {
 		XPathExpression exp = super.compile(xPath);
 		return super.getNode(doc, exp);
 	}
+	
+	public String getUnicodeFromLineById(final String xmlKey, final String lineId) throws MalformedURLException, IllegalArgumentException, SAXException, IOException, XPathExpressionException {
+		Document doc = getDocument(xmlKey);
+		return getUnicodeFromLineById(doc, lineId);
+	}
+	
+	public String getUnicodeFromLineById(final Document doc, final String lineId) throws XPathExpressionException, SAXException, IOException {
+		final String xPath = "//TextLine[@id='" + lineId + "']/TextEquiv/Unicode";
+		XPathExpression exp = super.compile(xPath);
+		Node unicodeNode = super.getNode(doc, exp);
+		return unicodeNode.getTextContent();
+	}
 
 	public List<String> getAllLineIds(final String xmlKey) throws MalformedURLException, IllegalArgumentException, SAXException, IOException, XPathExpressionException {
 		Document doc = getDocument(xmlKey);
@@ -109,6 +121,10 @@ public abstract class PageXmlProcessor extends TrpXPathProcessor {
 	
 	public List<String> getAllLineIds(final Document doc) throws MalformedURLException, IllegalArgumentException, SAXException, IOException, XPathExpressionException {
 		final String xPath = "//TextLine";
+		return getElementIds(doc, xPath);
+	}
+	
+	private List<String> getElementIds(final Document doc, final String xPath) throws MalformedURLException, IllegalArgumentException, SAXException, IOException, XPathExpressionException {
 		XPathExpression exp = super.compile(xPath);
 		NodeList lines = super.getNodeList(doc, exp);
 		List<String> ids = new ArrayList<>(lines.getLength());

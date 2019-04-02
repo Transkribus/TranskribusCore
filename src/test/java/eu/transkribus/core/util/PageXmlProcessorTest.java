@@ -1,6 +1,7 @@
 package eu.transkribus.core.util;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,14 @@ public class PageXmlProcessorTest {
 	private static final Logger logger = LoggerFactory.getLogger(PageXmlProcessorTest.class);
 	SebisStopWatch ssw = new SebisStopWatch();
 	
+//	@Test
+//	public void testGetAllRegionsIds() throws XPathFactoryConfigurationException, ParserConfigurationException, MalformedURLException, IllegalArgumentException, XPathExpressionException, SAXException, IOException {
+//		final String key = "CMTSKWAFFAQPTGSHECQTKDCM";
+//		PageXmlProcessor proc = PageXmlProcessorFactory.newInstance();
+//		List<String> ids = proc.getAllTextRegionIds(key);
+//		ids.stream().forEach(id -> logger.debug(id));
+//	}
+//	
 	@Test
 	public void testGetAllLines() {
 		final String keyGT = "CMTSKWAFFAQPTGSHECQTKDCM";
