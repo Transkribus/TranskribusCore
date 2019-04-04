@@ -1,13 +1,11 @@
 # maven vars:
 mvn=mvn
-tests=true
+test=true
 mvn_flags=
-# set maven test flags depending on value of "tests" variable
-ifeq ($(tests), true)
- $(info Performing tests!)
- mvn_test_flags =
-else
- $(info Skipping tests!)
+
+# set maven test flags depending on value of "test" variable
+ifneq ($(test), true)
+ $(info Not performing tests!)
  mvn_test_flags = -Dmaven.test.skip=true
 endif
 
