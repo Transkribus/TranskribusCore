@@ -21,7 +21,7 @@ import eu.transkribus.core.io.util.TrpProperties;
  */
 @XmlRootElement(name="parameters")
 public class ParameterMap extends AJaxbMap {
-	private static final Logger logger = LoggerFactory.getLogger(ParameterMap.class);	
+	private static final Logger logger = LoggerFactory.getLogger(ParameterMap.class);
 	
 	//keep that for Jaxb
 	public ParameterMap() {
