@@ -26,13 +26,14 @@ public class TrpP2PaLAModel {
 	@Column private Integer test_set_size;
 	@Column private String struct_types;
 	@Column private String merged_struct_types;
+	@Column private String out_mode;
 	
 	public TrpP2PaLAModel() {
 	}
 	
 	public TrpP2PaLAModel(int id, String name, String description, Timestamp created, String path, String custom,
 			Integer train_set_size, Integer val_set_size, Integer test_set_size, String struct_types,
-			String merged_struct_types) {
+			String merged_struct_types, String out_mode) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -45,6 +46,7 @@ public class TrpP2PaLAModel {
 		this.test_set_size = test_set_size;
 		this.struct_types = struct_types;
 		this.merged_struct_types = merged_struct_types;
+		this.out_mode = out_mode;
 	}
 
 	public int getId() {
@@ -134,13 +136,21 @@ public class TrpP2PaLAModel {
 	public void setMerged_struct_types(String merged_struct_types) {
 		this.merged_struct_types = merged_struct_types;
 	}
+	
+	public String getOut_mode() {
+		return out_mode;
+	}
+
+	public void setOut_mode(String out_mode) {
+		this.out_mode = out_mode;
+	}
 
 	@Override
 	public String toString() {
 		return "TrpP2PaLAModel [id=" + id + ", name=" + name + ", description=" + description + ", created=" + created
 				+ ", path=" + path + ", custom=" + custom + ", train_set_size=" + train_set_size + ", val_set_size="
 				+ val_set_size + ", test_set_size=" + test_set_size + ", struct_types=" + struct_types
-				+ ", merged_struct_types=" + merged_struct_types + "]";
+				+ ", merged_struct_types=" + merged_struct_types + ", out_mode=" + out_mode + "]";
 	}
 	
 }
