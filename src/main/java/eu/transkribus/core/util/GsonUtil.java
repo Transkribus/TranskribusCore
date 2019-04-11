@@ -33,6 +33,14 @@ public class GsonUtil {
 		return GSON.toJson(o);
 	}
 	
+	public static String toJson2(Object o) {
+		try {
+			return GSON.toJson(o);
+		} catch (Throwable e) {
+			return null;
+		}
+	}	
+	
 	public static List<String> toStrList(String json) {
 		return GSON.fromJson(json, STRING_LIST_TYPE);
 	}

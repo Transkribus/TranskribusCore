@@ -16,6 +16,8 @@ public final class RESTConst {
 	public static final String SYSTEM_PATH = "system";
 	public static final String AUTH_PATH = "auth";
 	public static final String LAYOUT_PATH = "LA";
+	public static final String P2PALA_PATH = LAYOUT_PATH+"/"+"p2pala";
+	
 	public static final String JOBS_PATH = "jobs";
 	public static final String USER_PATH = "user";
 	public static final String COLLECTION_PATH = "collections";
