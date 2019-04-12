@@ -16,11 +16,15 @@ public class TrpUserInfo implements Serializable {
 	private static final long serialVersionUID = 7847909738857522789L;
 	protected String userName;
 	protected int uploads;
-	protected int training; 
+	protected int training;
+	protected double trainingTime;
 	
 	protected int htr;
+	protected double htrTime;
 	protected int ocr;
+	protected double ocrTime;
 	protected int la;
+	protected double laTime;
 
 	protected BigDecimal createDoc;
 	protected BigDecimal deleteDoc;
@@ -64,12 +68,44 @@ public class TrpUserInfo implements Serializable {
 		this.training = training;
 	}
 
+	public double getTrainingTime() {
+		return trainingTime;
+	}
+
+	public void setTrainingTime(double trainingTime) {
+		this.trainingTime = trainingTime;
+	}
+
 	public int getHtr() {
 		return htr;
 	}
 
 	public void setHtr(int htrRuns) {
 		this.htr = htrRuns;
+	}
+
+	public double getHtrTime() {
+		return htrTime;
+	}
+
+	public void setHtrTime(double htrTime) {
+		this.htrTime = htrTime;
+	}
+
+	public double getOcrTime() {
+		return ocrTime;
+	}
+
+	public void setOcrTime(double ocrTime) {
+		this.ocrTime = ocrTime;
+	}
+
+	public double getLaTime() {
+		return laTime;
+	}
+
+	public void setLaTime(double laTime) {
+		this.laTime = laTime;
 	}
 
 	public BigDecimal getCreateDoc() {
