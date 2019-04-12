@@ -506,6 +506,11 @@ public class DocExporter extends APassthroughObservable {
 				imgFile = getter.saveImg(page.getKey(), pars.getRemoteImgQuality(),
 						outputDir.getImgOutputDir().getAbsolutePath(), baseFileName + imgExt);
 				page.setUrl(imgFile.toURI().toURL());
+				
+				/**
+				 * FIXME test if the ImgFileName can be set here. If a filename pattern is set (e.g. in HTR) the value contained is wrong.
+				 */
+//				page.setImgFileName(imgFile.getName());
 				page.setKey(null);
 			}
 			if(pars.isDoExportPageXml()) {
