@@ -17,14 +17,14 @@ public class TrpUserInfo implements Serializable {
 	protected String userName;
 	protected int uploads;
 	protected int training;
-	protected double trainingTime;
+	protected String trainingTime;
 	
 	protected int htr;
-	protected double htrTime;
+	protected String htrTime;
 	protected int ocr;
-	protected double ocrTime;
+	protected String ocrTime;
 	protected int la;
-	protected double laTime;
+	protected String laTime;
 
 	protected BigDecimal createDoc;
 	protected BigDecimal deleteDoc;
@@ -68,11 +68,11 @@ public class TrpUserInfo implements Serializable {
 		this.training = training;
 	}
 
-	public double getTrainingTime() {
+	public String getTrainingTime() {
 		return trainingTime;
 	}
 
-	public void setTrainingTime(double trainingTime) {
+	public void setTrainingTime(String trainingTime) {
 		this.trainingTime = trainingTime;
 	}
 
@@ -84,27 +84,27 @@ public class TrpUserInfo implements Serializable {
 		this.htr = htrRuns;
 	}
 
-	public double getHtrTime() {
+	public String getHtrTime() {
 		return htrTime;
 	}
 
-	public void setHtrTime(double htrTime) {
+	public void setHtrTime(String htrTime) {
 		this.htrTime = htrTime;
 	}
 
-	public double getOcrTime() {
+	public String getOcrTime() {
 		return ocrTime;
 	}
 
-	public void setOcrTime(double ocrTime) {
+	public void setOcrTime(String ocrTime) {
 		this.ocrTime = ocrTime;
 	}
 
-	public double getLaTime() {
+	public String getLaTime() {
 		return laTime;
 	}
 
-	public void setLaTime(double laTime) {
+	public void setLaTime(String laTime) {
 		this.laTime = laTime;
 	}
 
