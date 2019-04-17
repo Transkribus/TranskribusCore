@@ -1,10 +1,12 @@
 package eu.transkribus.core.util;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import eu.transkribus.core.model.beans.DocumentSelectionDescriptor;
@@ -175,7 +177,22 @@ public class DescriptorUtils {
 			}).collect(Collectors.toList());
 		}
 	}
-	
+
+	/**
+	 * Extract the pageIds that are contained in the descriptor
+	 * 
+	 * @param descriptor that defines the input for the job
+	 * @return a set containing the pageIds
+	 */
+	public static Set<Integer> extractPageIdsFromDescriptor(DocumentSelectionDescriptor descriptor) {
+		if(descriptor == null) {
+			return new HashSet<>();
+		}
+		return descriptor.getPages().stream()
+				.map(p -> p.getPageId())
+				.collect(Collectors.toSet());
+	}
+
 	/**
 	 * Type for capturing properties of a ground truth data set, 
 	 * needed for building a descriptor with {@link DescriptorUtils#buildGtSelectionDescriptorList(Map)}.
