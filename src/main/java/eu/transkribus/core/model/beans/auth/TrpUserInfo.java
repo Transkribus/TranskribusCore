@@ -15,35 +15,27 @@ public class TrpUserInfo implements Serializable {
 	
 	private static final long serialVersionUID = 7847909738857522789L;
 	protected String userName;
-	protected String overallUserName;
 	protected int uploads;
-	protected int overallUploads;
+	
 	protected int training;
-	protected int overallTraining;
 	protected String trainingTime;
-	protected String overallTrainingTime;
 	
 	protected int htr;
-	protected int overallHtr;
 	protected String htrTime;
-	protected String overallHtrTime;
-	protected int ocr;
-	protected int overallOcr;
-	protected String ocrTime;
-	protected String overallOcrTime;
-	protected int la;
-	protected int overallLa;
-	protected String laTime;
-	protected String overallLaTime;
-
-	protected BigDecimal createDoc;
-	protected BigDecimal overallCreateDoc;
-	protected BigDecimal deleteDoc;
-	protected BigDecimal overallDeleteDoc;
-	protected BigDecimal hosting;
-	protected BigDecimal overallHosting;
 	
+	protected int ocr;
+	protected String ocrTime;
+	
+	protected int la;
+	protected String laTime;
+	
+	protected BigDecimal createDoc;
+	protected BigDecimal deleteDoc;
+	protected BigDecimal hosting;
+
 	protected TrpUserCollection userCollection = null; 
+	
+	protected static TrpUserOverallInfo overallInfo;
 	
 	public TrpUserInfo() {}
 	
@@ -161,109 +153,6 @@ public class TrpUserInfo implements Serializable {
 		this.la = la;
 	}
 
-	public String getOverallUserName() {
-		return overallUserName;
-	}
-
-	public void setOverallUserName(String overallUserName) {
-		this.overallUserName = overallUserName;
-	}
-
-	public int getOverallUploads() {
-		return overallUploads;
-	}
-
-	public void setOverallUploads(int overallUploads) {
-		this.overallUploads = overallUploads;
-	}
-
-	public int getOverallTraining() {
-		return overallTraining;
-	}
-
-	public void setOverallTraining(int overallTraining) {
-		this.overallTraining = overallTraining;
-	}
-
-	public String getOverallTrainingTime() {
-		return overallTrainingTime;
-	}
-
-	public void setOverallTrainingTime(String overallTrainingTime) {
-		this.overallTrainingTime = overallTrainingTime;
-	}
-
-	public int getOverallHtr() {
-		return overallHtr;
-	}
-
-	public void setOverallHtr(int overallHtr) {
-		this.overallHtr = overallHtr;
-	}
-
-	public String getOverallHtrTime() {
-		return overallHtrTime;
-	}
-
-	public void setOverallHtrTime(String overallHtrTime) {
-		this.overallHtrTime = overallHtrTime;
-	}
-
-	public int getOverallOcr() {
-		return overallOcr;
-	}
-
-	public void setOverallOcr(int overallOcr) {
-		this.overallOcr = overallOcr;
-	}
-
-	public String getOverallOcrTime() {
-		return overallOcrTime;
-	}
-
-	public void setOverallOcrTime(String overallOcrTime) {
-		this.overallOcrTime = overallOcrTime;
-	}
-
-	public int getOverallLa() {
-		return overallLa;
-	}
-
-	public void setOverallLa(int overallLa) {
-		this.overallLa = overallLa;
-	}
-
-	public String getOverallLaTime() {
-		return overallLaTime;
-	}
-
-	public void setOverallLaTime(String overallLaTime) {
-		this.overallLaTime = overallLaTime;
-	}
-
-	public BigDecimal getOverallCreateDoc() {
-		return overallCreateDoc;
-	}
-
-	public void setOverallCreateDoc(BigDecimal overallCreateDoc) {
-		this.overallCreateDoc = overallCreateDoc;
-	}
-
-	public BigDecimal getOverallDeleteDoc() {
-		return overallDeleteDoc;
-	}
-
-	public void setOverallDeleteDoc(BigDecimal overallDeleteDoc) {
-		this.overallDeleteDoc = overallDeleteDoc;
-	}
-
-	public BigDecimal getOverallHosting() {
-		return overallHosting;
-	}
-
-	public void setOverallHosting(BigDecimal overallHosting) {
-		this.overallHosting = overallHosting;
-	}
 
 	public TrpUserCollection getUserCollection() {
 		return userCollection;
@@ -271,6 +160,14 @@ public class TrpUserInfo implements Serializable {
 
 	public void setUserCollection(TrpUserCollection userCollection) {
 		this.userCollection = userCollection;
+	}
+
+	public TrpUserOverallInfo getOverallInfo() {
+		return overallInfo;
+	}
+
+	public void setOverallInfo(TrpUserOverallInfo overallInfo) {
+		TrpUserInfo.overallInfo = overallInfo;
 	}
 	
 
