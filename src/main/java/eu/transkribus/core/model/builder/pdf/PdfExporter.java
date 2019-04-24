@@ -36,15 +36,15 @@ public class PdfExporter extends Observable {
 	public PdfExporter(){}
 	
 	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, boolean extraTextPages, boolean highlightTags, boolean wordBased, boolean doBlackening, boolean createTitle) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
-		return export(doc, path, pageIndices, false, false, true, true, false, false, null, "FreeSerif", null);
+		return export(doc, path, pageIndices, false, false, true, true, false, false, false, null, "FreeSerif", null);
 	}
 	
 	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, ExportCache cache, boolean origFile) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
 		ImgType imgType = (origFile ? ImgType.orig : ImgType.view);
-		return export(doc, path, pageIndices, false, true, false, true, true, true, cache, "FreeSerif", imgType);
+		return export(doc, path, pageIndices, false, true, false, true, false, true, true, cache, "FreeSerif", imgType);
 	}
 		
-	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean useWordLevel, final boolean addTextPages, final boolean imagesOnly, final boolean highlightTags, final boolean doBlackening, boolean createTitle, ExportCache cache, String exportFontname, ImgType imgType) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
+	public File export(final TrpDoc doc, final String path, Set<Integer> pageIndices, final boolean useWordLevel, final boolean addTextPages, final boolean imagesOnly, final boolean highlightTags, final boolean highlightArticles, final boolean doBlackening, boolean createTitle, ExportCache cache, String exportFontname, ImgType imgType) throws DocumentException, MalformedURLException, IOException, JAXBException, URISyntaxException, InterruptedException{
 		if(doc == null){
 			throw new IllegalArgumentException("TrpDoc is null!");
 		}
@@ -72,7 +72,7 @@ public class PdfExporter extends Observable {
 		}
 	
 		File pdfFile = new File(path);
-		TrpPdfDocument pdf = new TrpPdfDocument(pdfFile, useWordLevel, highlightTags, doBlackening, createTitle, exportFontname, imgType);
+		TrpPdfDocument pdf = new TrpPdfDocument(pdfFile, useWordLevel, highlightTags, highlightArticles, doBlackening, createTitle, exportFontname, imgType);
 		
 		setChanged();
 		notifyObservers("Creating PDF document...");
