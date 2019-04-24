@@ -16,17 +16,26 @@ public class TrpUserInfo implements Serializable {
 	private static final long serialVersionUID = 7847909738857522789L;
 	protected String userName;
 	protected int uploads;
-	protected int training; 
+	
+	protected int training;
+	protected String trainingTime;
 	
 	protected int htr;
+	protected String htrTime;
+	
 	protected int ocr;
+	protected String ocrTime;
+	
 	protected int la;
-
+	protected String laTime;
+	
 	protected BigDecimal createDoc;
 	protected BigDecimal deleteDoc;
 	protected BigDecimal hosting;
-	
+
 	protected TrpUserCollection userCollection = null; 
+	
+	protected static TrpUserOverallInfo overallInfo;
 	
 	public TrpUserInfo() {}
 	
@@ -64,12 +73,44 @@ public class TrpUserInfo implements Serializable {
 		this.training = training;
 	}
 
+	public String getTrainingTime() {
+		return trainingTime;
+	}
+
+	public void setTrainingTime(String trainingTime) {
+		this.trainingTime = trainingTime;
+	}
+
 	public int getHtr() {
 		return htr;
 	}
 
 	public void setHtr(int htrRuns) {
 		this.htr = htrRuns;
+	}
+
+	public String getHtrTime() {
+		return htrTime;
+	}
+
+	public void setHtrTime(String htrTime) {
+		this.htrTime = htrTime;
+	}
+
+	public String getOcrTime() {
+		return ocrTime;
+	}
+
+	public void setOcrTime(String ocrTime) {
+		this.ocrTime = ocrTime;
+	}
+
+	public String getLaTime() {
+		return laTime;
+	}
+
+	public void setLaTime(String laTime) {
+		this.laTime = laTime;
 	}
 
 	public BigDecimal getCreateDoc() {
@@ -112,12 +153,21 @@ public class TrpUserInfo implements Serializable {
 		this.la = la;
 	}
 
+
 	public TrpUserCollection getUserCollection() {
 		return userCollection;
 	}
 
 	public void setUserCollection(TrpUserCollection userCollection) {
 		this.userCollection = userCollection;
+	}
+
+	public TrpUserOverallInfo getOverallInfo() {
+		return overallInfo;
+	}
+
+	public void setOverallInfo(TrpUserOverallInfo overallInfo) {
+		TrpUserInfo.overallInfo = overallInfo;
 	}
 	
 

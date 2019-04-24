@@ -45,6 +45,8 @@ public class JobError {
 	private String stacktrace;
 	@Column
 	private String path;
+	@Column
+	private String lineId;
 	
 	public JobError() {}
 	
@@ -79,10 +81,10 @@ public class JobError {
 		this.jobErrorId = jobErrorId;
 	}
 
-	public Integer getJobId() {
+	public int getJobId() {
 		return jobId;
 	}
-	public void setJobId(Integer jobId) {
+	public void setJobId(int jobId) {
 		this.jobId = jobId;
 	}
 	public Integer getDocId() {
@@ -142,6 +144,14 @@ public class JobError {
 
 	public void setPath(String path) {
 		this.path = path;
+	}
+	
+	public String getLineId() {
+		return lineId;
+	}
+	
+	public void setLineId(String lineId) {
+		this.lineId = lineId;
 	}
 
 	public void setThrowable(Throwable t) {

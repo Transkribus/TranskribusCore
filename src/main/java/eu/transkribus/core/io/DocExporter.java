@@ -26,6 +26,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dea.fimgstoreclient.IFimgStoreGetClient;
@@ -505,6 +506,11 @@ public class DocExporter extends APassthroughObservable {
 				imgFile = getter.saveImg(page.getKey(), pars.getRemoteImgQuality(),
 						outputDir.getImgOutputDir().getAbsolutePath(), baseFileName + imgExt);
 				page.setUrl(imgFile.toURI().toURL());
+				
+				/**
+				 * FIXME test if the ImgFileName can be set here. If a filename pattern is set (e.g. in HTR) the value contained is wrong.
+				 */
+//				page.setImgFileName(imgFile.getName());
 				page.setKey(null);
 			}
 			if(pars.isDoExportPageXml()) {
@@ -587,7 +593,11 @@ public class DocExporter extends APassthroughObservable {
 			altoFile = altoEx.exportAltoFile(page, baseFileName + xmlExt, outputDir.getAltoOutputDir(), pars.isSplitIntoWordsInAltoXml());
 		}
 		
-		/*
+		/**
+		 * FIXME please resolve parent of image file in places where this URL is used as all exported pages miss the image URL which is 
+		 * needed for processing exported documents.
+		 */
+		/* 
 		 * to find the output dir later on during the mets creation 
 		 */
 		page.setUrl(new File(outputDir.getImgOutputDir().getAbsolutePath()).toURI().toURL());

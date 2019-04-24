@@ -4,11 +4,14 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 
@@ -17,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.io.util.TrpProperties;
+import eu.transkribus.core.model.beans.job.JobError;
 import eu.transkribus.core.model.beans.rest.ParameterMap;
 
 public class JobDataUtils {
@@ -256,5 +260,40 @@ public class JobDataUtils {
 			props.put(e.getKey(), e.getValue());
 		}
 		return props;
+	}
+	
+	/**
+	 * Extract the pageIds that are affected by the JobError object in the map.
+	 * 
+	 * @param failedPages the map containing the JobErrors: ( docId -> { pageId -> report } )
+	 * @return a set containing the pageIds
+	 */
+	public static Set<Integer> extractPageIdsFromFailedPagesMap(final Map<Integer, Map<Integer, JobError>> failedPages) {
+		Set<Integer> jobErrorPageIds = new HashSet<>();
+		if(failedPages == null) {
+			return jobErrorPageIds;
+		}
+		for(Entry<Integer, Map<Integer, JobError>> e : failedPages.entrySet()) {
+			//collect pageIds from all detected errors
+			jobErrorPageIds.addAll(e.getValue().keySet());
+		}
+		return jobErrorPageIds;
+	}
+	
+	/**
+	 * Extract the pageNrs that are affected by the JobError object in the map.
+	 * 
+	 * @param failedPages the map containing the JobErrors for a single document: ( pageId -> report )
+	 * @return a set containing the pageNrs
+	 */
+	public static Set<Integer> extractPageNrsFromFailedPagesMap(final Map<Integer, JobError> failedPages) {
+		if(failedPages == null) {
+			return new HashSet<>();
+		}
+		//collect pageIds from all detected errors
+		return failedPages.entrySet()
+				.stream()
+				.map(e -> e.getValue().getPageNr())
+				.collect(Collectors.toSet());
 	}
 }
