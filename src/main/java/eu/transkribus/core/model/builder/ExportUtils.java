@@ -29,7 +29,7 @@ public class ExportUtils {
 		for (CustomTag nonIndexedTag : cl.getNonIndexedTags()) {
 			
 			if (!nonIndexedTag.getTagName().equals(TextStyleTag.TAG_NAME) && !nonIndexedTag.getTagName().equals(BlackeningTag.TAG_NAME)){
-				//logger.debug("nonindexed tag found ");
+				//System.out.println("nonindexed tag found " + nonIndexedTag.getTagName());
 				elementTags.put(nonIndexedTag, textStr);
 			}
 
@@ -37,11 +37,32 @@ public class ExportUtils {
 		for (CustomTag indexedTag : cl.getIndexedTags()) {
 			
 			if (!indexedTag.getTagName().equals(TextStyleTag.TAG_NAME) && !indexedTag.getTagName().equals(BlackeningTag.TAG_NAME) && !indexedTag.getTagName().equals(ReadingOrderTag.TAG_NAME)){
-				//logger.debug("indexed tag found ");
+				//System.out.println("indexed tag found " + indexedTag.getTagName());
 				elementTags.put(indexedTag, textStr);
 			}
 
 		}
+		return elementTags;
+
+	}
+	
+	public static LinkedHashMap<CustomTag, String> getStructureTagsForShapeElement(ITrpShapeType element) throws IOException{
+
+		LinkedHashMap<CustomTag, String> elementTags = new LinkedHashMap<CustomTag, String>();
+		String textStr = element.getUnicodeText();
+		CustomTagList cl = element.getCustomTagList();
+//		if (textStr == null || cl == null)
+//			throw new IOException("Element has no text or custom tag list: "+element+", class: "+element.getClass().getName());
+			
+		for (CustomTag nonIndexedTag : cl.getNonIndexedTags()) {
+			
+			if (!nonIndexedTag.getTagName().equals(TextStyleTag.TAG_NAME) && !nonIndexedTag.getTagName().equals(BlackeningTag.TAG_NAME)){
+				System.out.println("nonindexed tag found " + nonIndexedTag.getTagName());
+				elementTags.put(nonIndexedTag, textStr);
+			}
+
+		}
+
 		return elementTags;
 
 	}

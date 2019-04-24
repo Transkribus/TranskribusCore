@@ -52,6 +52,7 @@ import eu.transkribus.core.model.beans.customtags.CommentTag;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
 import eu.transkribus.core.model.beans.customtags.CustomTagFactory;
 import eu.transkribus.core.model.beans.customtags.GapTag;
+import eu.transkribus.core.model.beans.customtags.StructureTag;
 import eu.transkribus.core.model.beans.customtags.SuppliedTag;
 import eu.transkribus.core.model.beans.customtags.TextStyleTag;
 import eu.transkribus.core.model.beans.pagecontent.BaselineType;
@@ -89,6 +90,7 @@ public class TrpPdfDocument extends APdfDocument {
 	private static final Logger logger = LoggerFactory.getLogger(APdfDocument.class);
 	private final boolean useWordLevel;
 	private final boolean highlightTags;
+	private final boolean highlightArticles;
 	private final boolean doBlackening;
 	private final boolean createTitle;
 	
@@ -148,14 +150,15 @@ public class TrpPdfDocument extends APdfDocument {
 //		this(pdfFile, 0, 0, 0, 0, false, false, false, false);
 //	}
 	
-	public TrpPdfDocument(final File pdfFile, boolean useWordLevel, boolean highlightTags, boolean doBlackening, boolean createTitle, String exportFontname, ImgType pdfImgType) throws DocumentException, IOException {
-		this(pdfFile, 0, 0, 0, 0, useWordLevel, highlightTags, doBlackening, createTitle, exportFontname, pdfImgType);
+	public TrpPdfDocument(final File pdfFile, boolean useWordLevel, boolean highlightTags, boolean highlightArticles, boolean doBlackening, boolean createTitle, String exportFontname, ImgType pdfImgType) throws DocumentException, IOException {
+		this(pdfFile, 0, 0, 0, 0, useWordLevel, highlightTags, highlightArticles, doBlackening, createTitle, exportFontname, pdfImgType);
 	}
 	
-	public TrpPdfDocument(final File pdfFile, final int marginLeft, final int marginTop, final int marginBottom, final int marginRight, final boolean useWordLevel, final boolean highlightTags, final boolean doBlackening, boolean createTitle, final String exportFontname, ImgType pdfImgType) throws DocumentException, IOException {
+	public TrpPdfDocument(final File pdfFile, final int marginLeft, final int marginTop, final int marginBottom, final int marginRight, final boolean useWordLevel, final boolean highlightTags, final boolean highlightArticles, final boolean doBlackening, boolean createTitle, final String exportFontname, ImgType pdfImgType) throws DocumentException, IOException {
 		super(pdfFile, marginLeft, marginTop, marginBottom, marginRight);
 		this.useWordLevel = useWordLevel;
 		this.highlightTags = highlightTags;
+		this.highlightArticles = highlightArticles;
 		this.doBlackening = doBlackening;
 		this.createTitle = createTitle;
 		
@@ -432,7 +435,7 @@ public class TrpPdfDocument extends APdfDocument {
 		cb.addImage(img);
 		cb.endLayer();
 		
-		if (highlightTags){
+		if (highlightTags || highlightArticles){
 			
 			highlightAllTagsOnImg(lineAndColorList, cb, cutoffLeft, cutoffTop);
 		}
@@ -1711,20 +1714,30 @@ public class TrpPdfDocument extends APdfDocument {
 				}
 				
 				
-				if (highlightTags){
+				if (highlightTags || highlightArticles){
 					
 					if ((l.getUnicodeText().isEmpty() || useWordLevel) && !l.getWord().isEmpty()){
 					
 						List<WordType> words = l.getWord();
 						for(WordType wt : words){
 							TrpWordType w = (TrpWordType)wt;
-							highlightTagsForShape(w, rtl, cache);
+							if (highlightTags){
+								highlightTagsForShape(w, rtl, cache);
+							}
+							if (highlightArticles){
+								highlightArticlesForShape(w, rtl, cache);
+							}
 						}
 					}
 					else{
-						highlightTagsForShape(l, rtl, cache);
+						if (highlightTags){
+							highlightTagsForShape(l, rtl, cache);
+						}
+						if (highlightArticles){
+							highlightArticlesForShape(l, rtl, cache);
+						}
+						
 					}
-					
 				}
 			}		
 		}	
@@ -1740,6 +1753,80 @@ public class TrpPdfDocument extends APdfDocument {
 				    );
 		}
 		return false;
+	}
+	
+	private void highlightArticlesForShape(ITrpShapeType shape, boolean rtl, ExportCache cache) throws IOException {
+		
+		Set<Entry<CustomTag, String>> entrySet = ExportUtils.getAllTagsForShapeElement(shape).entrySet();
+		
+		boolean falling = true;
+		
+		BaselineType baseline = null;
+		if (shape instanceof TrpTextLineType){
+			TrpTextLineType l = (TrpTextLineType) shape;
+			baseline = l.getBaseline();
+		}
+		else if (shape instanceof TrpWordType){
+			TrpWordType w = (TrpWordType) shape;
+			TrpTextLineType l = (TrpTextLineType) w.getParentShape();
+			baseline = l.getBaseline();
+		}
+		
+		
+		try {
+			List<Point> ptsList = null;
+			if (baseline != null){
+				ptsList = PointStrUtils.parsePoints(baseline.getPoints());
+			}
+			if (ptsList != null){
+				int size = ptsList.size();
+				//logger.debug("l.getBaseline().getPoints() " + l.getBaseline().getPoints());
+				if (size >= 2 && ptsList.get(0).y < ptsList.get(size-1).y){
+					//logger.debug("falling is false ");
+					falling = false;
+				}
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		for (Map.Entry<CustomTag, String> currEntry : entrySet){
+			
+			//for articles
+			if (currEntry.getKey().getTagName().equals("structure")){
+				String color = CustomTagFactory.getNewTagColor();
+				StructureTag st = (StructureTag) currEntry.getKey();
+				if (st.getType().equals("article")){
+					logger.debug("article id " + st.getId());
+					String id = st.getId();
+					String [] splits = id.split("a");
+//					for (int i = 0; i<splits.length; i++){
+//						logger.debug("split " + splits[i]);
+//					}
+					if (splits.length > 1){
+						int articleId = Integer.parseInt(splits[1]);
+						//logger.debug("articleId id " + articleId);
+						int choice = articleId % 4;
+						switch (choice){	
+							case 0 : color = "#FF0000"; break;//red
+							case 1 : color = "#9932CC"; break;//dark orchid
+							case 2 : color = "#228B22"; break;//forest green
+							case 3 : color = "#B8860B"; break;//dark golden rod
+							case 4 : color = "#00CED1"; break;//dark turquoise
+						}
+					}
+					
+				}
+				//article_a1
+				if(baseline != null){
+					//use lowest point in baseline and move up one half of the distance to the topmost point
+					//java.awt.Rectangle baseLineRect = PageXmlUtils.buildPolygon(baseline.getPoints()).getBounds();
+					java.awt.Rectangle baseLineRect = ((TrpBaselineType)baseline).getBoundingBox();
+					calculateTagLines(baseLineRect, shape, currEntry.getKey().getContainedText(), 0, 0, color, 0, falling, rtl);
+				}
+			}
+		}
 	}
 		
 
@@ -1787,6 +1874,44 @@ public class TrpPdfDocument extends APdfDocument {
 			e.printStackTrace();
 		}
 		for (Map.Entry<CustomTag, String> currEntry : entrySet){
+			
+			//for articles
+			if (currEntry.getKey().getTagName().equals("structure")){
+				String color = CustomTagFactory.getNewTagColor();
+				logger.debug("structure tag found");
+				StructureTag st = (StructureTag) currEntry.getKey();
+				logger.debug("structure type " + st.getType());
+				if (st.getType().equals("article")){
+					logger.debug("article id " + st.getId());
+					String id = st.getId();
+					String [] splits = id.split("a");
+					for (int i = 0; i<splits.length; i++){
+						logger.debug("split " + splits[i]);
+					}
+					if (splits.length > 1){
+						int articleId = Integer.parseInt(splits[1]);
+						logger.debug("articleId id " + articleId);
+						int choice = articleId % 4;
+						switch (choice){	
+							case 0 : color = "#FF0000"; break;//red
+							case 1 : color = "#9932CC"; break;//dark orchid
+							case 2 : color = "#228B22"; break;//forest green
+							case 3 : color = "#B8860B"; break;//dark golden rod
+							case 4 : color = "#00CED1"; break;//dark turquoise
+						}
+					}
+					
+				}
+				//article_a1
+
+
+				if(baseline != null){
+					//use lowest point in baseline and move up one half of the distance to the topmost point
+					//java.awt.Rectangle baseLineRect = PageXmlUtils.buildPolygon(baseline.getPoints()).getBounds();
+					java.awt.Rectangle baseLineRect = ((TrpBaselineType)baseline).getBoundingBox();
+					calculateTagLines(baseLineRect, shape, currEntry.getKey().getContainedText(), 0, 0, color, 0, falling, rtl);
+				}
+			}
 			
 			if (wantedTags.contains(currEntry.getKey().getTagName())){
 				
@@ -1890,7 +2015,8 @@ public class TrpPdfDocument extends APdfDocument {
 		if (offset != 0){
 			ratioOfTagStart = (float) offset / (float) lineText.length();
 		}
-		float ratioOfTagEnd = (float) (offset+length) / (float) lineText.length();
+		// length == 0 for nonindexed tags like reading order or structure
+		float ratioOfTagEnd = length != 0 ? (float) (offset+length) / (float) lineText.length() : 1;
 		
 		float tagStartX;
 		float tagEndX;
