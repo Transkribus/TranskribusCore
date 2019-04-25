@@ -1874,45 +1874,7 @@ public class TrpPdfDocument extends APdfDocument {
 			e.printStackTrace();
 		}
 		for (Map.Entry<CustomTag, String> currEntry : entrySet){
-			
-			//for articles
-			if (currEntry.getKey().getTagName().equals("structure")){
-				String color = CustomTagFactory.getNewTagColor();
-				logger.debug("structure tag found");
-				StructureTag st = (StructureTag) currEntry.getKey();
-				logger.debug("structure type " + st.getType());
-				if (st.getType().equals("article")){
-					logger.debug("article id " + st.getId());
-					String id = st.getId();
-					String [] splits = id.split("a");
-					for (int i = 0; i<splits.length; i++){
-						logger.debug("split " + splits[i]);
-					}
-					if (splits.length > 1){
-						int articleId = Integer.parseInt(splits[1]);
-						logger.debug("articleId id " + articleId);
-						int choice = articleId % 4;
-						switch (choice){	
-							case 0 : color = "#FF0000"; break;//red
-							case 1 : color = "#9932CC"; break;//dark orchid
-							case 2 : color = "#228B22"; break;//forest green
-							case 3 : color = "#B8860B"; break;//dark golden rod
-							case 4 : color = "#00CED1"; break;//dark turquoise
-						}
-					}
 					
-				}
-				//article_a1
-
-
-				if(baseline != null){
-					//use lowest point in baseline and move up one half of the distance to the topmost point
-					//java.awt.Rectangle baseLineRect = PageXmlUtils.buildPolygon(baseline.getPoints()).getBounds();
-					java.awt.Rectangle baseLineRect = ((TrpBaselineType)baseline).getBoundingBox();
-					calculateTagLines(baseLineRect, shape, currEntry.getKey().getContainedText(), 0, 0, color, 0, falling, rtl);
-				}
-			}
-			
 			if (wantedTags.contains(currEntry.getKey().getTagName())){
 				
 				String color = CustomTagFactory.getTagColor(currEntry.getKey().getTagName());

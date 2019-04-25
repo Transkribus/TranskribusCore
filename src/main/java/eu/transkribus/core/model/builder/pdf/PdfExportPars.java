@@ -14,6 +14,7 @@ public class PdfExportPars {
 	boolean doPdfImagesPlusText=true;
 	boolean doPdfWithTextPages=false;
 	boolean doPdfWithTags=false; 
+	boolean doPdfWithArticles=false;
 	
 	ImgType pdfImgQuality = ImgType.view;
 	
@@ -22,12 +23,13 @@ public class PdfExportPars {
 	}
 
 	public PdfExportPars(boolean doPdfImagesOnly, boolean doPdfImagesPlusText, boolean doPdfWithTextPages,
-			boolean doPdfWithTags) {
+			boolean doPdfWithTags, boolean doPdfWithArticles) {
 		super();
 		this.doPdfImagesOnly = doPdfImagesOnly;
 		this.doPdfImagesPlusText = doPdfImagesPlusText;
 		this.doPdfWithTextPages = doPdfWithTextPages;
 		this.doPdfWithTags = doPdfWithTags;
+		this.doPdfWithArticles = doPdfWithArticles;
 	}
 
 
@@ -64,6 +66,14 @@ public class PdfExportPars {
 		this.doPdfWithTags = doPdfWithTags;
 	}
 	
+	public boolean isDoPdfWithArticles() {
+		return doPdfWithArticles;
+	}
+
+	public void setDoPdfWithArticles(boolean doPdfWithArticles) {
+		this.doPdfWithArticles = doPdfWithArticles;
+	}
+
 	public ImgType getPdfImgQuality() {
 		return pdfImgQuality;
 	}
@@ -75,7 +85,7 @@ public class PdfExportPars {
 	@Override
 	public String toString() {
 		return "PdfExportPars [doPdfImagesOnly=" + doPdfImagesOnly + ", doPdfImagesPlusText=" + doPdfImagesPlusText
-				+ ", doPdfWithTextPages=" + doPdfWithTextPages + ", doPdfWithTags=" + doPdfWithTags + ", pdfImgQuality="
+				+ ", doPdfWithTextPages=" + doPdfWithTextPages + ", doPdfWithTags=" + doPdfWithTags + ", doPdfWithArticles=" + doPdfWithArticles + ", pdfImgQuality="
 				+ pdfImgQuality + "]";
 	}
 
@@ -86,6 +96,7 @@ public class PdfExportPars {
 		result = prime * result + (doPdfImagesOnly ? 1231 : 1237);
 		result = prime * result + (doPdfImagesPlusText ? 1231 : 1237);
 		result = prime * result + (doPdfWithTags ? 1231 : 1237);
+		result = prime * result + (doPdfWithArticles ? 1231 : 1237);
 		result = prime * result + (doPdfWithTextPages ? 1231 : 1237);
 		result = prime * result + ((pdfImgQuality == null) ? 0 : pdfImgQuality.hashCode());
 		return result;
@@ -105,6 +116,8 @@ public class PdfExportPars {
 		if (doPdfImagesPlusText != other.doPdfImagesPlusText)
 			return false;
 		if (doPdfWithTags != other.doPdfWithTags)
+			return false;
+		if (isDoPdfWithArticles() != other.doPdfWithArticles)
 			return false;
 		if (doPdfWithTextPages != other.doPdfWithTextPages)
 			return false;
