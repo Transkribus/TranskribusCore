@@ -170,14 +170,17 @@ public class TrpMetsBuilder extends Observable {
 				//get the transcript chosen for export 
 				tMd = p.getCurrentTranscript();
 				
-				FileType xml = buildFileType(md.getLocalFolder(), xmlId, tMd, p.getPageNr(), client);
+				FileType xml = buildFileType(localFolder, xmlId, tMd, p.getPageNr(), client);
 				pageGrp.getFile().add(xml);
 				Fptr xmlPtr = buildFptr(xml);
 				pageDiv.getFptr().add(xmlPtr);
 			}
 			
-			//create ALTO fileGrp
-			if (exportAlto){
+			/*
+			 * create ALTO fileGrp 
+			 * !! works not for remote export with URLs from filestore since the Alto gets converted from the page file and is not stored on the filestore
+			 */
+			if (exportAlto && isLocalDoc){
 				FileType altoFt = new FileType();
 				altoFt.setCHECKSUMTYPE(ChecksumUtils.ChkSumAlg.MD5.toString());
 				//TODO calculate checksum
@@ -188,14 +191,19 @@ public class TrpMetsBuilder extends Observable {
 					
 				altoFt.setID(altoId);
 				altoFt.setSEQ(p.getPageNr());
-
+				
+				final String path = FileUtils.toFile(p.getCurrentTranscript().getUrl()).getAbsolutePath();
+				
+				String loc = FilenameUtils.getName(path);
 				//String tmpImgName = img.getFLocat().get(0).getHref();
-				String relAltoPath = "alto/".concat(p.getImgFileName().substring(0, p.getImgFileName().lastIndexOf(".")).concat(".xml"));
+				//String relAltoPath = "alto/".concat(tMd.getImgFileName().substring(0, p.getImgFileName().lastIndexOf(".")).concat(".xml")); 
+				
+				String relAltoPath = "alto/"+loc;
 				fLocat.setHref(relAltoPath);
 				
 				//String absAltoPath = tMd.getUrl().getPath().replace("page", "alto");
 				
-				String absAltoPath = FileUtils.toFile(p.getUrl()).getAbsolutePath().concat("/alto/");
+				String absAltoPath = localFolder + File.separator + relAltoPath;
 				//String absAltoPath = path.substring(0, path.lastIndexOf(File.separator));
 				//absAltoPath = absAltoPath.concat("/alto/").concat(p.getImgFileName().substring(0, p.getImgFileName().lastIndexOf(".")).concat(".xml"));
 				//logger.info("alto path starts with: " + absAltoPath);

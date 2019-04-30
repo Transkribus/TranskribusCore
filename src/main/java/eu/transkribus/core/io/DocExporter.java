@@ -201,8 +201,11 @@ public class DocExporter extends APassthroughObservable {
 			TrpPage p = doc2.getPages().get(i);
 			File xmlFile = null;
 							
-			//if filennamepattern is empty the filename is taken as name
-			final String baseFileName = ExportFilePatternUtils.buildBaseFileName("", p);
+			//if filennamepattern is empty the filename is taken as name	
+			//final String baseFileName = ExportFilePatternUtils.buildBaseFileName("", p);
+			
+			//this should result in the correct filename pattern
+			final String baseFileName = ExportFilePatternUtils.buildBaseFileName(commonPars.getFileNamePattern(), p);	
 			final String xmlExt = ".xml";
 			
 			TrpTranscriptMetadata transcriptMd = p.getCurrentTranscript();
@@ -222,7 +225,8 @@ public class DocExporter extends APassthroughObservable {
 			/*
 			 * section for setting the relative path to the image instead of the (remote) filestore URL 
 			 */
-			File imgFile = new File(workDir.getAbsolutePath() + File.separator + p.getImgFileName());
+			final String imgExt = "." + FilenameUtils.getExtension(p.getImgFileName());
+			File imgFile = new File(workDir.getAbsolutePath() + File.separator + baseFileName + imgExt);
 			p.setUrl(imgFile.toURI().toURL());
 			p.setKey(null);
 			
@@ -510,7 +514,7 @@ public class DocExporter extends APassthroughObservable {
 				/**
 				 * FIXME test if the ImgFileName can be set here. If a filename pattern is set (e.g. in HTR) the value contained is wrong.
 				 */
-//				page.setImgFileName(imgFile.getName());
+				//page.setImgFileName(imgFile.getName());
 				page.setKey(null);
 			}
 			if(pars.isDoExportPageXml()) {
@@ -600,7 +604,7 @@ public class DocExporter extends APassthroughObservable {
 		/* 
 		 * to find the output dir later on during the mets creation 
 		 */
-		page.setUrl(new File(outputDir.getImgOutputDir().getAbsolutePath()).toURI().toURL());
+		//page.setUrl(new File(outputDir.getImgOutputDir().getAbsolutePath()).toURI().toURL());
 		
 		if (imgFile != null)
 			logger.debug("Written image file " + imgFile.getAbsolutePath());
