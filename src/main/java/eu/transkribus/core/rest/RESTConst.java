@@ -418,6 +418,7 @@ public final class RESTConst {
 	public static final String DO_PDF_IMAGES_PLUS_TEXT_PARAM = "doPdfImagesPlusText";
 	public static final String DO_PDF_EXTRA_TEXT_PARAM = "doPdfWithTextPages";
 	public static final String DO_PDF_HIGHLIGHT_TAGS_PARAM = "doPdfWithTags";
+	public static final String DO_PDF_WITH_ARTICLES_PARAM = "doPdfWithArticles";
 	public static final String DO_TEI_NO_ZONES_PARAM = "doTeiWithNoZones";
 	public static final String DO_TEI_REGION_ZONE_PARAM = "doTeiWithZonePerRegion";
 	public static final String DO_TEI_LINE_ZONE_PARAM = "doTeiWithZonePerLine";
