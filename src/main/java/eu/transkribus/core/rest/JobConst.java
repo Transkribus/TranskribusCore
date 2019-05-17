@@ -56,6 +56,9 @@ public class JobConst {
 	public static final String PROP_DO_POLYGON_TO_BASELINE = "doPolygonToBaseline";
 	public static final String PROP_DO_BASELINE_TO_POLYGON = "doBaselineToPolygon";
 	
+	public static final String PROP_REMOVE_LINE_BREAKS = "removeLineBreaks";
+	public static final String PROP_PERFORM_LAYOUT_ANALYSIS = "performLayoutAnalysis";
+	
 	public static final String PROP_TABLE_TEMPLATE_ID = "templateId";
 
 	public static final String PROP_SOLR_URL = "solrUrl";

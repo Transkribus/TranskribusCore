@@ -35,6 +35,9 @@ public enum JobImpl {
 	P2PaLAJob(JobTask.DetectLines, "Layout and structure analysis", "P2PaLAJob", null),
 	P2PaLAJobMultiThread(JobTask.DetectLines, "Layout and structure analysis", "P2PaLAJobMultiThread", null),
 	
+	T2IJob(JobTask.DetectLines, "Text2Image", "T2IJob", null),
+	T2IJobMultiThread(JobTask.DetectLines, "Text2Image", "T2IJobMultiThread", null),	
+	
 	//FIXME this could be reduced by stating one impl while the wrapper is merely a job-parameter
 	NcsrOldLaJobMultiThread(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "MultiThreadLaJob", null),
 	NcsrLaJobMultiThread(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "MultiThreadLaJob", "libNCSR_TextLineSegmentation.so"),

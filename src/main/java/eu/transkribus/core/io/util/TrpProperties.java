@@ -118,6 +118,16 @@ public class TrpProperties {
 			}
 		}
 		
+		public double getOrDefault(String string, double defaultValue) {
+			String v = (String) props.get(string);
+			
+			try {
+				return Double.valueOf(v);
+			} catch (Exception e) {
+				return defaultValue;
+			}
+		}		
+		
 		/**
 		 * Duplicate of getIntProperty()
 		 * 
