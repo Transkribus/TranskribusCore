@@ -825,7 +825,7 @@ public class LocalDocReader {
 	 *         pageXml is null.
 	 * @throws MalformedURLException if an URL can't be constructed from parentDir
 	 */
-	protected static TrpPage buildPage(File inputDir, int pageNr, File img, 
+	public static TrpPage buildPage(File inputDir, int pageNr, File img, 
 			File pageXml, File thumb, Dimension dim, final String missingImageRemark) throws IOException {
 		logger.debug(pageNr + ": XML = " + (pageXml == null ? "null" : pageXml.getName())
 				+ " - IMG = " + (img == null ? "null" : img.getName()));

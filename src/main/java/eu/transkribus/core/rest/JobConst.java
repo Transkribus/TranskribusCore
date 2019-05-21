@@ -34,6 +34,7 @@ public class JobConst {
 	public static final String PROP_PATH = "path";
 	public static final String PROP_DEALOG_DOC_ID = "dealogDocId";
 	public static final String PROP_METS_PATH = "metsPath";
+	public static final String PROP_IIIF_PATH = "iiifPath";
 	
 	public static final String PROP_DICTNAME = "dictName";
 	public static final String PROP_TEMP_DICTNAME = "tempDictName";

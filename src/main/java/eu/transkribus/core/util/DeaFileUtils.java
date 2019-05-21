@@ -376,11 +376,13 @@ public class DeaFileUtils {
 	public static int copyUrlToFile(URL source, File dest) throws IOException {
 		HttpURLConnection huc = (HttpURLConnection)source.openConnection(); 
 		huc.setRequestMethod("GET"); //OR  huc.setRequestMethod ("HEAD"); 
+
 		huc.connect(); 
 		final int code = huc.getResponseCode();
 		if(code < 400) {
 			try (InputStream is = huc.getInputStream()){
 				//do check on URL and handle 404 etc.
+				logger.debug("Got URL now copy to file ");
 				FileUtils.copyInputStreamToFile(is, dest);
 				logger.info("File loaded from URL: " + source);
 				
@@ -394,4 +396,5 @@ public class DeaFileUtils {
 		}
 		return code;
 	}
+	
 }

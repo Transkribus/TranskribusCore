@@ -11,6 +11,7 @@ public enum JobImpl {
 	UploadImportJob(JobTask.CreateDocument, JobTask.CreateDocument.getLabel(), "UploadImportJob", null),
 	ZipDocImportJob(JobTask.CreateDocument, JobTask.CreateDocument.getLabel(), "ZipDocImportJob", null),
 	GoobiMetsImportJob(JobTask.CreateDocument, JobTask.CreateDocument.getLabel(), "GoobiMetsImportJob", null),
+	IiifImportJob(JobTask.CreateDocument, JobTask.CreateDocument.getLabel(), "IiifImportJob", null),
 	DuplicateDocumentJob(JobTask.DuplicateDocument, JobTask.DuplicateDocument.getLabel(), "DuplicateDocJob", null),
 	CreateSampleDocJob(JobTask.CreateSample, JobTask.CreateSample.getLabel(), "CreateSampleDocJob", null),
 	ComputeSampleJob(JobTask.Htr,"Sample Computation","ComputeSampleJob",null),

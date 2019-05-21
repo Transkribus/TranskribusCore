@@ -45,6 +45,7 @@ import eu.transkribus.core.model.beans.DocumentUploadDescriptor.PageUploadDescri
 import eu.transkribus.core.model.beans.TrpUpload.UploadType;
 import eu.transkribus.core.exceptions.CorruptImageException;
 import eu.transkribus.core.io.FimgStoreReadConnection;
+import eu.transkribus.core.io.LocalDocConst;
 import eu.transkribus.core.io.LocalDocReader;
 import eu.transkribus.core.model.beans.TrpFImagestore;
 import eu.transkribus.core.model.beans.TrpImage;
@@ -68,7 +69,7 @@ public class IIIFUtils {
 	
 	List<TrpPage> pages = new ArrayList<>();
 	File imgFile = null;
-	String imgDirPath = "/home/lateknight/Desktop" + File.separator + "img";
+	String imgDirPath = dir + File.separator + "img";
 	List<Sequence> sequences = manifest.getSequences();
 			for(Sequence sequence : sequences) {
 				List<Canvas> canvases = sequence.getCanvases();
