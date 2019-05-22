@@ -395,6 +395,10 @@ public class TrpHtr {
 		return getNrOfValidationGtPages() != null && getNrOfValidationGtPages() > 0;
 	}
 	
+	public String toShortString() {
+		return "("+htrId+","+name+")";
+	}
+	
 	@Override
 	public String toString() {
 		return "TrpHtr [htrId=" + htrId + ", name=" + name + ", description=" + description + ", provider=" + provider
