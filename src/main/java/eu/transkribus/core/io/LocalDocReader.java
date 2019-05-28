@@ -511,7 +511,7 @@ public class LocalDocReader {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	protected static File createPageXml(File pageOutFile, boolean doOverwrite, File abbyyXml, 
+	public static File createPageXml(File pageOutFile, boolean doOverwrite, File abbyyXml, 
 			File altoXml, File txtFile, boolean preserveOcrFontFamily, boolean preserveOcrTxtStyles, 
 			boolean replaceBadChars, final String imgFileName, Dimension dim) 
 					throws FileNotFoundException, IOException {
