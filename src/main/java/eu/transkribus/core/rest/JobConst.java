@@ -77,6 +77,7 @@ public class JobConst {
 	 */
 	public static final String PROP_RESULT = "result";
 	public static final String PROP_THRESHOLD = "threshold";
+	public static final String PROP_EDIT_STATUS = "editStatus";
 	public static final String PROP_IS_CASE_SENSITIVE = "caseSensitive";
 	public static final String PROP_IS_EXPERT = "expert";
 	public static final String PROP_MAX_NR_OF_HITS = "maxNrOfHits";
