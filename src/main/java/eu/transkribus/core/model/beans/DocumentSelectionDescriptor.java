@@ -9,18 +9,14 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.persistence.Column;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang.StringUtils;
 
-import eu.transkribus.core.model.beans.adapters.EditStatusAdapter;
-import eu.transkribus.core.model.beans.enums.EditStatus;
 import eu.transkribus.core.util.CoreUtils;
 
 @XmlRootElement
@@ -72,14 +68,6 @@ public class DocumentSelectionDescriptor implements Serializable {
 		return pd;
 	}
 	
-	public void setStatusForAllPages(EditStatus status) {
-		if (pages != null) {
-			for (PageDescriptor pd : pages) {
-				pd.setStatus(status);
-			}
-		}
-	}
-	
 	public static DocumentSelectionDescriptor fromDocAndPagesStr(TrpDoc doc, String pagesStr) throws IOException {
 		DocumentSelectionDescriptor dd = new DocumentSelectionDescriptor(doc.getId());
 		if (!StringUtils.isEmpty(pagesStr)) {
@@ -121,9 +109,6 @@ public class DocumentSelectionDescriptor implements Serializable {
 		private int pageId;
 		private Integer tsId;
 		
-		@XmlJavaTypeAdapter(EditStatusAdapter.class)
-		private EditStatus status;
-		
 		private Set<String> regionIds = new HashSet<>();
 		
 		public PageDescriptor() {
@@ -150,15 +135,6 @@ public class DocumentSelectionDescriptor implements Serializable {
 		public void setTsId(Integer tsId) {
 			this.tsId = tsId;
 		}
-		
-
-		public EditStatus getStatus() {
-			return status;
-		}
-
-		public void setStatus(EditStatus status) {
-			this.status = status;
-		}
 
 		public Set<String> getRegionIds() {
 			return regionIds;
@@ -170,7 +146,7 @@ public class DocumentSelectionDescriptor implements Serializable {
 		
 		@Override
 		public String toString() {
-			return "PageDescriptor [pageId=" + pageId + ", tsId=" + tsId + ", regionIds="+CoreUtils.join(regionIds, ",", "(",")")+", status="+status+"]";
+			return "PageDescriptor [pageId=" + pageId + ", tsId=" + tsId + ", regionIds="+CoreUtils.join(regionIds, ",", "(",")")+"]";
 		}
 		
 		@Override
@@ -187,10 +163,6 @@ public class DocumentSelectionDescriptor implements Serializable {
 			if (pd.tsId != tsId) {
 				return false;
 			}
-			
-			if (pd.status != status) {
-				return false;
-			}			
 			
 			if (pd.regionIds.size() != regionIds.size()) {
 				return false;
