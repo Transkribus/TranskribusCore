@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import eu.transkribus.core.model.beans.auth.TrpUserOverallInfo;
 
 import eu.transkribus.core.model.beans.TrpUserCollection;
 
@@ -35,7 +36,6 @@ public class TrpUserInfo implements Serializable {
 
 	protected TrpUserCollection userCollection = null; 
 	
-	protected static TrpUserOverallInfo overallInfo;
 	
 	public TrpUserInfo() {}
 	
@@ -162,13 +162,6 @@ public class TrpUserInfo implements Serializable {
 		this.userCollection = userCollection;
 	}
 
-	public TrpUserOverallInfo getOverallInfo() {
-		return overallInfo;
-	}
-
-	public void setOverallInfo(TrpUserOverallInfo overallInfo) {
-		TrpUserInfo.overallInfo = overallInfo;
-	}
 	
 
 }
