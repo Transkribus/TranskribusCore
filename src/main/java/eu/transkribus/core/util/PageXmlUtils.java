@@ -1328,19 +1328,21 @@ public class PageXmlUtils {
 //		List<File> folders = Files.walk(Paths.get(path)).filter(Files::isDirectory).map(p -> p.toFile())
 //				.filter(folder -> new File(folder.getAbsolutePath()+"/"+LocalDocConst.PAGE_FILE_SUB_FOLDER).exists()).collect(Collectors.toList());
 		
-		File[] folders = new File(path).listFiles(new FileFilter() {
+		List<File> folders = new ArrayList<>();
+		folders.add(new File(path));
+		File[] subfolders = new File(path).listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File pathname) {
 				return pathname.isDirectory();
 			}
 		});
+		folders.addAll(Arrays.asList(subfolders));
 		
-		
-		logger.info("got "+folders.length+" PAGE XML folders");
+		logger.info("got "+folders.size()+" PAGE XML folders");
 		List<Pair<File, File>> pairs = new ArrayList<>();
-		for (int i=0; i<folders.length; ++i) {
-			File folder = folders[i];
-			logger.info("parsing folder "+(i+1)+"/"+folders.length+", N-pairs = "+pairs.size());
+		for (int i=0; i<folders.size(); ++i) {
+			File folder = folders.get(i);
+			logger.info("parsing folder "+(i+1)+"/"+folders.size()+", N-pairs = "+pairs.size());
 			try {
 				pairs.addAll(LocalDocReader.findImgAndPAGEXMLFiles(folder));
 			} catch (IOException e) {

@@ -1270,7 +1270,12 @@ public class LocalDocReader {
 		
 		for (Entry<String, File> e : imgs.entrySet()) {
 			File pageXML = findXml(e.getKey(), pageXmlInputDir);
-			imgXmlPairs.add(Pair.of(e.getValue(), pageXML));
+			if (pageXML == null) {
+				logger.warn("No PAGE XML found for img: "+e.getValue().getAbsolutePath()+" - skipping!");
+			}
+			else {
+				imgXmlPairs.add(Pair.of(e.getValue(), pageXML));	
+			}
 		}
 		
 		return imgXmlPairs;
