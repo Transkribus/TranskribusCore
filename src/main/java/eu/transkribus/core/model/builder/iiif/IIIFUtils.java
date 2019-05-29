@@ -54,6 +54,7 @@ import de.digitalcollections.iiif.model.image.ImageApiProfile;
 import de.digitalcollections.iiif.model.image.ImageService;
 import de.digitalcollections.iiif.model.jackson.IiifObjectMapper;
 import de.digitalcollections.iiif.model.openannotation.Annotation;
+import de.digitalcollections.iiif.model.sharedcanvas.AnnotationList;
 import de.digitalcollections.iiif.model.sharedcanvas.Canvas;
 import de.digitalcollections.iiif.model.sharedcanvas.Manifest;
 import de.digitalcollections.iiif.model.sharedcanvas.Resource;
@@ -85,7 +86,7 @@ public class IIIFUtils {
 	private static final Logger logger = LoggerFactory.getLogger(IIIFUtils.class);
 	
 	
-public static TrpDoc createDocFromIIIF(URL url, String path) throws JsonParseException, JsonMappingException, IOException, SQLException, ReflectiveOperationException {
+	public static TrpDoc createDocFromIIIF(URL url, String path) throws JsonParseException, JsonMappingException, IOException, SQLException, ReflectiveOperationException {
 	
 		
 		ObjectMapper iiifMapper = new IiifObjectMapper();
@@ -115,101 +116,99 @@ public static TrpDoc createDocFromIIIF(URL url, String path) throws JsonParseExc
 	
 	}
 	
-
-	
 	public static List<TrpPage> getPagesFromIIIF(Manifest manifest,String dir) throws MalformedURLException, IOException, UnsupportedFormatVersionException{
 	
-	XmlPageReader reader = XmlInputOutput.getReader();
-	List<TrpPage> pages = new ArrayList<>();
-	File imgFile = null;
-	File abbyyFile = null;
-	File altoFile = null;
-	
-	String imgDirPath = dir + File.separator + "img";
-	String altoDirPath = dir + File.separator + LocalDocConst.ALTO_FILE_SUB_FOLDER;
-	String pageDirPath = dir + File.separator + LocalDocConst.PAGE_FILE_SUB_FOLDER;
-	
-	List<Sequence> sequences = manifest.getSequences();
-			for(Sequence sequence : sequences) {
-				List<Canvas> canvases = sequence.getCanvases();
-				for(int i = 0; i<canvases.size(); i++) {
-					List<Annotation> images = canvases.get(i).getImages();
-					int pageNr = i;
-					for(Annotation image : images) {
-						
-						final String mimetype = image.getResource().getType();
-						String ext = MimeTypes.lookupExtension(mimetype);
-						
-						String filename = i + ".jpg";
-						URL url = new URL(image.getResource().getIdentifier().toString());
-			
-						imgFile = new File(imgDirPath + File.separator + filename);
-						
-						String problemMsg = "";
-						
-						URLConnection connection = url.openConnection();
-						String redirect = connection.getHeaderField("Location");
-						if(redirect != null) {
-							url = new URL(redirect);
-						}	
-						int imgDownloadStatus = DeaFileUtils.copyUrlToFile(url, imgFile);
-						
-						if(imgDownloadStatus >= 400) {
-							//the image URL connection attempt returns a response with code > 400
-							problemMsg = getBrokenUrlMsg(url, imgDownloadStatus);
-						}
-						
-						//TODO import alto if available
-						
-						List<OtherContent> seeAlso = image.getSeeAlso();
-						
-						if(seeAlso != null) {
-							for(OtherContent content : seeAlso) {
-								if(content.getFormat() == MimeType.MIME_APPLICATION_XML  ) {
-
-									altoFile = new File(altoDirPath + File.separator + filename);
-									logger.debug("Create Alto File");
-									if(DeaFileUtils.copyUrlToFile(content.getIdentifier().toURL(), altoFile) >= 400) {
-										logger.error("Could not download ALTO XML and it will be ignored!");
-										//don't fail if ALTO XML could not be retrieved
-										altoFile = null;
-									}
-								}		
+		XmlPageReader reader = XmlInputOutput.getReader();
+		List<TrpPage> pages = new ArrayList<>();
+		File imgFile = null;
+		File abbyyFile = null;
+		File altoFile = null;
+		
+		String imgDirPath = dir + File.separator + "img";
+		String altoDirPath = dir + File.separator + LocalDocConst.ALTO_FILE_SUB_FOLDER;
+		String pageDirPath = dir + File.separator + LocalDocConst.PAGE_FILE_SUB_FOLDER;
+		
+		List<Sequence> sequences = manifest.getSequences();
+				for(Sequence sequence : sequences) {
+					List<Canvas> canvases = sequence.getCanvases();
+					for(int i = 0; i<canvases.size(); i++) {
+						List<Annotation> images = canvases.get(i).getImages();
+						int pageNr = i;
+						for(Annotation image : images) {
+							
+							final String mimetype = image.getResource().getType();
+							String ext = MimeTypes.lookupExtension(mimetype);
+							
+							String filename = i + ".jpg";
+							URL url = new URL(image.getResource().getIdentifier().toString());
+				
+							imgFile = new File(imgDirPath + File.separator + filename);
+							
+							String problemMsg = "";
+							
+							URLConnection connection = url.openConnection();
+							String redirect = connection.getHeaderField("Location");
+							if(redirect != null) {
+								url = new URL(redirect);
+							}	
+							int imgDownloadStatus = DeaFileUtils.copyUrlToFile(url, imgFile);
+							
+							if(imgDownloadStatus >= 400) {
+								//the image URL connection attempt returns a response with code > 400
+								problemMsg = getBrokenUrlMsg(url, imgDownloadStatus);
 							}
-						}
-						
-						
-						File pageXml = null;
-						File thumb = null;
-						File imgDir = new File(imgDirPath);
-						Dimension dim = null;
-						
-						logger.info("Page " + pageNr + " image: " + imgFile.getAbsolutePath());
-
-						if(imgFile.isFile()) {
-							try {
-								dim = ImgUtils.readImageDimensions(imgFile);
-							} catch (CorruptImageException cie) {
-								logger.error("Image is corrupted!", cie);
-								//the image dimension can not be read from the downloaded file
-								problemMsg = LocalDocReader.getCorruptImgMsg(imgFile.getName());
+							
+							//TODO import alto if available
+							
+							List<OtherContent> seeAlso = image.getSeeAlso();
+							
+							if(seeAlso != null) {
+								for(OtherContent content : seeAlso) {
+									if(content.getFormat() == MimeType.MIME_APPLICATION_XML  ) {
+	
+										altoFile = new File(altoDirPath + File.separator + filename);
+										logger.debug("Create Alto File");
+										if(DeaFileUtils.copyUrlToFile(content.getIdentifier().toURL(), altoFile) >= 400) {
+											logger.error("Could not download ALTO XML and it will be ignored!");
+											//don't fail if ALTO XML could not be retrieved
+											altoFile = null;
+										}
+									}		
+								}
 							}
+							
+							
+							File pageXml = null;
+							File thumb = null;
+							File imgDir = new File(imgDirPath);
+							Dimension dim = null;
+							
+							logger.info("Page " + pageNr + " image: " + imgFile.getAbsolutePath());
+	
+							if(imgFile.isFile()) {
+								try {
+									dim = ImgUtils.readImageDimensions(imgFile);
+								} catch (CorruptImageException cie) {
+									logger.error("Image is corrupted!", cie);
+									//the image dimension can not be read from the downloaded file
+									problemMsg = LocalDocReader.getCorruptImgMsg(imgFile.getName());
+								}
+							}
+							
+							File pageOutFile = new File(pageDirPath + File.separatorChar + FilenameUtils.getBaseName(imgFile.getName()) + ".xml");
+							
+							pageXml = LocalDocReader.createPageXml(pageOutFile, true, null, altoFile, 
+									null, true, true, false, imgFile.getName(), dim);
+							
+							thumb = LocalDocReader.getThumbFile(imgDir, imgFile.getName());
+							
+							TrpPage page = LocalDocReader.buildPage(new File(dir), pageNr, imgFile, pageXml, thumb, dim,
+									problemMsg);
+							pages.add(page);
 						}
-						
-						File pageOutFile = new File(pageDirPath + File.separatorChar + FilenameUtils.getBaseName(imgFile.getName()) + ".xml");
-						
-						pageXml = LocalDocReader.createPageXml(pageOutFile, true, null, altoFile, 
-								null, true, true, false, imgFile.getName(), dim);
-						
-						thumb = LocalDocReader.getThumbFile(imgDir, imgFile.getName());
-						
-						TrpPage page = LocalDocReader.buildPage(new File(dir), pageNr, imgFile, pageXml, thumb, dim,
-								problemMsg);
-						pages.add(page);
 					}
 				}
-			}
-			return pages;
+				return pages;
 	}
 	
 	public static TrpDocMetadata readIiifMetadata(Manifest manifest) {
@@ -228,10 +227,14 @@ public static TrpDoc createDocFromIIIF(URL url, String path) throws JsonParseExc
 		return md;
 	}
 	
-	public static void exportIiifManifest(TrpDoc doc) throws MalformedURLException, JsonProcessingException {
+	
+	public static String exportIiifManifest(TrpDoc doc) throws MalformedURLException, JsonProcessingException {
+		
+		String productionBaseUrl = "https://dbis-thure.uibk.ac.at/iiif/2";
+		String testBaseUrl = "https://files-test.transkribus.eu/iiif/2/";
 		
 		ObjectMapper iiifMapper = new IiifObjectMapper();
-		Manifest manifest = new Manifest(""+doc.getId());
+		Manifest manifest = new Manifest(testBaseUrl+""+doc.getId()+"/manifest");
 		
 		//TODO add more metadata to manifest
 		manifest.addMetadata("Title", doc.getMd().getTitle());
@@ -244,6 +247,7 @@ public static TrpDoc createDocFromIIIF(URL url, String path) throws JsonParseExc
 		
 		List<TrpPage> pages = doc.getPages();
 		List<Canvas> canvasList = new ArrayList<>();
+		
 		for(TrpPage page : pages) {
 			
 			TrpImage pageImage = page.getImage();
@@ -251,24 +255,29 @@ public static TrpDoc createDocFromIIIF(URL url, String path) throws JsonParseExc
 			Canvas canvas = new Canvas(page.getUrl().toString());
 			canvas.setWidth(pageImage.getWidth());
 			canvas.setHeight(pageImage.getHeight());
-			canvas.addIIIFImage(pageImage.getUrl().toString(), ImageApiProfile.LEVEL_ONE);
+			canvas.addIIIFImage(testBaseUrl+""+pageImage.getKey(), ImageApiProfile.LEVEL_ONE);
 			
 			ImageContent thumbnail = new ImageContent(pageImage.getThumbUrl().toString());
-			thumbnail.addService(new ImageService("http://some.uri/iiif/foo", ImageApiProfile.LEVEL_ONE));
+			thumbnail.addService(new ImageService(pageImage.getThumbUrl().toString(), ImageApiProfile.LEVEL_ONE));
 			canvas.addThumbnail(thumbnail);
 			
 			canvas.addSeeAlso(new OtherContent(page.getCurrentTranscript().getUrl().toString(), "application/xml"));
+			AnnotationList annoList = new AnnotationList(testBaseUrl+""+page.getKey()+"/contentAsText/"+page.getPageNr());
+			annoList.addLabel("Text of page "+page.getPageNr());
+			canvas.addOtherContent(annoList);
 			canvasList.add(canvas);
 			
+				
 		}
 		sequence.setCanvases(canvasList);
 		manifest.addSequence(sequence);
 		
-		String json = iiifMapper.writerWithDefaultPrettyPrinter().writeValueAsString(manifest);
+		String manifestJson = iiifMapper.writerWithDefaultPrettyPrinter().writeValueAsString(manifest);
 		
-		logger.debug(json);
+		logger.debug(manifestJson);
 		
-
+		return manifestJson;
+		
 	}
 	
 	public static String getBrokenUrlMsg(final URL url, final Integer statusCode) {
