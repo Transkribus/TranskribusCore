@@ -88,6 +88,7 @@ public final class RESTConst {
 	public static final String UPLOAD_PATH_FTP = "uploadFromFtp";
 	public static final String UPLOAD_PATH_METS = "createDocFromMets";
 	public static final String UPLOAD_PATH_METS_URL = "createDocFromMetsUrl";
+	public static final String UPLOAD_PATH_IIIF_URL = "createDocFromIiifUrl";
 	public static final String DELETE_PATH = "delete";
 	public static final String CHECK_PATH = "check";
 	
