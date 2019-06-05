@@ -2,6 +2,7 @@ package eu.transkribus.core.model.builder.iiif;
 
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -10,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -23,6 +25,9 @@ import javax.imageio.ImageIO;
 import javax.persistence.EntityNotFoundException;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactoryConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -40,6 +45,9 @@ import org.primaresearch.dla.page.io.xml.XmlPageReader;
 import org.primaresearch.io.UnsupportedFormatVersionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -50,12 +58,16 @@ import de.digitalcollections.core.model.api.MimeType;
 import de.digitalcollections.iiif.model.ImageContent;
 import de.digitalcollections.iiif.model.MetadataEntry;
 import de.digitalcollections.iiif.model.OtherContent;
+import de.digitalcollections.iiif.model.PropertyValue;
+import de.digitalcollections.iiif.model.enums.ViewingHint;
 import de.digitalcollections.iiif.model.image.ImageApiProfile;
 import de.digitalcollections.iiif.model.image.ImageService;
 import de.digitalcollections.iiif.model.jackson.IiifObjectMapper;
 import de.digitalcollections.iiif.model.openannotation.Annotation;
+import de.digitalcollections.iiif.model.openannotation.ContentAsText;
 import de.digitalcollections.iiif.model.sharedcanvas.AnnotationList;
 import de.digitalcollections.iiif.model.sharedcanvas.Canvas;
+import de.digitalcollections.iiif.model.sharedcanvas.Layer;
 import de.digitalcollections.iiif.model.sharedcanvas.Manifest;
 import de.digitalcollections.iiif.model.sharedcanvas.Resource;
 import de.digitalcollections.iiif.model.sharedcanvas.Sequence;
@@ -64,18 +76,33 @@ import eu.transkribus.core.model.beans.DocumentUploadDescriptor.PageUploadDescri
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpUpload.UploadType;
+import eu.transkribus.core.model.beans.customtags.CustomTag;
+import eu.transkribus.core.model.beans.customtags.CustomTagList;
+import eu.transkribus.core.model.beans.pagecontent.PageType;
+import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
+import eu.transkribus.core.model.beans.pagecontent.TextLineType;
+import eu.transkribus.core.model.beans.pagecontent.WordType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.exceptions.CorruptImageException;
+import eu.transkribus.core.exceptions.NullValueException;
 import eu.transkribus.core.io.FimgStoreReadConnection;
 import eu.transkribus.core.io.LocalDocConst;
 import eu.transkribus.core.io.LocalDocReader;
 import eu.transkribus.core.model.beans.TrpFImagestore;
 import eu.transkribus.core.model.beans.TrpImage;
 import eu.transkribus.core.model.beans.TrpPage;
-
+import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.builder.iiif.IIIFUtils;
 import eu.transkribus.core.util.DeaFileUtils;
 import eu.transkribus.core.util.ImgUtils;
+import eu.transkribus.core.util.PageXmlProcessor;
+import eu.transkribus.core.util.PageXmlProcessorFactory;
+import eu.transkribus.core.util.PageXmlUtils;
+import eu.transkribus.core.util.PointStrUtils;
 import eu.transkribus.interfaces.util.URLUtils;
+
 
 
 
@@ -84,7 +111,6 @@ import eu.transkribus.interfaces.util.URLUtils;
 public class IIIFUtils {
 	
 	private static final Logger logger = LoggerFactory.getLogger(IIIFUtils.class);
-	
 	
 	public static TrpDoc createDocFromIIIF(URL url, String path) throws JsonParseException, JsonMappingException, IOException, SQLException, ReflectiveOperationException {
 	
@@ -228,6 +254,76 @@ public class IIIFUtils {
 	}
 	
 	
+	public static String createPageTextAnnotation(String annotationId ,TrpPage page) throws MalformedURLException, IllegalArgumentException, XPathExpressionException, SAXException, IOException, NullValueException, JAXBException {
+		
+		String productionBaseUrl = "https://dbis-thure.uibk.ac.at/iiif/2";
+		String testBaseUrl = "https://files-test.transkribus.eu/iiif/2/";
+		
+		ObjectMapper iiifMapper = new IiifObjectMapper();
+		
+		AnnotationList annoList = new AnnotationList(annotationId);
+		List<Annotation> collectAnnos = new ArrayList<>();
+		
+		Sequence sequence = new Sequence(annotationId+"/sequence/readingOrder");
+		sequence.addLabel("Reading Order");
+		sequence.addViewingHint(new ViewingHint("paged"));
+		
+//		Layer withinLayer = new Layer(annotationId+"/layer/regionType");
+//		withinLayer.addLabel("Text Region Type");
+//		annoList.addWithin(withinLayer);
+		
+		Layer layer = new Layer(annotationId+"/layer/regionType");
+		layer.addLabel("Text Region Type");
+		
+		//TODO use chosen transcript version
+		
+		PcGtsType pcB2P = new PcGtsType();
+		pcB2P = page.unmarshallCurrentTranscript();
+		PageType pageType = pcB2P.getPage();
+		List<TrpRegionType> regions = pageType.getTextRegionOrImageRegionOrLineDrawingRegion();
+		
+		for(TrpRegionType r : regions){
+			TrpPageType trpPage = r.getPage();
+			List<TrpTextLineType> lines = trpPage.getLines();
+			for(TrpTextLineType line : lines) {
+			
+				Annotation anno = new Annotation(annotationId+"/"+line.getId());
+				
+				ContentAsText text = new ContentAsText(line.getUnicodeText());
+				PropertyValue multiValue = new PropertyValue();
+				if(line.getRegion().getType() != null) {	
+					multiValue.addValue("Text Region Type", line.getRegion().getType().toString());
+					multiValue.addValue("Reading Order Region Index", ""+line.getRegion().getReadingOrderAsInt());
+				}
+				multiValue.addValue("Reading Order Line Index", ""+line.getReadingOrderAsInt());
+				text.setDescription(multiValue);			
+				anno.setResource(text);			
+				String pointStr = line.getCoords().getPoints();
+				Rectangle boundingBox = PointStrUtils.getBoundingBox(pointStr);
+				String iiifCoords = boundingBox.x+","+boundingBox.y+","+boundingBox.width+","+boundingBox.height;
+				anno.setOn(new OtherContent(testBaseUrl+""+page.getKey()+"/canvas/"+page.getPageNr()+"#xywh="+iiifCoords));
+				
+				collectAnnos.add(anno);
+			}
+		
+		}
+		
+		annoList.setResources(collectAnnos);
+		
+		
+		//TODO add sequence to structure reading order and region type 
+		
+		
+		String annotationJson = iiifMapper.writerWithDefaultPrettyPrinter().writeValueAsString(annoList);
+		
+		logger.debug(annotationJson);
+		
+		try (PrintWriter out = new PrintWriter("/home/lateknight/Desktop/json/annotation"+page.getPageNr()+".json")){
+			out.println(annotationJson);
+		}
+		return annotationJson;
+	}
+	
 	public static String exportIiifManifest(TrpDoc doc) throws MalformedURLException, JsonProcessingException {
 		
 		String productionBaseUrl = "https://dbis-thure.uibk.ac.at/iiif/2";
@@ -242,8 +338,6 @@ public class IIIFUtils {
 		if(doc.getMd().getAuthor() != null) {
 			manifest.addMetadata("Author", doc.getMd().getAuthor());
 		}
-			
-		Sequence sequence = new Sequence(doc.getMd().getUrl().toString());
 		
 		List<TrpPage> pages = doc.getPages();
 		List<Canvas> canvasList = new ArrayList<>();
@@ -252,7 +346,7 @@ public class IIIFUtils {
 			
 			TrpImage pageImage = page.getImage();
 			
-			Canvas canvas = new Canvas(page.getUrl().toString());
+			Canvas canvas = new Canvas(testBaseUrl+""+page.getKey()+"/canvas/"+page.getPageNr());
 			canvas.setWidth(pageImage.getWidth());
 			canvas.setHeight(pageImage.getHeight());
 			canvas.addIIIFImage(testBaseUrl+""+pageImage.getKey(), ImageApiProfile.LEVEL_ONE);
@@ -262,17 +356,29 @@ public class IIIFUtils {
 			canvas.addThumbnail(thumbnail);
 			
 			canvas.addSeeAlso(new OtherContent(page.getCurrentTranscript().getUrl().toString(), "application/xml"));
-			AnnotationList annoList = new AnnotationList(testBaseUrl+""+page.getKey()+"/contentAsText/"+page.getPageNr());
+			String annotationId = testBaseUrl+""+page.getKey()+"/contentAsText/"+page.getPageNr();
+			AnnotationList annoList = new AnnotationList(annotationId);
 			annoList.addLabel("Text of page "+page.getPageNr());
 			canvas.addOtherContent(annoList);
 			canvasList.add(canvas);
 			
+			try {
+				createPageTextAnnotation(annotationId, page);
+			} catch (IllegalArgumentException | XPathExpressionException | SAXException | IOException
+					| NullValueException | JAXBException e) {
+				e.printStackTrace();
+			}
+			
 				
 		}
-		sequence.setCanvases(canvasList);
-		manifest.addSequence(sequence);
 		
 		String manifestJson = iiifMapper.writerWithDefaultPrettyPrinter().writeValueAsString(manifest);
+		
+		try (PrintWriter out = new PrintWriter("/home/lateknight/Desktop/json/manifest.json")){
+			out.println(manifestJson);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 		
 		logger.debug(manifestJson);
 		
