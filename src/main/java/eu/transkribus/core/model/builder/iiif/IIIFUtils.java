@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -57,6 +58,7 @@ import de.digitalcollections.core.model.api.MimeType;
 import de.digitalcollections.iiif.model.ImageContent;
 import de.digitalcollections.iiif.model.MetadataEntry;
 import de.digitalcollections.iiif.model.OtherContent;
+import de.digitalcollections.iiif.model.PropertyValue;
 import de.digitalcollections.iiif.model.enums.ViewingHint;
 import de.digitalcollections.iiif.model.image.ImageApiProfile;
 import de.digitalcollections.iiif.model.image.ImageService;
@@ -105,10 +107,10 @@ import eu.transkribus.interfaces.util.URLUtils;
 
 
 
+
 public class IIIFUtils {
 	
 	private static final Logger logger = LoggerFactory.getLogger(IIIFUtils.class);
-	
 	
 	public static TrpDoc createDocFromIIIF(URL url, String path) throws JsonParseException, JsonMappingException, IOException, SQLException, ReflectiveOperationException {
 	
@@ -266,9 +268,9 @@ public class IIIFUtils {
 		sequence.addLabel("Reading Order");
 		sequence.addViewingHint(new ViewingHint("paged"));
 		
-		Layer withinLayer = new Layer(annotationId+"/layer/regionType");
-		withinLayer.addLabel("Text Region Type");
-		annoList.addWithin(withinLayer);
+//		Layer withinLayer = new Layer(annotationId+"/layer/regionType");
+//		withinLayer.addLabel("Text Region Type");
+//		annoList.addWithin(withinLayer);
 		
 		Layer layer = new Layer(annotationId+"/layer/regionType");
 		layer.addLabel("Text Region Type");
@@ -284,14 +286,23 @@ public class IIIFUtils {
 			TrpPageType trpPage = r.getPage();
 			List<TrpTextLineType> lines = trpPage.getLines();
 			for(TrpTextLineType line : lines) {
-				
+			
 				Annotation anno = new Annotation(annotationId+"/"+line.getId());
+				
 				ContentAsText text = new ContentAsText(line.getUnicodeText());
-				anno.setResource(text);
+				PropertyValue multiValue = new PropertyValue();
+				if(line.getRegion().getType() != null) {	
+					multiValue.addValue("Text Region Type", line.getRegion().getType().toString());
+					multiValue.addValue("Reading Order Region Index", ""+line.getRegion().getReadingOrderAsInt());
+				}
+				multiValue.addValue("Reading Order Line Index", ""+line.getReadingOrderAsInt());
+				text.setDescription(multiValue);			
+				anno.setResource(text);			
 				String pointStr = line.getCoords().getPoints();
 				Rectangle boundingBox = PointStrUtils.getBoundingBox(pointStr);
 				String iiifCoords = boundingBox.x+","+boundingBox.y+","+boundingBox.width+","+boundingBox.height;
 				anno.setOn(new OtherContent(testBaseUrl+""+page.getKey()+"/canvas/"+page.getPageNr()+"#xywh="+iiifCoords));
+				
 				collectAnnos.add(anno);
 			}
 		
@@ -299,12 +310,17 @@ public class IIIFUtils {
 		
 		annoList.setResources(collectAnnos);
 		
+		
 		//TODO add sequence to structure reading order and region type 
 		
 		
 		String annotationJson = iiifMapper.writerWithDefaultPrettyPrinter().writeValueAsString(annoList);
 		
 		logger.debug(annotationJson);
+		
+		try (PrintWriter out = new PrintWriter("/home/lateknight/Desktop/json/annotation"+page.getPageNr()+".json")){
+			out.println(annotationJson);
+		}
 		return annotationJson;
 	}
 	
@@ -322,8 +338,6 @@ public class IIIFUtils {
 		if(doc.getMd().getAuthor() != null) {
 			manifest.addMetadata("Author", doc.getMd().getAuthor());
 		}
-			
-		Sequence sequence = new Sequence(testBaseUrl+""+doc.getId()+"/sequence");
 		
 		List<TrpPage> pages = doc.getPages();
 		List<Canvas> canvasList = new ArrayList<>();
@@ -357,11 +371,14 @@ public class IIIFUtils {
 			
 				
 		}
-		sequence.setCanvases(canvasList);
-		manifest.addSequence(sequence);
-
 		
 		String manifestJson = iiifMapper.writerWithDefaultPrettyPrinter().writeValueAsString(manifest);
+		
+		try (PrintWriter out = new PrintWriter("/home/lateknight/Desktop/json/manifest.json")){
+			out.println(manifestJson);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 		
 		logger.debug(manifestJson);
 		
