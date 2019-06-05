@@ -88,6 +88,7 @@ public final class RESTConst {
 	public static final String UPLOAD_PATH_FTP = "uploadFromFtp";
 	public static final String UPLOAD_PATH_METS = "createDocFromMets";
 	public static final String UPLOAD_PATH_METS_URL = "createDocFromMetsUrl";
+	public static final String UPLOAD_PATH_IIIF_URL = "createDocFromIiifUrl";
 	public static final String DELETE_PATH = "delete";
 	public static final String CHECK_PATH = "check";
 	
@@ -146,6 +147,8 @@ public final class RESTConst {
 	
 	public static final String SUBSCRIBE_PATH = "subscribe";
 	public static final String UNSUBSCRIBE_PATH = "unsubscribe";
+	
+	public static final String IMAGE_NAMES_PATH = "imageNames";
 	
 	/* Parameters */
 	public static final String DOC_ID_PARAM = "id";
@@ -300,7 +303,7 @@ public final class RESTConst {
 	public static final String KEYWORD_PARAM = "keyword";
 	public static final String KEYWORDS_PARAM = "keywords";
 	
-	
+	public static final String FILE_LIST_PARAM = "filelist";
 	
 	
 	//editorial declaration
