@@ -147,6 +147,8 @@ public final class RESTConst {
 	public static final String SUBSCRIBE_PATH = "subscribe";
 	public static final String UNSUBSCRIBE_PATH = "unsubscribe";
 	
+	public static final String IMAGE_NAMES_PATH = "imageNames";
+	
 	/* Parameters */
 	public static final String DOC_ID_PARAM = "id";
 	public static final String PAGE_NR_PARAM = "page";
@@ -300,7 +302,7 @@ public final class RESTConst {
 	public static final String KEYWORD_PARAM = "keyword";
 	public static final String KEYWORDS_PARAM = "keywords";
 	
-	
+	public static final String FILE_LIST_PARAM = "filelist";
 	
 	
 	//editorial declaration
