@@ -160,7 +160,7 @@ public class IIIFUtils {
 					List<Canvas> canvases = sequence.getCanvases();
 					for(int i = 0; i<canvases.size(); i++) {
 						List<Annotation> images = canvases.get(i).getImages();
-						int pageNr = i;
+						int pageNr = i+1;
 						for(Annotation image : images) {
 							
 							final String mimetype = image.getResource().getType();
