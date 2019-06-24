@@ -80,6 +80,7 @@ import eu.transkribus.core.model.beans.customtags.CustomTag;
 import eu.transkribus.core.model.beans.customtags.CustomTagList;
 import eu.transkribus.core.model.beans.pagecontent.PageType;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
+import eu.transkribus.core.model.beans.pagecontent.TagType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
@@ -159,7 +160,7 @@ public class IIIFUtils {
 					List<Canvas> canvases = sequence.getCanvases();
 					for(int i = 0; i<canvases.size(); i++) {
 						List<Annotation> images = canvases.get(i).getImages();
-						int pageNr = i;
+						int pageNr = i+1;
 						for(Annotation image : images) {
 							
 							final String mimetype = image.getResource().getType();
@@ -264,10 +265,10 @@ public class IIIFUtils {
 		AnnotationList annoList = new AnnotationList(annotationId);
 		List<Annotation> collectAnnos = new ArrayList<>();
 		
-		Sequence sequence = new Sequence(annotationId+"/sequence/readingOrder");
-		sequence.addLabel("Reading Order");
-		sequence.addViewingHint(new ViewingHint("paged"));
-		
+//		Sequence sequence = new Sequence(annotationId+"/sequence/readingOrder");
+//		sequence.addLabel("Reading Order");
+//		sequence.addViewingHint(new ViewingHint("paged"));
+//		
 //		Layer withinLayer = new Layer(annotationId+"/layer/regionType");
 //		withinLayer.addLabel("Text Region Type");
 //		annoList.addWithin(withinLayer);
@@ -286,18 +287,22 @@ public class IIIFUtils {
 			TrpPageType trpPage = r.getPage();
 			List<TrpTextLineType> lines = trpPage.getLines();
 			for(TrpTextLineType line : lines) {
-			
+				List<CustomTag> tagList =line.getCustomTagList().getTags();
 				Annotation anno = new Annotation(annotationId+"/"+line.getId());
 				
 				ContentAsText text = new ContentAsText(line.getUnicodeText());
-				PropertyValue multiValue = new PropertyValue();
+				text.setFormat(MimeType.fromTypename("text/plain"));
+				PropertyValue key = new PropertyValue();
 				if(line.getRegion().getType() != null) {	
-					multiValue.addValue("Text Region Type", line.getRegion().getType().toString());
-					multiValue.addValue("Reading Order Region Index", ""+line.getRegion().getReadingOrderAsInt());
+					key.addValue("Text Region Type", line.getRegion().getType().toString());
+					key.addValue("Reading Order Region Index", ""+line.getRegion().getReadingOrderAsInt());
+				}		
+				key.addValue("Reading Order Line Index", ""+line.getReadingOrderAsInt());
+				for(CustomTag tag : tagList) {
+					key.addValue(tag.getTagName(), tag.getContainedText());
 				}
-				multiValue.addValue("Reading Order Line Index", ""+line.getReadingOrderAsInt());
-				text.setDescription(multiValue);			
-				anno.setResource(text);			
+				text.setDescription(key);
+				anno.setResource(text);
 				String pointStr = line.getCoords().getPoints();
 				Rectangle boundingBox = PointStrUtils.getBoundingBox(pointStr);
 				String iiifCoords = boundingBox.x+","+boundingBox.y+","+boundingBox.width+","+boundingBox.height;
@@ -307,7 +312,6 @@ public class IIIFUtils {
 			}
 		
 		}
-		
 		annoList.setResources(collectAnnos);
 		
 		
@@ -331,6 +335,8 @@ public class IIIFUtils {
 		
 		ObjectMapper iiifMapper = new IiifObjectMapper();
 		Manifest manifest = new Manifest(testBaseUrl+""+doc.getId()+"/manifest");
+		
+		Sequence sequence = new Sequence(testBaseUrl+""+doc.getId()+"/sequence");
 		
 		//TODO add more metadata to manifest
 		manifest.addMetadata("Title", doc.getMd().getTitle());
@@ -371,6 +377,8 @@ public class IIIFUtils {
 			
 				
 		}
+		sequence.setCanvases(canvasList);
+		manifest.addSequence(sequence);
 		
 		String manifestJson = iiifMapper.writerWithDefaultPrettyPrinter().writeValueAsString(manifest);
 		
