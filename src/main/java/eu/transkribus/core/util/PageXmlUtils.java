@@ -1325,18 +1325,18 @@ public class PageXmlUtils {
 	}
 	
 	public static List<Pair<File, File>> listAllImgPageXmlPairsInFolderRecursively(String path) throws IOException {
-//		List<File> folders = Files.walk(Paths.get(path)).filter(Files::isDirectory).map(p -> p.toFile())
-//				.filter(folder -> new File(folder.getAbsolutePath()+"/"+LocalDocConst.PAGE_FILE_SUB_FOLDER).exists()).collect(Collectors.toList());
+		List<File> folders = Files.walk(Paths.get(path)).filter(Files::isDirectory).map(p -> p.toFile())
+				.filter(folder -> new File(folder.getAbsolutePath()+"/"+LocalDocConst.PAGE_FILE_SUB_FOLDER).exists()).collect(Collectors.toList());
 		
-		List<File> folders = new ArrayList<>();
-		folders.add(new File(path));
-		File[] subfolders = new File(path).listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				return pathname.isDirectory();
-			}
-		});
-		folders.addAll(Arrays.asList(subfolders));
+//		List<File> folders = new ArrayList<>();
+//		folders.add(new File(path));
+//		File[] subfolders = new File(path).listFiles(new FileFilter() {
+//			@Override
+//			public boolean accept(File pathname) {
+//				return pathname.isDirectory();
+//			}
+//		});
+//		folders.addAll(Arrays.asList(subfolders));
 		
 		logger.info("got "+folders.size()+" PAGE XML folders");
 		List<Pair<File, File>> pairs = new ArrayList<>();
