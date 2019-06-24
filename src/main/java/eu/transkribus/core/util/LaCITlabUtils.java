@@ -5,6 +5,16 @@ public class LaCITlabUtils {
 	public final static String SEP_SCHEME_KEY = "sepScheme";
 	public final static String ROT_SCHEME_KEY = "rotScheme";
 	
+	public final static String DEFAULT_LBL = "Default";
+	
+	public final static String ROT_SCHEME_LBL = "Text orientation";
+	public final static String ROT_HET_LBL = "Heterogeneous";
+	public final static String ROT_HOM_LBL = "Homogeneous";
+	
+	public final static String SEP_SCHEME_LBL = "Use separators";
+	public final static String SEP_NEVER_LBL = "Never";
+	public final static String SEP_ALWAYS_LBL = "Always";
+	
 	private LaCITlabUtils() {}
 
 	/**
