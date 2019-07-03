@@ -74,6 +74,30 @@
 			<artifactId>PdfUtils</artifactId>
 			<version>${pdfUtils.version}</version>
 		</dependency>
+		<!-- CITlab Tokenizer for analysis of fulltext for HTR trainings -->
+		<dependency>
+            <groupId>de.uros.citlab</groupId>
+            <artifactId>tokenizer</artifactId>
+            <version>1.1.0</version>
+            <exclusions>
+            	<exclusion>
+            		<groupId>ch.qos.logback</groupId>
+            		<artifactId>logback-core</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>eu.transkribus</groupId>
+            		<artifactId>TranskribusInterfaces</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>ch.qos.logback</groupId>
+            		<artifactId>logback-classic</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>org.slf4j</groupId>
+            		<artifactId>slf4j-api</artifactId>
+            	</exclusion>
+            </exclusions>
+		</dependency>
 		<dependency>
 		  <groupId>javax.xml.bind</groupId>
 		  <artifactId>jaxb-api</artifactId>
