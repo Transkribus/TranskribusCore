@@ -59,6 +59,9 @@ public class JobConst {
 	
 	public static final String PROP_REMOVE_LINE_BREAKS = "removeLineBreaks";
 	public static final String PROP_PERFORM_LAYOUT_ANALYSIS = "performLayoutAnalysis";
+	public static final String PROP_T2I_SKIP_WORD = "skip_word";
+	public static final String PROP_T2I_SKIP_BASELINE = "skip_bl";
+	public static final String PROP_T2I_JUMP_BASELINE = "jump_bl";
 	
 	public static final String PROP_TABLE_TEMPLATE_ID = "templateId";
 
