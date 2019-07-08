@@ -117,7 +117,7 @@ public class ParameterMap extends AJaxbMap {
 	}
 	
 	public void addDoubleParam(String key, Double value) {
-		addDoubleParam(key, value, Double.MIN_VALUE, Double.MAX_VALUE);
+		addDoubleParam(key, value, -Double.MAX_VALUE, Double.MAX_VALUE);
 	}
 
 	public void addDoubleParam(String key, Double value, double min, double max) {
@@ -186,5 +186,9 @@ public class ParameterMap extends AJaxbMap {
 	
 	public TrpProperties toTrpProperties() {
 		return new TrpProperties(toProperties());
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(-Double.MIN_VALUE);
 	}
 }
