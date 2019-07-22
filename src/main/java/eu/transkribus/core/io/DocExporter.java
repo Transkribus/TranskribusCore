@@ -26,7 +26,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dea.fimgstoreclient.IFimgStoreGetClient;
@@ -330,6 +329,9 @@ public class DocExporter extends APassthroughObservable {
 
 	/**
 	 * Export current document with the provided parameters.
+	 * <br><br>
+	 * This method creates a copy of the TrpDoc object so the reference passed will remain unchanged.
+	 * 
 	 * @param doc current document
 	 * @param pars export settings 
 	 * @return directory to which the export files were written 
@@ -347,7 +349,7 @@ public class DocExporter extends APassthroughObservable {
 		this.init(pars);
 
 		// check and write metadata
-		if (doc2.getMd() != null) {
+		if (pars.isDoExportDocMetadata() && doc2.getMd() != null) {
 			
 			/*
 			 * TODO this should not write the metadata file but the doc.xml in the end.
@@ -371,7 +373,8 @@ public class DocExporter extends APassthroughObservable {
 			if (pageIndices!=null && !pageIndices.contains(i)) {
 				continue;
 			}
-			exportPage(pages.get(i));
+			TrpPage exportedPage = exportPage(pages.get(i));
+			pages.set(i, exportedPage);
 		}
 		
 		if (pars.isDoWriteMets()) {
@@ -462,17 +465,19 @@ public class DocExporter extends APassthroughObservable {
 	
 	/**
 	 * Exports files for a list of ground truth entities, according to the parameters set on this DocExporter instance.
-	 * In contrast to the exportDoc method, the parameters have be set via the init method beforehand!
+	 * In contrast to the exportDoc method, the parameters have to be set via the init method beforehand!
 	 * <br><br>
 	 * If the parameters include a export filename pattern, note that the document ID of ground truth is never set (i.e. "docId == -1").
 	 * To avoid collisions, rather use the page ID in a pattern ({@link TrpGroundTruthPage#getOriginPageId()} will be used), 
 	 * instead of a doc. ID + page nr. combination.
+	 * <br><br>
+	 * The method will always export the whole list and ignore any pageIndices specified in CommonExportPars!
 	 *  
-	 * @param gtPage
+	 * @param gtPages
 	 * @return TrpPage object including URLs pointing to the export files.
 	 * @throws IOException
 	 */
-	public List<TrpPage> exportPages(List<TrpGroundTruthPage> gtPages) throws IOException {
+	public List<TrpPage> exportGtPages(List<TrpGroundTruthPage> gtPages) throws IOException {
 		if(gtPages == null) {
 			return new ArrayList<>(0);
 		}
@@ -483,39 +488,68 @@ public class DocExporter extends APassthroughObservable {
 		return exportedPages;
 	}
 	
+	/**
+	 * Exports files for a list of pages, according to the parameters set on this DocExporter instance.
+	 * In contrast to the exportDoc method, the parameters have to be set via the init method beforehand!
+	 * <br><br>
+	 * The method will always export the whole list and ignore any pageIndices specified in CommonExportPars!
+	 *  
+	 * @param pages
+	 * @return TrpPage object including URLs pointing to the export files.
+	 * @throws IOException
+	 */
+	public List<TrpPage> exportPages(List<TrpPage> pages) throws IOException {
+		if(pages == null) {
+			return new ArrayList<>(0);
+		}
+		List<TrpPage> exportedPages = new ArrayList<>(pages.size());
+		for(TrpPage gtp : pages) {
+			exportedPages.add(exportPage(gtp));
+		}
+		return exportedPages;
+	}
+	
+	/**
+	 * Exports a single TrpPage object to disk according to the CommonExportPars given to the {@link #init(CommonExportPars)} method.
+	 * @param page
+	 * @return
+	 * @throws IOException
+	 */
 	public TrpPage exportPage(TrpPage page) throws IOException {
 		if(pars == null || outputDir == null) {
 			throw new IllegalStateException("Export parameters are not set or output directory has not been initialized!");
 		}
+		//create copy of TrpPage to not mess with the original object
+		TrpPage pageExport = new TrpPage(page);
 		
 		File imgFile = null, xmlFile = null, altoFile = null;
 		
-		URL imgUrl = page.getUrl(); 
+		URL imgUrl = pageExport.getUrl(); 
 		
 		final String baseFileName;
-		final String imgExt = "." + FilenameUtils.getExtension(page.getImgFileName());
+		final String imgExt = "." + FilenameUtils.getExtension(pageExport.getImgFileName());
 		final String xmlExt = ".xml";
 		
 		// gather remote files and export document
-		if (!page.isLocalFile()) {
+		if (!pageExport.isLocalFile()) {
 			//use export filename pattern for remote files
-			baseFileName = ExportFilePatternUtils.buildBaseFileName(pars.getFileNamePattern(), page);
+			baseFileName = ExportFilePatternUtils.buildBaseFileName(pars.getFileNamePattern(), pageExport);
 			
 			if (pars.isDoWriteImages()) {
-				final String msg = "Downloading " + pars.getRemoteImgQuality().toString() + " image for page nr. " + page.getPageNr();
+				final String msg = "Downloading " + pars.getRemoteImgQuality().toString() + " image for page nr. " + pageExport.getPageNr();
 				logger.debug(msg);
 				updateStatus(msg);
 //				final URI imgUri = getter.getUriBuilder().getImgUri(page.getKey(), pars.getRemoteImgQuality());
 //				imgFile = getter.saveFile(imgUri, outputDir.getImgOutputDir().getAbsolutePath(), baseFileName + imgExt);
-				imgFile = getter.saveImg(page.getKey(), pars.getRemoteImgQuality(),
+				imgFile = getter.saveImg(pageExport.getKey(), pars.getRemoteImgQuality(),
 						outputDir.getImgOutputDir().getAbsolutePath(), baseFileName + imgExt);
-				page.setUrl(imgFile.toURI().toURL());
+				pageExport.setUrl(imgFile.toURI().toURL());
 				
 				/**
 				 * FIXME test if the ImgFileName can be set here. If a filename pattern is set (e.g. in HTR) the value contained is wrong.
 				 */
 				//page.setImgFileName(imgFile.getName());
-				page.setKey(null);
+				pageExport.setKey(null);
 			}
 			if(pars.isDoExportPageXml()) {
 				//old
@@ -524,11 +558,11 @@ public class DocExporter extends APassthroughObservable {
 				 * new: to get the previously stored chosen version
 				 */
 				TrpTranscriptMetadata transcriptMd;
-				JAXBPageTranscript transcript = cache.getPageTranscriptAtIndex(page.getPageNr()-1);
+				JAXBPageTranscript transcript = cache.getPageTranscriptAtIndex(pageExport.getPageNr()-1);
 				
 				// set up transcript metadata
 				if(transcript == null) {
-					transcriptMd = page.getCurrentTranscript();
+					transcriptMd = pageExport.getCurrentTranscript();
 					logger.warn("Have to unmarshall transcript in DocExporter for transcript "+transcriptMd+" - should have been built before using ExportUtils::storePageTranscripts4Export!");
 					transcript = new JAXBPageTranscript(transcriptMd);
 					transcript.build();
@@ -553,15 +587,15 @@ public class DocExporter extends APassthroughObservable {
 					String status = transcriptMd.getStatus() == null ? null : transcriptMd.getStatus().toString();
 
 					TranskribusMetadataType tmd = new TranskribusMetadataType();
-					tmd.setDocId(page.getDocId());
-					tmd.setPageId(page.getPageId());
-					tmd.setPageNr(page.getPageNr());
+					tmd.setDocId(pageExport.getDocId());
+					tmd.setPageId(pageExport.getPageId());
+					tmd.setPageNr(pageExport.getPageNr());
 					tmd.setTsid(transcriptMd.getTsId());
 					tmd.setStatus(status);
 					tmd.setUserId(transcriptMd.getUserId());
 					tmd.setImgUrl(imgUrlStr);
 					tmd.setXmlUrl(xmlUrlStr);
-					tmd.setImageId(page.getImageId());
+					tmd.setImageId(pageExport.getImageId());
 					md.setTranskribusMetadata(tmd);
 				}
 				
@@ -575,26 +609,26 @@ public class DocExporter extends APassthroughObservable {
 //				xmlFile = getter.saveFile(transcriptMd.getUrl().toURI(), pageOutputDir.getAbsolutePath(), baseFileName + xmlExt);
 				
 				// make sure (for other exports) that the transcript that is exported is the only one set in the transcripts list of TrpPage
-				page.getTranscripts().clear();
-				TrpTranscriptMetadata tCopy = new TrpTranscriptMetadata(transcriptMd, page);
+				pageExport.getTranscripts().clear();
+				TrpTranscriptMetadata tCopy = new TrpTranscriptMetadata(transcriptMd, pageExport);
 				tCopy.setUrl(xmlFile.toURI().toURL());
-				page.getTranscripts().add(tCopy);
+				pageExport.getTranscripts().add(tCopy);
 			}
 		} else {
-			updateStatus("Copying local files for page nr. " + page.getPageNr());
+			updateStatus("Copying local files for page nr. " + pageExport.getPageNr());
 			//ignore export filename pattern for local files
-			baseFileName = FilenameUtils.getBaseName(page.getImgFileName());
+			baseFileName = FilenameUtils.getBaseName(pageExport.getImgFileName());
 			// copy local files during export
 			if (pars.isDoWriteImages()) {
-				imgFile = LocalDocWriter.copyImgFile(page, page.getUrl(), outputDir.getImgOutputDir().getAbsolutePath(), baseFileName + imgExt);
+				imgFile = LocalDocWriter.copyImgFile(pageExport, pageExport.getUrl(), outputDir.getImgOutputDir().getAbsolutePath(), baseFileName + imgExt);
 			}
 			if(pars.isDoExportPageXml()) {
-				xmlFile = LocalDocWriter.copyTranscriptFile(page, outputDir.getPageOutputDir().getAbsolutePath(), baseFileName + xmlExt, cache);
+				xmlFile = LocalDocWriter.copyTranscriptFile(pageExport, outputDir.getPageOutputDir().getAbsolutePath(), baseFileName + xmlExt, cache);
 			}
 		}
 		// export alto:
 		if (pars.isDoExportAltoXml()) {
-			altoFile = altoEx.exportAltoFile(page, baseFileName + xmlExt, outputDir.getAltoOutputDir(), pars.isSplitIntoWordsInAltoXml());
+			altoFile = altoEx.exportAltoFile(pageExport, baseFileName + xmlExt, outputDir.getAltoOutputDir(), pars.isSplitIntoWordsInAltoXml());
 		}
 		
 		/**
@@ -621,8 +655,8 @@ public class DocExporter extends APassthroughObservable {
 		}
 		
 		setChanged();
-		notifyObservers(Integer.valueOf(page.getPageNr()));
-		return page;
+		notifyObservers(Integer.valueOf(pageExport.getPageNr()));
+		return pageExport;
 	}
 
 	public ExportCache getCache() {

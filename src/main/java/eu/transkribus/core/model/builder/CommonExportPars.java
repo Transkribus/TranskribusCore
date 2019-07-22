@@ -30,6 +30,7 @@ public class CommonExportPars {
 	String pages = null;
 //	Set<Integer> pageIndices = null;
 	
+	boolean doExportDocMetadata=true;
 	boolean doWriteMets=true;
 	boolean doWriteImages=true;
 	boolean doExportPageXml=true; 
@@ -188,6 +189,14 @@ public class CommonExportPars {
 		this.selectedTags = selectedTags;
 	}
 
+	public boolean isDoExportDocMetadata() {
+		return doExportDocMetadata;
+	}
+	
+	public void setDoExportDocMetadata(boolean doExportDocMetadata) {
+		this.doExportDocMetadata = doExportDocMetadata;
+	}
+	
 	public boolean isDoWriteMets() {
 		return doWriteMets;
 	}
@@ -382,9 +391,12 @@ public class CommonExportPars {
 
 	public static CommonExportPars getDefaultParSetForHtrTraining() {
 		CommonExportPars opts = new CommonExportPars();
+		//don't write a metadata XML
+		opts.setDoExportDocMetadata(false);
 		opts.setDoWriteImages(true);
 		opts.setDoExportAltoXml(false);
 		opts.setDoExportPageXml(true);
+		//export pageXml to same dir as images
 		opts.setPageDirName("");
 		opts.setUseOcrMasterDir(false);
 		opts.setDoWriteMets(false);
