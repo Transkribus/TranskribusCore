@@ -353,9 +353,9 @@ public class LocalDocReader {
 		int pageNr = 1;
 		List<TrpPage> pages = new ArrayList<TrpPage>(pageMap.entrySet().size());
 		
-		
+		int i = 1;
 		for (Entry<String, File> e : pageMap.entrySet()) {
-			
+			monitorSubTask(monitor, "Inspecting image " + i++ + "/" + pageMap.entrySet().size());
 			File imgFile = e.getValue();
 			//the img file name without extension
 			final String imgFileName = e.getKey();
@@ -438,6 +438,23 @@ public class LocalDocReader {
 		return doc;
 	}
 	
+	/**
+	 * Update progress via {@link IProgressMonitor#subTask(String)}  if monitor is initialized.
+	 *  
+	 * @param monitor {@link IProgressMonitor}. If null is passed then the method does nothing.
+	 * @param msg the message to send
+	 */
+	private static void monitorSubTask(IProgressMonitor monitor, String msg) {
+		if(monitor == null) {
+			return;
+		}
+		if(msg == null) {
+			//Just clear the subtask message on the monitor
+			msg = "";
+		}
+		monitor.subTask(msg);
+	}
+
 	public static File getPageXmlInputDir(File inputDir) {
 		return new File(inputDir.getAbsolutePath() + File.separatorChar
 				+ LocalDocConst.PAGE_FILE_SUB_FOLDER);
