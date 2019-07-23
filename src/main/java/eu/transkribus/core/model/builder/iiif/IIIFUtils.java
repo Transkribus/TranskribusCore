@@ -57,6 +57,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.digitalcollections.core.model.api.MimeType;
 import de.digitalcollections.iiif.model.ImageContent;
 import de.digitalcollections.iiif.model.MetadataEntry;
+import de.digitalcollections.iiif.model.Motivation;
 import de.digitalcollections.iiif.model.OtherContent;
 import de.digitalcollections.iiif.model.PropertyValue;
 import de.digitalcollections.iiif.model.enums.ViewingHint;
@@ -164,7 +165,6 @@ public class IIIFUtils {
 						for(Annotation image : images) {
 							
 							final String mimetype = image.getResource().getType();
-							String ext = MimeTypes.lookupExtension(mimetype);
 							
 							String filename = i + ".jpg";
 							URL url = new URL(image.getResource().getIdentifier().toString());
@@ -265,17 +265,9 @@ public class IIIFUtils {
 		AnnotationList annoList = new AnnotationList(annotationId);
 		List<Annotation> collectAnnos = new ArrayList<>();
 		
-//		Sequence sequence = new Sequence(annotationId+"/sequence/readingOrder");
-//		sequence.addLabel("Reading Order");
-//		sequence.addViewingHint(new ViewingHint("paged"));
-//		
-//		Layer withinLayer = new Layer(annotationId+"/layer/regionType");
-//		withinLayer.addLabel("Text Region Type");
-//		annoList.addWithin(withinLayer);
-		
 		Layer layer = new Layer(annotationId+"/layer/regionType");
 		layer.addLabel("Text Region Type");
-		
+	
 		//TODO use chosen transcript version
 		
 		PcGtsType pcB2P = new PcGtsType();
@@ -288,20 +280,11 @@ public class IIIFUtils {
 			List<TrpTextLineType> lines = trpPage.getLines();
 			for(TrpTextLineType line : lines) {
 				List<CustomTag> tagList =line.getCustomTagList().getTags();
-				Annotation anno = new Annotation(annotationId+"/"+line.getId());
+				Motivation motivationText = new Motivation("sc:painting");
+				Annotation anno = new Annotation(annotationId+"/"+line.getId(),motivationText);
 				
 				ContentAsText text = new ContentAsText(line.getUnicodeText());
 				text.setFormat(MimeType.fromTypename("text/plain"));
-				PropertyValue key = new PropertyValue();
-				if(line.getRegion().getType() != null) {	
-					key.addValue("Text Region Type", line.getRegion().getType().toString());
-					key.addValue("Reading Order Region Index", ""+line.getRegion().getReadingOrderAsInt());
-				}		
-				key.addValue("Reading Order Line Index", ""+line.getReadingOrderAsInt());
-				for(CustomTag tag : tagList) {
-					key.addValue(tag.getTagName(), tag.getContainedText());
-				}
-				text.setDescription(key);
 				anno.setResource(text);
 				String pointStr = line.getCoords().getPoints();
 				Rectangle boundingBox = PointStrUtils.getBoundingBox(pointStr);
@@ -309,6 +292,38 @@ public class IIIFUtils {
 				anno.setOn(new OtherContent(testBaseUrl+""+page.getKey()+"/canvas/"+page.getPageNr()+"#xywh="+iiifCoords));
 				
 				collectAnnos.add(anno);
+				// TODO add another Annotation which describes the entity for tags rather than putting it in PropertyValue array
+				for(CustomTag tag : tagList) {
+					//ignore readingOrder in custom tag as it is always empty
+					Motivation motivationTag = new Motivation("oa:commenting");
+					if(!StringUtils.equals("readingOrder", tag.getTagName())) {
+						
+						Annotation tagAnno = new Annotation(annotationId+"/tagging/"+line.getId()+"/"+tag.getTagName(),motivationTag);
+						ContentAsText textTag = new ContentAsText(tag.getTagName());
+						textTag.setFormat(MimeType.fromTypename("text/plain"));
+						tagAnno.setResource(textTag);
+						tagAnno.setOn(new OtherContent(testBaseUrl+""+page.getKey()+"/canvas/"+page.getPageNr()+"#xywh="+iiifCoords));
+						collectAnnos.add(tagAnno);
+						
+					}
+					// set region type
+					Annotation tagRegionType= new Annotation(annotationId+"/tagging/"+line.getId()+"/regionType",motivationTag);
+					ContentAsText textRegionType = new ContentAsText("Text Region Type : "+line.getRegion().getType().toString());
+					textRegionType.setFormat(MimeType.fromTypename("text/plain"));
+					tagRegionType.setResource(textRegionType);
+					tagRegionType.setOn(new OtherContent(testBaseUrl+""+page.getKey()+"/canvas/"+page.getPageNr()+"#xywh="+iiifCoords));
+					collectAnnos.add(tagRegionType);
+					// set reading Order
+					Annotation tagRegionOrder = new Annotation(annotationId+"/tagging/"+line.getId()+"/readingOrder",motivationTag);
+					ContentAsText textRegionOrder = new ContentAsText("Reading Order Region Index : "+line.getRegion().getReadingOrderAsInt());
+					textRegionOrder.setFormat(MimeType.fromTypename("text/plain"));
+					tagRegionOrder.setResource(textRegionOrder);
+					tagRegionOrder.setOn(new OtherContent(testBaseUrl+""+page.getKey()+"/canvas/"+page.getPageNr()+"#xywh="+iiifCoords));
+					collectAnnos.add(tagRegionOrder);
+				}
+				
+				
+				
 			}
 		
 		}
@@ -316,7 +331,6 @@ public class IIIFUtils {
 		
 		
 		//TODO add sequence to structure reading order and region type 
-		
 		
 		String annotationJson = iiifMapper.writerWithDefaultPrettyPrinter().writeValueAsString(annoList);
 		
