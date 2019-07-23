@@ -246,10 +246,10 @@ public class LocalDocWriter {
 			if (fn!=null)
 				imgFn = fn;
 		}
-		return copyImgFile(p, u, path, imgFn);
+		return copyImgFile(u, path, imgFn);
 	}
 	
-	public static File copyImgFile(TrpPage p, URL u, String path, String fileName) throws IOException {
+	public static File copyImgFile(URL u, String path, String fileName) throws IOException {
 		File imgFile = new File(path+"/"+fileName);
 		FileUtils.copyURLToFile(u, imgFile);
 		return imgFile;

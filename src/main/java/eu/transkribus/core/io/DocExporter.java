@@ -71,10 +71,10 @@ public class DocExporter extends APassthroughObservable {
 	
 	private final ExportCache cache;
 	private final AltoExporter altoEx;
-	private final IFimgStoreGetClient getter;
+	protected final IFimgStoreGetClient getter;
 	
-	private CommonExportPars pars;
-	private OutputDirStructure outputDir;
+	protected CommonExportPars pars;
+	protected OutputDirStructure outputDir;
 	
 	public DocExporter(IFimgStoreGetClient getClient) {
 		this(getClient, new ExportCache());
@@ -541,8 +541,7 @@ public class DocExporter extends APassthroughObservable {
 				updateStatus(msg);
 //				final URI imgUri = getter.getUriBuilder().getImgUri(page.getKey(), pars.getRemoteImgQuality());
 //				imgFile = getter.saveFile(imgUri, outputDir.getImgOutputDir().getAbsolutePath(), baseFileName + imgExt);
-				imgFile = getter.saveImg(pageExport.getKey(), pars.getRemoteImgQuality(),
-						outputDir.getImgOutputDir().getAbsolutePath(), baseFileName + imgExt);
+				imgFile = writeImage(pageExport.getKey(), baseFileName + imgExt);
 				pageExport.setUrl(imgFile.toURI().toURL());
 				
 				/**
@@ -620,7 +619,7 @@ public class DocExporter extends APassthroughObservable {
 			baseFileName = FilenameUtils.getBaseName(pageExport.getImgFileName());
 			// copy local files during export
 			if (pars.isDoWriteImages()) {
-				imgFile = LocalDocWriter.copyImgFile(pageExport, pageExport.getUrl(), outputDir.getImgOutputDir().getAbsolutePath(), baseFileName + imgExt);
+				imgFile = writeImage(pageExport.getUrl(), baseFileName + imgExt);
 			}
 			if(pars.isDoExportPageXml()) {
 				xmlFile = LocalDocWriter.copyTranscriptFile(pageExport, outputDir.getPageOutputDir().getAbsolutePath(), baseFileName + xmlExt, cache);
@@ -658,12 +657,41 @@ public class DocExporter extends APassthroughObservable {
 		notifyObservers(Integer.valueOf(pageExport.getPageNr()));
 		return pageExport;
 	}
+	
+	/**
+	 * Copy local image file at URL to outFilename according to {@link #pars} and {@link #outputDir}.
+	 * 
+	 * @param url locator of the local image
+	 * @param outFilename the name of the target file
+	 * @return target file
+	 * @throws IOException
+	 */
+	protected File writeImage(URL url, String outFilename) throws IOException {
+		if(url.getProtocol().startsWith("http")) {
+			//this is only used on local docs right now
+			throw new IllegalArgumentException("Only local URLs allowed, but http(s) URL was passed: " + url);
+		}
+		return LocalDocWriter.copyImgFile(url, outputDir.getImgOutputDir().getAbsolutePath(), outFilename);
+	}
+
+	/**
+	 * Export image file with given key according to {@link #pars} and {@link #outputDir}.
+	 * 
+	 * @param key FImagestore key of the images
+	 * @param outFilename the name of the target file
+	 * @return target file
+	 * @throws IOException 
+	 */
+	protected File writeImage(String key, String outFilename) throws IOException {
+		return getter.saveImg(key, pars.getRemoteImgQuality(),
+				outputDir.getImgOutputDir().getAbsolutePath(), outFilename);
+	}
 
 	public ExportCache getCache() {
 		return cache;
 	}
 		
-	private static class OutputDirStructure {
+	protected static class OutputDirStructure {
 		final File rootOutputDir, imgOutputDir, pageOutputDir, altoOutputDir;
 		
 		public OutputDirStructure(File rootOutputDir, File imgOutputDir, File pageOutputDir, File altoOutputDir) {
