@@ -14,7 +14,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
 		<!-- Transkribus components' version numbers -->
-		<fimagestoreClient.version>0.4.2</fimagestoreClient.version>
+		<fimagestore-http-client.version>0.4.3</fimagestore-http-client.version>
 		<pdfUtils.version>0.0.3</pdfUtils.version>
 		<interfaces.version>0.0.6</interfaces.version>
 	</properties>
@@ -67,7 +67,7 @@
 		<dependency>
 			<groupId>org.dea.fimagestore</groupId>
 			<artifactId>fimagestore-http-client</artifactId>
-			<version>${fimagestoreClient.version}</version>
+			<version>${fimagestore-http-client.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dea.util</groupId>
