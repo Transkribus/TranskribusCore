@@ -536,7 +536,7 @@ public class DocExporter extends APassthroughObservable {
 			baseFileName = ExportFilePatternUtils.buildBaseFileName(pars.getFileNamePattern(), pageExport);
 			
 			if (pars.isDoWriteImages()) {
-				final String msg = "Downloading " + pars.getRemoteImgQuality().toString() + " image for page nr. " + pageExport.getPageNr();
+				final String msg = "Storing " + pars.getRemoteImgQuality().toString() + " image for page nr. " + pageExport.getPageNr();
 				logger.debug(msg);
 				updateStatus(msg);
 //				final URI imgUri = getter.getUriBuilder().getImgUri(page.getKey(), pars.getRemoteImgQuality());
