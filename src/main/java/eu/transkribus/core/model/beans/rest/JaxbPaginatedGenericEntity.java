@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Doesn't work
+ * @deprecated Doesn't work
  * 
  * @author philip
  *
