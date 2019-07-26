@@ -16,11 +16,13 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.model.beans.adapters.SqlTimestampAdapter;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.HtrCITlabUtils;
 
@@ -52,6 +54,7 @@ public class TrpHtr {
 	private String path;
 	
 	@Column
+	@XmlJavaTypeAdapter(SqlTimestampAdapter.class)
 	private Timestamp created;
 	
 	@Column(name="TRAIN_GT_DOCID")
