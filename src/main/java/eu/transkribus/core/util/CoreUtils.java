@@ -197,6 +197,11 @@ public class CoreUtils {
 		}
 		return added;
 	}
+	
+	public static List<File> listFilesReturnFiles(int maxDepth, String Path, String[] extensions, boolean caseSensitive,
+			String... excludeFilenames) throws IOException {
+		return listFiles(maxDepth, Path, extensions, caseSensitive, excludeFilenames).stream().map(p -> p.toFile()).collect(Collectors.toList());
+	}
 
 	public static List<Path> listFiles(int maxDepth, String Path, String[] extensions, boolean caseSensitive,
 			String... excludeFilenames) throws IOException {

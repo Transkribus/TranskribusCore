@@ -37,6 +37,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.PropertyException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.util.ValidationEventCollector;
+import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -1397,13 +1398,77 @@ public class PageXmlUtils {
 		}
 	}
 	
-	public static void main(String[] args) throws Exception {
-		List<Pair<File, Exception>> errorFiles = checkPageXMLInFolder("\\\\na03.uibk.ac.at\\dea_scratch\\tmp_sebastian\\VeryLargeDocument", true);
-		for (Pair<File, Exception> p : errorFiles) {
-			Exception e = p.getRight();
-			String msg = e.getCause()!=null ? e.getCause().getMessage() : e.getMessage();
-			logger.info("Error in file: "+p.getLeft().toString()+", m = "+msg);
+	/**
+	 * Applies a given text to all text-lines of the given TrpPageType object.<br/>
+	 * If the text does not fit, i.e. there are more lines in the given text than there are lines in the layout,
+	 * the overlapping text is squeezed into the last line, i.e. newlines are replaced by whitespaces. 
+	 * @param page The TrpPageType object with the layout that the text is fit into
+	 * @param text The text which is fit into the lines of the page
+	 */
+	public static void applyTextToLines(TrpPageType page, String text) {
+		String lines[] = text.split("\\r?\\n");
+//		for (String line : lines) {
+//			logger.info("line: '"+line+"'");
+//		}	
+//		logger.info("---------------");
+		
+		List<TrpTextLineType> trpLines = page.getLines();
+		
+		// match text-lines with trp-lines
+		int i=0;
+		String txtForLine="";
+		for (TrpTextLineType trpLine : trpLines) {
+			txtForLine = "";
+			if (i<lines.length) {
+				txtForLine = lines[i];
+			}
+			trpLine.setUnicodeText(txtForLine, null);
+			++i;
 		}
+		// if text has more lines than trp-lines, squeeze-in text, i.e. replace newline's with spaces for last line
+		if (lines.length>trpLines.size()) {
+			for (int j=i; j<lines.length; ++j) {
+				txtForLine+=lines[j];
+				if (i!=lines.length-1) {
+					txtForLine+=" ";
+				}
+			}
+			trpLines.get(trpLines.size()-1).setUnicodeText(txtForLine, null);
+		}
+		
+		for (TrpTextLineType trpLine : trpLines) {
+			logger.info("textLine: '"+trpLine.getUnicodeText()+"'");
+		}
+	}
+	
+	public static boolean setLastChangedNow(PcGtsType pcGtsType) {
+		XMLGregorianCalendar cal;
+		try {
+			cal = XmlUtils.getXmlGregCal();
+			if (pcGtsType != null && pcGtsType.getMetadata() != null) {
+				pcGtsType.getMetadata().setLastChange(cal);
+				return true;
+			}
+			else {
+				logger.error("pcGtsType or associated metadata is null (should not happen) - cannot update PageXML Metadata!");
+				return false;
+			}
+		} catch (DatatypeConfigurationException e) {
+			logger.error("Severe configuration exception! Datatype XMLGregorianCalendar is not available! "
+					+ "LastChange date in Page XML Metadata cannot be updated! " + e.getMessage(), e);
+			return false;
+		}
+	}
+	
+	public static void main(String[] args) throws Exception {
+		applyTextToLines(null, "I am a\ntext\n\nover\nmultiple   \nlines ! \n");
+		
+//		List<Pair<File, Exception>> errorFiles = checkPageXMLInFolder("\\\\na03.uibk.ac.at\\dea_scratch\\tmp_sebastian\\VeryLargeDocument", true);
+//		for (Pair<File, Exception> p : errorFiles) {
+//			Exception e = p.getRight();
+//			String msg = e.getCause()!=null ? e.getCause().getMessage() : e.getMessage();
+//			logger.info("Error in file: "+p.getLeft().toString()+", m = "+msg);
+//		}
 		
 //		final String path = "/mnt/dea_scratch/TRP/Bentham_box_002/page/002_080_001.xml";
 //		try {

@@ -10,6 +10,13 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -225,6 +232,14 @@ public class TrpXPathProcessor {
 			throw new IllegalArgumentException("Argument is null!");
 		}
 		return builder.parse(xmlFile);
+	}
+	
+	public void writeToFile(Document doc, File outFile, boolean doIndent) throws TransformerFactoryConfigurationError, TransformerException {
+        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+       	transformer.setOutputProperty(OutputKeys.INDENT, doIndent ? "yes" : "no");
+        DOMSource source = new DOMSource(doc);
+        StreamResult file = new StreamResult(outFile);
+        transformer.transform(source, file);
 	}
 	
 	/**

@@ -340,7 +340,7 @@ public class LocalDocReader {
 		//alto XML search path
 		File altoInputDir = getAltoXmlInputDir(inputDir);
 		
-		//alto XML search path
+		//txt file search path
 		File txtInputDir = getTxtInputDir(inputDir);
 		
 		//backupfolder for outdated page format files, if any
@@ -418,6 +418,18 @@ public class LocalDocReader {
 						config.isPreserveOcrTxtStyles(), 
 						config.isReplaceBadChars(), imgFile.getName(), dim);
 			}
+			
+			// TODO: merge text of txt files into existing PAGE-XMLs
+//			else if (pageXml != null && config.isSyncTextWithExistingPageXml()) {
+//				File txtFile = findFile(imgFileName, txtInputDir, "txt");
+//				if (txtFile != null) {
+//					logger.debug("syncing txt file with exiting PAGE-XML: "+txtFile.getName());
+//					String text = readTextFromFile(txtFile);
+//					PageXmlUtils.applyTextToLines(page, text);
+//					
+//					
+//				}
+//			}
 			
 			TrpPage page = buildPage(inputDir, pageNr++, imgFile, pageXml, thumbFile, dim, imageRemark);
 			pages.add(page);
@@ -717,14 +729,8 @@ public class LocalDocReader {
 			throw new IOException("Transformation output is not a valid page XML!", je);
 		}
 	}
-
-	/*
-	 * use this library to detect the text file encoding automatically
-	 * previously we imported utf-8 as default which often brought errors if the encoding was different
-	 */
-	private static PcGtsType createPageFromTxt(final String imgFileName, Dimension dim, File txtFile) throws IOException {
-		logger.debug("creating PAGE file from text file");
-		
+	
+	public static String readTextFromFile(File txtFile) throws IOException {
 		byte[] buf = new byte[4096]; 
 		java.io.FileInputStream fis = new FileInputStream(txtFile);
 
@@ -756,6 +762,16 @@ public class LocalDocReader {
 		//String text = FileUtils.readFileToString(txtFile, "ISO-8859-1");
 		//logger.debug("text = "+text);
 		
+		return text;
+	}
+
+	/**
+	 * use this library to detect the text file encoding automatically
+	 * previously we imported utf-8 as default which often brought errors if the encoding was different
+	 */
+	public static PcGtsType createPageFromTxt(final String imgFileName, Dimension dim, File txtFile) throws IOException {
+		logger.debug("creating PAGE file from text file");
+		String text = readTextFromFile(txtFile);
 		return PageXmlUtils.createPcGtsTypeFromText(imgFileName, dim, text, TranscriptionLevel.LINE_BASED, false);
 	}
 
@@ -1304,6 +1320,8 @@ public class LocalDocReader {
 		protected boolean replaceBadChars; //false
 		protected boolean forceCreatePageXml; //true
 		protected boolean enableSyncWithoutImages; //false
+		protected boolean syncTextWithExistingPageXml=false;
+		
 		/**
 		 * If set to true, then all server-related data is removed from the TrpDocMetadata if existent
 		 */
@@ -1321,6 +1339,7 @@ public class LocalDocReader {
 			this.forceCreatePageXml = true;
 			this.enableSyncWithoutImages = false;
 			this.stripServerRelatedMetadata = false;
+			this.syncTextWithExistingPageXml=false;
 			dimensionMap = null;
 		}
 		
@@ -1400,7 +1419,13 @@ public class LocalDocReader {
 		public void setStripServerRelatedMetadata(boolean stripServerRelatedMetadata) {
 			this.stripServerRelatedMetadata = stripServerRelatedMetadata;
 		}
-		
+		public boolean isSyncTextWithExistingPageXml() {
+			return syncTextWithExistingPageXml;
+		}
+		public void setSyncTextWithExistingPageXml(boolean syncTextWithExistingPageXml) {
+			this.syncTextWithExistingPageXml = syncTextWithExistingPageXml;
+		}
+
 		public TreeMap<String, Dimension> getDimensionMap() {
 			return dimensionMap;
 		}

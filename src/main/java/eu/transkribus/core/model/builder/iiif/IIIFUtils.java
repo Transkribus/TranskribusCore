@@ -385,7 +385,7 @@ public class IIIFUtils {
 			try {
 				createPageTextAnnotation(annotationId, page);
 			} catch (IllegalArgumentException | XPathExpressionException | SAXException | IOException
-					| NullValueException | JAXBException e) {
+					| JAXBException e) {
 				e.printStackTrace();
 			}
 			

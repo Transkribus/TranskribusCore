@@ -4,6 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import eu.transkribus.core.util.EnumUtils;
 
 public enum EditStatus {
@@ -16,8 +23,11 @@ public enum EditStatus {
 	FINAL(3, "Final"),
 	GT(Integer.MAX_VALUE, "Ground Truth");
 	
+	private static final Logger logger = LoggerFactory.getLogger(EditStatus.class);
+	
 	int value=Integer.MIN_VALUE;
 	String str=null;
+	
 	
 	EditStatus(int value, String str) {
 		this.value = value;
@@ -37,6 +47,15 @@ public enum EditStatus {
     	}
         throw new IllegalArgumentException("for setting new version status " + v);
     }
+
+	public static EditStatus valueOf2(String editStatus) {
+		try {
+			return EditStatus.valueOf(editStatus);
+		} catch (Exception e) {
+			logger.warn("EditStatus parameter has an illegal value: " + editStatus + " - returning null!");
+			return null;
+		}
+	}
 
 	public static String[] getStatusListWithoutNew() {
 		String [] stati = EnumUtils.stringsArray(EditStatus.class);

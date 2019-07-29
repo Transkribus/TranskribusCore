@@ -1,5 +1,6 @@
 package eu.transkribus.core.model.beans;
 
+import java.awt.Dimension;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.Collections;
@@ -223,6 +224,10 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 
 	public void setImgFileProblem(String imgFileProblem) {
 		this.imgFileProblem = imgFileProblem;
+	}
+	
+	public Dimension getImgDimension() {
+		return new Dimension(width, height);
 	}
 
 	/**

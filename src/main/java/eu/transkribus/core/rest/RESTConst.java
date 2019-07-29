@@ -81,6 +81,7 @@ public final class RESTConst {
 	public static final String LIST_MY_DOCS_PATH = "listMyDocs";
 	public static final String COUNT_MY_DOCS_PATH = "countMyDocs";
 	public static final String TRANSCRIPT_PATH = "text";
+	public static final String PLAINTEXT_PATH = "plaintext";
 	public static final String FULLDOC_PATH = "fulldoc";
 	public static final String METS_PATH = "mets";
 	public static final String UPLOAD_PATH = "upload";
@@ -169,6 +170,7 @@ public final class RESTConst {
 	public static final String REF_KEY_PARAM = "ref";
 	public static final String TEI_TAGS_PARAM = "teiTags";
 	public static final String EMPTY_PARAM = "empty";
+	public static final String USE_EXISTING_LAYOUT_PARAM = "useExistingLayout";
 	
 	public static final String TITLE_PARAM = "title";
 	public static final String DESCRIPTION_PARAM = "descr";
@@ -444,4 +446,10 @@ public final class RESTConst {
 	public static final String UPLOAD_ID_PARAM = "uploadId";
 	public static final String DETAILS_PATH = "details";
 	
+	//other consts
+	public static final String FALSE = "false";
+	public static final String TRUE = "true";
+	public static final String ZERO = "0";
+	public static final String ONE = "1";
+	public static final String MINUS_ONE = "-1";
 }
