@@ -11,10 +11,15 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @Entity
-@Table(name = "P2PALAMODEL")
+@Table(name = TrpP2PaLAModel.TABLE_NAME)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TrpP2PaLAModel {
+	public static final String TABLE_NAME = "P2PALA_MODEL"; 
+	public static final String OUT_MODE_LINES_ONLY = "L";
+	public static final String OUT_MODE_REGIONS_ONLY = "R";
+	public static final String OUT_MODE_LINES_AND_REGIONS = "LR";	
+	
 	@Id @Column private int id;
 	@Column private String name;
 	@Column private String description;
