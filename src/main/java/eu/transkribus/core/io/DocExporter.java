@@ -683,7 +683,7 @@ public class DocExporter extends APassthroughObservable {
 	 * @throws IOException 
 	 */
 	protected File writeImage(String key, String outFilename) throws IOException {
-		logger.debug("Copying image of type '{}' with key '{}' to {}/{}", pars.getRemoteImgQuality(), key, outputDir.getImgOutputDir().getAbsolutePath(), outFilename);
+		logger.debug("Storing image of type '{}' with key '{}' at {}/{}", pars.getRemoteImgQuality(), key, outputDir.getImgOutputDir().getAbsolutePath(), outFilename);
 		return getter.saveImg(key, pars.getRemoteImgQuality(),
 				outputDir.getImgOutputDir().getAbsolutePath(), outFilename);
 	}

@@ -10,6 +10,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @deprecated
+ *
+ */
 public class LocalFimagestoreClient {
 	private final static Logger logger = LoggerFactory.getLogger(LocalFimagestoreClient.class);
 	

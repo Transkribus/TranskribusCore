@@ -5,13 +5,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-import javax.xml.bind.JAXBException;
-
-import org.dea.fimagestore.core.beans.ImageMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.transkribus.core.io.FimgStoreReadConnection;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 
@@ -27,33 +23,6 @@ public class PageXmlUtilsTest {
 		for (TextRegionType r : tr) {
 			System.out.println("tr: "+r.getClass().getSimpleName()+" id: "+r.getId()+" n-lines: "+r.getTextLine().size());
 		}
-	}
-	
-	public static void testSth() throws Exception {
-		File[] files = {
-				new File("/mnt/dea_scratch/TRP/test/page_xsl_test/ocr/Mittheilungen_Perthes_1855_0009.xml"),
-				new File("/mnt/dea_scratch/TRP/test/ImagesOldPageXml/page/2010-03-19_backup/035_320_001.xml"),
-				new File("/mnt/dea_scratch/TRP/test/page_xsl_test/Mittheilungen_Perthes_1855_0009.xml")
-				};
-		
-		try {
-			URL url = new URL("https://dbis-thure.uibk.ac.at/fimagestore/Get?fileType=metadata&id=YSUGXUUGAHYCUQVMEUJAYQGO");
-			ImageMetadata md = FimgStoreReadConnection.getGetClient().getImgMd(url);
-			PcGtsType t = PageXmlUtils.createEmptyPcGtsType(url, md.getDimension());
-			JaxbUtils.marshalToSysOut(t);
-		} catch (IOException | JAXBException e) {
-			
-			e.printStackTrace();
-		}
-		
-//		for(File f : files){
-//			try {
-//				System.out.println(XmlUtils.getXmlFormat(f).toString());
-//			} catch (IOException e) {
-//				
-//				e.printStackTrace();
-//			}
-//		}
 	}
 	
 	public static void testValidation() {

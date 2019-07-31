@@ -1,52 +1,29 @@
 package eu.transkribus.core.model.builder.iiif;
 
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.Rectangle;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import javax.imageio.ImageIO;
-import javax.persistence.EntityNotFoundException;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactoryConfigurationException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.dea.fimagestore.core.util.MimeTypes;
-import org.dea.fimgstoreclient.FimgStoreGetClient;
-import org.dea.fimgstoreclient.FimgStorePostClient;
-import org.json.XML;
-import org.primaresearch.dla.page.Page;
-import org.primaresearch.dla.page.io.FileInput;
-import org.primaresearch.dla.page.io.InputSource;
-import org.primaresearch.dla.page.io.UrlInput;
 import org.primaresearch.dla.page.io.xml.XmlInputOutput;
 import org.primaresearch.dla.page.io.xml.XmlPageReader;
 import org.primaresearch.io.UnsupportedFormatVersionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -59,8 +36,6 @@ import de.digitalcollections.iiif.model.ImageContent;
 import de.digitalcollections.iiif.model.MetadataEntry;
 import de.digitalcollections.iiif.model.Motivation;
 import de.digitalcollections.iiif.model.OtherContent;
-import de.digitalcollections.iiif.model.PropertyValue;
-import de.digitalcollections.iiif.model.enums.ViewingHint;
 import de.digitalcollections.iiif.model.image.ImageApiProfile;
 import de.digitalcollections.iiif.model.image.ImageService;
 import de.digitalcollections.iiif.model.jackson.IiifObjectMapper;
@@ -70,45 +45,24 @@ import de.digitalcollections.iiif.model.sharedcanvas.AnnotationList;
 import de.digitalcollections.iiif.model.sharedcanvas.Canvas;
 import de.digitalcollections.iiif.model.sharedcanvas.Layer;
 import de.digitalcollections.iiif.model.sharedcanvas.Manifest;
-import de.digitalcollections.iiif.model.sharedcanvas.Resource;
 import de.digitalcollections.iiif.model.sharedcanvas.Sequence;
-
-import eu.transkribus.core.model.beans.DocumentUploadDescriptor.PageUploadDescriptor;
+import eu.transkribus.core.exceptions.CorruptImageException;
+import eu.transkribus.core.exceptions.NullValueException;
+import eu.transkribus.core.io.LocalDocConst;
+import eu.transkribus.core.io.LocalDocReader;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
-import eu.transkribus.core.model.beans.TrpUpload.UploadType;
+import eu.transkribus.core.model.beans.TrpImage;
+import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
-import eu.transkribus.core.model.beans.customtags.CustomTagList;
 import eu.transkribus.core.model.beans.pagecontent.PageType;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
-import eu.transkribus.core.model.beans.pagecontent.TagType;
-import eu.transkribus.core.model.beans.pagecontent.TextLineType;
-import eu.transkribus.core.model.beans.pagecontent.WordType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
-import eu.transkribus.core.exceptions.CorruptImageException;
-import eu.transkribus.core.exceptions.NullValueException;
-import eu.transkribus.core.io.FimgStoreReadConnection;
-import eu.transkribus.core.io.LocalDocConst;
-import eu.transkribus.core.io.LocalDocReader;
-import eu.transkribus.core.model.beans.TrpFImagestore;
-import eu.transkribus.core.model.beans.TrpImage;
-import eu.transkribus.core.model.beans.TrpPage;
-import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
-import eu.transkribus.core.model.builder.iiif.IIIFUtils;
 import eu.transkribus.core.util.DeaFileUtils;
 import eu.transkribus.core.util.ImgUtils;
-import eu.transkribus.core.util.PageXmlProcessor;
-import eu.transkribus.core.util.PageXmlProcessorFactory;
-import eu.transkribus.core.util.PageXmlUtils;
 import eu.transkribus.core.util.PointStrUtils;
-import eu.transkribus.interfaces.util.URLUtils;
-
-
-
-
-
 
 public class IIIFUtils {
 	

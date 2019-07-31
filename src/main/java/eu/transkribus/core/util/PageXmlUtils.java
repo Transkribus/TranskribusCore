@@ -9,7 +9,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -19,7 +18,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -51,7 +49,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import eu.transkribus.core.io.FimgStoreReadConnection;
 import eu.transkribus.core.io.LocalDocConst;
 import eu.transkribus.core.io.LocalDocReader;
 import eu.transkribus.core.io.formats.XmlFormat;
@@ -394,21 +391,6 @@ public class PageXmlUtils {
 		} catch (JAXBException e) {
 			throw new IOException("Could not create empty PAGE XML at: " + xmlFile.getAbsolutePath(), e);
 		}
-	}
-
-	public static PcGtsType createEmptyPcGtsType(final URL imgUrl, Dimension dim) throws IOException {
-		final String prot = imgUrl.getProtocol();
-		PcGtsType pcGts;
-		if (prot.startsWith("http")) {
-			//fimagestore file
-			ImageMetadata md = FimgStoreReadConnection.getGetClient().getImgMd(imgUrl);
-			pcGts = createEmptyPcGtsTypeForRemoteImg(imgUrl, md);
-		} else {
-			//try to deal with it as local file
-			final File imgFile = FileUtils.toFile(imgUrl);
-			pcGts = createEmptyPcGtsType(imgFile, dim);
-		}
-		return pcGts;
 	}
 
 	private static PcGtsType createEmptyPcGtsTypeForRemoteImg(final URL url, ImageMetadata imgMd) throws IOException {

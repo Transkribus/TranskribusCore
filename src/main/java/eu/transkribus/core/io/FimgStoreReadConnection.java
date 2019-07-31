@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 import eu.transkribus.core.TrpFimgStoreConf;
 import eu.transkribus.core.model.beans.TrpFImagestore;
 
+/**
+ * @deprecated use FImagestoreDao.newFImagestoreClient() or TrpServerConn.newFImagestoreGetClient() to get a configured client.
+ */
 public class FimgStoreReadConnection {
 	private static final Logger logger = LoggerFactory.getLogger(FimgStoreReadConnection.class);
 	
