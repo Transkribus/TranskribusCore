@@ -9,10 +9,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactoryConfigurationException;
 
+import org.dea.fimgstoreclient.FimgStoreGetClient;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+
+import eu.transkribus.core.util.SebisStopWatch.SSW;
 
 public class PageXmlProcessorTest {
 	
@@ -26,7 +30,7 @@ public class PageXmlProcessorTest {
 //		List<String> ids = proc.getAllTextRegionIds(key);
 //		ids.stream().forEach(id -> logger.debug(id));
 //	}
-//	
+	
 	@Test
 	public void testGetAllLines() {
 		final String keyGT = "CMTSKWAFFAQPTGSHECQTKDCM";

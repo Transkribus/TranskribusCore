@@ -18,6 +18,10 @@ import eu.transkribus.core.util.xpath.TrpXPathProcessor;
 import eu.transkribus.core.util.xpath.TrpXPathProcessor.DocBuilderFactoryImpl;
 import eu.transkribus.core.util.xpath.TrpXPathProcessor.XPathFactoryImpl;
 
+/**
+ * @deprecated by {@link PageXmlRemoteFileProcessor}
+ *
+ */
 public class PageXmlProcessorFactory {
 	private static final Logger logger = LoggerFactory.getLogger(PageXmlProcessorFactory.class);
 	
