@@ -34,6 +34,9 @@ import eu.transkribus.core.util.xpath.TrpXPathProcessor;
 public abstract class PageXmlProcessor extends TrpXPathProcessor {
 	private static final Logger logger = LoggerFactory.getLogger(PageXmlProcessor.class);
 
+	/**
+	 * @deprecated use PageXmlRemoteFileProcessor and remove this field
+	 */
 	protected final FimgStoreUriBuilder uriBuilder;
 	
 	protected final Map<String, Document> docCache;
