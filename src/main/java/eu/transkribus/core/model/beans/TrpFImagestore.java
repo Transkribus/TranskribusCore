@@ -48,7 +48,23 @@ public class TrpFImagestore implements Serializable, IFImagestoreConfig {
 	
 	public TrpFImagestore(){}
 	
-	
+	/**
+	 * Copy constructor
+	 * 
+	 * @param config the config to copy field values from
+	 */
+	public TrpFImagestore(TrpFImagestore config) {
+		this();
+		this.storeId = config.getStoreId();
+		this.hostName = config.getHostName();
+		this.context = config.getContext();
+		this.port = config.getPort();
+		this.username = config.getUsername();
+		this.password = config.getPassword();
+		this.storeLocation = config.getStoreLocation();
+	}
+
+
 	public int getStoreId() {
 		return storeId;
 	}
