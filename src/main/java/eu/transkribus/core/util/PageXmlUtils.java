@@ -1,6 +1,7 @@
 package eu.transkribus.core.util;
 
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -1377,6 +1378,39 @@ public class PageXmlUtils {
 	public static void applyTextFromWordsToLinesAndRegions(TrpPageType page) {
 		for (TrpTextRegionType region : page.getTextRegions(true)) {
 			region.applyTextFromWords();
+		}
+	}
+	
+	public static void simplifyPoints(RegionType r, double perc) {
+		if (r != null) {
+			simplifyPoints(r.getCoords(), perc);
+		}
+	}
+	
+	public static void simplifyPoints(TextLineType tl, double perc) {
+		if (tl != null) {
+			simplifyPoints(tl.getCoords(), perc);
+		}
+	}
+	
+	public static void simplifyPoints(CoordsType coords, double perc) {
+		if (coords!=null && !StringUtils.isEmpty(coords.getPoints())) {
+			List<Point> pts = PointStrUtils.parsePoints2(coords.getPoints());
+			List<Point> simplified = RamerDouglasPeuckerFilter.filterByPercentageOfPolygonLength(perc, pts);
+			coords.setPoints(PointStrUtils.pointsToString(simplified));
+		}
+	}
+	
+	public static void simplifyPoints(List<TextLineType> lines, double perc) {
+		lines.stream().forEach(tl -> {
+			PageXmlUtils.simplifyPoints(tl, RamerDouglasPeuckerFilter.DEFAULT_PERC_OF_POLYGON_LENGTH);
+		});
+		
+	}
+	
+	public static void simplifyPointsOfAllLines(PcGtsType pcGtsType, double perc) {
+		for (TextLineType tl : PageXmlUtils.getLines(pcGtsType)) {
+			PageXmlUtils.simplifyPoints(tl, RamerDouglasPeuckerFilter.DEFAULT_PERC_OF_POLYGON_LENGTH);
 		}
 	}
 	

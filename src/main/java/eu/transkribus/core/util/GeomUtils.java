@@ -20,6 +20,18 @@ import math.geom2d.polygon.SimplePolygon2D;
 public class GeomUtils {
 	private static final Logger logger = LoggerFactory.getLogger(GeomUtils.class);
 	
+	public static int getPolygonLength(List<Point> pts) {
+		if (pts == null) {
+			return 0;
+		}
+		
+		int l=0;
+		for (int i=0; i<pts.size()-1; ++i) {
+			l+=pts.get(i).distance(pts.get(i+1));
+		}
+		return l;
+	}
+	
 	public static List<Point> getRectPoints(java.awt.Rectangle rectangle, boolean clockwise) {
 		List<Point> pts = new ArrayList<>();
 		if (clockwise) {
