@@ -63,6 +63,9 @@ public class JobConst {
 	public static final String PROP_T2I_SKIP_BASELINE = "skip_bl";
 	public static final String PROP_T2I_JUMP_BASELINE = "jump_bl";
 	
+	public static final String PROP_KEEP_ORIGINAL_LINE_POLYGONS = "keepOriginalLinePolygons";
+	public static final String PROP_DO_LINE_POLYGON_SIMPLIFICATION = "doLinePolygonSimplification";
+	
 	public static final String PROP_TABLE_TEMPLATE_ID = "templateId";
 
 	public static final String PROP_SOLR_URL = "solrUrl";
