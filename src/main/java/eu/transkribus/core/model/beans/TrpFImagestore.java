@@ -11,7 +11,10 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.dea.fimagestore.core.FImagestoreConst;
 import org.dea.fimagestore.core.client.IFImagestoreConfig;
+import org.dea.fimgstoreclient.AbstractHttpClient.Scheme;
+import org.dea.fimgstoreclient.utils.FimgStoreUriBuilder;
 
 import io.swagger.v3.oas.annotations.Hidden;
 
@@ -46,6 +49,10 @@ public class TrpFImagestore implements Serializable, IFImagestoreConfig {
 	@Hidden
 	private String storeLocation = null;
 	
+	@XmlTransient
+	@Hidden
+	private String fimagestoreGetUrlBase = null;
+	
 	public TrpFImagestore(){}
 	
 	/**
@@ -55,13 +62,14 @@ public class TrpFImagestore implements Serializable, IFImagestoreConfig {
 	 */
 	public TrpFImagestore(TrpFImagestore config) {
 		this();
-		this.storeId = config.getStoreId();
-		this.hostName = config.getHostName();
-		this.context = config.getContext();
-		this.port = config.getPort();
-		this.username = config.getUsername();
-		this.password = config.getPassword();
-		this.storeLocation = config.getStoreLocation();
+		this.storeId = config.storeId;
+		this.hostName = config.hostName;
+		this.context = config.context;
+		this.port = config.port;
+		this.username = config.username;
+		this.password = config.password;
+		this.storeLocation = config.storeLocation;
+		this.fimagestoreGetUrlBase = config.fimagestoreGetUrlBase;
 	}
 
 
@@ -130,6 +138,17 @@ public class TrpFImagestore implements Serializable, IFImagestoreConfig {
 
 	public void setStoreLocation(String storeLocation) {
 		this.storeLocation = storeLocation;
+	}
+	
+	/**
+	 * Get FImagestore GET base URL including the "?id=" parameter.
+	 */
+	public String getFImagestoreGetUrlBase() {
+		if(fimagestoreGetUrlBase == null) {
+			FimgStoreUriBuilder builder = new FimgStoreUriBuilder(Scheme.https.toString(), getHostName(), null, getContext());
+			fimagestoreGetUrlBase = builder.getBaseGetUri() + "?" + FImagestoreConst.ID_PARAM + "=";
+		}
+		return fimagestoreGetUrlBase;
 	}
 	
 	@Override
