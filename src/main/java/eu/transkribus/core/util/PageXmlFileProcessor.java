@@ -51,7 +51,7 @@ public class PageXmlFileProcessor extends PageXmlProcessor {
 		for (int i=0; i<nl.getLength(); ++i) {
 			Node n = nl.item(i);
 			logger.debug("textline node = "+n+" val = "+n.getTextContent());
-			n.setTextContent("zipfel_"+i);
+			n.setTextContent("test_string_"+i);
 		}
 		sw.stop(true, "time for setting string content: ");
 		
