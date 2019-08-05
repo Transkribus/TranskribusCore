@@ -90,6 +90,9 @@ public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrp
 	@Column
 	private String toolName = null;
 	
+	@Column 
+	private Integer jobId;
+	
 	@Column(name="NOTE")
 	private String note = "";
 	
@@ -160,6 +163,7 @@ public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrp
 		userId = m.getUserId();
 		timestamp = m.getTimestamp();
 		toolName = m.getToolName();
+		jobId = m.getJobId();
 		note = m.getNote();
 		md5Sum = m.getMd5Sum();
 		this.setStats(m.getStats());
@@ -287,6 +291,14 @@ public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrp
 
 	public void setToolName(String toolName) {
 		this.toolName = toolName;
+	}
+	
+	public Integer getJobId() {
+		return jobId;
+	}
+	
+	public void setJobId(Integer jobId) {
+		this.jobId= jobId;
 	}
 	
 	public String getNote(){
@@ -518,6 +530,11 @@ public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrp
 				return false;
 		} else if (!toolName.equals(other.toolName))
 			return false;
+		if (jobId == null) {
+			if (other.jobId != null)
+				return false;
+		} else if (!jobId.equals(other.jobId))
+			return false;
 		if (tsId != other.tsId)
 			return false;
 		if (url == null) {
@@ -548,7 +565,7 @@ public class TrpTranscriptMetadata extends ATranscriptStatistics implements ITrp
 				+ ", parentTsId=" + parentTsId + ", key=" + key + ", pageId=" + pageId + ", docId=" + docId
 				+ ", pageNr=" + pageNr + ", localFolder=" + localFolder + ", url=" + url + ", status=" + status
 				+ ", userName=" + userName + ", userId=" + userId + ", timestamp=" + timestamp + ", toolName="
-				+ toolName + ", note=" + note + ", md5Sum=" + md5Sum + ", nrOfRegions=" + nrOfRegions
+				+ toolName + ", jobId=" + jobId + ", note=" + note + ", md5Sum=" + md5Sum + ", nrOfRegions=" + nrOfRegions
 				+ ", nrOfTranscribedRegions=" + nrOfTranscribedRegions + ", nrOfWordsInRegions=" + nrOfWordsInRegions
 				+ ", nrOfLines=" + nrOfLines + ", nrOfTranscribedLines=" + nrOfTranscribedLines + ", nrOfWordsInLines="
 				+ nrOfWordsInLines + ", nrOfWords=" + nrOfWords + ", nrOfTranscribedWords=" + nrOfTranscribedWords
