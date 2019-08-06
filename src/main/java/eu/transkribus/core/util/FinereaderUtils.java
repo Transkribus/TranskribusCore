@@ -97,7 +97,7 @@ public class FinereaderUtils {
 
 	 */
 	public final static String[] FINEREADER_LANGUAGES = new String[] {
-		//because we have no license for Arabic
+		//because we have no license for Arabic and Yiddish
 	
 		//"Arabic",
 		"Basque",
@@ -142,7 +142,7 @@ public class FinereaderUtils {
 		"Turkish",
 		"Ukrainian",
 		"Welsh",
-		"Yiddish",
+		//"Yiddish",
 	};
 	
 	public final static String[] FINEREADER_LANGUAGES_NOT_LICENSED = new String[] {
@@ -150,6 +150,7 @@ public class FinereaderUtils {
 		"Arabic",
 		"Hebrew",
 		"Ladino",
+		"Yiddish",
 		"Judeo-Arabic",
 	};
 	
