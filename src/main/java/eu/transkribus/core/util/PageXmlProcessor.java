@@ -123,6 +123,12 @@ public abstract class PageXmlProcessor extends TrpXPathProcessor {
 		return super.getNodeList(doc, exp);
 	}
 	
+	public NodeList getTextRegions(Document doc) throws XPathExpressionException, SAXException, IOException {
+		final String xPath = "//TextRegion";
+		XPathExpression exp = super.compile(xPath);
+		return super.getNodeList(doc, exp);
+	}
+	
 	public String getUnicodeFromLineById(final String xmlKey, final String lineId) throws MalformedURLException, IllegalArgumentException, SAXException, IOException, XPathExpressionException {
 		Document doc = getDocument(xmlKey);
 		return getUnicodeFromLineById(doc, lineId);
