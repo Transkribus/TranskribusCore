@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedList;
@@ -56,9 +57,11 @@ import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.rest.JaxbList;
 import eu.transkribus.core.model.builder.mets.TrpMetsBuilder;
 import eu.transkribus.core.model.builder.mets.util.MetsUtil;
+import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.ImgUtils;
 import eu.transkribus.core.util.JaxbUtils;
 import eu.transkribus.core.util.NaturalOrderComparator;
+import eu.transkribus.core.util.NaturalOrderFileComparator;
 import eu.transkribus.core.util.PageXmlUtils;
 import eu.transkribus.core.util.XmlUtils;
 
@@ -1021,6 +1024,12 @@ public class LocalDocReader {
 	public static TreeMap<String, File> createDummyImgFilesForXmls(File baseDir, File xmlDir) throws IOException {
 
 		return createDummyImgFiles(baseDir);
+	}
+	
+	private static List<File> listFilesSortedByNaturalComparator(File inputDir, String[] extensions, boolean caseSensitive, String...excludeFilenames) throws IOException {
+		List<File> files = CoreUtils.listFilesReturnFiles(1, inputDir.getAbsolutePath(), extensions, caseSensitive, excludeFilenames);
+		Collections.sort(files, new NaturalOrderFileComparator());
+		return files;
 	}
 	
 	/**
