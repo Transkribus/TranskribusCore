@@ -1,7 +1,9 @@
 package eu.transkribus.core.model.beans.pagecontent_trp;
 
+import java.awt.Polygon;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +11,10 @@ import org.slf4j.LoggerFactory;
 import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpTextChangedEvent;
 import eu.transkribus.core.util.CoreUtils;
+import eu.transkribus.core.util.PointStrUtils;
 import eu.transkribus.core.util.SebisStopWatch;
+import math.geom2d.polygon.Polygon2D;
+import math.geom2d.polygon.SimplePolygon2D;
 
 public class TrpShapeTypeUtils {
 	private final static Logger logger = LoggerFactory.getLogger(TrpShapeTypeUtils.class);
@@ -183,6 +188,20 @@ public class TrpShapeTypeUtils {
 			if (!fireEvents) 
 				st.getObservable().setActive(wasObserverActiveBefore);
 		}
+	}
+	
+	public static List<? extends ITrpShapeType> filterShapesByAreaThreshold(List<? extends ITrpShapeType> shapes, double thresholdArea) {
+		return shapes.stream().filter(s -> {
+			try {
+				double area = PointStrUtils.getArea(s.getCoordinates());
+				logger.trace("id = "+s.getId()+", polygon area = "+area+", thresholdArea = "+thresholdArea);
+				return area>=thresholdArea;
+			}
+			catch (Exception e) {
+				logger.error("Error calculating area of shape: "+e.getMessage(), e);
+				return false;
+			}
+		}).collect(Collectors.toList());
 	}
 	
 //	public static void reinsertIntoParent(ITrpShapeType shape) {

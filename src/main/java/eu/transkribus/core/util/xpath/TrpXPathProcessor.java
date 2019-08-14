@@ -179,13 +179,36 @@ public class TrpXPathProcessor {
 	public Node getNode(Document doc, XPathExpression xPathExp) throws SAXException, IOException, XPathExpressionException {
 		return (Node)evaluate(doc, xPathExp, XPathConstants.NODE);
 	}
-
-	protected Object evaluate(Document doc, XPathExpression xPathExp, QName returnType) throws XPathExpressionException {
-		if(doc == null || xPathExp == null) {
+	
+	public Node getNode(Object item, String xPath) throws XPathExpressionException {
+		return (Node) evaluate(item, compile(xPath), XPathConstants.NODE);
+	}
+	
+	public NodeList getNodeList(Object item, String xPath) throws XPathExpressionException {
+		return (NodeList) evaluate(item, compile(xPath), XPathConstants.NODESET);
+	}	
+	
+//	public Node getNode(Object item, XPathExpression xPathExp) throws XPathExpressionException {
+//		return (Node) xPathExp.evaluate(item, XPathConstants.NODE);
+//	}
+	
+	protected Object evaluate(Object item, XPathExpression xPathExp, QName returnType) throws XPathExpressionException {
+		if(item == null || xPathExp == null) {
 			throw new IllegalArgumentException("An argument is null!");
 		}
-		return xPathExp.evaluate(doc, returnType);
+		return xPathExp.evaluate(item, returnType);
 	}
+	
+	public Node getNodeAttribute(Node n, String attributeName) {
+		return n.getAttributes().getNamedItem(attributeName);
+	}
+	
+//	protected Object evaluate(Document doc, XPathExpression xPathExp, QName returnType) throws XPathExpressionException {
+//		if(doc == null || xPathExp == null) {
+//			throw new IllegalArgumentException("An argument is null!");
+//		}
+//		return xPathExp.evaluate(doc, returnType);
+//	}
 	
 	/**
 	 * Gets Document object from URL.

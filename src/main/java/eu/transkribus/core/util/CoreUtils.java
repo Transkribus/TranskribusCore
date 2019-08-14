@@ -730,7 +730,8 @@ public class CoreUtils {
 	}
 
 	public static boolean fileExists(String path) {
-		return Files.exists(Paths.get(path));
+		return new File(path).exists();
+//		return Files.exists(Paths.get(path));
 	}
 
 	public static String removeFileTypeFromUrl(String urlStr) {

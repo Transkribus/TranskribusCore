@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import math.geom2d.Point2D;
+import math.geom2d.polygon.SimplePolygon2D;
 
 public class PointStrUtils {
 	
@@ -314,5 +315,10 @@ public class PointStrUtils {
 			}
 		}
 		return Pair.of(baselineMinX, baselineMaxX);
+	}
+	
+	public static double getArea(String coords) {
+		SimplePolygon2D p = new SimplePolygon2D(PointStrUtils.buildPoints2DList(coords));
+		return Math.abs(p.area());
 	}
 }

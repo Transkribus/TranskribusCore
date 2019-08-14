@@ -40,6 +40,8 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactoryConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -48,6 +50,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.dea.fimagestore.core.beans.ImageMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import eu.transkribus.core.io.LocalDocConst;
@@ -75,6 +80,7 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementCoordinatesComp
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpObjectFactory;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpShapeTypeUtils;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
@@ -92,14 +98,15 @@ public class PageXmlUtils {
 			+ "http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15/pagecontent.xsd";
 	
 	public static final XmlFormat TRP_PAGE_VERSION = XmlFormat.PAGE_2013;
-	private static final String ABBY_TO_PAGE_XSLT = "xslt/Abbyy10ToPage2013.xsl";
-	private static final String ALTO_TO_PAGE_XSLT = "xslt/AltoToPage2013.xsl";
-	private static final String ALTO_V3_TO_PAGE_XSLT = "xslt/Altov3ToPage2013.xsl";
-	private static final String ALTO_BNF_TO_PAGE_XSLT = "xslt/AltoBnFToPage.xsl";
-	private static final String TEXT_STYLE_XSL_PARAM_NAME = "preserveTextStyles";
-	private static final String FONT_FAM_XSL_PARAM_NAME = "preserveFontFam";
+	public static final String ABBY_TO_PAGE_XSLT = "xslt/Abbyy10ToPage2013.xsl";
+	public static final String ALTO_TO_PAGE_XSLT = "xslt/AltoToPage2013.xsl";
+	public static final String ALTO_V3_TO_PAGE_XSLT = "xslt/Altov3ToPage2013.xsl";
+	public static final String ALTO_BNF_TO_PAGE_XSLT = "xslt/AltoBnFToPage.xsl";
+	public static final String ALTO_FEP_TO_PAGE_XSLT = "xslt/AltoFEPToPage2013.xsl";
+	public static final String TEXT_STYLE_XSL_PARAM_NAME = "preserveTextStyles";
+	public static final String FONT_FAM_XSL_PARAM_NAME = "preserveFontFam";
 	
-	private static final String NO_EVENTS_MSG = "No events occured during marshalling xml file!";
+	public static final String NO_EVENTS_MSG = "No events occured during marshalling xml file!";
 
 	//	private final static SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 	//	private static Schema schema=null;
@@ -557,6 +564,27 @@ public class PageXmlUtils {
 		
 		return pc;
 	}
+	
+	public static PcGtsType createPcGtsTypeFromAltoFEP(File altoXml, String imgFileName,
+			boolean preserveOcrTxtStyles, boolean preserveOcrFontFamily, boolean replaceBadChars) throws TransformerException, SAXException, IOException, ParserConfigurationException, JAXBException {
+		// simple transform to file. Does not set imageFileName!!
+		// pageXml = XslTransformer.transform(abbyyXml, ABBY_TO_PAGE_XSLT, pageOutFile);
+		
+		Map<String, Object> params = null;
+		//set parameter for textStyle preservation
+		params = new HashMap<>();
+		params.put(TEXT_STYLE_XSL_PARAM_NAME, new Boolean(preserveOcrTxtStyles));
+		params.put(FONT_FAM_XSL_PARAM_NAME, new Boolean(preserveOcrFontFamily));
+		
+		// transform into Object and set imgFileName as it is not avail in abbyy XML
+		PcGtsType pc = JaxbUtils.transformToObject(altoXml, ALTO_FEP_TO_PAGE_XSLT, params, PcGtsType.class);
+		pc.getPage().setImageFilename(imgFileName);
+		if(replaceBadChars){
+			pc = FinereaderUtils.replaceBadChars(pc);
+		}
+		
+		return pc;
+	}	
 	
 	public static PcGtsType createPcGtsTypeFromAltov3(File altoXml, String imgFileName,
 			boolean preserveOcrTxtStyles, boolean preserveOcrFontFamily, boolean replaceBadChars) throws TransformerException, SAXException, IOException, ParserConfigurationException, JAXBException {
@@ -1476,8 +1504,75 @@ public class PageXmlUtils {
 		}
 	}
 	
+	/**
+	 * @warning currently only top-level regions are filtered out
+	 */
+	public static void filterOutSmallRegionsByFractionOfArea(PcGtsType pcGtsType, double fractionOfArea) {
+		logger.debug("filterOutSmallRegionsByFractionOfArea, fractionOfArea = "+fractionOfArea);
+		double areaOfPage = pcGtsType.getPage().getImageWidth()*pcGtsType.getPage().getImageHeight();
+		logger.debug("w x h = "+pcGtsType.getPage().getImageWidth()+" x "+pcGtsType.getPage().getImageHeight()+", area = "+areaOfPage);
+		filterOutSmallRegionsByFractionOfArea(pcGtsType, fractionOfArea*areaOfPage);
+	}
+	
+	public static int filterOutSmallRegions(PcGtsType pcGtsType, double thresh) {
+		logger.debug("filterOutSmallRegions, thresh = "+thresh);
+		List<TrpRegionType> regions = pcGtsType.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+		List<TrpRegionType> filtered =  (List<TrpRegionType>) TrpShapeTypeUtils.filterShapesByAreaThreshold(regions, thresh);
+		logger.debug("N before / after = "+regions.size()+" / "+filtered.size());
+		int nRemoved = regions.size() - filtered.size();
+		
+		if (nRemoved > 0) {
+			pcGtsType.getPage().getTextRegionOrImageRegionOrLineDrawingRegion().clear();
+			pcGtsType.getPage().getTextRegionOrImageRegionOrLineDrawingRegion().addAll(filtered);
+		}
+		
+		return nRemoved;
+	}
+	
+	public static PageXmlFileProcessor filterOutSmallRegions(String filePathOrUrl, double thresh) throws XPathExpressionException, SAXException, IOException, XPathFactoryConfigurationException, ParserConfigurationException {
+		PageXmlFileProcessor p = new PageXmlFileProcessor(filePathOrUrl);
+		return filterOutSmallRegions(p, thresh);
+	}
+	
+	public static PageXmlFileProcessor filterOutSmallRegions(PageXmlFileProcessor p, double thresh) throws XPathExpressionException, SAXException, IOException, XPathFactoryConfigurationException, ParserConfigurationException {
+		logger.debug("filterOutSmallRegions, thresh = "+thresh);
+		
+		Document d = p.getDocument();
+		NodeList nl = p.getTextRegions(d);
+		for (int i=0; i<nl.getLength(); ++i) {
+			Node n = nl.item(i);
+			String id = p.getNodeId(n);
+			
+			Node points = p.getNodeCoordsPoints(n);
+			String coordsStr = points.getNodeValue();
+			double area = PointStrUtils.getArea(coordsStr);
+			
+			logger.debug("checking TextRegion, id = "+id+", area = "+area+", thresh = "+thresh);
+			if (area < thresh) {
+				logger.debug("removing TextRegion, id = "+id+"");
+				n.getParentNode().removeChild(n);
+			}
+			
+//			logger.debug("N = "+nl.getLength());
+//			logger.debug("n = "+n+" id = "+p.getNodeId(n));
+//			logger.debug("parent = "+n.getParentNode());
+//			logger.debug("points = "+points);
+//			logger.debug("area = "+area);
+		}
+		
+//		nl = p.getTextRegions(doc);
+//		for (int i=0; i<nl.getLength(); ++i) {
+//			Node n = nl.item(i);
+//			logger.debug("n = "+n+" id = "+p.getNodeAttribute(n, "id"));
+//		}
+			
+		return p;
+	}
+	
 	public static void main(String[] args) throws Exception {
-		applyTextToLines(null, "I am a\ntext\n\nover\nmultiple   \nlines ! \n");
+		PageXmlUtils.filterOutSmallRegions("https://files.transkribus.eu/Get?id=AVHESCOEDXZYMYNPBOPGMEAR", 8000);
+		
+//		applyTextToLines(null, "I am a\ntext\n\nover\nmultiple   \nlines ! \n");
 		
 //		List<Pair<File, Exception>> errorFiles = checkPageXMLInFolder("\\\\na03.uibk.ac.at\\dea_scratch\\tmp_sebastian\\VeryLargeDocument", true);
 //		for (Pair<File, Exception> p : errorFiles) {

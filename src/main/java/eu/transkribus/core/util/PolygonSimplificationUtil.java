@@ -48,8 +48,8 @@ public class PolygonSimplificationUtil {
 	}
 	
 	public static void simplifyPointsOfTextLines(String pageXmlIn, String pageXmlOut, boolean doIndent) throws XPathFactoryConfigurationException, ParserConfigurationException, MalformedURLException, IllegalArgumentException, SAXException, IOException, XPathExpressionException, TransformerFactoryConfigurationError, TransformerException {
-		PageXmlFileProcessor fp = new PageXmlFileProcessor();
-		Document doc = fp.loadDocument(pageXmlIn);
+		PageXmlFileProcessor fp = new PageXmlFileProcessor(pageXmlIn);
+		Document doc = fp.getDocument();
 		NodeList nl = fp.getTextLineCoordsPoints(doc);
 		
 		logger.debug("got "+nl.getLength()+" lines");

@@ -92,7 +92,13 @@ public abstract class PageXmlProcessor extends TrpXPathProcessor {
 		return doc;
 	}
 	
-		
+	public Node getNodeCoordsPoints(Node node) throws XPathExpressionException, SAXException, IOException {
+		return super.getNode(node, "./Coords/@points");
+	}
+	
+	public String getNodeId(Node node) {
+		return getNodeAttribute(node, "id").getNodeValue();
+	}
 	
 	public Node getLineById(final String xmlKey, final String lineId) throws MalformedURLException, IllegalArgumentException, SAXException, IOException, XPathExpressionException {
 		Document doc = getDocument(xmlKey);
@@ -117,10 +123,22 @@ public abstract class PageXmlProcessor extends TrpXPathProcessor {
 		return super.getNodeList(doc, exp);
 	}
 	
-	public NodeList getTextLineCoordsPoints(Document doc)  throws XPathExpressionException, SAXException, IOException {
-		final String xPath = "//TextLine/Coords/@points";
+	public NodeList getCoordsPointsFromElement(Document doc, String element) throws XPathExpressionException, SAXException, IOException {
+		final String xPath = "//"+element+"/Coords/@points";
 		XPathExpression exp = super.compile(xPath);
 		return super.getNodeList(doc, exp);
+	}
+	
+	public NodeList getTextLineCoordsPoints(Document doc)  throws XPathExpressionException, SAXException, IOException {
+		return getCoordsPointsFromElement(doc, "TextLine");
+		
+//		final String xPath = "//TextLine/Coords/@points";
+//		XPathExpression exp = super.compile(xPath);
+//		return super.getNodeList(doc, exp);
+	}
+	
+	public NodeList getTextRegionCoordsPoints(Document doc)  throws XPathExpressionException, SAXException, IOException {
+		return getCoordsPointsFromElement(doc, "TextRegion");
 	}
 	
 	public NodeList getTextRegions(Document doc) throws XPathExpressionException, SAXException, IOException {
@@ -128,6 +146,12 @@ public abstract class PageXmlProcessor extends TrpXPathProcessor {
 		XPathExpression exp = super.compile(xPath);
 		return super.getNodeList(doc, exp);
 	}
+	
+	public Node getTextRegionById(final Document doc, final String regionId) throws XPathExpressionException, SAXException, IOException {
+		final String xPath = "//TextRegion[@id='" + regionId + "']";
+		XPathExpression exp = super.compile(xPath);
+		return super.getNode(doc, exp);
+	}	
 	
 	public String getUnicodeFromLineById(final String xmlKey, final String lineId) throws MalformedURLException, IllegalArgumentException, SAXException, IOException, XPathExpressionException {
 		Document doc = getDocument(xmlKey);

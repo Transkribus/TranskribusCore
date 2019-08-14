@@ -364,7 +364,7 @@ public class LocalDocReader {
 			final String imgFileName = e.getKey();
 
 			//check for a page XML of this name
-			File pageXml = findXml(imgFileName, pageInputDir);
+			File pageXml = findXml(imgFileName, pageInputDir, config.isFindFilesIgnoringPrefix());
 			
 			//TODO thumbURL dir + imgFile.getName())+".jpg"
 			File thumbFile = getThumbFile(inputDir, imgFileName);
@@ -412,9 +412,9 @@ public class LocalDocReader {
 				//if no page XML, then create one at this path
 				File pageOutFile = new File(pageInputDir.getAbsolutePath() + File.separatorChar 
 						+ imgFileName + ".xml");
-				File abbyyXml = findXml(imgFileName, ocrInputDir);
-				File altoXml = findXml(imgFileName, altoInputDir);
-				File txtFile = findFile(imgFileName, txtInputDir, "txt");
+				File abbyyXml = config.skipAbbyy ? null : findXml(imgFileName, ocrInputDir, config.isFindFilesIgnoringPrefix());
+				File altoXml = config.skipAlto ? null : findXml(imgFileName, altoInputDir, config.isFindFilesIgnoringPrefix());
+				File txtFile = config.skipTxt ? null : findFile(imgFileName, txtInputDir, "txt", config.isFindFilesIgnoringPrefix());
 				
 				pageXml = createPageXml(pageOutFile, false, abbyyXml, altoXml, txtFile, 
 						config.isPreserveOcrFontFamily(), 
@@ -914,6 +914,19 @@ public class LocalDocReader {
 		return page;
 	}
 	
+	public static File findFile(String imgName, File inputDir, String extension, boolean ignorePrefix) {
+		File f = findFile(imgName, inputDir, extension);
+		if (f != null) {
+			return f;
+		}
+		else if (ignorePrefix && imgName.startsWith("img_")) { // FEP documents have file prefixes equal to their folder names
+			return findFile(inputDir.getName()+"_"+imgName.substring(4), inputDir, extension);
+		}
+		else {
+			return null;
+		}
+	}
+	
 	public static File findFile(String imgName, File inputDir, String extension) {
 		File file = new File(inputDir.getAbsolutePath() + File.separatorChar + imgName
 				+ "."+extension.toLowerCase());
@@ -937,7 +950,7 @@ public class LocalDocReader {
 		String folder = FilenameUtils.getFullPathNoEndSeparator(imagePath);
 		String basename = FilenameUtils.getBaseName(imagePath);
 		
-		return findXml(basename, new File(folder+File.separator+LocalDocConst.PAGE_FILE_SUB_FOLDER));
+		return findXml(basename, new File(folder+File.separator+LocalDocConst.PAGE_FILE_SUB_FOLDER), false);
 	}
 
 	/**
@@ -950,8 +963,8 @@ public class LocalDocReader {
 	 *            where to search
 	 * @return an existing and readable xml file or null if none is found
 	 */
-	public static File findXml(String imgName, File xmlInputDir) {
-		return findFile(imgName, xmlInputDir, "xml");
+	public static File findXml(String imgName, File xmlInputDir, boolean ignorePrefix) {
+		return findFile(imgName, xmlInputDir, "xml", ignorePrefix);
 		
 		// OLD CODE
 //		//assume XML file
@@ -1311,7 +1324,7 @@ public class LocalDocReader {
 		List<Pair<File, File>> imgXmlPairs = new ArrayList<>();
 		
 		for (Entry<String, File> e : imgs.entrySet()) {
-			File pageXML = findXml(e.getKey(), pageXmlInputDir);
+			File pageXML = findXml(e.getKey(), pageXmlInputDir, false);
 			if (pageXML == null) {
 				logger.warn("No PAGE XML found for img: "+e.getValue().getAbsolutePath()+" - skipping!");
 			}
@@ -1330,6 +1343,10 @@ public class LocalDocReader {
 		protected boolean forceCreatePageXml; //true
 		protected boolean enableSyncWithoutImages; //false
 		protected boolean syncTextWithExistingPageXml=false;
+		protected boolean findFilesIgnoringPrefix=false; // used to load FEP documents
+		protected boolean skipAbbyy=false; // set to true to skip finding ABBYY OCR files
+		protected boolean skipAlto=false; // set to true to skip findin ALTO files
+		protected boolean skipTxt=false; // set to true to skip finding txt files
 		
 		/**
 		 * If set to true, then all server-related data is removed from the TrpDocMetadata if existent
@@ -1434,6 +1451,13 @@ public class LocalDocReader {
 		public void setSyncTextWithExistingPageXml(boolean syncTextWithExistingPageXml) {
 			this.syncTextWithExistingPageXml = syncTextWithExistingPageXml;
 		}
+		public boolean isFindFilesIgnoringPrefix() {
+			return findFilesIgnoringPrefix;
+		}
+
+		public void setFindFilesIgnoringPrefix(boolean findFilesIgnoringPrefix) {
+			this.findFilesIgnoringPrefix = findFilesIgnoringPrefix;
+		}
 
 		public TreeMap<String, Dimension> getDimensionMap() {
 			return dimensionMap;
@@ -1453,5 +1477,30 @@ public class LocalDocReader {
 			
 			this.dimensionMap = dims;
 		}
+
+		public boolean isSkipAbbyy() {
+			return skipAbbyy;
+		}
+
+		public void setSkipAbbyy(boolean skipAbbyy) {
+			this.skipAbbyy = skipAbbyy;
+		}
+
+		public boolean isSkipAlto() {
+			return skipAlto;
+		}
+
+		public void setSkipAlto(boolean skipAlto) {
+			this.skipAlto = skipAlto;
+		}
+
+		public boolean isSkipTxt() {
+			return skipTxt;
+		}
+
+		public void setSkipTxt(boolean skipTxt) {
+			this.skipTxt = skipTxt;
+		}
+		
 	}
 }
