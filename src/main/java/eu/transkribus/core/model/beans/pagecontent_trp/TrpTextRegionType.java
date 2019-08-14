@@ -157,9 +157,9 @@ public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {
 		
 		for (TextLineType l : getTextLine()) {
 			TrpTextLineType trp_l = (TrpTextLineType) l;
-			textAll +=  trp_l.getUnicodeText()+"\n";
+			textAll +=  trp_l.getUnicodeText()+System.lineSeparator();
 		}
-		textAll = StringUtils.removeEnd(textAll, "\n");
+		textAll = StringUtils.removeEnd(textAll, System.lineSeparator());
 		
 		return textAll;
 	}
@@ -177,9 +177,9 @@ public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {
 		
 		for (TextLineType l : getTextLine()) {
 			TrpTextLineType trp_l = (TrpTextLineType)l;
-			textAll += trp_l.getTextFromWords(fillEmptyWords)+"\n";
+			textAll += trp_l.getTextFromWords(fillEmptyWords)+System.lineSeparator();
 		}
-		textAll = StringUtils.removeEnd(textAll, "\n");
+		textAll = StringUtils.removeEnd(textAll, System.lineSeparator());
 		
 		return textAll;
 	}	
@@ -205,9 +205,9 @@ public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {
 	public String getUnicodeTextFromLines() {
 		String text="";
 		for (TextLineType tl : getTextLine()) {
-			text += ((TrpTextLineType)tl).getUnicodeText() + "\n";
+			text += ((TrpTextLineType)tl).getUnicodeText() + System.lineSeparator();
 		}
-		if (text.endsWith("\n")) text = text.substring(0, text.length()-1);
+		text = StringUtils.removeEnd(text, System.lineSeparator());
 		
 		return text;
 	}

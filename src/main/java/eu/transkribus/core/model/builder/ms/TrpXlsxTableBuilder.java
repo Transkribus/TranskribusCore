@@ -13,9 +13,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.poi.hssf.record.cf.CellRangeUtil;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellRange;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.DataFormatter;
@@ -23,6 +25,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.ss.util.WorkbookUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -96,7 +99,7 @@ public class TrpXlsxTableBuilder {
 			TrpPageType trpPage = tr.getPage();
 			
 			List<TrpRegionType> regions = trpPage.getRegions();
-			
+						
 			for (int j=0; j<regions.size(); ++j) {
 				TrpRegionType r = regions.get(j);
 				
@@ -107,7 +110,7 @@ public class TrpXlsxTableBuilder {
 					
 					int cols = table.getNCols();
 					int rows = table.getNRows();
-										
+															
 					List<List<TrpTableCellType>> allRowCells = new ArrayList<List<TrpTableCellType>>();
 					for (int k = 0; k<rows; k++){
 						allRowCells.add(table.getRowCells(k));
@@ -133,7 +136,7 @@ public class TrpXlsxTableBuilder {
 			            	currRowMap.put(cell.getCol(), cell);
 
 			            	if (cell.getRowSpan() > 1){
-			            		for (int k = 1; k<=cell.getRowSpan(); k++){
+			            		for (int k = 1; k<cell.getRowSpan(); k++){
 			            			HashMap<Integer, TrpTableCellType> tmpRowMap = allRows.get(rowIdx+k);
 			            			tmpRowMap.put(cell.getCol(), null);
 			            			allRows.remove(rowIdx+k);
@@ -141,7 +144,7 @@ public class TrpXlsxTableBuilder {
 			            		}
 			            	}
 			            	if (cell.getColSpan() > 1){
-			            		for (int k = 1; k<=cell.getColSpan(); k++){
+			            		for (int k = 1; k<cell.getColSpan(); k++){
 			            			currRowMap.put(cell.getCol()+k, null);
 			            		}
 			            	}
@@ -155,15 +158,17 @@ public class TrpXlsxTableBuilder {
 
 				}
 				
-			
-			logger.debug("writing xlsx for page "+(i+1)+"/"+doc.getNPages());
-
+		
+				logger.debug("writing xlsx for page "+(i+1)+"/"+doc.getNPages());
+	
+				
+				if (monitor!=null) {
+					monitor.worked(c);
+				}
+			}
 			++c;
-			if (monitor!=null) {
-				monitor.worked(c);
-			}
-			}
 		}
+		
 
 		/*
 		 * auto size the columns
@@ -185,7 +190,7 @@ public class TrpXlsxTableBuilder {
                 }
                               
             }
-            
+                        
 		}
 
 		FileOutputStream fOut;
@@ -225,8 +230,6 @@ public class TrpXlsxTableBuilder {
 		
 		CellStyle rowStyle = (CellStyle) wb.createCellStyle();
 		rowStyle.setWrapText(true);	
-		
-
         		
 	    int i = 0;
 	    int colIdtmp = 0;
@@ -239,6 +242,8 @@ public class TrpXlsxTableBuilder {
 
 	    	Row nextRow = currSheet.createRow(i);
 	    	nextRow.setRowStyle(rowStyle);
+	    	
+	    	int maxLines = 0;
 	    	
 	    	i++;
 	        
@@ -266,15 +271,28 @@ public class TrpXlsxTableBuilder {
 		        	int colID = entry.get(key).getCol();
 		        	int rowID = entry.get(key).getRow();
 		        	
+		        	String text = entry.get(key).getUnicodeTextFromLines();
+		        	
 		        	Cell currCell = nextRow.createCell(colID);
+		        	currCell.setCellValue(text);   
 		        	currCell.setCellStyle(style);
-		        	currCell.setCellValue(entry.get(key).getUnicodeTextFromLines());        	
-
+		        	
 	        		if(mergedVertical || mergedHorizontal){
-	        			//logger.debug(" row ID " + rowID + " rowSpan " + rowSpan + " merged H "+ mergedHorizontal + " colID " + colID + " colSpan " + colSpan + " merged V " + mergedVertical);
+//	        			logger.debug("entry.get(key).getUnicodeTextFromLines() " + entry.get(key).getUnicodeTextFromLines());
+//	        			logger.debug(" row ID " + rowID + " rowSpan " + rowSpan + " merged H "+ mergedHorizontal + " colID " + colID + " colSpan " + colSpan + " merged V " + mergedVertical);
+	        			
+	        			String [] textlines = text.split(System.lineSeparator());
+	        			
+	        			if (textlines.length > 0){
+		        			int length = textlines.length;
+		        			if (maxLines < length){
+		        				maxLines = length;
+		        			}
+		        			
+	        			}
 	        			currSheet.addMergedRegion(new CellRangeAddress(rowID,rowID+rowSpan-1,colID,colID+colSpan-1));
 	        		}
-	        	
+
 	        	}
 	        	else{
 		        	Cell currCell = nextRow.createCell(key);
@@ -282,7 +300,15 @@ public class TrpXlsxTableBuilder {
 	        	}
 	        }
 	        
-	        
+	        /*
+	         * set the height of a row manually since it does not work for merged region cells!!!
+	         * so if there are merged cells in a row we remember the maximum number of text lines in one of these cells to set the appropriate height
+	         */
+			logger.debug("row contains maximum nr.- of lines in cell of: "  + maxLines);
+			if (maxLines > 0){
+				nextRow.setHeight((short) (nextRow.getHeight()*maxLines));
+			}
+			
 	    }
 	}
 	
