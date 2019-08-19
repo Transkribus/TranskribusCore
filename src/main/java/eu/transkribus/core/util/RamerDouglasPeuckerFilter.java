@@ -5,7 +5,9 @@ import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Stack;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,12 +43,59 @@ public class RamerDouglasPeuckerFilter {
 		double eps = (GeomUtils.getPolygonLength(pts) * percentOfLength)/100.0d;
 		return filter(eps, pts);
 	}
-
+	
 	public static List<Point> filter(double eps, List<Point> pts) {
-		return filter(eps, pts, 0, pts.size()-1);
+		logger.debug("filter, n-pts = "+pts.size());
+		
+		Stack<Pair<Integer, Integer>> indexStack = new Stack<>();
+		indexStack.push(Pair.of(0, pts.size()-1));
+		
+		List<Point> simpl = new ArrayList<Point>();
+		int startIndex=0, endIndex=pts.size()-1;
+		
+		simpl.add(pts.get(0));
+		while (!indexStack.isEmpty()) {
+			startIndex = indexStack.peek().getLeft();
+			endIndex = indexStack.peek().getRight();
+			indexStack.pop();
+			
+			double dmax = 0;
+			int index = 0;
+			Line2D.Double line = new Line2D.Double(pts.get(startIndex), pts.get(endIndex));			
+			for (int i = startIndex + 1; i < endIndex; ++i) {
+				double dist = line.ptSegDist(pts.get(i));
+				logger.trace("dist = " + dist);
+				if (dist > dmax) {
+					index = i;
+					dmax = dist;
+				}
+			}
+			
+			if (dmax >= eps) {
+				indexStack.push(Pair.of(index, endIndex));
+				indexStack.push(Pair.of(startIndex, index));
+			} else {
+//				simpl.add(pts.get(startIndex)); // do not add this point here -> create duplicates
+				simpl.add(pts.get(endIndex));
+			}
+		}
+		
+		logger.debug("n-pts-filtered = "+simpl.size());
+		return simpl;
 	}
 
-	public static List<Point> filter(double eps, List<Point> pts, int startIndex, int endIndex) {
+	/**
+	 * @deprecated recursive implementation -> can cause stack overflow
+	 */
+	public static List<Point> filterRecursive(double eps, List<Point> pts) {
+		return filterRecursive(eps, pts, 0, pts.size()-1);
+	}
+	
+	/**
+	 * @deprecated recursive implementation -> can cause stack overflow
+	 */
+	private static List<Point> filterRecursive(double eps, List<Point> pts, int startIndex, int endIndex) {
+		logger.debug("filterRecursive, n-pts = "+pts.size());
 		double dmax = 0;
 		int index = 0;
 		Line2D.Double line = new Line2D.Double(pts.get(startIndex), pts.get(endIndex));
@@ -63,8 +112,8 @@ public class RamerDouglasPeuckerFilter {
 		List<Point> simpl = new ArrayList<Point>();
 
 		if (dmax >= eps) {
-			List<Point> sub1Simpl = filter(eps, pts, startIndex, index);
-			List<Point> sub2Simpl = filter(eps, pts, index, endIndex);
+			List<Point> sub1Simpl = filterRecursive(eps, pts, startIndex, index);
+			List<Point> sub2Simpl = filterRecursive(eps, pts, index, endIndex);
 			simpl.addAll(sub1Simpl);
 			simpl.addAll(sub2Simpl.subList(1, sub2Simpl.size())); // do not add
 																	// first
@@ -78,7 +127,8 @@ public class RamerDouglasPeuckerFilter {
 			simpl.add(pts.get(startIndex));
 			simpl.add(pts.get(endIndex));
 		}
-
+		
+		logger.debug("n-pts-filtered = "+simpl.size());
 		return simpl;
 	}
 }
