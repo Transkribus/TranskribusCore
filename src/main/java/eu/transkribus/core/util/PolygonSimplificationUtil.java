@@ -33,6 +33,10 @@ import eu.transkribus.core.io.LocalDocReader;
 public class PolygonSimplificationUtil {
 	private static final Logger logger = LoggerFactory.getLogger(PolygonSimplificationUtil.class);
 	
+	public static String simplifyPointsStr(String pointsStr) {
+		return simplifyPointsStr(pointsStr, RamerDouglasPeuckerFilter.DEFAULT_PERC_OF_POLYGON_LENGTH);
+	}
+	
 	public static String simplifyPointsStr(String pointsStr, double perc) {
 		if (!StringUtils.isEmpty(pointsStr)) {
 			List<Point> pts = PointStrUtils.parsePoints2(pointsStr);
