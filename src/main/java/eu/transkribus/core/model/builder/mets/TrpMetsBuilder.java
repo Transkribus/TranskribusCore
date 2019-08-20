@@ -192,9 +192,10 @@ public class TrpMetsBuilder extends Observable {
 				altoFt.setID(altoId);
 				altoFt.setSEQ(p.getPageNr());
 				
-				final String path = FileUtils.toFile(p.getCurrentTranscript().getUrl()).getAbsolutePath();
-				
-				String loc = FilenameUtils.getName(path);
+				//logger.debug("url " + p.getCurrentTranscript().getUrl().toString());
+				//logger.debug("alto name " + FilenameUtils.getName(p.getCurrentTranscript().getUrl().toString()));
+								
+				String loc = FilenameUtils.getName(p.getCurrentTranscript().getUrl().toString());
 				//String tmpImgName = img.getFLocat().get(0).getHref();
 				//String relAltoPath = "alto/".concat(tMd.getImgFileName().substring(0, p.getImgFileName().lastIndexOf(".")).concat(".xml")); 
 				
