@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.io.RemoteDocConst;
 import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescriptor;
 import eu.transkribus.core.util.CoreUtils;
 
@@ -155,6 +156,10 @@ public class TrpDoc implements Serializable, Comparable<TrpDoc> {
 	
 	public boolean isRemoteDoc() {
 		return !isLocalDoc();
+	}
+	
+	public boolean isGtDoc() {
+		return md==null || md.getStatus()==null ? false : getMd().getStatus() == RemoteDocConst.STATUS_GROUND_TRUTH_DOC;
 	}
 
 	public TrpDocMetadata getMd() {

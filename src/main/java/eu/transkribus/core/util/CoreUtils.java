@@ -1306,6 +1306,12 @@ public class CoreUtils {
 		return str;
 	}
 	
+	public static void run(Runnable r) {
+		if (r != null) {
+			r.run();
+		}
+	}
+	
 	public static List<Path> listTrpImgFiles(String path, int maxDepth) throws IOException {
 		String[] exts = new String[] {".jpeg", ".jpg", ".jpe", ".jfif", ".png", ".tiff", ".tif"};
 //		String[] exts = new String[] {".jpeg", ".jpg", ".png", ".tiff", ".tif"};
