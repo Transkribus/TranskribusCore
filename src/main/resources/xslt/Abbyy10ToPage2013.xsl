@@ -176,7 +176,7 @@
                 <TableCell>
                 	<xsl:attribute name="row" select="$rowSeq - 1"></xsl:attribute>
                 	<xsl:attribute name="col" select="$cellSeq - 1"></xsl:attribute>
-                    <xsl:attribute name="id" select="concat('r_', $seq, '_', position())"/>
+                	<xsl:attribute name="id" select="concat('r_', $seq)"/>
                     <xsl:attribute name="type" select="'paragraph'"/>
 					<xsl:if test="number($seq)">
                    		<xsl:attribute name="custom" select="concat('readingOrder {index:', $seq - 1, ';}')"/>
@@ -214,8 +214,8 @@
          <!-- compute region bounds from lines within and add a padding -->
         <xsl:param name="padding" select="number(1)"/>
          <xsl:for-each select="./abbyy:text/abbyy:par">
-            <!-- there are pars with @lineSpacing="-1" and no nodes inside (15.01.2019: GH added not(./@lineSpacing='-1') instead of ./@lineSpacing='-1' because this was meant-->
-             <xsl:if test="not(empty(.) and not(./@lineSpacing='-1'))">
+            <!-- there are pars with @lineSpacing="-1" and no nodes inside-->
+             <xsl:if test="not(empty(.) or ./@lineSpacing='-1')">
                 <TextRegion>
                     <xsl:attribute name="id" select="concat('r_', $seq, '_', position())"/>
                     <xsl:attribute name="type" select="'paragraph'"/>
@@ -271,7 +271,7 @@
 						  		<xsl:value-of select="position()"/>
 							</xsl:variable>
 	                        <xsl:call-template name="TextRegion_for_table">
-	                            <xsl:with-param name="seq" select="concat($seq, '_', $pos)"/>
+	                        	<xsl:with-param name="seq" select="concat($seq, '_', $row, '_', $pos)"/>
 	                            <xsl:with-param name="rowSeq" select="$row"/>
 	                            <xsl:with-param name="cellSeq" select="$pos"/>
 	                        </xsl:call-template>
