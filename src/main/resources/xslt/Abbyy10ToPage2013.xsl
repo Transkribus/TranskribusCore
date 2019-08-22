@@ -176,7 +176,7 @@
                 <TableCell>
                 	<xsl:attribute name="row" select="$rowSeq - 1"></xsl:attribute>
                 	<xsl:attribute name="col" select="$cellSeq - 1"></xsl:attribute>
-                    <xsl:attribute name="id" select="concat('r_', $seq, '_', position())"/>
+                	<xsl:attribute name="id" select="concat('r_', $seq)"/>
                     <xsl:attribute name="type" select="'paragraph'"/>
 					<xsl:if test="number($seq)">
                    		<xsl:attribute name="custom" select="concat('readingOrder {index:', $seq - 1, ';}')"/>
@@ -271,7 +271,7 @@
 						  		<xsl:value-of select="position()"/>
 							</xsl:variable>
 	                        <xsl:call-template name="TextRegion_for_table">
-	                            <xsl:with-param name="seq" select="concat($seq, '_', $pos)"/>
+	                        	<xsl:with-param name="seq" select="concat($seq, '_', $row, '_', $pos)"/>
 	                            <xsl:with-param name="rowSeq" select="$row"/>
 	                            <xsl:with-param name="cellSeq" select="$pos"/>
 	                        </xsl:call-template>
