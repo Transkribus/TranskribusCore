@@ -29,7 +29,7 @@ public class PageXmlFileProcessor extends PageXmlProcessor {
 
 	@Override protected Document loadDocument(String filePathOrUrl)
 			throws MalformedURLException, IllegalArgumentException, SAXException, IOException {
-		logger.debug("filePathOrUrl = "+filePathOrUrl+" isFile = "+new File(filePathOrUrl).exists());
+		logger.trace("filePathOrUrl = "+filePathOrUrl+" isFile = "+new File(filePathOrUrl).exists());
 		
 		this.doc = new File(filePathOrUrl).exists() ? parse(new File(filePathOrUrl)) : parse(new URL(filePathOrUrl));
 //		this.doc = CoreUtils.fileExists(filePathOrUrl) ? parse(new File(filePathOrUrl)) : parse(new URL(filePathOrUrl));
