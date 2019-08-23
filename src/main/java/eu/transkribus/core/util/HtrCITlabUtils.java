@@ -18,6 +18,8 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.model.beans.TrpHtr;
+
 public class HtrCITlabUtils {
 	private static final Logger logger = LoggerFactory.getLogger(HtrCITlabUtils.class);
 	public final static String PROVIDER_CITLAB = "CITlab";
@@ -120,6 +122,7 @@ public class HtrCITlabUtils {
 			content = FileUtils.readFileToString(file, DeaFileUtils.DEFAULT_CHARSET);
 		} catch (IOException e) {
 			logger.error("Could not read HTR metadata file: " + file.getName(), e);
+			throw new RuntimeException(e);
 		}
 		return content;
 	}
@@ -175,6 +178,39 @@ public class HtrCITlabUtils {
 		public boolean accept(File pathname) {
 			return pathname.isFile() && pathname.getName().endsWith(".dict");
 		}
+	}
+	
+	public static boolean loadDataFromFileSystem(TrpHtr h) {
+		boolean hasChanged = false;
+		
+		switch (h.getProvider()) {
+		case HtrCITlabUtils.PROVIDER_CITLAB:
+			File bestNetFile = new File(h.getPath(), HtrCITlabUtils.CITLAB_BEST_SPRNN_FILENAME);
+			boolean hasBestNet = bestNetFile.isFile();
+			hasChanged |= hasBestNet != h.isBestNetStored();
+			h.setBestNetStored(hasBestNet);
+			//don't break, we need the next section too
+		case HtrCITlabUtils.PROVIDER_CITLAB_PLUS:
+			if(h.getCerString() == null) {
+				File cerFile = new File(h.getPath(), HtrCITlabUtils.CITLAB_CER_FILENAME);
+				h.setCerString(HtrCITlabUtils.getCerSeriesString(cerFile));
+				hasChanged |= !StringUtils.isEmpty(h.getCerString());
+			}
+			if(h.getCerTestString() == null) {
+				File cerTestFile = new File(h.getPath(), HtrCITlabUtils.CITLAB_CER_TEST_FILENAME);
+				h.setCerTestString(HtrCITlabUtils.getCerSeriesString(cerTestFile));
+				hasChanged |= !StringUtils.isEmpty(h.getCerTestString());
+			}
+			if(h.getCharSetString() == null) {
+				File charMapFile = new File(h.getPath(), HtrCITlabUtils.CHAR_MAP_FILENAME);
+				h.setCharSetString(HtrCITlabUtils.getCharsetFromCITlabCharMap(charMapFile));
+				hasChanged |= !StringUtils.isEmpty(h.getCharSetString());
+			}		
+			break;
+		default:
+			break;
+		}
+		return hasChanged;
 	}
 	
 	public static void main(String[] args) {
