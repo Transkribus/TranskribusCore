@@ -46,6 +46,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.io.FileExistsException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -293,13 +294,13 @@ public class CoreUtils {
 		return title.replaceAll("([/\\?%*:| \"<>. \\\\])", replacement);
 	}
 
-	public static File createDirectory(String path, boolean overwrite) throws IOException {
+	public static File createDirectory(String path, boolean overwrite) throws FileExistsException, IOException {
 		File dir = new File(path);
 		if (dir.exists()) {
 			if (overwrite) {
 				FileUtils.forceDelete(dir);
 			} else {
-				throw new IOException("Output path already exists: " + path);
+				throw new FileExistsException("Output path already exists: " + path);
 			}
 		}
 
@@ -308,13 +309,36 @@ public class CoreUtils {
 
 		return dir;
 	}
-
+	
+	/**
+	 * Create directory and all necessary sub-directories. Do not throw an exception if it already exists.
+	 * @param overwrite True to overwrite existing directory if it exists
+	 */
+	public static File createDirectoriesSilent(String path, boolean overwrite) throws IOException {
+		File dir = new File(path);
+		if (overwrite && dir.exists()) {
+			FileUtils.forceDelete(dir);
+		}
+		if (dir.exists()) {
+			return dir;
+		}
+		
+		return Files.createDirectories(Paths.get(dir.getAbsolutePath())).toFile();	
+	}
+	
 	@SafeVarargs
 	public static <T> List<T> asList(T... array) {
 		if (array == null)
 			return new ArrayList<>();
 
 		return Arrays.asList(array);
+	}
+	
+	public static List<Integer> asList(int[] intArray) {
+		if (intArray == null) {
+			return null;
+		}
+		return Arrays.stream(intArray).boxed().collect(Collectors.toList());
 	}
 
 	public static File getFileFromPossiblePaths(String... paths) throws FileNotFoundException {
@@ -1284,6 +1308,18 @@ public class CoreUtils {
 	 */
 	public static String getClassPathString(Class<?> clazz) {
 		return getClassPathString(clazz, ":");
+	}
+	
+	public static <T> boolean contains(T object, T... elements) {
+		if (elements == null) {
+			return false;
+		}
+		for (Object el : elements) {
+			if (CoreUtils.equalsObjects(el, object)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public static boolean contains(Collection<String> collection, String searchFor, boolean caseSensitive) {
