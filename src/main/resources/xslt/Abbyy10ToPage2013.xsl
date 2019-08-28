@@ -43,7 +43,7 @@
     <xsl:template name="metadata">
         <xsl:variable name="time" select="current-dateTime()"/>
         <Metadata>
-            <Creator/>
+            <Creator>Transkribus</Creator>
             <Created><xsl:value-of  select="$time"/></Created>
             <LastChange><xsl:value-of  select="$time"/></LastChange>
             <Comments>
