@@ -52,7 +52,7 @@
                 <xsl:for-each select="distinct-values(//formatting/@lang)">
                 Language: <xsl:value-of select="current()"/>
                 </xsl:for-each>
-                Producer: <xsl:value-of select="/document/@producer"/>
+                Producer: Transkribus<!-- xsl:value-of select="/document/@producer"/> -->
             </Comments>
         </Metadata>
     </xsl:template>
