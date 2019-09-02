@@ -43,7 +43,7 @@
     <xsl:template name="metadata">
         <xsl:variable name="time" select="current-dateTime()"/>
         <Metadata>
-            <Creator/>
+            <Creator>Transkribus</Creator>
             <Created><xsl:value-of  select="$time"/></Created>
             <LastChange><xsl:value-of  select="$time"/></LastChange>
             <Comments>
@@ -52,7 +52,7 @@
                 <xsl:for-each select="distinct-values(//formatting/@lang)">
                 Language: <xsl:value-of select="current()"/>
                 </xsl:for-each>
-                Producer: <xsl:value-of select="/document/@producer"/>
+                Producer: Transkribus<!-- xsl:value-of select="/document/@producer"/> -->
             </Comments>
         </Metadata>
     </xsl:template>
