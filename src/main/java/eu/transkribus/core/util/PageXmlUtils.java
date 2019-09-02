@@ -424,7 +424,7 @@ public class PageXmlUtils {
 			final Integer yDim) {
 		// create md
 		MetadataType md = new MetadataType();
-		md.setCreator("TRP");
+		md.setCreator("Transkribus");
 		XMLGregorianCalendar xmlCal = JaxbUtils.getXmlCalendar(new Date());
 		md.setCreated(xmlCal);
 		md.setLastChange(xmlCal);
