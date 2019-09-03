@@ -367,6 +367,7 @@ public final class RESTConst {
 	
 	public static final String TYPE_FACE_PARAM = "typeFace";
 	public static final String LANGUAGE_PARAM = "language";
+	public static final String DO_BLOCK_SEG_ONLY_PARAM = "doBlockSegOnly";
 	
 	//OAuth stuff
 	public static final String LOGIN_OAUTH_PATH = "oauth";
