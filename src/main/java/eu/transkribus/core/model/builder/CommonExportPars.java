@@ -124,7 +124,7 @@ public class CommonExportPars {
 	}
 
 	public void setDoWriteTagsIob(boolean doWriteTagsIob) {
-		this.doWriteTagsIob = doWriteTagsXlsx;
+		this.doWriteTagsIob = doWriteTagsIob;
 	}
 
 	public boolean isDoWriteTablesXlsx() {
@@ -390,7 +390,7 @@ public class CommonExportPars {
 		return "CommonExportPars [pages=" + pages + ", doWriteMets=" + doWriteMets + ", doWriteImages=" + doWriteImages
 				+ ", doExportPageXml=" + doExportPageXml + ", doExportAltoXml=" + doExportAltoXml + ", doWritePdf="
 				+ doWritePdf + ", doWriteTei=" + doWriteTei + ", doWriteDocx=" + doWriteDocx + ", doWriteTagsXlsx="
-				+ doWriteTagsXlsx + ", doWriteTablesXlsx=" + doWriteTablesXlsx + ", doCreateTitle=" + doCreateTitle
+				+ doWriteTagsXlsx + ", doWriteTagsIob="+doWriteTagsIob+", doWriteTablesXlsx=" + doWriteTablesXlsx + ", doCreateTitle=" + doCreateTitle
 				+ ", useVersionStatus=" + useVersionStatus + ", writeTextOnWordLevel=" + writeTextOnWordLevel
 				+ ", doBlackening=" + doBlackening + ", selectedTags=" + selectedTags + ", dir=" + dir
 				+ ", splitIntoWordsInAltoXml=" + splitIntoWordsInAltoXml + ", pageDirName=" + pageDirName
@@ -496,6 +496,8 @@ public class CommonExportPars {
 		if (doWriteTablesXlsx != other.doWriteTablesXlsx)
 			return false;
 		if (doWriteTagsXlsx != other.doWriteTagsXlsx)
+			return false;
+		if(doWriteTagsIob != other.doWriteTagsIob)
 			return false;
 		if (doWriteTei != other.doWriteTei)
 			return false;
