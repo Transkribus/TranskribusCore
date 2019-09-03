@@ -56,6 +56,7 @@ public enum JobImpl {
 	CITlabHtrJob(JobTask.Htr, "CITlab " + JobTask.Htr.getLabel(), "CITlabHtrJob", null),
 	CITlabLocalHtrJob(JobTask.Htr, "Local CITlab " + JobTask.Htr.getLabel(), "CITlabLocalHtrJob", null),
 	FinereaderOcrJob(JobTask.Ocr, JobTask.Ocr.getLabel(), "OcrJob", null),
+	FinereaderLaJob(JobTask.DetectBlocks, "Typewritten Block Segmentation", "FinereaderLaJob", null),
 	
 	CITlabKwsJob(JobTask.Kws, "CITlab " + JobTask.Kws.getLabel(), "CITlabKwsJob", null),
 	
