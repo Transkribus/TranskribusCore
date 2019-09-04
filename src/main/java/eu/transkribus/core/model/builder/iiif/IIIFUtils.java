@@ -91,6 +91,9 @@ public class IIIFUtils {
 		
 		final TrpDoc doc = new TrpDoc();
 		md = IIIFUtils.readIiifMetadata(manifest);
+		if(md.getTitle() == null) {
+			md.setTitle("IIIF_Import_"+doc.getId());
+		}
 		doc.setMd(md);
 		doc.setPages(pages);	
 		
@@ -203,8 +206,7 @@ public class IIIFUtils {
 			case "Author":
 				md.setAuthor(entry.getValueString());
 			}
-		}		
-		
+		}
 		return md;
 	}
 	
