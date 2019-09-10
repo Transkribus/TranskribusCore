@@ -1,6 +1,5 @@
 package eu.transkribus.core.model.builder.iiif;
 
-import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,10 +16,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.primaresearch.dla.page.io.xml.XmlInputOutput;
-import org.primaresearch.dla.page.io.xml.XmlPageReader;
 import org.primaresearch.io.UnsupportedFormatVersionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,11 +41,13 @@ import de.digitalcollections.iiif.model.sharedcanvas.AnnotationList;
 import de.digitalcollections.iiif.model.sharedcanvas.Canvas;
 import de.digitalcollections.iiif.model.sharedcanvas.Layer;
 import de.digitalcollections.iiif.model.sharedcanvas.Manifest;
+import de.digitalcollections.iiif.model.sharedcanvas.Resource;
 import de.digitalcollections.iiif.model.sharedcanvas.Sequence;
 import eu.transkribus.core.exceptions.CorruptImageException;
 import eu.transkribus.core.exceptions.NullValueException;
 import eu.transkribus.core.io.LocalDocConst;
 import eu.transkribus.core.io.LocalDocReader;
+import eu.transkribus.core.io.LocalDocReader.DocLoadConfig;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpImage;
@@ -77,51 +75,63 @@ public class IIIFUtils {
 		
 		Manifest manifest =  iiifMapper.readValue(url, Manifest.class);
 
-		TrpDocMetadata md = null;
+		TrpDocMetadata md = new TrpDocMetadata();
 		
-		//TODO read metadata from IIIF
-		logger.debug("the local user home dir = " + path);
-		
-		List<TrpPage> pages = null;
 		try {
-			pages = IIIFUtils.getPagesFromIIIF(manifest,path);
+			IIIFUtils.getPagesFromIIIF(manifest,path);
 		} catch (UnsupportedFormatVersionException e) {
-			e.printStackTrace();
+			logger.error("Could not get pages from IIIF Manifest, UnsupportedFormatException :"+e.getMessage());
 		}
+		TrpDoc doc = new TrpDoc();
+			
+		doc = LocalDocReader.load(path+ File.separator + "img");
 		
-		final TrpDoc doc = new TrpDoc();
 		md = IIIFUtils.readIiifMetadata(manifest);
 		if(md.getTitle() == null) {
 			md.setTitle("IIIF_Import_"+doc.getId());
 		}
 		doc.setMd(md);
-		doc.setPages(pages);	
-		
+	
 		return doc;
 	
 	}
 	
-	public static List<TrpPage> getPagesFromIIIF(Manifest manifest,String dir) throws MalformedURLException, IOException, UnsupportedFormatVersionException{
+	public static void getPagesFromIIIF(Manifest manifest,String dir) throws MalformedURLException, IOException, UnsupportedFormatVersionException{
 	
-		XmlPageReader reader = XmlInputOutput.getReader();
-		List<TrpPage> pages = new ArrayList<>();
 		File imgFile = null;
-		File abbyyFile = null;
 		File altoFile = null;
 		
 		String imgDirPath = dir + File.separator + "img";
-		String altoDirPath = dir + File.separator + LocalDocConst.ALTO_FILE_SUB_FOLDER;
-		String pageDirPath = dir + File.separator + LocalDocConst.PAGE_FILE_SUB_FOLDER;
+		String altoDirPath = dir + File.separator + "img" + File.separator + LocalDocConst.ALTO_FILE_SUB_FOLDER;
 		
 		List<Sequence> sequences = manifest.getSequences();
 				for(Sequence sequence : sequences) {
 					List<Canvas> canvases = sequence.getCanvases();
 					for(int i = 0; i<canvases.size(); i++) {
 						List<Annotation> images = canvases.get(i).getImages();
-						int pageNr = i+1;
+						List<AnnotationList> otherContentList = canvases.get(i).getOtherContent();
+						
+						// Get Alto	file			
+						for(AnnotationList otherContent : otherContentList) {
+							List<Annotation> otherAnno = otherContent.getResources();
+							for(Annotation annotation : otherAnno) {
+								Resource resource = annotation.getResource();
+								if(resource.getIdentifier().toString().endsWith(".xml")) {
+									
+									altoFile = new File(altoDirPath + File.separator + i+".xml");
+									logger.debug("Create Alto File");
+									if(DeaFileUtils.copyUrlToFile(resource.getIdentifier().toURL(), altoFile) >= 400) {
+										logger.error("Could not download ALTO XML and it will be ignored!");
+										//don't fail if ALTO XML could not be retrieved
+										altoFile = null;
+									}
+								}
+							}
+							
+						}
+						
 						for(Annotation image : images) {
 							
-							final String mimetype = image.getResource().getType();
 							
 							String filename = i + ".jpg";
 							URL url = new URL(image.getResource().getIdentifier().toString());
@@ -136,63 +146,34 @@ public class IIIFUtils {
 								url = new URL(redirect);
 							}	
 							int imgDownloadStatus = DeaFileUtils.copyUrlToFile(url, imgFile);
-							
+													
 							if(imgDownloadStatus >= 400) {
 								//the image URL connection attempt returns a response with code > 400
 								problemMsg = getBrokenUrlMsg(url, imgDownloadStatus);
 							}
 							
-							//TODO import alto if available
+//							// Get alto in case of being used in seeAlso
+//							List<OtherContent> seeAlso = image.getSeeAlso();
+//							
+//							if(seeAlso != null) {
+//								for(OtherContent content : seeAlso) {
+//									if(content.getFormat() == MimeType.MIME_APPLICATION_XML  ) {
+//	
+//										altoFile = new File(altoDirPath + File.separator + filename);
+//										logger.debug("Create Alto File");
+//										if(DeaFileUtils.copyUrlToFile(content.getIdentifier().toURL(), altoFile) >= 400) {
+//											logger.error("Could not download ALTO XML and it will be ignored!");
+//											//don't fail if ALTO XML could not be retrieved
+//											altoFile = null;
+//										}
+//									}		
+//								}
+//							}
 							
-							List<OtherContent> seeAlso = image.getSeeAlso();
 							
-							if(seeAlso != null) {
-								for(OtherContent content : seeAlso) {
-									if(content.getFormat() == MimeType.MIME_APPLICATION_XML  ) {
-	
-										altoFile = new File(altoDirPath + File.separator + filename);
-										logger.debug("Create Alto File");
-										if(DeaFileUtils.copyUrlToFile(content.getIdentifier().toURL(), altoFile) >= 400) {
-											logger.error("Could not download ALTO XML and it will be ignored!");
-											//don't fail if ALTO XML could not be retrieved
-											altoFile = null;
-										}
-									}		
-								}
-							}
-							
-							
-							File pageXml = null;
-							File thumb = null;
-							File imgDir = new File(imgDirPath);
-							Dimension dim = null;
-							
-							logger.info("Page " + pageNr + " image: " + imgFile.getAbsolutePath());
-	
-							if(imgFile.isFile()) {
-								try {
-									dim = ImgUtils.readImageDimensions(imgFile);
-								} catch (CorruptImageException cie) {
-									logger.error("Image is corrupted!", cie);
-									//the image dimension can not be read from the downloaded file
-									problemMsg = LocalDocReader.getCorruptImgMsg(imgFile.getName());
-								}
-							}
-							
-							File pageOutFile = new File(pageDirPath + File.separatorChar + FilenameUtils.getBaseName(imgFile.getName()) + ".xml");
-							
-							pageXml = LocalDocReader.createPageXml(pageOutFile, true, null, altoFile, 
-									null, true, true, false, imgFile.getName(), dim);
-							
-							thumb = LocalDocReader.getThumbFile(imgDir, imgFile.getName());
-							
-							TrpPage page = LocalDocReader.buildPage(new File(dir), pageNr, imgFile, pageXml, thumb, dim,
-									problemMsg);
-							pages.add(page);
 						}
 					}
 				}
-				return pages;
 	}
 	
 	public static TrpDocMetadata readIiifMetadata(Manifest manifest) {
