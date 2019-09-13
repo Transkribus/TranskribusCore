@@ -143,6 +143,9 @@ public class LocalDocReader {
 			imgWriter.addObserver(observer);
 		}
 		imgWriter.extractImages(file, path);
+		// Upload PDF to server temp folder and extract images with pdfimages -j
+		
+		
 		return load(imgWriter.getExtractDirectory());
 	}
 	
@@ -656,10 +659,11 @@ public class LocalDocReader {
 		if(!dir.isDirectory()){
 			throw new FileNotFoundException("Path is not a directory: " + path);
 		}
+		//TODO list PDFs
 		File[] docDirs = dir.listFiles(new FileFilter() {	
 			@Override
 			public boolean accept(File pathname) {
-				return pathname.isDirectory();
+				return pathname.isDirectory() || pathname.getName().endsWith(".pdf");
 			}
 		});
 //		File pageInputDir = new File(dir.getAbsolutePath() + File.separatorChar
