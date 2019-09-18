@@ -118,6 +118,9 @@ public class TrpHtr {
 	@Column(name="NR_OF_VALIDATION_GT_PAGES")
 	private Integer nrOfValidationGtPages;
 	
+	@Column(name="RELEASE_LEVEL")
+	private int releaseLevelValue;
+	
 	//those fields just cache the split result from cerString and cerTestString
 	private double[] cerLog = null;
 	private double[] cerTestLog = null;
@@ -374,6 +377,22 @@ public class TrpHtr {
 		this.userId = userId;
 	}
 
+	public int getReleaseLevelValue() {
+		return releaseLevelValue;
+	}
+
+	public void setReleaseLevelValue(int releaseLevelValue) {
+		this.releaseLevelValue = releaseLevelValue;
+	}
+	
+	public ReleaseLevel getReleaseLevel() {
+		return ReleaseLevel.fromValue(releaseLevelValue);
+	}
+
+	public void setReleaseLevel(ReleaseLevel level) {
+		this.releaseLevelValue = level.getValue();
+	}
+
 	public Integer getNrOfTrainGtPages() {
 		return nrOfTrainGtPages;
 	}
@@ -412,5 +431,46 @@ public class TrpHtr {
 				+ ", params=" + params + ", userName=" + userName + ", userId=" + userId + ", cerLog="
 				+ Arrays.toString(cerLog) + ", cerTestLog=" + Arrays.toString(cerTestLog) 
 				+ ", nrOfTrainGtPages=" + nrOfTrainGtPages + ", nrOfValidationGtPages=" + nrOfValidationGtPages + "]";
+	}
+	
+	/**
+	 * Helper enum that maps release level int values from and to a name
+	 */
+	public enum ReleaseLevel {
+		/**
+		 * Model is private (default)
+		 */
+		None(0),
+		/**
+		 * Model is released to public. Datasets are private, i.e. can't be viewed or used by others.
+		 */
+		UndisclosedDataSet(1),
+		/**
+		 * Model is released to public. Datasets can be viewed and reused.
+		 */
+		DisclosedDataSet(2);
+		private int value;
+		private ReleaseLevel(int value) {
+			this.value = value;
+		}
+		public int getValue() {
+			return value;
+		}
+		/**
+		 * Resolve the enum type for an int value. If int value is not mapped, null is returned.
+		 * 
+		 * @param value
+		 * @return
+		 */
+		public static ReleaseLevel fromValue(final int value) {
+			ReleaseLevel result = None;
+			for(ReleaseLevel l : ReleaseLevel.values()) {
+				if(value == l.getValue()) {
+					result = l;
+					break;
+				}
+			}
+			return result;
+		}
 	}
 }

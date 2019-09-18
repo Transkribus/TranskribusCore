@@ -145,6 +145,7 @@ public class TrpIobBuilder {
 		
 									boolean entityWritten= false;
 									CustomTag tag = tagMap.get(token);
+									//TODO use all custom tags i.e B-abbreveation, I-address
 									// Handle continued tags
 									if(tagMap.containsKey(token)) {
 										if(tag.getTagName().equals("person")) {
