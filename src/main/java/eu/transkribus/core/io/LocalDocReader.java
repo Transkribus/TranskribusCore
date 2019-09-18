@@ -688,7 +688,10 @@ public class LocalDocReader {
 			final Date date = new Date(d.lastModified());
 			TrpDocDir docDir = new TrpDocDir();
 			docDir.setName(name);
-			docDir.setNrOfFiles(d.list().length);
+			if(d.isDirectory()) {
+				//don't do this for PDFs "dirs" which are also listed
+				docDir.setNrOfFiles(d.list().length);
+			}
 			docDir.setCreateDate(date);
 			docDir.setDocDir(d);
 //			TrpDocMetadata md = findOrCreateDocMd(d);
