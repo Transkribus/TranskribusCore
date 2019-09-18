@@ -111,23 +111,25 @@ public class IIIFUtils {
 						List<Annotation> images = canvases.get(i).getImages();
 						List<AnnotationList> otherContentList = canvases.get(i).getOtherContent();
 						
+						if(otherContentList != null) {
 						// Get Alto	file			
-						for(AnnotationList otherContent : otherContentList) {
-							List<Annotation> otherAnno = otherContent.getResources();
-							for(Annotation annotation : otherAnno) {
-								Resource resource = annotation.getResource();
-								if(resource.getIdentifier().toString().endsWith(".xml")) {
-									
-									altoFile = new File(altoDirPath + File.separator + i+".xml");
-									logger.debug("Create Alto File");
-									if(DeaFileUtils.copyUrlToFile(resource.getIdentifier().toURL(), altoFile) >= 400) {
-										logger.error("Could not download ALTO XML and it will be ignored!");
-										//don't fail if ALTO XML could not be retrieved
-										altoFile = null;
+							for(AnnotationList otherContent : otherContentList) {
+								List<Annotation> otherAnno = otherContent.getResources();
+								for(Annotation annotation : otherAnno) {
+									Resource resource = annotation.getResource();
+									if(resource.getIdentifier().toString().endsWith(".xml")) {
+										
+										altoFile = new File(altoDirPath + File.separator + i+".xml");
+										logger.debug("Create Alto File");
+										if(DeaFileUtils.copyUrlToFile(resource.getIdentifier().toURL(), altoFile) >= 400) {
+											logger.error("Could not download ALTO XML and it will be ignored!");
+											//don't fail if ALTO XML could not be retrieved
+											altoFile = null;
+										}
 									}
 								}
+								
 							}
-							
 						}
 						
 						for(Annotation image : images) {

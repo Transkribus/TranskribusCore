@@ -51,8 +51,10 @@ import eu.transkribus.core.model.beans.pagecontent.MetadataType;
 import eu.transkribus.core.model.beans.pagecontent.TranskribusMetadataType;
 import eu.transkribus.core.model.builder.CommonExportPars;
 import eu.transkribus.core.model.builder.ExportCache;
+import eu.transkribus.core.model.builder.NoTagsException;
 import eu.transkribus.core.model.builder.alto.AltoExporter;
 import eu.transkribus.core.model.builder.docx.DocxBuilder;
+import eu.transkribus.core.model.builder.iob.TrpIobBuilder;
 import eu.transkribus.core.model.builder.mets.TrpMetsBuilder;
 import eu.transkribus.core.model.builder.ms.TrpXlsxBuilder;
 import eu.transkribus.core.model.builder.ms.TrpXlsxTableBuilder;
@@ -272,6 +274,11 @@ public class DocExporter extends APassthroughObservable {
 	public void writeTagExcel(final TrpDoc doc, final String path, Set<Integer> pageIndices, boolean wordBased) throws Exception{
 		TrpXlsxBuilder xlsxBuilder = new TrpXlsxBuilder();
 		xlsxBuilder.writeXlsxForDoc(doc, wordBased, new File(path), pageIndices, null, cache);
+	}
+	
+	public  void writeTagIOB(final TrpDoc doc, final String path, Set<Integer> pageIndices, boolean wordBased) throws Exception {
+		TrpIobBuilder iobBuilder = new TrpIobBuilder();
+		iobBuilder.writeIobForDoc(doc, wordBased, new File(path), pageIndices, null, cache);
 	}
 	
 	public void writeTableExcel(final TrpDoc doc, final String path, Set<Integer> pageIndices) throws Exception{
