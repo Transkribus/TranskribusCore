@@ -39,8 +39,10 @@
             </xsl:if>
             <!--            <xsl:call-template name="styles2"/>-->
             <xsl:call-template name="printspace"/>
-            <xsl:apply-templates select="./PrintSpace/TextBlock | ./PrintSpace/Illustration 
-                | ./PrintSpace/GraphicalElement | ./PrintSpace/ComposedBlock"/>
+<!--             <xsl:apply-templates select="./PrintSpace/TextBlock | ./PrintSpace/Illustration  -->
+<!--                 | ./PrintSpace/GraphicalElement | ./PrintSpace/ComposedBlock"/> -->
+            <xsl:apply-templates select="//TextBlock | //Illustration 
+                | //GraphicalElement | //ComposedBlock"/>                
         </Page>
     </xsl:template>
 
