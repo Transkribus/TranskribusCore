@@ -289,7 +289,7 @@
             <xsl:call-template name="applyCoordinates"/>
             <xsl:attribute name="TYPE">table</xsl:attribute>
             <xsl:choose>
-                <xsl:when test="count(.//page:TextRegion) > 0">
+                <xsl:when test="count(.//page:TableCell) > 0">
                     <xsl:apply-templates select=".//page:TextRegion"/>
                 </xsl:when>
                 <xsl:otherwise>
