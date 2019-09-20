@@ -40,6 +40,7 @@ public class CommonExportPars {
 	boolean doWriteDocx=false;
 	boolean doWriteTxt=false;
 	boolean doWriteTagsXlsx = false;
+	boolean doWriteTagsIob = false;
 	boolean doWriteTablesXlsx = false;
 	
 	boolean doCreateTitle=false;
@@ -74,17 +75,17 @@ public class CommonExportPars {
 	//TODO: for backward compatibility - old export document job, delete when replaced
 	public CommonExportPars(String pages, boolean doWriteMets, boolean doWriteImages, boolean doExportPageXml,
 			boolean doExportAltoXml, boolean doWritePdf, boolean doWriteTei, boolean doWriteDocx, 
-			boolean doWriteTxt, boolean doWriteTagsXlsx, boolean doWriteTablesXlsx,
+			boolean doWriteTxt, boolean doWriteTagsXlsx, boolean doWriteTagsIob, boolean doWriteTablesXlsx,
 			boolean doCreateTitle, String useVersionStatus, boolean writeTextOnWordLevel, 
 			boolean doBlackening, Set<String> selectedTags) {
 		
 		this(pages, doWriteMets, doWriteImages, doExportPageXml, doExportAltoXml, doWritePdf, doWriteTei, doWriteDocx, 
-				doWriteTxt, doWriteTagsXlsx, doWriteTablesXlsx, doCreateTitle, useVersionStatus, writeTextOnWordLevel, doBlackening, null, null);
+				doWriteTxt, doWriteTagsXlsx, doWriteTablesXlsx, doWriteTagsIob, doCreateTitle, useVersionStatus, writeTextOnWordLevel, doBlackening, null, null);
 	}
 
 	public CommonExportPars(String pages, boolean doWriteMets, boolean doWriteImages, boolean doExportPageXml,
 			boolean doExportAltoXml, boolean doWritePdf, boolean doWriteTei, boolean doWriteDocx, 
-			boolean doWriteTxt, boolean doWriteTagsXlsx, boolean doWriteTablesXlsx,
+			boolean doWriteTxt, boolean doWriteTagsXlsx,boolean doWriteTagsIob, boolean doWriteTablesXlsx,
 			boolean doCreateTitle, String useVersionStatus, boolean writeTextOnWordLevel, 
 			boolean doBlackening, Set<String> selectedTags, String font) {
 		this();
@@ -98,6 +99,7 @@ public class CommonExportPars {
 		this.doWriteDocx = doWriteDocx;
 		this.doWriteTxt = doWriteTxt;
 		this.doWriteTagsXlsx = doWriteTagsXlsx;
+		this.doWriteTagsIob = doWriteTagsIob;
 		this.doWriteTablesXlsx = doWriteTablesXlsx;
 		this.doCreateTitle = doCreateTitle;
 		this.useVersionStatus = useVersionStatus;
@@ -115,6 +117,14 @@ public class CommonExportPars {
 
 	public void setDoWriteTagsXlsx(boolean doWriteTagsXlsx) {
 		this.doWriteTagsXlsx = doWriteTagsXlsx;
+	}
+	
+	public boolean isDoWriteTagsIob() {
+		return doWriteTagsIob;
+	}
+
+	public void setDoWriteTagsIob(boolean doWriteTagsIob) {
+		this.doWriteTagsIob = doWriteTagsIob;
 	}
 
 	public boolean isDoWriteTablesXlsx() {
@@ -380,7 +390,7 @@ public class CommonExportPars {
 		return "CommonExportPars [pages=" + pages + ", doWriteMets=" + doWriteMets + ", doWriteImages=" + doWriteImages
 				+ ", doExportPageXml=" + doExportPageXml + ", doExportAltoXml=" + doExportAltoXml + ", doWritePdf="
 				+ doWritePdf + ", doWriteTei=" + doWriteTei + ", doWriteDocx=" + doWriteDocx + ", doWriteTagsXlsx="
-				+ doWriteTagsXlsx + ", doWriteTablesXlsx=" + doWriteTablesXlsx + ", doCreateTitle=" + doCreateTitle
+				+ doWriteTagsXlsx + ", doWriteTagsIob="+doWriteTagsIob+", doWriteTablesXlsx=" + doWriteTablesXlsx + ", doCreateTitle=" + doCreateTitle
 				+ ", useVersionStatus=" + useVersionStatus + ", writeTextOnWordLevel=" + writeTextOnWordLevel
 				+ ", doBlackening=" + doBlackening + ", selectedTags=" + selectedTags + ", dir=" + dir
 				+ ", splitIntoWordsInAltoXml=" + splitIntoWordsInAltoXml + ", pageDirName=" + pageDirName
@@ -486,6 +496,8 @@ public class CommonExportPars {
 		if (doWriteTablesXlsx != other.doWriteTablesXlsx)
 			return false;
 		if (doWriteTagsXlsx != other.doWriteTagsXlsx)
+			return false;
+		if(doWriteTagsIob != other.doWriteTagsIob)
 			return false;
 		if (doWriteTei != other.doWriteTei)
 			return false;

@@ -26,6 +26,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.dea.util.pdf.PageImageWriter;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.mozilla.universalchardet.UniversalDetector;
@@ -143,6 +144,9 @@ public class LocalDocReader {
 			imgWriter.addObserver(observer);
 		}
 		imgWriter.extractImages(file, path);
+		// Upload PDF to server temp folder and extract images with pdfimages -j
+		
+		
 		return load(imgWriter.getExtractDirectory());
 	}
 	
@@ -656,10 +660,11 @@ public class LocalDocReader {
 		if(!dir.isDirectory()){
 			throw new FileNotFoundException("Path is not a directory: " + path);
 		}
+		//TODO list PDFs
 		File[] docDirs = dir.listFiles(new FileFilter() {	
 			@Override
 			public boolean accept(File pathname) {
-				return pathname.isDirectory();
+				return pathname.isDirectory() || pathname.getName().endsWith(".pdf");
 			}
 		});
 //		File pageInputDir = new File(dir.getAbsolutePath() + File.separatorChar
@@ -684,7 +689,17 @@ public class LocalDocReader {
 			final Date date = new Date(d.lastModified());
 			TrpDocDir docDir = new TrpDocDir();
 			docDir.setName(name);
-			docDir.setNrOfFiles(d.list().length);
+			if(d.isDirectory()) {
+				docDir.setNrOfFiles(d.list().length);
+			}else if(d.getName().endsWith(".pdf")) {
+				try {
+					PDDocument document = PDDocument.load(d);
+					docDir.setNrOfFiles(document.getNumberOfPages());
+				} catch (IOException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+			
 			docDir.setCreateDate(date);
 			docDir.setDocDir(d);
 //			TrpDocMetadata md = findOrCreateDocMd(d);

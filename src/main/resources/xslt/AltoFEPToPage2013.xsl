@@ -136,7 +136,7 @@
     
     <!-- blocks to Regions -->    
     <xsl:template match="TextBlock">
-      	<xsl:param name="all" select="false()"/>
+      	<xsl:param name="isTable" select="false()"/>
         <xsl:variable name="actId" select="@ID"/>
         <xsl:variable name="seq" select="number(substring-after($actId,'Page1_Block')) - 1"/>
         <xsl:variable name="font" select="./@STYLEREFS"/>
@@ -194,7 +194,8 @@
         <xsl:otherwise>
 	        <TextRegion>
 		        <xsl:attribute name="id" select="$actId"/>
-		        <xsl:attribute name="custom" select="concat('readingOrder ', (concat((concat('{index:', $seq)), ';}') ) )"/>
+		        <xsl:attribute name="custom" select="concat('readingOrder ', (concat((concat('{index:', substring-after(@ID, '_'))), ';}') ) )"/>
+<!-- 		        <xsl:attribute name="custom" select="substring-after(@ID, '_')"/> -->
 		<!--         We don't know the type from ALTO...    <xsl:attribute name="type" select="'paragraph'"/> -->
 		        <xsl:choose>
 		            <xsl:when test="count(./Shape/Polygon) > 0">

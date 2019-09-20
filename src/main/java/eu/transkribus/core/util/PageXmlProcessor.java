@@ -151,6 +151,12 @@ public abstract class PageXmlProcessor extends TrpXPathProcessor {
 		final String xPath = "//TextRegion[@id='" + regionId + "']";
 		XPathExpression exp = super.compile(xPath);
 		return super.getNode(doc, exp);
+	}
+	
+	public Node getNodeById(final Document doc, final String regionId) throws XPathExpressionException, SAXException, IOException {
+		final String xPath = "//*[@id='" + regionId + "']";
+		XPathExpression exp = super.compile(xPath);
+		return super.getNode(doc, exp);
 	}	
 	
 	public String getUnicodeFromLineById(final String xmlKey, final String lineId) throws MalformedURLException, IllegalArgumentException, SAXException, IOException, XPathExpressionException {

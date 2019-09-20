@@ -142,7 +142,7 @@ public class TeiBuilderTest {
 			mets = JaxbUtils.unmarshal(metsFile, Mets.class, TrpDocMetadata.class);
 			TrpFImagestore storeConfig = TrpFimgStoreConf.getFImagestore();
 			DocExporter docExp = new DocExporter(new FimgStoreGetClient(storeConfig));
-			docExp.writeTEI(doc, exportFilename, new CommonExportPars("1-4", false, false, true, false, false, true, false, false, false, false, false, "Latest", false, false, null), null);
+			docExp.writeTEI(doc, exportFilename, new CommonExportPars("1-4", false, false, true, false, false, true, false, false, false, false, false, false, "Latest", false, false, null), null);
 			//DocExporter.transformTei(mets, docPath);
 			//transformTei(mets);
 		} catch (JAXBException e) {

@@ -419,6 +419,7 @@ public final class RESTConst {
 	public static final String WRITE_DOCX_PARAM = "doWriteDocx";
 	public static final String WRITE_TXT_PARAM = "doWriteTxt";
 	public static final String WRITE_TAGS_EXCEL_PARAM = "doWriteTagsXlsx";
+	public static final String WRITE_TAGS_IOB_PARAM = "doWriteTagsIob";
 	public static final String WRITE_TABLES_EXCEL_PARAM = "doWriteTablesXlsx";
 	public static final String DO_PDF_IMAGES_ONLY_PARAM = "doPdfImagesOnly";
 	public static final String DO_PDF_IMAGES_PLUS_TEXT_PARAM = "doPdfImagesPlusText";
