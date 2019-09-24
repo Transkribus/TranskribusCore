@@ -120,6 +120,10 @@ public class TrpHtr {
 	
 	@Column(name="RELEASE_LEVEL")
 	private int releaseLevelValue;
+
+	@Transient
+	@Column(name="COLLECTION_ID_LINK")
+	private Integer collectionIdLink;
 	
 	//those fields just cache the split result from cerString and cerTestString
 	private double[] cerLog = null;
@@ -393,6 +397,14 @@ public class TrpHtr {
 		this.releaseLevelValue = level.getValue();
 	}
 
+	public Integer getCollectionIdLink() {
+		return collectionIdLink;
+	}
+
+	public void setCollectionIdLink(Integer collectionIdLink) {
+		this.collectionIdLink = collectionIdLink;
+	}
+
 	public Integer getNrOfTrainGtPages() {
 		return nrOfTrainGtPages;
 	}
@@ -418,21 +430,29 @@ public class TrpHtr {
 	}
 	
 	public String toShortString() {
-		return "("+htrId+","+name+")";
+		return "TrpHtr [htrId=" + htrId + ", name=" + name + ", provider=" + provider
+				+ ", path=" + path + ", created=" + created + ", language=" + language + ", baseHtrId=" + baseHtrId 
+				+ ", trainJobId=" + trainJobId + ", bestNetStored=" + bestNetStored + ", languageModelExists=" + languageModelExists
+				+ ", nrOfLines=" + nrOfLines + ", nrOfWords=" + nrOfWords + ", userName="
+				+ userName + ", userId=" + userId + ", nrOfTrainGtPages=" + nrOfTrainGtPages
+				+ ", nrOfValidationGtPages=" + nrOfValidationGtPages + ", releaseLevelValue=" + releaseLevelValue
+				+ ", collectionIdLink=" + collectionIdLink + "]";
 	}
-	
+
 	@Override
 	public String toString() {
 		return "TrpHtr [htrId=" + htrId + ", name=" + name + ", description=" + description + ", provider=" + provider
 				+ ", path=" + path + ", created=" + created + ", gtDocId=" + gtDocId + ", testGtDocId=" + testGtDocId
 				+ ", language=" + language + ", baseHtrId=" + baseHtrId + ", trainJobId=" + trainJobId + ", cerString="
-				+ cerString + ", cerTestString=" + cerTestString + ", charSet=" + charSetString
-				+ ", charListLegacy=" + charList + ", bestNetStored=" + bestNetStored + ", nrOfLines=" + nrOfLines + ", nrOfWords=" + nrOfWords
-				+ ", params=" + params + ", userName=" + userName + ", userId=" + userId + ", cerLog="
-				+ Arrays.toString(cerLog) + ", cerTestLog=" + Arrays.toString(cerTestLog) 
-				+ ", nrOfTrainGtPages=" + nrOfTrainGtPages + ", nrOfValidationGtPages=" + nrOfValidationGtPages + "]";
+				+ cerString + ", cerTestString=" + cerTestString + ", charList=" + charList + ", charSetString="
+				+ charSetString + ", bestNetStored=" + bestNetStored + ", languageModelExists=" + languageModelExists
+				+ ", nrOfLines=" + nrOfLines + ", nrOfWords=" + nrOfWords + ", params=" + params + ", userName="
+				+ userName + ", userId=" + userId + ", nrOfTrainGtPages=" + nrOfTrainGtPages
+				+ ", nrOfValidationGtPages=" + nrOfValidationGtPages + ", releaseLevelValue=" + releaseLevelValue
+				+ ", collectionIdLink=" + collectionIdLink + ", cerLog=" + Arrays.toString(cerLog)
+				+ ", cerTestLog=" + Arrays.toString(cerTestLog) + "]";
 	}
-	
+
 	/**
 	 * Helper enum that maps release level int values from and to a name
 	 */
@@ -471,6 +491,22 @@ public class TrpHtr {
 				}
 			}
 			return result;
+		}
+		
+		/**
+		 * Determine if this level allows to view the dataset.
+		 * This method should be used instead of checking on specific levels, as future changes in ReleaseLevel might break code then.
+		 * 
+		 * @param level
+		 * @return
+		 */
+		public static boolean isPrivateDataSet(ReleaseLevel level) {
+			switch (level) {
+			case UndisclosedDataSet:
+				return true;
+			default:
+				return false;
+			}
 		}
 	}
 }
