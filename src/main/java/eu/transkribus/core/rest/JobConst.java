@@ -56,6 +56,7 @@ public class JobConst {
 	public static final String PROP_DO_WORD_SEG = "doWordSeg";
 	public static final String PROP_DO_POLYGON_TO_BASELINE = "doPolygonToBaseline";
 	public static final String PROP_DO_BASELINE_TO_POLYGON = "doBaselineToPolygon";
+	public static final String PROP_STRUCTURES = "doStructures";
 	
 	public static final String PROP_REMOVE_LINE_BREAKS = "removeLineBreaks";
 	public static final String PROP_PERFORM_LAYOUT_ANALYSIS = "performLayoutAnalysis";
