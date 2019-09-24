@@ -15,6 +15,9 @@ import eu.transkribus.core.util.GeomUtils;
 import eu.transkribus.core.util.IntRange;
 import eu.transkribus.core.util.PointStrUtils;
 
+/*
+ * this updated version should work for single column pages but also for multi column pages
+ */
 public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 	private final static Logger logger = LoggerFactory.getLogger(TrpElementCoordinatesComparator.class);
 	
@@ -36,7 +39,7 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 //		if (!isRegionLineOrWord(o1) || !isRegionLineOrWord(o2))
 //			return 0;
 		
-		logger.trace("compare in TrpElementCoordinatesComparator");
+		logger.trace("compare in TrpElementCoordinatesComparator4Columns");
 		
 //		try {
 			String coords1="", coords2="";
@@ -49,6 +52,8 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 			if (o1 instanceof RegionType) {
 				RegionType r1 = (RegionType) o1;
 				RegionType r2 = (RegionType) o2;
+//				System.out.println("region1 id: " + r1.getId());
+//				System.out.println("region2 id: " + r2.getId());
 				if (r1.getCoords() != null && r2.getCoords() != null) {
 					coords1 = r1.getCoords().getPoints();
 					coords2 = r2.getCoords().getPoints();					
@@ -124,41 +129,33 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 				logger.trace("orientation set: "+orientation+" rotated points: "+pt1+", "+pt2);
 			}
 			
-			if (compareByYX == null) { // if compareByYX was not set by constructor, determine via shape
-				compareByYX = !WordType.class.isAssignableFrom(o1.getClass());
+			//start point + widht / 2: should help to consider the columns
+//			System.out.println("b1.getX() " + b1.getX());
+//			System.out.println("b1.getWidth()) " + b1.getWidth());
+//			System.out.println("pt2.x " + pt2.x);
+//			System.out.println("b2.x+b2.getWidth() "+ (b2.x+b2.getWidth()));
+			double v1 = b1.getX()+(b1.getWidth()/2);
+			if ( v1 < pt2.x){
+				//System.out.println("region1 wins");
+				return -1;
+			}
+			else if(v1 > (b2.x+b2.getWidth())){
+				return 1;
+			}
+			else{	
+				//System.out.println("yx compare");
+				return compareByYX(pt1.x, pt2.x, pt1.y, pt2.y); 
 			}
 			
-			if (!compareByYX) {
-//				return compareByXY(b1.x, b2.x, b1.y, b2.y);
-				return compareByXY(pt1.x, pt2.x, pt1.y, pt2.y);
-			}
-			else {
-				return compareByYX(pt1.x, pt2.x, pt1.y, pt2.y);
-//				return compareByYX(b1.x, b2.x, b1.y, b2.y);
-				//return compareBy_YOverlap_X(b1, b2);
-			}
-//		}
-//		catch (Exception e) {
-//			e.printStackTrace();
-//			return 0;
-//		}
 	}
 	
 	/** First compare by y, then x */
 	private int compareByYX(int x1, int x2, int y1, int y2) {
 		int yCompare = Integer.compare(y1, y2);
-		return (yCompare != 0) ? yCompare : Integer.compare(x1, x2);
+		//System.out.println("yCompare " +yCompare);
+		return (yCompare != 0) ? yCompare : -1;
 	}
-	
-	/** First compare by y, then x 
-	 * @deprecated not transitive and throws exception when reading the pageXML
-	 * */
-	private int compareBy_YOverlap_X(Rectangle b1, Rectangle b2) {		
-		int yCompare=compareByYOverlap(b1, b2, 0.4); // if overlap is more than 40% -> yCompare=0
-
-		return (yCompare != 0) ? yCompare : Integer.compare(b1.x, b2.x);
-	}
-	
+		
 	private int compareByYOverlap(Rectangle b1, Rectangle b2, double frac) {
 		int o = IntRange.getOverlapLength((int) b1.getY(), (int) b1.getHeight(), (int) b2.getY(), (int) b2.getHeight());		
 		int yCompare=0;
