@@ -5,13 +5,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.apache.commons.io.FilenameUtils;
+import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.exceptions.CorruptImageException;
-import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.util.ImgUtils;
+import eu.transkribus.core.util.SysUtils;
+import eu.transkribus.core.util.SebisStopWatch.SSW;
 
 public class LocalDocReaderTest {
 	private static final Logger logger = LoggerFactory.getLogger(LocalDocReaderTest.class);
@@ -20,6 +23,27 @@ public class LocalDocReaderTest {
 
 	public static final String TEST_DOC1 = BASE + "TrpTestDoc_20140127/";
 	public static final String TEST_DOC2 = BASE + "TrpTestDoc_20140508/";
+		
+//	@Test
+	public void testListImgFiles() throws IOException {
+		Assume.assumeTrue(SysUtils.isLinux());
+		
+		int nrOfFiles1 = 0, nrOfFiles2 = 0;
+		final String path = "/mnt/transkribus/user_storage/philip.kahle@transkribus.eu/AAK_scans_scaled";
+		SSW sw = new SSW();
+		
+		sw.start();
+		new File(path).list();
+		nrOfFiles1 = LocalDocReader.findImgFiles(new File(path)).size();
+		sw.stop();
+	
+		sw.start();
+		new File(path).list();
+		nrOfFiles2 = LocalDocReader.findImgFilenames(new File(path)).size();
+		sw.stop();
+		
+		Assert.assertEquals(nrOfFiles1, nrOfFiles2);
+	}
 	
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		

@@ -25,7 +25,11 @@ public class ImgPriority {
 	}
 
 	public static Integer getPriority(File f) {
-		final String mime = MimeTypes.getMimeType(FilenameUtils.getExtension(f.getName()));
+		return getPriority(f.getName());
+	}
+	
+	public static Integer getPriority(String filename) {
+		final String mime = MimeTypes.getMimeType(FilenameUtils.getExtension(filename));
 		return priorities.get(mime);
 	}
 	

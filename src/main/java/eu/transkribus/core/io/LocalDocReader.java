@@ -40,6 +40,7 @@ import eu.transkribus.core.exceptions.CorruptImageException;
 import eu.transkribus.core.io.formats.Page2010Converter;
 import eu.transkribus.core.io.formats.XmlFormat;
 import eu.transkribus.core.io.util.ImgFileFilter;
+import eu.transkribus.core.io.util.ImgFilenameFilter;
 import eu.transkribus.core.io.util.ImgPriority;
 import eu.transkribus.core.io.util.MdFileFilter;
 import eu.transkribus.core.model.beans.DocumentUploadDescriptor.PageUploadDescriptor;
@@ -65,6 +66,7 @@ import eu.transkribus.core.util.NaturalOrderComparator;
 import eu.transkribus.core.util.NaturalOrderFileComparator;
 import eu.transkribus.core.util.PageXmlUtils;
 import eu.transkribus.core.util.XmlUtils;
+import eu.transkribus.core.util.SebisStopWatch.SSW;
 
 /**
  * Reader class for loading a TRP Document from the local filesystem.<br>
@@ -1073,6 +1075,9 @@ public class LocalDocReader {
 	 * @throws IOException if the inputDir can't be read or no image file is found there
 	 */
 	public static TreeMap<String, File> findImgFiles(File inputDir) throws IOException {
+		
+		SSW sw = new SSW();
+		sw.start();
 		File[] imgArr = inputDir.listFiles(new ImgFileFilter());
 		
 		if(imgArr == null || imgArr.length == 0){
@@ -1089,6 +1094,7 @@ public class LocalDocReader {
 			imgArr = fepImgDir.listFiles(new ImgFileFilter());
 		}
 		
+		logger.debug("Found {} image files in {} ms", imgArr.length, sw.stop(false));
 		
 		//Use number sensitive ordering so that:		
 		//img1 -> img2 -> ... -> img9 -> img10 -> etc.
@@ -1115,6 +1121,75 @@ public class LocalDocReader {
 						+ pageMap.get(pageName).getName());
 				//found a better img with same name
 				pageMap.put(pageName, img);
+			}
+		}
+		return pageMap;
+	}
+	
+	/**
+	 * Finds image files and builds a list with distinct pages (based on
+	 * filenames).<br>
+	 * If several image files in different formats are found for one page, the
+	 * one with the highest priority (according to {@link eu.transkribus.core.io.util.ImgPriority}) is
+	 * returned in the list.
+	 * <br><br>
+	 * This method uses File::list() with FilenameFilter instead of File::listFiles() which makes it much faster on large directories 
+	 * as File objects are only allocated for accepted files after filtering. The allocation part still may take some time though.
+	 * 
+	 * @param inputDir
+	 *            that is searched for image files
+	 * @return a sorted Map with page image files
+	 * @throws IOException if the inputDir can't be read or no image file is found there
+	 */
+	public static TreeMap<String, File> findImgFilenames(File inputDir) throws IOException {
+		SSW sw = new SSW();
+		sw.start();
+		String[] imgArr = inputDir.list(new ImgFilenameFilter());
+		File parent = inputDir;
+		
+		if(imgArr == null || imgArr.length == 0){
+			//try fallback to OCRmaster folder
+			logger.debug("No images found in doc root! Trying fall back to subdir: " + LocalDocConst.OCR_MASTER_DIR);
+			File ocrMasterDir = new File(inputDir.getAbsolutePath() + File.separator + LocalDocConst.OCR_MASTER_DIR);
+			imgArr = ocrMasterDir.list(new ImgFilenameFilter());
+			parent = ocrMasterDir;
+		}
+		
+		if(imgArr == null || imgArr.length == 0){
+			//try fallback to FEP-style img folder
+			logger.debug("No images found in OCRmaster folder! Trying fall back to subdir: " + LocalDocConst.FEP_IMG_DIR);
+			File fepImgDir = new File(inputDir.getAbsolutePath() + File.separator + LocalDocConst.FEP_IMG_DIR);
+			imgArr = fepImgDir.list(new ImgFilenameFilter());
+			parent = fepImgDir;
+		}
+		
+		logger.debug("Found {} image files in {} ms", imgArr.length, sw.stop(false));
+		
+		//Use number sensitive ordering so that:		
+		//img1 -> img2 -> ... -> img9 -> img10 -> etc.
+		//try Java 8: http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html#naturalOrder--
+		Comparator<String> naturalOrderComp = new NaturalOrderComparator();
+		TreeMap<String, File> pageMap = new TreeMap<>(naturalOrderComp);
+
+		if (imgArr == null || imgArr.length == 0){
+			logger.debug("Folder " + inputDir.getAbsolutePath() + " does not contain any image files!");
+			logger.debug("No images found - returning empty TreeMap");
+			return pageMap;
+		}
+		
+		for (String imgName : imgArr) {
+//			logger.debug("img = " + img.getName());
+			final String pageName = FilenameUtils.getBaseName(imgName);
+			
+			if (!pageMap.containsKey(pageName)) {
+				//new page. add this img in any case
+				pageMap.put(pageName, new File(parent, imgName));
+//				logger.debug(pageName + ": found image: " + img.getName());
+			} else if (ImgPriority.getPriority(imgName) > ImgPriority
+					.getPriority(pageMap.get(pageName))) {
+				logger.debug(pageName + ": found better image: {} | Removing {}", imgName, pageMap.get(pageName).getName());
+				//found a better img with same name
+				pageMap.put(pageName, new File(parent, imgName));
 			}
 		}
 		return pageMap;
