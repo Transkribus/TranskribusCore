@@ -43,7 +43,7 @@
     <xsl:template name="metadata">
         <xsl:variable name="time" select="current-dateTime()"/>
         <Metadata>
-            <Creator>Transkribus</Creator>/>
+            <Creator>Transkribus</Creator>
             <Created><xsl:value-of  select="$time"/></Created>
             <LastChange><xsl:value-of  select="$time"/></LastChange>
             <Comments>
@@ -167,84 +167,134 @@
         <xsl:param name="seq"/>
         <xsl:param name="rowSeq"/>
         <xsl:param name="cellSeq"/>
-         <!-- compute region bounds from lines within and add a padding -->
+        <xsl:param name="topStart" select="number(1)"/>
+        <xsl:param name="leftStart" select="number(1)"/>
         <xsl:param name="padding" select="number(1)"/>
+         <!-- compute region bounds from lines within and add a padding -->
+        <xsl:variable name="currRowSpan">
+            <xsl:value-of select="(./@rowSpan>0)[1]"/>
+        </xsl:variable>
 <!--         <xsl:for-each select="./abbyy:text/abbyy:par"> -->
             <!-- there are pars with @lineSpacing="-1" and no nodes inside -->
-<!--              <xsl:if test="not(empty(.) or ./@lineSpacing='-1')"> -->
-				<xsl:if test="count(./abbyy:text/abbyy:par/abbyy:line)>0">
+        <xsl:choose>
+            <xsl:when test="count(./abbyy:text/abbyy:par/abbyy:line)>0">
                 <TableCell>
-                	<xsl:attribute name="row" select="$rowSeq - 1"></xsl:attribute>
-                	<xsl:attribute name="col" select="$cellSeq - 1"></xsl:attribute>
-                	<xsl:attribute name="id" select="concat('r_', $seq)"/>
+                    <xsl:attribute name="row" select="$rowSeq - 1"></xsl:attribute>
+                    <xsl:attribute name="col" select="$cellSeq - 1"></xsl:attribute>
+                    <xsl:attribute name="id" select="concat('r_', $seq)"/>
                     <xsl:attribute name="type" select="'paragraph'"/>
-					<xsl:if test="number($seq)">
-                   		<xsl:attribute name="custom" select="concat('readingOrder {index:', $seq - 1, ';}')"/>
-                   	</xsl:if>
-                  	<xsl:call-template name="writeCoords">
+                    <xsl:if test="number($seq)">
+                        <xsl:attribute name="custom" select="concat('readingOrder {index:', $seq - 1, ';}')"/>
+                    </xsl:if>
+                    <xsl:call-template name="writeCoords">
                         <xsl:with-param name="l" select="min((./abbyy:text/abbyy:par/abbyy:line/@l))-$padding"/>
                         <xsl:with-param name="t" select="min((./abbyy:text/abbyy:par/abbyy:line/@t))-$padding"/>
                         <xsl:with-param name="r" select="max((./abbyy:text/abbyy:par/abbyy:line/@r))+$padding"/>
                         <xsl:with-param name="b" select="max((./abbyy:text/abbyy:par/abbyy:line/@b))+$padding"/>
                     </xsl:call-template>
-                   	<xsl:for-each select="./abbyy:text/abbyy:par">
-	                    <xsl:apply-templates select="./abbyy:line"/> 
-	                    <xsl:if test="not($textToWordsOnly)">             
-		                    <TextEquiv>
-		                        <Unicode>
-		                            <xsl:variable name="regionLineCount" select="count(./abbyy:line)"/>
-		                            <xsl:for-each select="./abbyy:line">
-		                                <xsl:value-of select="string-join(.//abbyy:charParams/text(), '')"/>
-		                                <xsl:if test="position() &lt; $regionLineCount">
-		                                    <xsl:text>&#10;</xsl:text>
-		                                </xsl:if>
-		                            </xsl:for-each>
-		                        </Unicode>
-		                    </TextEquiv>
-	                    </xsl:if>
-                     </xsl:for-each>
+                    <xsl:for-each select="./abbyy:text/abbyy:par">
+                        <xsl:apply-templates select="./abbyy:line"/> 
+                        <xsl:if test="not($textToWordsOnly)">             
+                            <TextEquiv>
+                                <Unicode>
+                                    <xsl:variable name="regionLineCount" select="count(./abbyy:line)"/>
+                                    <xsl:for-each select="./abbyy:line">
+                                        <xsl:value-of select="string-join(.//abbyy:charParams/text(), '')"/>
+                                        <xsl:if test="position() &lt; $regionLineCount">
+                                            <xsl:text>&#10;</xsl:text>
+                                        </xsl:if>
+                                    </xsl:for-each>
+                                </Unicode>
+                            </TextEquiv>
+                        </xsl:if>
+                    </xsl:for-each>
                     <CornerPts>0 1 2 3</CornerPts>
                 </TableCell>
-            </xsl:if>
-<!--         -->
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:if test="not(empty(.) or ./@lineSpacing='-1')"> 
+                    <TableCell>
+                        <xsl:attribute name="row" select="$rowSeq - 1"></xsl:attribute>
+                        <xsl:attribute name="col" select="$cellSeq - 1"></xsl:attribute>
+                        <xsl:attribute name="id" select="concat('r_', $seq)"/>
+                        <xsl:attribute name="type" select="'paragraph'"/>
+        				<xsl:if test="number($seq)">
+                           	<xsl:attribute name="custom" select="concat('readingOrder {index:', $seq - 1, ';}')"/>
+                           </xsl:if>
+                          <xsl:call-template name="writeCoords">
+                              <xsl:with-param name="l" select="$leftStart"/>
+                              <xsl:with-param name="t" select="$topStart"/>
+                              <xsl:with-param name="r" select="$leftStart+number(./@width)"/>
+                              <xsl:with-param name="b" select="$topStart+number(./@height)"/>
+                        </xsl:call-template>
+                        <CornerPts>0 1 2 3</CornerPts>
+                    </TableCell>
+              </xsl:if>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
     
      <xsl:template name="TextRegion_from_par">
         <xsl:param name="seq"/>
          <!-- compute region bounds from lines within and add a padding -->
         <xsl:param name="padding" select="number(1)"/>
-         <xsl:for-each select="./abbyy:text/abbyy:par">
-            <!-- there are pars with @lineSpacing="-1" and no nodes inside-->
-             <xsl:if test="not(empty(.) or ./@lineSpacing='-1')">
-                <TextRegion>
-                    <xsl:attribute name="id" select="concat('r_', $seq, '_', position())"/>
-                    <xsl:attribute name="type" select="'paragraph'"/>
-					<xsl:if test="number($seq)">
-                   		<xsl:attribute name="custom" select="concat('readingOrder {index:', $seq - 1, ';}')"/>
-                   	</xsl:if>
-                    <xsl:call-template name="writeCoords">
-                        <xsl:with-param name="l" select="min(./abbyy:line/@l)-$padding"/>
-                        <xsl:with-param name="t" select="min(./abbyy:line/@t)-$padding"/>
-                        <xsl:with-param name="r" select="max(./abbyy:line/@r)+$padding"/>
-                        <xsl:with-param name="b" select="max(./abbyy:line/@b)+$padding"/>
-                    </xsl:call-template>
-                    <xsl:apply-templates select="./abbyy:line"/> 
-                    <xsl:if test="not($textToWordsOnly)">             
-	                    <TextEquiv>
-	                        <Unicode>
-	                            <xsl:variable name="regionLineCount" select="count(./abbyy:line)"/>
-	                            <xsl:for-each select="./abbyy:line">
-	                                <xsl:value-of select="string-join(.//abbyy:charParams/text(), '')"/>
-	                                <xsl:if test="position() &lt; $regionLineCount">
-	                                    <xsl:text>&#10;</xsl:text>
-	                                </xsl:if>
-	                            </xsl:for-each>
-	                        </Unicode>
-	                    </TextEquiv>
-                    </xsl:if>
-                </TextRegion>
-            </xsl:if>
-        </xsl:for-each>
+         <xsl:choose>
+             <xsl:when test="count(./abbyy:text/abbyy:par)>0">
+                 <xsl:for-each select="./abbyy:text/abbyy:par">
+                     <!-- there are pars with @lineSpacing="-1" and no nodes inside-->
+                     <xsl:if test="not(empty(.) or ./@lineSpacing='-1')">
+                         <TextRegion>
+                             <xsl:attribute name="id" select="concat('r_', $seq, '_', position())"/>
+                             <xsl:attribute name="type" select="'paragraph'"/>
+                             <xsl:if test="number($seq)">
+                                 <xsl:attribute name="custom" select="concat('readingOrder {index:', $seq - 1, ';}')"/>
+                             </xsl:if>
+                             <xsl:call-template name="writeCoords">
+                                 <xsl:with-param name="l" select="min(./abbyy:line/@l)-$padding"/>
+                                 <xsl:with-param name="t" select="min(./abbyy:line/@t)-$padding"/>
+                                 <xsl:with-param name="r" select="max(./abbyy:line/@r)+$padding"/>
+                                 <xsl:with-param name="b" select="max(./abbyy:line/@b)+$padding"/>
+                             </xsl:call-template>
+                             <xsl:apply-templates select="./abbyy:line"/> 
+                             <xsl:if test="not($textToWordsOnly)">             
+                                 <TextEquiv>
+                                     <Unicode>
+                                         <xsl:variable name="regionLineCount" select="count(./abbyy:line)"/>
+                                         <xsl:for-each select="./abbyy:line">
+                                             <xsl:value-of select="string-join(.//abbyy:charParams/text(), '')"/>
+                                             <xsl:if test="position() &lt; $regionLineCount">
+                                                 <xsl:text>&#10;</xsl:text>
+                                             </xsl:if>
+                                         </xsl:for-each>
+                                     </Unicode>
+                                 </TextEquiv>
+                             </xsl:if>
+                         </TextRegion>
+                     </xsl:if>
+                 </xsl:for-each>
+             </xsl:when>
+             <xsl:otherwise>
+                 <xsl:for-each select="./abbyy:region">
+                     <!-- there are pars with @lineSpacing="-1" and no nodes inside-->
+                     <xsl:if test="not(empty(.) or ./@lineSpacing='-1')">
+                         <TextRegion>
+                             <xsl:attribute name="id" select="concat('r_', $seq, '_', position())"/>
+                             <xsl:attribute name="type" select="'paragraph'"/>
+                             <xsl:if test="number($seq)">
+                                 <xsl:attribute name="custom" select="concat('readingOrder {index:', $seq - 1, ';}')"/>
+                             </xsl:if>
+                             <xsl:call-template name="writeCoords">
+                                 <xsl:with-param name="l" select="min(./abbyy:rect/@l)"/>
+                                 <xsl:with-param name="t" select="min(./abbyy:rect/@t)"/>
+                                 <xsl:with-param name="r" select="max(./abbyy:rect/@r)"/>
+                                 <xsl:with-param name="b" select="max(./abbyy:rect/@b)"/>
+                             </xsl:call-template>
+                         </TextRegion>
+                     </xsl:if>
+                 </xsl:for-each>
+             </xsl:otherwise>
+         </xsl:choose>
+
     </xsl:template>
     
     <xsl:template name="TableRegion">
@@ -261,25 +311,264 @@
         <xsl:param name="padding" select="number(1)"/>
                 <TableRegion>
                     <xsl:attribute name="id" select="concat('tbl_', $seq, '_', position())"/>
+                    <xsl:if test="number($seq)">
+                        <xsl:attribute name="custom" select="concat('readingOrder {index:', $seq - 1, ';}')"/>
+                    </xsl:if>
+                    <xsl:variable name="tableT" select="@t"/>
+                    <xsl:variable name="tableL" select="@l"/>
                     <xsl:call-template name="writeCoords"/>  
 			        <xsl:for-each select="./abbyy:row">
 						<xsl:variable name="row">
 						  	<xsl:value-of select="position()"/>
-						</xsl:variable>							                
-	                    <xsl:for-each select="./abbyy:cell">
-	                        <xsl:variable name="pos">
-						  		<xsl:value-of select="position()"/>
-							</xsl:variable>
-	                        <xsl:call-template name="TextRegion_for_table">
-	                        	<xsl:with-param name="seq" select="concat($seq, '_', $row, '_', $pos)"/>
-	                            <xsl:with-param name="rowSeq" select="$row"/>
-	                            <xsl:with-param name="cellSeq" select="$pos"/>
-	                        </xsl:call-template>
-	                    </xsl:for-each>
+<!--						    <xsl:message>current row pos  <xsl:value-of select="position()"/></xsl:message>-->
+						</xsl:variable>
+			            <xsl:choose>
+			                <xsl:when test="count(./abbyy:cell/abbyy:text)>0">
+			                    <xsl:for-each select="./abbyy:cell">
+			                        <xsl:variable name="pos">
+			                            <xsl:value-of select="position()"/>
+			                        </xsl:variable>
+			                        <xsl:call-template name="TextRegion_for_table">
+			                            <xsl:with-param name="seq" select="concat($seq, '_', $row, '_', $pos)"/>
+			                            <xsl:with-param name="rowSeq" select="$row"/>
+			                            <xsl:with-param name="cellSeq" select="$pos"/>
+			                        </xsl:call-template>
+			                    </xsl:for-each>
+			                </xsl:when>
+			                <!-- otherwise it is only layout recognition with FR -->
+			                <xsl:otherwise>
+			                    <xsl:variable name="relRowTop">
+			                        <xsl:value-of select="sum(./preceding-sibling::abbyy:row/min(abbyy:cell/@height))"/>
+			                    </xsl:variable>
+			                    <xsl:variable name="absRowTop">
+			                        <xsl:choose>
+			                            <xsl:when test="(number($relRowTop)) &gt; (number(0))">
+			                                <xsl:value-of select="number($tableT) + number($relRowTop)"/>
+			                            </xsl:when>
+			                            <xsl:otherwise>
+			                                <xsl:value-of select="number($tableT)"/>
+			                            </xsl:otherwise>
+			                        </xsl:choose>
+			                        
+			                        <!--			                <xsl:call-template name="getCurrTopCoordinate">
+			                    <xsl:with-param name="currPos" select="number(1)"></xsl:with-param>
+			                    <xsl:with-param name="currTop" select="number($tableT)"></xsl:with-param>
+			                </xsl:call-template>-->
+			                    </xsl:variable>
+			                    <!--			            <xsl:message>relRowTop <xsl:value-of select="$relRowTop"/></xsl:message>
+			            <xsl:message>absolute row top  <xsl:value-of select="$absRowTop"/></xsl:message>-->
+			                    
+			                    <!-- takes into account the row spans -->
+			                    <xsl:variable name="nextPos">
+			                        <xsl:call-template name="getNextRowNumber">
+			                            <xsl:with-param name="currPos" select="$row"></xsl:with-param>
+			                            <xsl:with-param name="prevRow" select="./preceding-sibling::abbyy:row[1]"></xsl:with-param>
+			                        </xsl:call-template>
+			                    </xsl:variable>
+			                    <!--			            <xsl:message>COmennt: the next Pos = $nextPos  <xsl:value-of select="$nextPos"/></xsl:message>-->
+			                    <xsl:choose>
+			                        <xsl:when test="$nextPos = $row">
+			                            
+			                            <!--			                        <xsl:message>go on with this table row  <xsl:value-of select="$nextPos"/></xsl:message>-->
+			                            <!--<xsl:message>row top  <xsl:value-of select="$rowTop"/></xsl:message>-->
+			                            <xsl:for-each select="./abbyy:cell">
+			                                <!--			                            <xsl:message>cell  <xsl:value-of select="position()"/></xsl:message>-->
+			                                <xsl:variable name="pos">
+			                                    <xsl:value-of select="position()"/>
+			                                </xsl:variable>
+			                                <xsl:variable name="leftCoord">
+			                                    <xsl:value-of select="sum(./preceding-sibling::abbyy:cell/@width)"/>
+			                                </xsl:variable>
+			                                <!--			                            <xsl:message>position  <xsl:value-of select="$pos"/></xsl:message>
+			                            <xsl:message>leftCoord  <xsl:value-of select="$leftCoord"/></xsl:message>-->
+			                                <xsl:call-template name="TextRegion_for_table">
+			                                    <xsl:with-param name="seq" select="concat($seq, '_', $row, '_', $pos)"/>
+			                                    <xsl:with-param name="rowSeq" select="$row"/>
+			                                    <xsl:with-param name="cellSeq" select="$pos"/>
+			                                    <xsl:with-param name="topStart" select="number($absRowTop)"/>
+			                                    <xsl:with-param name="leftStart" select="number($tableL) + number($leftCoord)"></xsl:with-param>             
+			                                </xsl:call-template>
+			                            </xsl:for-each>
+			                        </xsl:when>
+			                        <xsl:otherwise>
+			                            <!--			                        <xsl:message>handle row after a row with rowSpan, the horizontal posítion of the cell must be calculated with rowSpan of previous row and the colSpan of the current row</xsl:message>-->
+			                            <xsl:for-each select="./abbyy:cell">
+			                                <xsl:variable name="pos">
+			                                    <xsl:value-of select="position()"/>
+			                                </xsl:variable>
+			                                <xsl:variable name="cellLeft">
+			                                    <xsl:call-template name="getCellLeftCoordinate">
+			                                        <xsl:with-param name="currPos" select="$pos"></xsl:with-param>
+			                                        <xsl:with-param name="currCellIdx" select="number(1)"></xsl:with-param>
+			                                        <xsl:with-param name="prevSpans" select="0"></xsl:with-param>
+			                                    </xsl:call-template>
+			                                </xsl:variable>
+			                                <!--			                            <xsl:message>result of 'handle row after a row with rowSpan' <xsl:value-of select="$cellTop"></xsl:value-of></xsl:message>
+			                            <xsl:message>result of left' <xsl:value-of select="$cellTop"></xsl:value-of></xsl:message>-->
+			                                <!--			                            <xsl:variable name="left" select="substring-before($cellTop, ' ')"/>
+			                            <xsl:variable name="top" select="substring-after($cellTop, ' ')"/>-->
+			                                <!--			                            <xsl:message>result of left: <xsl:value-of select="$left"></xsl:value-of></xsl:message>
+			                            <xsl:message>result of top: <xsl:value-of select="$top"></xsl:value-of></xsl:message>-->
+			                                <xsl:call-template name="TextRegion_for_table">
+			                                    <xsl:with-param name="seq" select="concat($seq, '_', $row, '_', $pos)"/>
+			                                    <xsl:with-param name="rowSeq" select="$row"/>
+			                                    <xsl:with-param name="cellSeq" select="$pos"/>
+			                                    <xsl:with-param name="topStart" select="number($absRowTop)"/>
+			                                    <xsl:with-param name="leftStart" select="number($tableL) + number($cellLeft)"></xsl:with-param>              
+			                                </xsl:call-template>
+			                            </xsl:for-each>
+			                        </xsl:otherwise>
+			                    </xsl:choose>
+			                </xsl:otherwise>
+			            </xsl:choose>
                     </xsl:for-each>
                 </TableRegion>
     </xsl:template>
     
+    <xsl:template name="getCellLeftCoordinate">
+        <xsl:param name="currPos"/>
+        <xsl:param name="currCellIdx"/>
+        <xsl:param name="prevSpans"/>
+        <xsl:variable name="colSpan">
+            <xsl:value-of select="../preceding-sibling::abbyy:row[1]/abbyy:cell[not(@rowSpan)][$currCellIdx]/@colSpan"></xsl:value-of>
+        </xsl:variable>
+<!--        <xsl:message>colSpan <xsl:value-of select="$colSpan"></xsl:value-of></xsl:message>-->
+        <xsl:variable name="newSpans">
+            <xsl:choose>
+                <xsl:when test="not($colSpan) or $colSpan = ''">
+                    <xsl:value-of select="number(1)"></xsl:value-of>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="number($colSpan)"></xsl:value-of>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
+<!--        <xsl:message>curr pos <xsl:value-of select="$currPos"></xsl:value-of></xsl:message>
+        <xsl:message>currCellIdx <xsl:value-of select="$currCellIdx"></xsl:value-of></xsl:message>
+        <xsl:message>amount of previous spans <xsl:value-of select="$prevSpans"></xsl:value-of></xsl:message>
+        <xsl:message>curr spans <xsl:value-of select="number($newSpans) + number($prevSpans)"></xsl:value-of></xsl:message>-->
+        <xsl:choose>
+            <xsl:when test="not(../preceding-sibling::abbyy:row[1]) and not(../preceding-sibling::abbyy:row[1]/abbyy:cell[not(@rowSpan)][$currCellIdx])">
+<!--                <xsl:message>no prev row</xsl:message>-->
+                <xsl:value-of select="0"></xsl:value-of>
+            </xsl:when>
+            <xsl:otherwise>        
+<!--                <xsl:message>prev row given</xsl:message>-->
+                <xsl:choose>
+                    <xsl:when test="($currPos &gt;= $prevSpans) and ($currPos &lt;= (number($newSpans) + number($prevSpans)))">
+                        <xsl:variable name="leftCoord">
+                            <xsl:value-of select="sum(../preceding-sibling::abbyy:row[1]/abbyy:cell[not(@rowSpan)][$currCellIdx]/preceding-sibling::abbyy:cell/@width)"/>
+                        </xsl:variable>
+                        <xsl:variable name="additionalLeft">
+                            <xsl:if test="$currPos &gt; (number(1) + number($prevSpans))">
+<!--                                <xsl:message>try to find additionalLeft:</xsl:message>-->
+                                <xsl:call-template name="sumPrevLefts">
+                                    <xsl:with-param name="counter" select="number($currPos)-(number(1) + number($prevSpans))"/>
+                                    <xsl:with-param name="accumulator" select="number(0)"/>
+                                </xsl:call-template>
+                            </xsl:if>
+                        </xsl:variable>
+<!--                        <xsl:message>additionalLeft: <xsl:value-of select="number($additionalLeft)"></xsl:value-of></xsl:message>
+                        <xsl:message>left coord: <xsl:value-of select="sum(../preceding-sibling::abbyy:row[1]/abbyy:cell[not(@rowSpan)][$currCellIdx]/preceding-sibling::abbyy:cell/@width)"></xsl:value-of></xsl:message>-->
+<!--                        <xsl:message>the hight of the prev span: <xsl:value-of select="number(../preceding-sibling::abbyy:row[1]/abbyy:cell[not(@rowSpan)][$currCellIdx]/@height)"></xsl:value-of></xsl:message>-->
+                        
+                        <xsl:variable name="newLeft">
+                            <xsl:choose>
+                                <xsl:when test="$additionalLeft and number($additionalLeft)>0">
+                                    <xsl:value-of select="number($leftCoord)+number($additionalLeft)"></xsl:value-of>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:value-of select="number($leftCoord)"></xsl:value-of>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </xsl:variable>
+                        
+                        <xsl:value-of select="$newLeft"></xsl:value-of>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:call-template name="getCellLeftCoordinate">
+                            <xsl:with-param name="currPos" select="$currPos"></xsl:with-param>
+                            <xsl:with-param name="currCellIdx" select="number($currCellIdx) + number(1)"></xsl:with-param>
+                            <xsl:with-param name="prevSpans" select="number($prevSpans) + number($newSpans)"></xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:otherwise>
+        </xsl:choose>      
+    </xsl:template>
+    
+
+    
+    <xsl:template name="sumPrevLefts">
+        <xsl:param name="counter"/>
+        <xsl:param name="accumulator"/>   
+<!--        <xsl:message>counter: <xsl:value-of select="number($counter)"></xsl:value-of></xsl:message>-->
+        <xsl:choose>
+            <xsl:when test="$counter=0">
+                <!--* done, return result *-->
+                <xsl:choose>
+                    <xsl:when test="number($accumulator) &gt; 0">
+                        <xsl:value-of select="$accumulator"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="number(0)"></xsl:value-of>
+                    </xsl:otherwise>
+                </xsl:choose>
+                
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:variable name="tmp" select="(number($counter)-1)"/>
+                <xsl:variable name="acc" select="number(./preceding-sibling::abbyy:cell[$counter]/@width) + number($accumulator)"/>
+                <xsl:call-template name="sumPrevLefts">
+                    <xsl:with-param name="counter"
+                        select="$tmp"/>
+                    <xsl:with-param name="accumulator" select="$acc"/>
+                </xsl:call-template>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+    
+    <xsl:template name="findTop">
+        <xsl:param name="currPos"/>
+        <xsl:param name="currSpan"/>
+        <xsl:param name="currTop"/>
+        <xsl:choose>
+            <xsl:when test="current()[@colSpan] and number(current()/@colSpan)&gt;currPos">
+                <xsl:value-of select="sum($currTop, number(current()/@height))"></xsl:value-of>
+<!--                <xsl:message>col span given: <xsl:value-of select="position()*(number(current()/@colSpan))"></xsl:value-of></xsl:message>-->
+            </xsl:when>
+        </xsl:choose>
+    </xsl:template>
+    
+    <xsl:template name="getNextRowNumber">
+        <xsl:param name="currPos"/>
+        <xsl:param name="prevRow"/>
+        <xsl:choose>
+            <xsl:when test="not($prevRow)">
+                <xsl:value-of>1</xsl:value-of>
+            </xsl:when>
+            <xsl:otherwise>                
+                <xsl:variable name="currRowSpan">
+                    <xsl:if test="($prevRow/abbyy:cell[@rowSpan&gt;0])[1]">
+                        <xsl:value-of select="(($prevRow/abbyy:cell[@rowSpan&gt;0])[1]/@rowSpan)"></xsl:value-of>
+                    </xsl:if>
+<!--                    <xsl:for-each select="./preceding-sibling::abbyy:row[1]/abbyy:cell[@rowSpan&gt;=1]">
+                        <xsl:value-of select="preceding-sibling::*[1]/abbyy:cell[@height]"></xsl:value-of>
+                    </xsl:for-each>-->
+                </xsl:variable>
+                
+                <xsl:choose>
+                    <xsl:when test="not($currRowSpan) or not(number($currRowSpan))">
+                        <xsl:value-of select="$currPos"></xsl:value-of>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="(number($currPos)-1)+number($currRowSpan)"></xsl:value-of>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:otherwise>
+        </xsl:choose>      
+    </xsl:template>
+           
     <!-- Simple Region template with ID and coordinates but no text content -->
     <xsl:template name="OtherRegion">
         <xsl:param name="id"/>
@@ -815,6 +1104,72 @@
                 </charParams>
             </xsl:if>
         </xsl:for-each>
+    </xsl:template>
+    
+    <!-- UNUSED: was used to find top and left coordinates of table cells - getting top is much simpler now; the part for getting left is a own template -->
+    <xsl:template name="getCellTopCoordinate">
+        <xsl:param name="currPos"/>
+        <xsl:param name="currCellIdx"/>
+        <xsl:param name="prevSpans"/>
+        <xsl:param name="currTop"/>
+        <xsl:variable name="colSpan">
+            <xsl:value-of select="../preceding-sibling::abbyy:row[1]/abbyy:cell[not(@rowSpan)][$currCellIdx]/@colSpan"></xsl:value-of>
+        </xsl:variable>
+        <xsl:variable name="newSpans">
+            <xsl:value-of select="max((number($colSpan), number(1)))"></xsl:value-of>
+        </xsl:variable>
+<!--        <xsl:message>col span <xsl:value-of select="$colSpan"></xsl:value-of></xsl:message>
+        <xsl:message>amount of new spans <xsl:value-of select="$newSpans"></xsl:value-of></xsl:message>-->
+        <xsl:choose>
+            <xsl:when test="not(../preceding-sibling::abbyy:row[1]) and not(../preceding-sibling::abbyy:row[1]/abbyy:cell[not(@rowSpan)][$currCellIdx])">
+                <!--<xsl:message>-->no prev row<!--</xsl:message>-->
+                <xsl:value-of select="$currTop"></xsl:value-of>
+            </xsl:when>
+            <xsl:otherwise>        
+                <!--<xsl:message>-->prev row given<!--</xsl:message>-->
+                <xsl:choose>
+                    <xsl:when test="($currPos &gt;= $prevSpans) and ($currPos &lt;= (number($newSpans) + number($prevSpans)))">
+                        <xsl:variable name="leftCoord">
+                            <xsl:value-of select="sum(../preceding-sibling::abbyy:row[1]/abbyy:cell[not(@rowSpan)][$currCellIdx]/preceding-sibling::abbyy:cell/@width)"/>
+                        </xsl:variable>
+                        <xsl:variable name="additionalLeft">
+                            <xsl:if test="$currPos &gt; (number(1) + number($prevSpans))">
+                                <!--<xsl:message>-->try to find additionalLeft:<!--</xsl:message>-->
+                                <xsl:call-template name="sumPrevLefts">
+                                    <xsl:with-param name="counter" select="number($currPos)-(number(1) + number($prevSpans))"/>
+                                    <xsl:with-param name="accumulator" select="number(0)"/>
+                                </xsl:call-template>
+                            </xsl:if>
+                        </xsl:variable>
+                        <!--                        <xsl:message>additionalLeft: <xsl:value-of select="number($additionalLeft)"></xsl:value-of></xsl:message>
+                        <xsl:message>left coord: <xsl:value-of select="sum(../preceding-sibling::abbyy:row[1]/abbyy:cell[not(@rowSpan)][$currCellIdx]/preceding-sibling::abbyy:cell/@width)"></xsl:value-of></xsl:message>
+                        <xsl:message>the hight of the prev span: <xsl:value-of select="number(../preceding-sibling::abbyy:row[1]/abbyy:cell[not(@rowSpan)][$currCellIdx]/@height)"></xsl:value-of></xsl:message>
+                        <xsl:message>current top is: <xsl:value-of select="number($currTop)"></xsl:value-of></xsl:message>-->
+                        
+                        <xsl:variable name="newLeft">
+                            <xsl:choose>
+                                <xsl:when test="number($additionalLeft)>0">
+                                    <xsl:value-of select="number($leftCoord)+number($additionalLeft)"></xsl:value-of>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:value-of select="number($leftCoord)"></xsl:value-of>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </xsl:variable>
+                        
+                        <xsl:value-of select="($newLeft, number($currTop) + number(../preceding-sibling::abbyy:row[1]/abbyy:cell[not(@rowSpan)][$currCellIdx]/@height))"></xsl:value-of>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:call-template name="getCellTopCoordinate">
+                            <xsl:with-param name="currPos" select="$currPos"></xsl:with-param>
+                            <xsl:with-param name="currCellIdx" select="sum(number($currCellIdx), 1)"></xsl:with-param>
+                            <xsl:with-param name="prevSpans" select="sum(number($prevSpans), number($newSpans))"></xsl:with-param>
+                            <xsl:with-param name="currTop" select="number($currTop)"></xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:otherwise>
+        </xsl:choose>      
     </xsl:template>
 
     <xsl:template name="applyTextContent">
