@@ -15,6 +15,7 @@ import eu.transkribus.core.model.beans.GroundTruthSelectionDescriptor;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.TrpGroundTruthPage;
+import eu.transkribus.core.model.beans.TrpHtr;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.enums.DataSetType;
@@ -124,12 +125,12 @@ public class DescriptorUtils {
 	 * @param status if not null, then the most recent version with this status is chosen
 	 * @return
 	 */
-	public static List<GroundTruthSelectionDescriptor> buildGtSelectionDescriptorList(Map<GroundTruthDataSetDescriptor, List<TrpGroundTruthPage>> map) {
+	public static List<GroundTruthSelectionDescriptor> buildGtSelectionDescriptorList(Map<AGtDataSet<?>, List<TrpGroundTruthPage>> map) {
 		List<GroundTruthSelectionDescriptor> list = new LinkedList<>();
 
-		for (Entry<GroundTruthDataSetDescriptor, List<TrpGroundTruthPage>> e : map.entrySet()) {
+		for (Entry<AGtDataSet<?>, List<TrpGroundTruthPage>> e : map.entrySet()) {
 			GroundTruthSelectionDescriptor dsd = new GroundTruthSelectionDescriptor();
-			GroundTruthDataSetDescriptor md = e.getKey();
+			AGtDataSet<?> md = e.getKey();
 			dsd.setId(md.getId());
 			dsd.setDataSetType(md.getDataSetType().toString());
 			List<TrpGroundTruthPage> selectedPages = e.getValue();
@@ -196,28 +197,91 @@ public class DescriptorUtils {
 	/**
 	 * Type for capturing properties of a ground truth data set, 
 	 * needed for building a descriptor with {@link DescriptorUtils#buildGtSelectionDescriptorList(Map)}.
+	 * @param <T>
 	 *
 	 */
-	public static class GroundTruthDataSetDescriptor {
-		private final int id;
+	public abstract static class AGtDataSet<T> implements Comparable<AGtDataSet<?>> {
 		private final DataSetType dataSetType;
 		protected int size;
-		public GroundTruthDataSetDescriptor(final int id, final DataSetType dataSetType, final int size) {
-			this.id = id;
+		protected T delegate;
+		public AGtDataSet(final T model, final DataSetType dataSetType, final int size) {
+			if(model == null) {
+				throw new IllegalArgumentException("Model argument must not be null!");
+			}
+			this.delegate = model;
 			this.dataSetType = dataSetType;
 			this.size = size;
 		}
-		public GroundTruthDataSetDescriptor(final int id, final DataSetType dataSetType) {
-			this(id, dataSetType, -1);
+		public AGtDataSet(final T model, final DataSetType dataSetType) {
+			this(model, dataSetType, -1);
 		}
-		public int getId() {
-			return id;
-		}
+		public abstract int getId();
+		public abstract String getName();
 		public DataSetType getDataSetType() {
 			return dataSetType;
 		}
 		public int getSize() {
 			return size;
+		}
+		public T getModel() {
+			return delegate;
+		}
+		
+		public String getTypeLabel() {
+			if(delegate instanceof TrpHtr) {
+				return "HTR";
+			} else {
+				//the type is not known yet.
+				return "Unknown model type";
+			}
+		}
+		
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((delegate == null) ? 0 : delegate.hashCode());
+			result = prime * result + ((getDataSetType() == null) ? 0 : getDataSetType().hashCode());
+			return result;
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			AGtDataSet<?> other = (AGtDataSet<?>) obj;
+			if (delegate == null) {
+				if (other.delegate != null)
+					return false;
+				
+			//TODO the delegate has to be checked on equivalence too!
+				
+			} else if (getId() != other.getId())
+				return false;
+			if (!getDataSetType().equals(other.getDataSetType()))
+				return false;
+			return true;
+		}
+		@Override
+		public int compareTo(AGtDataSet<?> groundTruthDataSetDescriptor) {
+			if (this.getId() > groundTruthDataSetDescriptor.getId()) {
+				return 1;
+			}
+			if (this.getId() < groundTruthDataSetDescriptor.getId()) {
+				return -1;
+			}
+			if (DataSetType.TRAIN.equals(this.getDataSetType()) 
+					&& DataSetType.VALIDATION.equals(groundTruthDataSetDescriptor.getDataSetType())) {
+				return 1;
+			}
+			if (DataSetType.VALIDATION.equals(this.getDataSetType()) 
+					&& DataSetType.TRAIN.equals(groundTruthDataSetDescriptor.getDataSetType())) {
+				return -1;
+			}
+			return 0;			
 		}
 	}
 }
