@@ -136,7 +136,7 @@
     
     <!-- blocks to Regions -->    
     <xsl:template match="TextBlock">
-      	<xsl:param name="all" select="false()"/>
+      	<xsl:param name="isTable" select="false()"/>
         <xsl:variable name="actId" select="@ID"/>
         <xsl:variable name="seq" select="number(substring-after($actId,'Page1_Block')) - 1"/>
         <xsl:variable name="font" select="./@STYLEREFS"/>
