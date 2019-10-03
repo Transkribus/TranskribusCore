@@ -175,6 +175,7 @@ public class FatBuilder {
 
 		try {
 			fatFile = JaxbUtils.marshalToFile(rootFolder, fatFile);
+			logger.debug("Wrote {} to {}", FatBuilder.FAT_FILE_NAME, fatFile.getAbsolutePath());
 		} catch (JAXBException e) {
 			throw new IOException("Could not marshal FAT XML to file!", e);
 		}
