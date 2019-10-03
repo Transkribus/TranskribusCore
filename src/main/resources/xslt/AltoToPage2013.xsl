@@ -136,7 +136,7 @@
     
     <!-- blocks to Regions -->    
     <xsl:template match="TextBlock">
-      	<xsl:param name="all" select="false()"/>
+      	<xsl:param name="isTable" select="false()"/>
         <xsl:variable name="actId" select="@ID"/>
         <xsl:variable name="seq" select="number(substring-after($actId,'Page1_Block')) - 1"/>
         <xsl:variable name="font" select="./@STYLEREFS"/>
@@ -323,9 +323,9 @@
        	    </xsl:if>
       	</xsl:variable>
       	
-        <Word id="{concat('w_', $seq)}">
-        <!-- reading order does not start with 0 for each new text region - so leave this to the Transkribus import  -->
-        <!-- Word id="{concat('w_', $seq)}" custom="readingOrder {concat(concat('{index:', $seq2), ';}')}"-->
+<!--         <Word id="{concat('w_', $seq)}"> -->
+        <!-- reading order does not start with 0 for each new text region - so leave this to the Transkribus import -> NO!! do it here, otherwise reading order is not trustable -->
+        <Word id="{concat('w_', $seq)}" custom="readingOrder {concat(concat('{index:', $seq2), ';}')}">
 <!--        <Word id="{$actId}"> fast variant -->
         <xsl:call-template name="writeCoords">
                 <xsl:with-param name="l" select="./@HPOS"/>
