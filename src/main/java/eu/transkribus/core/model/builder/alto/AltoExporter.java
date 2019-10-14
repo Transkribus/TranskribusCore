@@ -80,46 +80,44 @@ public class AltoExporter extends Observable {
 		TrpTranscriptMetadata t = p.getCurrentTranscript();
 		
 		InputStream pcIs = null;
-		StreamSource mySrc = new StreamSource();
-		try {
+		InputStream xslIS = null;
+		File altoFile = new File(altoOutputDir.getAbsolutePath()+"/"+fileName);
+
+		try (FileOutputStream fos = new FileOutputStream(altoFile)){
 			PcGtsType pc = PageXmlUtils.unmarshal(t.getUrl());
 			pcIs = new ByteArrayInputStream(PageXmlUtils.marshalToBytes(pc));
-			mySrc.setInputStream(pcIs);
-		} catch (JAXBException e) {
-			throw new IOException("Could not read PAGE XML at: " + t.getUrl(), e);
-		} finally {
-			if(pcIs != null) {
-				pcIs.close();
-			}
-		}
-		
-		InputStream is;
-		if (splitIntoWords){
-			is = XslTransformer.class.getClassLoader().getResourceAsStream(PAGE_TO_ALTO_WORD_LEVEL_XSLT);
-		}
-		else{
-			is = XslTransformer.class.getClassLoader().getResourceAsStream(PAGE_TO_ALTO_XSLT);
-		}
-//		InputStream xslIS = new BufferedInputStream(new FileInputStream(xslID));
-		InputStream xslIS = new BufferedInputStream(is);
-		StreamSource xslSource = new StreamSource(xslIS);
+			StreamSource mySrc = new StreamSource(pcIs);
 
-        // das Factory-Pattern unterstützt verschiedene XSLT-Prozessoren
-        TransformerFactory transFact =
-                TransformerFactory.newInstance();
-        Transformer trans;
-		try {
-			trans = transFact.newTransformer(xslSource);
-			
-			File altoFile = new File(altoOutputDir.getAbsolutePath()+"/"+fileName);			
-			trans.transform(mySrc, new StreamResult(new FileOutputStream(altoFile)));
+		
+			InputStream is;
+			if (splitIntoWords){
+				is = XslTransformer.class.getClassLoader().getResourceAsStream(PAGE_TO_ALTO_WORD_LEVEL_XSLT);
+			}
+			else{
+				is = XslTransformer.class.getClassLoader().getResourceAsStream(PAGE_TO_ALTO_XSLT);
+			}
+	//		InputStream xslIS = new BufferedInputStream(new FileInputStream(xslID));
+			xslIS = new BufferedInputStream(is);
+			StreamSource xslSource = new StreamSource(xslIS);
+	
+	        // das Factory-Pattern unterstützt verschiedene XSLT-Prozessoren
+	        TransformerFactory transFact =
+	                TransformerFactory.newInstance();
+	        Transformer trans = transFact.newTransformer(xslSource);
+
+			trans.transform(mySrc, new StreamResult(fos));
 			
 			return altoFile;
+		} catch (JAXBException e) {
+			throw new IOException("Could not read PAGE XML at: " + t.getUrl(), e);
 		} catch (TransformerException e) {
 			throw new IOException("Could not create ALTO file.", e);
 		} finally {
 			if(xslIS != null) {
 				xslIS.close();
+			}
+			if(pcIs != null) {
+				pcIs.close();
 			}
 		}
 	}
