@@ -1095,7 +1095,7 @@ public class LocalDocReader {
 			imgArr = fepImgDir.listFiles(new ImgFileFilter());
 		}
 		
-		logger.debug("Found {} image files in {} ms", imgArr.length, sw.stop(false));
+		logger.debug("Found {} image files in {} ms", imgArr != null ? imgArr.length : 0, sw.stop(false));
 		
 		//Use number sensitive ordering so that:		
 		//img1 -> img2 -> ... -> img9 -> img10 -> etc.

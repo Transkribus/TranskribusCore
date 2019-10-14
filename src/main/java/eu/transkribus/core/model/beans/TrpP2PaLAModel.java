@@ -10,6 +10,9 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * @deprecated outdated, use TrpP2PaLA instead
+ */
 @Entity
 @Table(name = TrpP2PaLAModel.TABLE_NAME)
 @XmlRootElement
@@ -148,6 +151,11 @@ public class TrpP2PaLAModel {
 
 	public void setOut_mode(String out_mode) {
 		this.out_mode = out_mode;
+	}
+	
+	public static TrpP2PaLAModel fromTrpP2PaLA(TrpP2PaLA m) {
+		return new TrpP2PaLAModel(m.getModelId(), m.getName(), m.getDescription(), m.getCreated(), m.getPath(), m.getCustom(), 
+				null, null, null, m.getStructTypes(), m.getMergedStructTypes(), m.getOutMode());
 	}
 
 	@Override

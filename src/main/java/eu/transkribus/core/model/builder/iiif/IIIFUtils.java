@@ -1,10 +1,13 @@
 package eu.transkribus.core.model.builder.iiif;
 
 import java.awt.Rectangle;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -17,6 +20,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONObject;
 import org.primaresearch.io.UnsupportedFormatVersionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +32,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 import de.digitalcollections.core.model.api.MimeType;
 import de.digitalcollections.iiif.model.ImageContent;
@@ -66,12 +73,22 @@ public class IIIFUtils {
 	
 	private static final Logger logger = LoggerFactory.getLogger(IIIFUtils.class);
 	
-	public static TrpDoc createDocFromIIIF(URL url, String path) throws JsonParseException, JsonMappingException, IOException, SQLException, ReflectiveOperationException {
+	public static TrpDoc createDocFromIIIF(URL url, String path) throws JsonParseException, JsonMappingException, IOException, SQLException, ReflectiveOperationException, IllegalArgumentException {
 	
 		
 		ObjectMapper iiifMapper = new IiifObjectMapper();
-		
+	
 		logger.debug("Url transmitted to UploadManager : "+url.toString());
+		
+		logger.debug("Checking if IIIF Manifest is valid");
+		
+		JSONObject validation = validateManifest(url);
+		
+		if(validation.getInt("okay") == 0) {
+			logger.error("IIIF is not valid : ", validation);
+			throw new IllegalArgumentException("IIIF is not valid (https://iiif.io/api/presentation/validator/service/) : "+validation.getString("error"));
+		}
+		
 		
 		Manifest manifest =  iiifMapper.readValue(url, Manifest.class);
 
@@ -346,6 +363,26 @@ public class IIIFUtils {
 		
 		return manifestJson;
 		
+	}
+	
+	public static JSONObject validateManifest (final URL url) throws IOException {
+		URL validationUrl = new URL("https://iiif.io/api/presentation/validator/service/validate?format=json&version=2.1&url="+url.toString());
+		HttpURLConnection con = (HttpURLConnection) validationUrl.openConnection();
+		con.setRequestMethod("GET");
+		
+		int status = con.getResponseCode();
+		
+		BufferedReader in = new BufferedReader(
+				  new InputStreamReader(con.getInputStream()));
+		String inputLine;
+		StringBuffer content = new StringBuffer();
+		while ((inputLine = in.readLine()) != null) {
+			content.append(inputLine);
+			}
+		in.close();
+		con.disconnect();
+		JSONObject jsonResponse = new JSONObject(content.toString());
+		return jsonResponse;
 	}
 	
 	public static String getBrokenUrlMsg(final URL url, final Integer statusCode) {

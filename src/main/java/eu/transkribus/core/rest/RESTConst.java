@@ -115,6 +115,7 @@ public final class RESTConst {
 	public static final String DETECT_FOOTNOTES_PARAM = "footnotes";
 
 	public static final String RECOGNITION_PATH = "recognition";
+	public static final String MODELS_PATH = "models";
 	public static final String OCR_PATH = "ocr";	
 	
 	public static final String ADD_OR_MODIFY_USER_IN_COLLECTION = "addOrModifyUserInCollection";
