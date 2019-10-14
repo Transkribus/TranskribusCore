@@ -511,7 +511,8 @@
                     <xsl:variable name="lastWordOfPrevLine">
                         <xsl:choose>
                             <xsl:when
-                                test="not($predecessorText = 'NA') and (ends-with($predecessorText, '¬') or ends-with($predecessorText, '&#x2010;') or ends-with($predecessorText, '&#x002D;') or ends-with($predecessorText, '&#x2212;'))">
+                                test="not($predecessorText = 'NA') and (ends-with($predecessorText, '¬') or ends-with($predecessorText, '&#x2010;') or ends-with($predecessorText, '&#x002D;') 
+                                or ends-with($predecessorText, '&#x2212;') or ends-with($predecessorText, '&#x201E;') or ends-with($predecessorText, '&#x003D;'))">
 <!--                                <xsl:message>
                                     <xsl:value-of select="concat('last word of prev line found: ', $predecessorText)"/>
                                 </xsl:message>-->
@@ -528,7 +529,7 @@
 
                     <xsl:variable name="firstWordOfNextLine">
                         <xsl:choose>
-                            <xsl:when test="ends-with($text, '¬') or ends-with($text, '&#x2010;') or ends-with($text, '&#x002D;') or ends-with($text, '&#x2212;')">
+                            <xsl:when test="ends-with($text, '¬') or ends-with($text, '&#x2010;') or ends-with($text, '&#x002D;') or ends-with($text, '&#x2212;') or ends-with($text, '&#x201E;') or ends-with($text, '&#x003D;')">
 <!--                                <xsl:message>
                                     <xsl:value-of
                                         select="substring-before(replace($followerText, '[\p{Zs}]', ' '),' ')"
@@ -629,7 +630,7 @@
                     <xsl:if test="not($lastWordOfPreviousLineIfAny = 'NA') and not($lastWordOfPreviousLineIfAny = '')">
                         <xsl:attribute name="SUBS_TYPE" select="'HypPart2'"/>
                         <xsl:attribute name="SUBS_CONTENT"
-                            select="concat((tokenize($lastWordOfPreviousLineIfAny,'&#x00AC;|&#x002D;|&#x2010;|&#x2212;')[1]),$actString)"/>
+                            select="concat((tokenize($lastWordOfPreviousLineIfAny,'&#x00AC;|&#x002D;|&#x2010;|&#x2212;|&#x201E;|&#x003D;')[1]),$actString)"/>
                     </xsl:if>
                     <xsl:if test="$includeTags">
                         <xsl:call-template name="createNamedEntityRef">
@@ -682,7 +683,7 @@
                         <xsl:with-param name="restStringLength" select="0"/>
                     </xsl:call-template>
                     <!-- 	            <xsl:call-template name="applyStyleId"/> -->
-                    <xsl:attribute name="CONTENT" select="tokenize($remainingContent,'&#x00AC;|&#x002D;|&#x2010;|&#x2212;')[1]"/>
+                    <xsl:attribute name="CONTENT" select="tokenize($remainingContent,'&#x00AC;|&#x002D;|&#x2010;|&#x2212;|&#x201E;|&#x003D;')[1]"/>
                     <xsl:choose>
                         <xsl:when
                             test="not($firstWordOfNextLineIfAny = 'NA') and not($firstWordOfNextLineIfAny = '')">
@@ -699,7 +700,7 @@
                             </xsl:message>-->
                             <!-- different Unicode chars of hyphens -->
                             <xsl:attribute name="SUBS_CONTENT"
-                                select="concat((tokenize($remainingContent,'&#x00AC;|&#x002D;|&#x2010;|&#x2212;')[1]),$firstWordOfNextLineIfAny)"
+                                select="concat((tokenize($remainingContent,'&#x00AC;|&#x002D;|&#x2010;|&#x2212;|&#x201E;|&#x003D;')[1]),$firstWordOfNextLineIfAny)"
                             />
                         </xsl:when>
                     </xsl:choose>
