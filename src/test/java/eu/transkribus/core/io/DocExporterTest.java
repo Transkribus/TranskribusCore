@@ -83,6 +83,50 @@ public class DocExporterTest {
 		}
 	}
 	
+	@Test
+	public void testAltoWordLevelExportAndDelete() throws Exception {
+		final String testDocPath;
+		if(SysUtils.isWin()){
+			testDocPath = "X:/TRP/Bentham_box_002";
+		} else if (SysUtils.isLinux()) {
+			testDocPath = "/mnt/dea_scratch/TRP/Bentham_box_002";
+		} else {
+			//do not fail on unsupported OS
+			return;
+		}
+		
+		File tmpDir = createTempDirOnNfs();
+		
+		TrpDoc doc = LocalDocReader.load(testDocPath);
+		File outputDir = exportAlto(tmpDir, doc);
+		Assert.assertTrue(outputDir.isDirectory());
+		logger.info("Wrote export to {}", outputDir.getAbsolutePath());
+		
+		//test if cleanup of the exportDir works.
+		try {
+			FileUtils.deleteDirectory(tmpDir);
+			Assert.assertTrue(!tmpDir.exists());
+		} catch (IOException e) {
+			logger.error("Cleanup of tmpDir failed!", e);
+			throw e;
+		}
+	}
+	
+	protected File exportAlto(File tmpDir, TrpDoc doc) throws Exception {
+		try {
+			CommonExportPars commonPars = new CommonExportPars();
+			commonPars.setPages("1-" + doc.getNPages());
+			commonPars.setDoExportAltoXml(true);
+			commonPars.setSplitIntoWordsInAltoXml(true);
+			commonPars.setDir(tmpDir.getAbsolutePath());
+			commonPars.setDoWriteMets(true);
+			return exporter.exportDoc(doc, commonPars);
+		} catch (Exception e) {
+			logger.error("TEI export failed!", e);
+			throw e;
+		}
+	}
+	
 	protected File exportTei(File tmpDir, TrpDoc doc) throws Exception {
 		try {
 			CommonExportPars commonPars = new CommonExportPars();

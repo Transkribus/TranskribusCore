@@ -724,36 +724,32 @@ public class DocExporter extends APassthroughObservable {
 			return altoOutputDir;
 		}
 	}
-	
+
 	protected static class MyURIResolver implements URIResolver {
 		private DocumentBuilder dBuilder;
+
 		/**
 		 * @param dBuilder a DocumentBuilder configured for the current purpose
 		 */
 		public MyURIResolver(DocumentBuilder dBuilder) {
 			this.dBuilder = dBuilder;
 		}
+
 		@Override
 		public Source resolve(String href, String base) throws TransformerException {
-
-			//logger.debug("href " + href);
-		    ClassLoader cl = this.getClass().getClassLoader();
-		    java.io.InputStream in = cl.getResourceAsStream(href);
-		    InputSource xslInputSource = new InputSource(in);
-		    Document xslDoc;
-			try {
-				if (dBuilder != null && href.startsWith("xslt")){
+			Document xslDoc;
+			try (InputStream in = this.getClass().getClassLoader().getResourceAsStream(href)) {
+				InputSource xslInputSource = new InputSource(in);
+				if (dBuilder != null && href.startsWith("xslt")) {
 					xslDoc = dBuilder.parse(xslInputSource);
-				    DOMSource xslDomSource = new DOMSource(xslDoc);
-				    xslDomSource.setSystemId(href);
-				    return xslDomSource;
+					DOMSource xslDomSource = new DOMSource(xslDoc);
+					xslDomSource.setSystemId(href);
+					return xslDomSource;
 				}
 			} catch (SAXException | IOException e) {
 				logger.error("Failed to load XSLT!", e);
 			}
-
-		    return null;
-		 
+			return null;
 		}
 	}
 }
