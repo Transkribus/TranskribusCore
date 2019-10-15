@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -51,7 +52,6 @@ import eu.transkribus.core.model.beans.pagecontent.MetadataType;
 import eu.transkribus.core.model.beans.pagecontent.TranskribusMetadataType;
 import eu.transkribus.core.model.builder.CommonExportPars;
 import eu.transkribus.core.model.builder.ExportCache;
-import eu.transkribus.core.model.builder.NoTagsException;
 import eu.transkribus.core.model.builder.alto.AltoExporter;
 import eu.transkribus.core.model.builder.docx.DocxBuilder;
 import eu.transkribus.core.model.builder.iob.TrpIobBuilder;
@@ -294,41 +294,40 @@ public class DocExporter extends APassthroughObservable {
 		if(mets == null){
 			throw new IllegalArgumentException("An argument is null!");
 		}
-						
-		StreamSource mySrc = new StreamSource();
-		mySrc.setInputStream(new ByteArrayInputStream(JaxbUtils.marshalToBytes(mets, TrpDocMetadata.class)));
+		File teiFile = new File(exportFilename);
 		
-		//necessary to use the relative paths of the mets in the xslt
-		mySrc.setSystemId(workDir);
-		
-		InputStream is = DocExporter.class.getClassLoader().getResourceAsStream(PAGE_TO_TEI_XSLT);
-		
-		InputStream xslIS = new BufferedInputStream(is);
-
-		
-		DocumentBuilderFactory dFactory = DocumentBuilderFactory.newInstance();
-		dFactory.setNamespaceAware(true);
-		DocumentBuilder dBuilder = dFactory.newDocumentBuilder();
-
-        InputSource xslInputSource = new InputSource(xslIS);
-        Document xslDoc = dBuilder.parse(xslInputSource);
-        DOMSource xslDomSource = new DOMSource(xslDoc);
-		
-        TransformerFactory transFact = TransformerFactory.newInstance();
-        
-        //may? this is the only way to dynamically include a xsl in the xsl-source
-        transFact.setURIResolver(new MyURIResolver(dBuilder));
-
-        //would be the short way from MyURIResolver: lambda expression -> brought some .NullPointerException, I/O error reported by XML parser
-//        transFact.setURIResolver((href, base) -> {
-//            final InputStream s = DocExporter.class.getClassLoader().getResourceAsStream("xslt/" + href);
-//            return new StreamSource(s);
-//        });
-                
-        Transformer trans = transFact.newTransformer(xslDomSource);
-				
-		File teiFile = new File(exportFilename);			
-		trans.transform(mySrc, new StreamResult(new FileOutputStream(teiFile)));
+		try (
+				InputStream metsIs = new ByteArrayInputStream(JaxbUtils.marshalToBytes(mets, TrpDocMetadata.class));
+				InputStream xslIS = new BufferedInputStream(this.getClass().getClassLoader().getResourceAsStream(PAGE_TO_TEI_XSLT));
+				OutputStream teiOs = new FileOutputStream(teiFile);
+			) {
+			StreamSource mySrc = new StreamSource(metsIs);
+	
+			//necessary to use the relative paths of the mets in the xslt
+			mySrc.setSystemId(workDir);
+	
+			DocumentBuilderFactory dFactory = DocumentBuilderFactory.newInstance();
+			dFactory.setNamespaceAware(true);
+			DocumentBuilder dBuilder = dFactory.newDocumentBuilder();
+	
+	        InputSource xslInputSource = new InputSource(xslIS);
+	        Document xslDoc = dBuilder.parse(xslInputSource);
+	        DOMSource xslDomSource = new DOMSource(xslDoc);
+			
+	        TransformerFactory transFact = TransformerFactory.newInstance();
+	        
+	        //may? this is the only way to dynamically include a xsl in the xsl-source
+	        transFact.setURIResolver(new MyURIResolver(dBuilder));
+	
+	        //would be the short way from MyURIResolver: lambda expression -> brought some .NullPointerException, I/O error reported by XML parser
+	//        transFact.setURIResolver((href, base) -> {
+	//            final InputStream s = DocExporter.class.getClassLoader().getResourceAsStream("xslt/" + href);
+	//            return new StreamSource(s);
+	//        });
+	                
+	        Transformer trans = transFact.newTransformer(xslDomSource);
+			trans.transform(mySrc, new StreamResult(teiOs));
+		}
 		
 		return teiFile;
 		
