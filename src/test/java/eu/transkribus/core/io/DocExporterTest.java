@@ -95,7 +95,7 @@ public class DocExporterTest {
 			return;
 		}
 		
-		File tmpDir = createTempDirOnNfs();
+		File tmpDir = createTempDir();
 		
 		TrpDoc doc = LocalDocReader.load(testDocPath);
 		File outputDir = exportAlto(tmpDir, doc);
