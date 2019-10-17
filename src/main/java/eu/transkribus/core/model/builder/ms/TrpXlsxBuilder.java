@@ -31,6 +31,9 @@ import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
 import eu.transkribus.core.model.beans.customtags.CustomTagFactory;
 import eu.transkribus.core.model.beans.customtags.CustomTagList;
+import eu.transkribus.core.model.beans.customtags.ReadingOrderTag;
+import eu.transkribus.core.model.beans.customtags.StructureTag;
+import eu.transkribus.core.model.beans.customtags.TextStyleTag;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
 import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
@@ -45,20 +48,45 @@ import eu.transkribus.core.model.builder.NoTagsException;
 
 public class TrpXlsxBuilder {
 	private final static Logger logger = LoggerFactory.getLogger(TrpXlsxBuilder.class);
+	private final String overview = "Overview";
+	
 	static Workbook wb;
 	
 	public TrpXlsxBuilder() {
 		
 	}
 	
-	private void writeTagsForShapeElement(ITrpShapeType element, String context, String doc, String page, String regionID, String lineID, String wordId, Set<String> selectedTags) throws IOException{
+	private void writeTagsForShapeElement(ITrpShapeType element, String imgFilename, String context, String doc, String page, String regionID, String lineID, String wordId, Set<String> selectedTags) throws IOException{
 
 		String textStr = element.getUnicodeText();
 		CustomTagList cl = element.getCustomTagList();
-		if (textStr == null || cl == null)
-			throw new IOException("Element has no text or custom tag list: "+element+", class: "+element.getClass().getName());
-			
 		
+		if (cl == null){
+			throw new IOException("Element has no custom tag list: "+element+", class: "+element.getClass().getName());
+		}
+				
+		for (CustomTag indexedTag : cl.getIndexedTags()) {
+			
+			//check for nonIndexed tags only
+			if (textStr == null){
+				throw new IOException("Element has no text: "+element+", class: "+element.getClass().getName());
+			}
+
+			if (!indexedTag.getTagName().equals(TextStyleTag.TAG_NAME)){
+				
+				//logger.debug("indexed tag found " + indexedTag.getTagName());
+				String tagname = indexedTag.getTagName();
+				if (!selectedTags.contains(tagname)){
+					break;
+				}
+				
+				Map<String, Object> attributes = indexedTag.getAttributeNamesValuesMap();
+				
+				updateExcelWB(true, imgFilename, tagname, attributes, textStr, context, doc, page, regionID, lineID, wordId);
+
+			}
+
+		}
 		
 		/*
 		 * custom tags
@@ -68,136 +96,157 @@ public class TrpXlsxBuilder {
 		 * 
 		 */
 		for (CustomTag nonIndexedTag : cl.getNonIndexedTags()) {
-			
-			if (!nonIndexedTag.getTagName().equals("textStyle") && !nonIndexedTag.getTagName().equals("readingOrder")){
-				nonIndexedTag.getAttributesValuesMap();
-				//logger.debug("nonindexed tag found " + nonIndexedTag.getTagName());
-			}
-
-		}
-		
-		
-		for (CustomTag indexedTag : cl.getIndexedTags()) {
-
-			if (!indexedTag.getTagName().equals("textStyle")){
-				
-				//logger.debug("indexed tag found " + indexedTag.getTagName());
-				
-				Sheet firstSheet;
-				Sheet currSheet;
-
-				String tagname = indexedTag.getTagName();
-				String overview = "Overview";
-				
+						
+			if (!nonIndexedTag.getTagName().equals(TextStyleTag.TAG_NAME) && !nonIndexedTag.getTagName().equals(ReadingOrderTag.TAG_NAME)){
+				//nonIndexedTag.getAttributesValuesMap();
+				String tagname = nonIndexedTag.getTagName();
 				if (!selectedTags.contains(tagname)){
 					break;
 				}
 				
-				/*
-				 *first Excel page is the overview -> all tags without their special tag attributes
-				 */
-				if (wb.getSheet(overview) != null){
-					firstSheet = wb.getSheet(overview);
+				if (nonIndexedTag.getTagName().equals(StructureTag.TAG_NAME)){
+					Map<String, Object> attributes = nonIndexedTag.getAttributeNamesValuesMap();
+					
+					updateExcelWB(false, imgFilename, tagname, attributes, null, context, doc, page, regionID, lineID, wordId);
 				}
-				else{
-					firstSheet = wb.createSheet(WorkbookUtil.createSafeSheetName(overview));
-				}
-				
-				//either find existent sheet or create new one
-				if (wb.getSheet(tagname) != null){
-					currSheet = wb.getSheet(tagname);
-					//logger.debug("existent sheet " + tagname);
-				}
-				else{
-					currSheet = wb.createSheet(WorkbookUtil.createSafeSheetName(tagname));
-					//logger.debug("new sheet " + tagname);
-				}
-				
-				CreationHelper crHelper = wb.getCreationHelper();
-				Map<String, Object> attributes = indexedTag.getAttributeNamesValuesMap();
-				Iterator<String> attributeIterator = attributes.keySet().iterator();
-				
-				int offset = (int) attributes.get("offset");
-				int length = (int) attributes.get("length");
-				
-				//logger.debug("text string " + textStr + " length " +textStr.length() + " offset " + offset + " length of substring " + length);
-				String tmpTextStr = textStr.substring(offset, offset+length);
-				
-				int lastRowIdxOfFirstSheet = firstSheet.getLastRowNum();
-				if (lastRowIdxOfFirstSheet == 0){
-					fillFirstOverviewRow(firstSheet);
-				}
-				
-				int lastRowIdx = currSheet.getLastRowNum();
-				//logger.debug("lastRowIdx " + lastRowIdx);
-				if (lastRowIdx == 0){
-					fillFirstRow(currSheet, attributes, crHelper);	
-				}
-				
-				/*
-				 * the first (overview) sheet shows all custom tags of the doc - tag attributes are stored as a list in one cell
-				 */
-				Row nextRowOfFirstSheet = firstSheet.createRow(++lastRowIdxOfFirstSheet);
-				
-				int idxHelper = 0;
-				nextRowOfFirstSheet.createCell(idxHelper++).setCellValue(tmpTextStr);
-				nextRowOfFirstSheet.createCell(idxHelper++).setCellValue(context);
-				nextRowOfFirstSheet.createCell(idxHelper++).setCellValue(doc);
-				nextRowOfFirstSheet.createCell(idxHelper++).setCellValue(page);
-				nextRowOfFirstSheet.createCell(idxHelper++).setCellValue(regionID);
-				nextRowOfFirstSheet.createCell(idxHelper++).setCellValue(lineID);
-				nextRowOfFirstSheet.createCell(idxHelper++).setCellValue(wordId);
-				
-				//all attributes are s
-				nextRowOfFirstSheet.createCell(idxHelper++).setCellValue(tagname + " " + attributes.toString());
-
-				/*
-				 * subsequent sheets shows all different tags on their own sheet
-				 * 
-				 */
-				Row nextRow = currSheet.createRow(++lastRowIdx);
-				
-				int idx = 0;
-				nextRow.createCell(idx++).setCellValue(tmpTextStr);
-				nextRow.createCell(idx++).setCellValue(context);
-				nextRow.createCell(idx++).setCellValue(doc);
-				nextRow.createCell(idx++).setCellValue(page);
-				nextRow.createCell(idx++).setCellValue(regionID);
-				nextRow.createCell(idx++).setCellValue(lineID);
-				nextRow.createCell(idx++).setCellValue(wordId);
-				
-//					for (int i = 0; i < attributes.size(); i++){
-//						String attributeName = attributeIterator.next();
-//						logger.debug("attributeName " + attributeName);
-//						firstRow.createCell(i+idx).setCellValue(crHelper.createRichTextString(attributeName));
-//						Object value = attributes.get(attributeName);		
-//						logger.debug("attribute value " + value);
-//						nextRow.createCell(i+idx).setCellValue(crHelper.createRichTextString(String.valueOf(value)));	
-//					}
-				
-				/*
-				 * each attribute of a custom tag is stored in a single cell
-				 */
-				Row row = currSheet.getRow(0);
-				for (int i = 0; i < attributes.size(); i++){
-					String attributeName = attributeIterator.next();
-					Object value = attributes.get(attributeName);	
-					for (int colIdx = 0; colIdx < row.getLastCellNum(); colIdx++){
-						Cell cell = row.getCell(colIdx);
-
-						if (cell.getRichStringCellValue().getString().equals(attributeName)){
-							nextRow.createCell(colIdx).setCellValue(crHelper.createRichTextString(String.valueOf(value)));
-							break;
-						}
-					}
-				}
-
+				//logger.debug("nonindexed tag found " + nonIndexedTag.getTagName());
 			}
 
 		}
 
 	}
 	
+	private void updateExcelWB(boolean indexed, String imgFilename, String tagname, Map<String, Object> attributes, String textStr, String context, String doc, String page, String regionID, String lineID, String wordId) {
+		Sheet firstSheet;
+		Sheet currSheet;
+		String tmpTextStr = "";
+
+		/*
+		 *first Excel page is the overview -> all tags without their special tag attributes
+		 */
+		if (indexed){
+			if (wb.getSheet(overview) != null){
+				firstSheet = wb.getSheet(overview);
+			}
+			else{
+				firstSheet = wb.createSheet(WorkbookUtil.createSafeSheetName(overview));
+			}
+
+			int offset = (int) attributes.get("offset");
+			int length = (int) attributes.get("length");
+			
+			//logger.debug("text string " + textStr + " length " +textStr.length() + " offset " + offset + " length of substring " + length);
+			tmpTextStr = textStr.substring(offset, offset+length);
+			
+			int lastRowIdxOfFirstSheet = firstSheet.getLastRowNum();
+			if (lastRowIdxOfFirstSheet == 0){
+				fillFirstOverviewRow(firstSheet);
+			}
+			
+			/*
+			 * the first (overview) sheet shows all custom tags of the doc - tag attributes are stored as a list in one cell
+			 */
+			Row nextRowOfFirstSheet = firstSheet.createRow(++lastRowIdxOfFirstSheet);
+			
+			int idxHelper = 0;
+			nextRowOfFirstSheet.createCell(idxHelper++).setCellValue(tmpTextStr);
+			nextRowOfFirstSheet.createCell(idxHelper++).setCellValue(context);
+			nextRowOfFirstSheet.createCell(idxHelper++).setCellValue(doc);
+			nextRowOfFirstSheet.createCell(idxHelper++).setCellValue(page);
+			nextRowOfFirstSheet.createCell(idxHelper++).setCellValue(regionID);
+			nextRowOfFirstSheet.createCell(idxHelper++).setCellValue(lineID);
+			nextRowOfFirstSheet.createCell(idxHelper++).setCellValue(wordId);
+			
+			//all attributes are s
+			nextRowOfFirstSheet.createCell(idxHelper++).setCellValue(tagname + " " + attributes.toString());
+		}
+		
+		//either find existent sheet or create new one
+		if (wb.getSheet(tagname) != null){
+			currSheet = wb.getSheet(tagname);
+			//logger.debug("existent sheet " + tagname);
+		}
+		else{
+			currSheet = wb.createSheet(WorkbookUtil.createSafeSheetName(tagname));
+			//logger.debug("new sheet " + tagname);
+		}
+		
+		CreationHelper crHelper = wb.getCreationHelper();
+		Iterator<String> attributeIterator = attributes.keySet().iterator();
+			
+		int lastRowIdx = currSheet.getLastRowNum();
+		//logger.debug("lastRowIdx " + lastRowIdx);
+		if (lastRowIdx == 0){
+			fillFirstRow(indexed, currSheet, attributes, crHelper);	
+		}
+
+		/*
+		 * subsequent sheets shows all different tags on their own sheet
+		 * 
+		 */
+		Row nextRow = currSheet.createRow(++lastRowIdx);
+		
+		int idx = 0;
+		
+		if(indexed){
+			nextRow.createCell(idx++).setCellValue(tmpTextStr);
+			nextRow.createCell(idx++).setCellValue(context);
+		}
+		else{
+			String type = "";
+			String id = "";
+			String structType = "";
+			for (int i = 0; i < attributes.size(); i++){
+				String attributeName = attributeIterator.next();
+				Object value = attributes.get(attributeName);
+				if (attributeName.equals("type")){
+					type = String.valueOf(value);
+				}
+				else if (attributeName.equals("id")){
+					id = String.valueOf(value);
+				}
+			}
+			structType = (id.equals(""))? type : type.concat("_"+id);
+			nextRow.createCell(idx++).setCellValue(structType);
+		}
+	
+		nextRow.createCell(idx++).setCellValue(imgFilename);
+		nextRow.createCell(idx++).setCellValue(doc);
+		nextRow.createCell(idx++).setCellValue(page);
+		nextRow.createCell(idx++).setCellValue(regionID);
+		nextRow.createCell(idx++).setCellValue(lineID);
+		nextRow.createCell(idx++).setCellValue(wordId);
+		
+//			for (int i = 0; i < attributes.size(); i++){
+//				String attributeName = attributeIterator.next();
+//				logger.debug("attributeName " + attributeName);
+//				firstRow.createCell(i+idx).setCellValue(crHelper.createRichTextString(attributeName));
+//				Object value = attributes.get(attributeName);		
+//				logger.debug("attribute value " + value);
+//				nextRow.createCell(i+idx).setCellValue(crHelper.createRichTextString(String.valueOf(value)));	
+//			}
+		
+		/*
+		 * each attribute of a custom tag is stored in a single cell
+		 */
+		if (indexed){
+			Row row = currSheet.getRow(0);
+			for (int i = 0; i < attributes.size(); i++){
+				String attributeName = attributeIterator.next();
+				Object value = attributes.get(attributeName);	
+				for (int colIdx = 0; colIdx < row.getLastCellNum(); colIdx++){
+					Cell cell = row.getCell(colIdx);
+	
+					if (cell.getRichStringCellValue().getString().equals(attributeName)){
+						nextRow.createCell(colIdx).setCellValue(crHelper.createRichTextString(String.valueOf(value)));
+						break;
+					}
+				}
+			}
+		}
+		
+	}
+
 	private void fillFirstOverviewRow(Sheet firstSheet) {
 		Row firstRow = firstSheet.createRow(0);
 		
@@ -213,23 +262,32 @@ public class TrpXlsxBuilder {
 				
 	}
 
-	private void fillFirstRow(Sheet currSheet, Map<String, Object> attributes, CreationHelper crHelper) {
+	private void fillFirstRow(boolean indexed, Sheet currSheet, Map<String, Object> attributes, CreationHelper crHelper) {
 		Row firstRow = currSheet.createRow(0);
 		
 		int idx = 0;
-		firstRow.createCell(idx++).setCellValue("Value");
-		firstRow.createCell(idx++).setCellValue("Context");
+		if (indexed){
+			firstRow.createCell(idx++).setCellValue("Value");
+			firstRow.createCell(idx++).setCellValue("Context");
+		}
+		else{
+			firstRow.createCell(idx++).setCellValue("Type");	
+		}
+
+		firstRow.createCell(idx++).setCellValue("Imagename");
 		firstRow.createCell(idx++).setCellValue("Doc");
 		firstRow.createCell(idx++).setCellValue("Page");
 		firstRow.createCell(idx++).setCellValue("Region");
 		firstRow.createCell(idx++).setCellValue("Line");
 		firstRow.createCell(idx++).setCellValue("Word");
 		
-		Iterator<String> attributeIterator = attributes.keySet().iterator();
-		for (int i = 0; i < attributes.size(); i++){
-			String attributeName = attributeIterator.next();
-			//logger.debug("attributeName " + attributeName);
-			firstRow.createCell(i+idx).setCellValue(crHelper.createRichTextString(attributeName)); 	
+		if (indexed){
+			Iterator<String> attributeIterator = attributes.keySet().iterator();
+			for (int i = 0; i < attributes.size(); i++){
+				String attributeName = attributeIterator.next();
+				//logger.debug("attributeName " + attributeName);
+				firstRow.createCell(i+idx).setCellValue(crHelper.createRichTextString(attributeName)); 	
+			}
 		}
 		
 	}
@@ -296,6 +354,8 @@ public class TrpXlsxBuilder {
 				
 				
 				TrpPageType trpPage = tr.getPage();
+				
+				String imgFilename = trpPage.getImageFilename();
 					
 				logger.debug("writing xlsx for page "+(i+1)+"/"+doc.getNPages());
 				
@@ -303,6 +363,8 @@ public class TrpXlsxBuilder {
 				
 				for (int j=0; j<textRegions.size(); ++j) {
 					TrpTextRegionType r = textRegions.get(j);
+					
+					writeTagsForShapeElement(r, imgFilename, "", String.valueOf(doc.getId()), String.valueOf(page.getPageNr()), r.getId(), "", "", selectedTags );
 									
 					List<TextLineType> lines = r.getTextLine();
 										
@@ -313,12 +375,12 @@ public class TrpXlsxBuilder {
 						if (wordBased){
 							for (int l=0; l<words.size(); ++l) {
 								TrpWordType w = (TrpWordType) words.get(l);
-								writeTagsForShapeElement(w, trpL.getUnicodeText(), String.valueOf(doc.getId()), String.valueOf(page.getPageNr()), r.getId(), trpL.getId(), w.getId(), selectedTags );
+								writeTagsForShapeElement(w, imgFilename, trpL.getUnicodeText(), String.valueOf(doc.getId()), String.valueOf(page.getPageNr()), r.getId(), trpL.getId(), w.getId(), selectedTags );
 							}
 						}
 						else{
-							logger.debug("writing tags for shape ");
-							writeTagsForShapeElement(trpL, trpL.getUnicodeText(), String.valueOf(doc.getId()), String.valueOf(page.getPageNr()), r.getId(), trpL.getId(), "", selectedTags );
+							//logger.debug("writing tags for shape ");
+							writeTagsForShapeElement(trpL, imgFilename, trpL.getUnicodeText(), String.valueOf(doc.getId()), String.valueOf(page.getPageNr()), r.getId(), trpL.getId(), "", selectedTags );
 						}
 	
 					}
