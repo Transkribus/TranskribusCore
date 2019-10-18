@@ -16,7 +16,10 @@ public final class RESTConst {
 	public static final String SYSTEM_PATH = "system";
 	public static final String AUTH_PATH = "auth";
 	public static final String LAYOUT_PATH = "LA";
-	public static final String P2PALA_PATH = LAYOUT_PATH+"/"+"p2pala";
+	
+//	public static final String P2PALA_PATH = LAYOUT_PATH+"/"+"p2pala";
+	public static final String P2PALA_PATH = "p2pala";
+//	public static final String P2PALA_TRAIN_PATH = "p2palaTrain";
 	
 	public static final String JOBS_PATH = "jobs";
 	public static final String USER_PATH = "user";
@@ -30,6 +33,7 @@ public final class RESTConst {
 	public static final String CROWDSOURCE_PATH = "crowdsourcing";
 	public static final String ELEARNING_PATH = "eLearning";
 	public static final String UPLOADS_PATH = "uploads";
+	public static final String TRAIN_PATH = "train";
 		
 	/* jobMgmt */
 	public static final String JOB_MGMT_PATH = "jobMgmt";

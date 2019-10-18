@@ -26,9 +26,14 @@ public class JobConst {
 	public static final String PROP_REG_IDS = "regIds";
 	public static final String PROP_TRANSCRIPTS = "transcripts";
 	
+	public static final String PROP_TRAIN_DESCS = "trainDescs"; // property for list of DocumentSelectionDescriptor's
+	public static final String PROP_VAL_DESCS = "valDescs"; // property for list of DocumentSelectionDescriptor's
+	public static final String PROP_TEST_DESCS = "testDescs"; // property for list of DocumentSelectionDescriptor's
+	
 	public static final String PROP_STATE = "state";
 	public static final String PROP_MODELNAME = "modelName";
 	public static final String PROP_MODEL_ID = "modelId";
+	public static final String PROP_DESCRIPTION = "description";
 	public static final String PROP_PAGES = "pages";
 	public static final String PROP_DOC_IDS = "docIds";
 	public static final String PROP_PATH = "path";

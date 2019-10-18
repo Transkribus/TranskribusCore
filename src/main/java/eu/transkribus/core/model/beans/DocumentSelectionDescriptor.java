@@ -68,6 +68,14 @@ public class DocumentSelectionDescriptor implements Serializable {
 		return pd;
 	}
 	
+	public static List<DocumentSelectionDescriptor> fromDocIds(int... docIds) throws IOException {
+		List<DocumentSelectionDescriptor> dsds = new ArrayList<>();
+		for (int docId : docIds) {
+			dsds.add(new DocumentSelectionDescriptor(docId));
+		}
+		return dsds;
+	}
+	
 	public static DocumentSelectionDescriptor fromDocAndPagesStr(TrpDoc doc, String pagesStr) throws IOException {
 		DocumentSelectionDescriptor dd = new DocumentSelectionDescriptor(doc.getId());
 		if (!StringUtils.isEmpty(pagesStr)) {
