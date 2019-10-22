@@ -25,6 +25,9 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
@@ -105,7 +108,9 @@ public final class OrderedProperties implements Serializable {
 					String key = e.getKey();
 					String val = e.getValue();
 					// TODO: encode key and val!?
-					out.write(key + keyValueDelimiter + val + "\n");
+					// important: if there is no value use no delimiter!
+					String line=StringUtils.isEmpty(val) ? key : key+keyValueDelimiter+val;
+					out.write(line+"\n");
 				}
 			}
 		}
