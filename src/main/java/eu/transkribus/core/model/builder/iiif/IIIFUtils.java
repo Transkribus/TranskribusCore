@@ -73,24 +73,26 @@ public class IIIFUtils {
 	
 	private static final Logger logger = LoggerFactory.getLogger(IIIFUtils.class);
 	
-	public static TrpDoc createDocFromIIIF(URL url, String path) throws JsonParseException, JsonMappingException, IOException, SQLException, ReflectiveOperationException, IllegalArgumentException {
-	
-		
+	public static Manifest checkManifestValid(URL url) throws JsonParseException, JsonMappingException, IOException {
 		ObjectMapper iiifMapper = new IiifObjectMapper();
+		Manifest manifest = iiifMapper.readValue(url, Manifest.class);
+		return manifest;
+	}
+	
+	public static TrpDoc createDocFromIIIF(URL url, String path) throws JsonParseException, JsonMappingException, IOException, SQLException, ReflectiveOperationException, IllegalArgumentException {
 	
 		logger.debug("Url transmitted to UploadManager : "+url.toString());
 		
-		logger.debug("Checking if IIIF Manifest is valid");
-		
-		JSONObject validation = validateManifest(url);
-		
-		if(validation.getInt("okay") == 0) {
-			logger.error("IIIF is not valid : ", validation);
-			throw new IllegalArgumentException("IIIF is not valid (https://iiif.io/api/presentation/validator/service/) : "+validation.getString("error"));
-		}
-		
-		
-		Manifest manifest =  iiifMapper.readValue(url, Manifest.class);
+//		logger.debug("Checking if IIIF Manifest is valid");
+//		
+//		JSONObject validation = validateManifest(url);
+//		
+//		if(validation.getInt("okay") == 0) {
+//			logger.error("IIIF is not valid : "+validation.getString("error"), validation);
+//			throw new IllegalArgumentException("IIIF is not valid (https://iiif.io/api/presentation/validator/service/) : "+validation.getString("error"));
+//		}
+			
+		Manifest manifest =  checkManifestValid(url);
 
 		TrpDocMetadata md = new TrpDocMetadata();
 		
