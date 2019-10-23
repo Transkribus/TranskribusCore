@@ -94,11 +94,10 @@ public class ExportUtils {
 		return elementTags;
 	}
 	
-	
 	public static Set<String> getOnlyWantedTagnames(Set<String> regTagNames) {
 		Set<String> tagnames = new HashSet<String>();
 		for (String currTagname : regTagNames){
-			if (!currTagname.equals(ReadingOrderTag.TAG_NAME) && !currTagname.equals(StructureTag.TAG_NAME) 
+			if (!currTagname.equals(ReadingOrderTag.TAG_NAME) 
 					&& !currTagname.equals(TextStyleTag.TAG_NAME) && !currTagname.equals(BlackeningTag.TAG_NAME)){
 				tagnames.add(currTagname);
 			}

@@ -1413,7 +1413,13 @@ public class CoreUtils {
 		}
 	}	
 	
+	public static String regularizedPath(String path) {
+		return path==null ? null : StringUtils.removeEnd(path.replaceAll("\\\\", "/"), "/");
+	}
+	
 	public static void main(String[] args) throws Exception {
+		System.out.println(regularizedPath("c:\\hello\\world/by\\me\\"));
+		
 //		System.out.println(timeDiffToString(-1));
 //		System.out.println(timeDiffToString(0));
 //		System.out.println(timeDiffToString(1));
@@ -1427,7 +1433,9 @@ public class CoreUtils {
 //		System.out.println(timeDiffToString(9999999999l));
 		
 //		System.out.println(parseDate("Thu Jan 31 15:49:38 2019", new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy")));
-		System.out.println(parseDate("Thu Jan 31 15:49:38 2019", new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy", Locale.ENGLISH)));
+//		System.out.println(parseDate("Thu Jan 31 15:49:38 2019", new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy", Locale.ENGLISH)));
 	}
+
+
 	
 }

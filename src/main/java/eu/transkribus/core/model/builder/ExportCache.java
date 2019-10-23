@@ -25,7 +25,6 @@ import eu.transkribus.core.model.beans.customtags.BlackeningTag;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
 import eu.transkribus.core.model.beans.customtags.CustomTagList;
 import eu.transkribus.core.model.beans.customtags.ReadingOrderTag;
-import eu.transkribus.core.model.beans.customtags.StructureTag;
 import eu.transkribus.core.model.beans.customtags.TextStyleTag;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
@@ -193,6 +192,8 @@ public class ExportCache {
 
 			for (int j=0; j<textRegions.size(); ++j) {
 				TrpTextRegionType r = textRegions.get(j);
+				
+				getTagsForShapeElement(r);
 								
 				List<TextLineType> lines = r.getTextLine();
 				
@@ -253,7 +254,7 @@ public class ExportCache {
 		for (CustomTag nonIndexedTag : cl.getNonIndexedTags()) {
 			//logger.debug("tagname" + nonIndexedTag.getTagName());
 			//logger.debug("nonindexed tag found ");
-			if(!nonIndexedTag.getTagName().equals("readingOrder")){
+			if(!nonIndexedTag.getTagName().equals(ReadingOrderTag.TAG_NAME)){
 				storeCustomTag(nonIndexedTag, textStr);
 			}
 
@@ -281,6 +282,10 @@ public class ExportCache {
 	
 	private void storeCustomTag(CustomTag currTag, String textStr) {
 		if (!currTag.getTagName().equals(TextStyleTag.TAG_NAME)){
+			
+//			logger.debug("-----offset {}", currTag.getOffset());
+//			logger.debug("--------length {}", currTag.getLength());
+//			logger.debug("--------name {}", currTag.getTagName());
 			
 			if (currTag.getOffset() != -1 && currTag.getLength() != -1 && (currTag.getOffset()+currTag.getLength() <= textStr.length())){
 				//guarantee that string is not blackened
@@ -317,25 +322,13 @@ public class ExportCache {
 	public void setTags(LinkedHashMap<CustomTag, String> tags) {
 		this.tags = tags;
 	}
-
-	public Set<String> getOnlyWantedTagnames(Set<String> regTagNames) {
-		Set<String> tagnames = new HashSet<String>();
-		for (String currTagname : regTagNames){
-			if (!currTagname.equals(ReadingOrderTag.TAG_NAME) && !currTagname.equals(StructureTag.TAG_NAME) 
-					&& !currTagname.equals(TextStyleTag.TAG_NAME) && !currTagname.equals(BlackeningTag.TAG_NAME)){
-				tagnames.add(currTagname);
-			}
-		}
-		return tagnames;
-		
-	}
 	
 	/*
 	 * return the selected tagnames or, if nothing selected, all registered tagnames (except text style, reading order etc.)
 	 */
 	public Set<String> getOnlySelectedTagnames(Set<String> registeredTagNames) {
 		// TODO Auto-generated method stub
-		Set<String> usefulTagsnames = getOnlyWantedTagnames(registeredTagNames);
+		Set<String> usefulTagsnames = ExportUtils.getOnlyWantedTagnames(registeredTagNames);
 		if (selectedTags != null && selectedTags.size() > 0){
 			return selectedTags;
 		}
