@@ -17,16 +17,16 @@ import org.slf4j.LoggerFactory;
 import eu.transkribus.core.io.LocalDocConst;
 import eu.transkribus.core.io.LocalDocReader;
 import eu.transkribus.core.io.UnsupportedFormatException;
-import eu.transkribus.core.io.exec.ExiftoolUtil;
+import eu.transkribus.core.io.exec.util.ExiftoolUtil;
 import eu.transkribus.core.model.beans.TrpDocMetadata;
 import eu.transkribus.core.model.beans.enums.ScriptType;
 import eu.transkribus.core.model.beans.fat.DocumentFolder;
 import eu.transkribus.core.model.beans.fat.FepMetadata;
+import eu.transkribus.core.model.beans.fat.File.Metadata;
 import eu.transkribus.core.model.beans.fat.FileFolder;
 import eu.transkribus.core.model.beans.fat.OcrMetadata;
 import eu.transkribus.core.model.beans.fat.Order;
 import eu.transkribus.core.model.beans.fat.RootFolder;
-import eu.transkribus.core.model.beans.fat.File.Metadata;
 import eu.transkribus.core.util.ChecksumUtils;
 import eu.transkribus.core.util.JaxbUtils;
 
@@ -128,7 +128,7 @@ public class FatBuilder {
 			String errorType;
 			String message;
 			try {
-				final Map<String, String> exif = ExiftoolUtil.extractImgMd(img.getAbsolutePath());
+				final Map<String, String> exif = ExiftoolUtil.parseTags(img.getAbsolutePath(), false);
 				final String mimetype = exif.get("MIMEType");
 				final String xRes = exif.get("XResolution");
 				final String yRes = exif.get("YResolution");
