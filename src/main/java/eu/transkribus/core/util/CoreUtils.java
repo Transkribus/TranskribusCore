@@ -1112,8 +1112,14 @@ public class CoreUtils {
 			String[] numbers = r.split("-");
 			try {
 				if (numbers.length == 2) {
-					int s = CoreUtils.bound(Integer.parseInt(numbers[0]), 1, nrOfPages);
-					int e = CoreUtils.bound(Integer.parseInt(numbers[1]), 1, nrOfPages);
+					int pageNrStart = Integer.parseInt(numbers[0]);
+					int pageNrEnd = Integer.parseInt(numbers[1]);
+					if (pageNrStart>pageNrEnd || pageNrStart>nrOfPages) {
+						continue;
+					}
+					
+					int s = CoreUtils.bound(pageNrStart, 1, nrOfPages);
+					int e = CoreUtils.bound(pageNrEnd, 1, nrOfPages);
 					for (int i = s - 1; i < e; ++i) {
 						logger.trace("adding page index: " + i);
 						pi.add(i);
