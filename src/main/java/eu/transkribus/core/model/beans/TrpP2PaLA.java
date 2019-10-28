@@ -43,10 +43,10 @@ public class TrpP2PaLA extends ATrpModel {
 	}
 	
 	public TrpP2PaLA(Integer modelId, String name, String description, String path, Timestamp created,
-			Integer parenId, Integer isActive, Integer releaseLevel, String params, String custom, Integer isDeleted, Integer jobId, 
+			Integer parenId, Integer isActive, Integer releaseLevel, String params, String custom, Integer isDeleted, Integer jobId, Integer userId, String userName,
 			
 			String structTypes, String mergedStructTypes, String outMode) {
-		super(modelId, name, description, path, created, parenId, isActive, releaseLevel, params, custom, isDeleted, jobId);
+		super(modelId, name, description, path, created, parenId, isActive, releaseLevel, params, custom, isDeleted, jobId, userId, userName);
 		
 		this.structTypes = structTypes;
 		this.mergedStructTypes = mergedStructTypes;
@@ -83,18 +83,14 @@ public class TrpP2PaLA extends ATrpModel {
 
 	@Override
 	public String toString() {
-		return "TrpP2PaLA [modelId=" + modelId+", structTypes=" + structTypes + ", mergedStructTypes=" + mergedStructTypes + ", outMode="
-				+ outMode + ", name=" + name + ", type=" + type + ", description="
+		return "TrpP2PaLA [modelId="+modelId+", name=" + name + ", structTypes=" + structTypes + ", mergedStructTypes=" + mergedStructTypes + ", outMode="
+				+ outMode + ", type=" + type + ", description="
 				+ description + ", path=" + path + ", created=" + created + ", parentId=" + parentId + ", isActive="
 				+ isActive + ", releaseLevel=" + releaseLevel + ", params=" + params + ", custom=" + custom
-				+ ", isDeleted=" + isDeleted + ", jobId=" + jobId + "]";
+				+ ", isDeleted=" + isDeleted + ", jobId=" + jobId + ", userId=" + userId + ", userName=" + userName
+				+ "]";
 	}
 	
-	public static TrpP2PaLA fromTrpP2PaLAModel(TrpP2PaLAModel oldModel) {
-		return new TrpP2PaLA(-1, oldModel.getName(), oldModel.getDescription(), oldModel.getPath(), oldModel.getCreated(), null, 
-				1, 2, null, null, null, null, oldModel.getStruct_types(), oldModel.getMerged_struct_types(), oldModel.getOut_mode());
-	}
-
 	public static void main(String[] args) throws Exception {
 		
 		for (Field f : TrpP2PaLA.class.getDeclaredFields()) {

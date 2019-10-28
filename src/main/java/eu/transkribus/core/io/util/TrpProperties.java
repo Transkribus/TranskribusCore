@@ -1,9 +1,12 @@
 package eu.transkribus.core.io.util;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
@@ -47,7 +50,13 @@ public class TrpProperties {
 		}
 		
 		public TrpProperties() {
-			props = new Properties();
+//			props = new Properties();
+			props  = new Properties() {
+			    @Override
+			    public synchronized Enumeration<Object> keys() {
+			        return Collections.enumeration(new TreeSet<Object>(super.keySet()));
+			    }
+			};
 		}
 		
 		public TrpProperties(Properties props) {

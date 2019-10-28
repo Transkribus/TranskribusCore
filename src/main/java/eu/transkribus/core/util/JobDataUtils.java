@@ -257,7 +257,15 @@ public class JobDataUtils {
 				logger.debug("Omitting existing key: " + e.getKey() + " -> " + e.getValue());
 				continue;
 			}
-			props.put(e.getKey(), e.getValue());
+			if (e.getValue()==null) {
+				logger.warn("Omitting null value for key = "+e.getKey());
+			}
+			else if (e.getKey()==null) {
+				logger.warn("Null key occured in ParameterMap - should not happen - ommiting");
+			}
+			else {
+				props.put(e.getKey(), e.getValue());
+			}
 		}
 		return props;
 	}

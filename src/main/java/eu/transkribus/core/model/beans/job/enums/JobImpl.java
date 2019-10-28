@@ -36,6 +36,7 @@ public enum JobImpl {
 	UpvlcLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", null),
 	P2PaLAJob(JobTask.DetectLines, "Layout and structure analysis", "P2PaLAJob", null),
 	P2PaLAJobMultiThread(JobTask.DetectLines, "Layout and structure analysis", "P2PaLAJobMultiThread", null),
+	P2PaLATrainJob(JobTask.P2PaLATraining, "Training of a P2PaLA model", "P2PaLATrainJob", null),	
 	
 	T2IJob(JobTask.DetectLines, "Text2Image", "T2IJob", null),
 	T2IJobMultiThread(JobTask.DetectLines, "Text2Image", "T2IJobMultiThread", null),	

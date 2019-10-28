@@ -33,10 +33,12 @@ public abstract class ATrpModel {
 	public final static String CUSTOM_COL = "custom";
 	public final static String IS_DELETED_COL = "is_deleted";
 	public final static String JOBID_COL = "jobid";
+	public final static String USERID_COL = "userid";
+	public final static String USERNAME_COL = "username";
 	
 	public final static String[] COLS = { MODEL_ID_COL, NAME_COL, TYPE_COL, DESCRIPTION_COL,
 			PATH_COL, CREATED_COL, PARENT_ID_COL, IS_ACTIVE_COL, RELEASE_LEVEL_COL,
-			PARAMS_COL, CUSTOM_COL, IS_DELETED_COL, JOBID_COL };	
+			PARAMS_COL, CUSTOM_COL, IS_DELETED_COL, JOBID_COL, USERID_COL, USERNAME_COL };	
 
 	@Id @Column(name = MODEL_ID_COL) protected Integer modelId;
 	@Column(name = NAME_COL) protected String name;
@@ -51,13 +53,15 @@ public abstract class ATrpModel {
 	@Column(name = CUSTOM_COL) protected String custom;
 	@Column(name = IS_DELETED_COL) protected Integer isDeleted;
 	@Column(name = JOBID_COL) protected Integer jobId;
+	@Column(name = USERID_COL) protected Integer userId;
+	@Column(name = USERNAME_COL) protected String userName;
 	
 	public ATrpModel() {
 	}
 	
 	public ATrpModel(Integer modelId, String name, /*String type,*/ String description, String path, Timestamp created,
 			Integer parent_id, Integer isActive, Integer releaseLevel,
-			String params, String custom, Integer isDeleted, Integer jobId) {
+			String params, String custom, Integer isDeleted, Integer jobId, Integer userId, String userName) {
 		super();
 		this.modelId = modelId;
 		this.name = name;
@@ -72,6 +76,8 @@ public abstract class ATrpModel {
 		this.custom = custom;
 		this.isDeleted = isDeleted;
 		this.jobId = jobId;
+		this.userId = userId;
+		this.userName = userName;
 	}
 
 	public Integer getModelId() {
@@ -178,6 +184,22 @@ public abstract class ATrpModel {
 
 	public void setCustom(String custom) {
 		this.custom = custom;
+	}
+
+	public Integer getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Integer userId) {
+		this.userId = userId;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 	
 }

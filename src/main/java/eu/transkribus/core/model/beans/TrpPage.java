@@ -176,6 +176,11 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 	public void setTranscripts(List<TrpTranscriptMetadata> transcripts) {
 		this.transcripts = transcripts;
 	}
+	
+	// helper method to add a transcript to the current list of transcripts
+	public void addTranscript(TrpTranscriptMetadata transcript) {
+		this.transcripts.add(transcript);
+	}
 
 	public List<TrpPageImageVersion> getImageVersions() {
 		return imageVersions;
