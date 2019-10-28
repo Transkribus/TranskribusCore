@@ -633,7 +633,7 @@ public class DocExporter extends APassthroughObservable {
 		}
 		// export alto:
 		if (pars.isDoExportAltoXml()) {
-			altoFile = altoEx.exportAltoFile(pageExport, baseFileName + xmlExt, outputDir.getAltoOutputDir(), pars.isSplitIntoWordsInAltoXml());
+			altoFile = altoEx.exportAltoFile(pageExport, baseFileName + xmlExt, outputDir.getAltoOutputDir(), pars.isSplitIntoWordsInAltoXml(), pars.isWriteTextOnWordLevel());
 		}
 		
 		/**

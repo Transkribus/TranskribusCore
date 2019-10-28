@@ -36,7 +36,7 @@ public class TrpMetsBuilderTest {
 		TrpPage page = doc.getPages().get(0);
 		
 		AltoExporter altoExporter = new AltoExporter();
-		altoExporter.exportAltoFile(page, new File(folder.getAbsolutePath()+"/alto"), true);
+		altoExporter.exportAltoFile(page, new File(folder.getAbsolutePath()+"/alto"), true, false);
 //		System.out.println(doc.toString());
 		//2nd arg: export page files (add to mets filesec), 3rd arg: export alto files, 4th arg: export images
 		TrpMetsBuilder metsBuilder = new TrpMetsBuilder();

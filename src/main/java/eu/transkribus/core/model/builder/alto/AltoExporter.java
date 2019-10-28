@@ -7,7 +7,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Observable;
+import java.util.Map.Entry;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.Transformer;
@@ -59,7 +62,7 @@ public class AltoExporter extends Observable {
 		
 	}
 	
-	public File exportAltoFile(TrpPage p, File altoOutputDir, boolean splitIntoWords) throws JAXBException, IOException {
+	public File exportAltoFile(TrpPage p, File altoOutputDir, boolean splitIntoWords, boolean useWordLayer) throws JAXBException, IOException {
 		if(p == null){
 			throw new IllegalArgumentException("TrpPage is null!");
 		}
@@ -69,10 +72,10 @@ public class AltoExporter extends Observable {
 			lastIndex = imgName.length();
 		}
 		
-		return exportAltoFile(p, imgName.substring(0,lastIndex)+".xml", altoOutputDir, splitIntoWords);
+		return exportAltoFile(p, imgName.substring(0,lastIndex)+".xml", altoOutputDir, splitIntoWords, useWordLayer);
 	}
 	
-	public File exportAltoFile(TrpPage p, final String fileName, File altoOutputDir, boolean splitIntoWords) throws IOException {
+	public File exportAltoFile(TrpPage p, final String fileName, File altoOutputDir, boolean splitIntoWords, boolean useWordLayer) throws IOException {
 		if(p == null || fileName == null){
 			throw new IllegalArgumentException("An argument is null!");
 		}
@@ -87,15 +90,28 @@ public class AltoExporter extends Observable {
 			PcGtsType pc = PageXmlUtils.unmarshal(t.getUrl());
 			pcIs = new ByteArrayInputStream(PageXmlUtils.marshalToBytes(pc));
 			StreamSource mySrc = new StreamSource(pcIs);
+			
+			/*
+			 * TODO: use these parameters for controlling the Alto output: should it contain tags, should word layer be considered, split 
+			 * splitIntoWords: line text is splitted into words
+			 * word layer: use the word layer (in PAGE XML) for the export
+			 */
+			Map<String, Object> params = null;
+			params = new HashMap<>();
+			//params.put("includeTags", new Boolean(includeTags));
+			params.put("splitIntoWords", new Boolean(splitIntoWords));
+			params.put("useWordLayer", new Boolean(useWordLayer));
 
-		
-			InputStream is;
-			if (splitIntoWords){
-				is = XslTransformer.class.getClassLoader().getResourceAsStream(PAGE_TO_ALTO_WORD_LEVEL_XSLT);
-			}
-			else{
-				is = XslTransformer.class.getClassLoader().getResourceAsStream(PAGE_TO_ALTO_XSLT);
-			}
+			//we can use params in xsl to controll the output and use only one xsl for both scenarios (line-based or word based)
+			InputStream is = XslTransformer.class.getClassLoader().getResourceAsStream(PAGE_TO_ALTO_WORD_LEVEL_XSLT);
+			
+			
+//			if (splitIntoWords){
+//				is = XslTransformer.class.getClassLoader().getResourceAsStream(PAGE_TO_ALTO_WORD_LEVEL_XSLT);
+//			}
+//			else{
+//				is = XslTransformer.class.getClassLoader().getResourceAsStream(PAGE_TO_ALTO_XSLT);
+//			}
 	//		InputStream xslIS = new BufferedInputStream(new FileInputStream(xslID));
 			xslIS = new BufferedInputStream(is);
 			StreamSource xslSource = new StreamSource(xslIS);
@@ -104,6 +120,12 @@ public class AltoExporter extends Observable {
 	        TransformerFactory transFact =
 	                TransformerFactory.newInstance();
 	        Transformer trans = transFact.newTransformer(xslSource);
+	        
+			if(params != null && !params.entrySet().isEmpty()){
+				for(Entry<String, Object> e : params.entrySet()){
+					trans.setParameter(e.getKey(), e.getValue());
+				}
+			}
 
 			trans.transform(mySrc, new StreamResult(fos));
 			
@@ -137,7 +159,7 @@ public class AltoExporter extends Observable {
 			TrpPage p = doc.getPages().get(i);
 			
 			//3rd parameter says 'splitLineIntoWords'
-			File altoFile = exportAltoFile(p, altoOutputDir, false);						
+			File altoFile = exportAltoFile(p, altoOutputDir, false, false);						
 			//XslTransformer.transform(pc, PAGE_TO_ALTO_XSLT, pdfFile);
 		}
 
