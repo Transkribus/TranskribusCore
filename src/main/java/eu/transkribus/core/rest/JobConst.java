@@ -26,9 +26,14 @@ public class JobConst {
 	public static final String PROP_REG_IDS = "regIds";
 	public static final String PROP_TRANSCRIPTS = "transcripts";
 	
-	public static final String PROP_TRAIN_DESCS = "trainDescs"; // property for list of DocumentSelectionDescriptor's
-	public static final String PROP_VAL_DESCS = "valDescs"; // property for list of DocumentSelectionDescriptor's
-	public static final String PROP_TEST_DESCS = "testDescs"; // property for list of DocumentSelectionDescriptor's
+	public static final String PROP_TRAIN_DESCS = "trainDescs"; // property for list of DocumentSelectionDescriptor's for training
+	public static final String PROP_VAL_DESCS = "valDescs"; // property for list of DocumentSelectionDescriptor's for validation
+	public static final String PROP_TEST_DESCS = "testDescs"; // property for list of DocumentSelectionDescriptor's for test
+	
+	public static final String PROP_TSIDS = "tsIds"; // property for transcription ids
+//	public static final String PROP_TRAIN_TSIDS = "trainTsIds";
+//	public static final String PROP_VAL_TSIDS = "valTsIds";
+//	public static final String PROP_TEST_TSDIS = "testTsIds";
 	
 	public static final String PROP_STATE = "state";
 	public static final String PROP_MODELNAME = "modelName";
@@ -112,5 +117,7 @@ public class JobConst {
 	public static final String PROP_NUM_LINESAMPLES = "numLineSamples";
 
 	public static final String PROP_GPU_DEVICE_ENV_VAR = "GPU_DEVICE";
+
+	public static final String PROP_SKIP_PAGES_WITH_MISSING_STATUS = "skipPagesWithMissingStatus";
 	
 }

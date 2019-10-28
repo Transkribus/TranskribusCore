@@ -52,6 +52,7 @@ public final class RESTConst {
 	public static final String VERSION_PARAM = "version";
 	public static final String TASKS_PARAM = "tasks";
 	public static final String RELEASE_ONLY_PARAM = "releaseOnly";
+	public static final String RELEASE_LEVEL_PARAM = "releaseLevel";
 	public static final String NOT_OLDER_THAN_SECONDS_PARAM = "notOlderThanSeconds";
 	public static final String USERS_PARAM = "users";
 	public static final String TOOL_NAME_PARAM = "toolName";
@@ -160,6 +161,7 @@ public final class RESTConst {
 	public static final String DOC_ID_PARAM = "id";
 	public static final String PAGE_NR_PARAM = "page";
 	public static final String TRANSCRIPT_ID_PARAM = "transcriptId";
+	public static final String TRANSCRIPT_IDS_PARAM = "transcriptIds";
 	public static final String PAGES_PARAM = "pages";
 	public static final String NR_OF_TRANSCRIPTS_PARAM = "nrOfTranscripts";
 	public static final String STATUS_PARAM = "status";
@@ -254,7 +256,7 @@ public final class RESTConst {
 	public static final String FORGOT_PW_PATH = "forgotPw";
 	public static final String MODIFY_USER_PATH = "modify";
 
-	@Deprecated
+//	@Deprecated
 	public static final String COLLECTION_PARAM = "collection";	
 	
 	public static final String COLLECTION_ID_PARAM = "collId";
@@ -284,8 +286,8 @@ public final class RESTConst {
 	
 	public static final String HTR_PATH = "htr";
 	public static final String HTR_LIST_MODEL_PATH = "htrModels";
-	public static final String HTR_MODEL_NAME_PARAM = "modelName";
-	public static final String HTR_MODEL_ID_PARAM = "modelId";
+	public static final String MODEL_NAME_PARAM = "modelName";
+	public static final String MODEL_ID_PARAM = "modelId";
 	public static final String ADD_PATH = "add";
 	public static final String REMOVE_PATH = "remove";
 	
@@ -408,6 +410,7 @@ public final class RESTConst {
 	//Actions
 	public static final String TYPE_ID_PARAM = "typeId";
 	public static final String PAGE_ID_PARAM = "pageId";
+	public static final String PAGE_IDS_PARAM = "pageIds";
 	public static final String END_PARAM = "end";
 	public static final String CLIENT_ID_PARAM = "clientId";
 	
@@ -448,6 +451,7 @@ public final class RESTConst {
 	public static final String DO_BLACKENING_PARAM = "doBlackening";
 	public static final String DO_CREATE_TITLE_PARAM = "doCreateTitle";
 	public static final String USE_VERSION_STATUS_PARAM = "useVersionStatus";
+	public static final String SKIP_PAGES_WITH_MISSING_STATUS_PARAM = "skipPagesWithMissingStatus";
 	
 	//uploads
 	public static final String UPLOAD_ID_PARAM = "uploadId";
@@ -459,4 +463,5 @@ public final class RESTConst {
 	public static final String ZERO = "0";
 	public static final String ONE = "1";
 	public static final String MINUS_ONE = "-1";
+	public static final String ALL_PARAM = "all";
 }

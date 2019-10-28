@@ -91,11 +91,6 @@ public class TrpP2PaLA extends ATrpModel {
 				+ "]";
 	}
 	
-	public static TrpP2PaLA fromTrpP2PaLAModel(TrpP2PaLAModel oldModel) {
-		return new TrpP2PaLA(-1, oldModel.getName(), oldModel.getDescription(), oldModel.getPath(), oldModel.getCreated(), null, 
-				1, 2, null, null, null, null, null, null, oldModel.getStruct_types(), oldModel.getMerged_struct_types(), oldModel.getOut_mode());
-	}
-
 	public static void main(String[] args) throws Exception {
 		
 		for (Field f : TrpP2PaLA.class.getDeclaredFields()) {

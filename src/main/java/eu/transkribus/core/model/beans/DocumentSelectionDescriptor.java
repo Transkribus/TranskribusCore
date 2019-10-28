@@ -18,6 +18,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang.StringUtils;
 
 import eu.transkribus.core.util.CoreUtils;
+import eu.transkribus.core.util.GsonUtil;
+import eu.transkribus.core.util.JaxbUtils;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -29,6 +31,8 @@ public class DocumentSelectionDescriptor implements Serializable {
 	@XmlElementWrapper(name="pageList")
 	@XmlElement
 	private List<PageDescriptor> pages = new LinkedList<>();
+	
+//	protected String pagesStr="hello world";
 	
 	public DocumentSelectionDescriptor() {}
 	
@@ -66,6 +70,10 @@ public class DocumentSelectionDescriptor implements Serializable {
 		PageDescriptor pd = new PageDescriptor(pageid);
 		pages.add(pd);
 		return pd;
+	}
+	
+	public void addPages(List<Integer> pageIds) {
+		pageIds.stream().forEach(pid -> addPage(pid));
 	}
 	
 	public static List<DocumentSelectionDescriptor> fromDocIds(int... docIds) throws IOException {
@@ -212,6 +220,22 @@ public class DocumentSelectionDescriptor implements Serializable {
 		}
 		
 		return true;
+	}
+	
+	public static void main(String[] args) throws Exception {
+		DocumentSelectionDescriptor d = new DocumentSelectionDescriptor(10);
+		d.addPage(10).setTsId(102);
+		d.addPage(14).setPageId(300);
+		d.addPage(15).setPageId(301);
+//		pd.setTsId(102);
+		
+		List<DocumentSelectionDescriptor> dsds = new ArrayList<>();
+		dsds.add(d);
+		dsds.add(d);
+		
+//		System.out.println("d = "+JaxbUtils.marshalToString(d));
+		System.out.println("d = "+JaxbUtils.marshalToJsonString(dsds, true));
+//		System.out.println("d = "+GsonUtil.toJson(d));
 	}
 	
 }
