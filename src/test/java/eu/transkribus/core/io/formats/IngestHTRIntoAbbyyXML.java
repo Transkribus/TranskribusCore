@@ -114,6 +114,7 @@ public class IngestHTRIntoAbbyyXML {
 		}
 		else{
 		
+			//Y:\HTR\Wiener_Adressbuch\done\htr_in Y:\HTR\Wiener_Adressbuch\done\ocr
 			if(args.length != 2){
 				usage();
 				return;
@@ -167,10 +168,10 @@ public class IngestHTRIntoAbbyyXML {
 			});
 						
 			File resultDir = new File(htrAndImgDir.getParentFile().getAbsolutePath() + "/converted" + File.separator + imgFileDir.getName() + File.separator + "ocr");
-			if (resultDir.exists()){
-				logger.debug(resultDir.getAbsolutePath() + " Result dir exists already - try next one");
-				continue;
-			}
+//			if (resultDir.exists()){
+//				logger.debug(resultDir.getAbsolutePath() + " Result dir exists already - try next one");
+//				continue;
+//			}
 			
 			resultDir.mkdirs();
 			
@@ -198,8 +199,8 @@ public class IngestHTRIntoAbbyyXML {
 			int nr = 0;
 			for (File htr : htrFiles){
 
-				//String ocrName = findOcrFilename(htr);
-				//String ocrFn = ocrName != null ? ocrFileDir + File.separator + ocrName + ".xml" : "";
+//				String ocrName = findOcrFilename(htr);
+//				String ocrFn = ocrName != null ? ocrFileDir + File.separator + ocrName + ".xml" : "";
 				
 				String ocrFn = ocrFileDir + File.separator + FilenameUtils.getBaseName(htr.getName())+ ".xml";
 				logger.debug("ocrFn " + ocrFn);
@@ -208,8 +209,8 @@ public class IngestHTRIntoAbbyyXML {
 				if (ocrFile.exists()){
 //					logger.debug("htr file: " + htr.getName());
 //					logger.debug("ocr file: " + ocrFile.getName());
-					
-					//System.in.read();
+//					
+//					System.in.read();
 					
 					File convertedFile = new File(resultDir.getAbsolutePath()+File.separator+htr.getName());
 					
@@ -223,7 +224,7 @@ public class IngestHTRIntoAbbyyXML {
 					File abbyyXml = combineHTRAndOCR(htr, ocrFile, convertedFile);
 					
 					//take test sample for every 500th page
-					if  (abbyyXml != null && nr % 500 == 13){
+					if  (abbyyXml != null && nr % 500 == 400){
 						
 						String resultPageDir = sampleDir.getAbsolutePath()+"/page/";
 						new File(resultPageDir).mkdirs();

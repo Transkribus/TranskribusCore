@@ -10,9 +10,14 @@
     
     <!-- if set to false, the tags will not be exported -->
     <xsl:param name="includeTags" select="false()"/>
+    
+    <!-- if set to false the Alto goes to word level if the PAGE XML contains words - BUT it will not create words from the lines!! -->
+    <xsl:param name="splitIntoWords" select="false()"/>
+    
+    <xsl:param name="useWordLayer" select="false()"/>
 
-    <xsl:key name="allStyles" match="TextStyle"
-        use="concat(translate(@fontFamily, ' ', '_'), '_', @fontSize, '_', @serif, '_', @bold, '_', @italic,'_', @subscript, '_', @superscript,'_', @underlined, '_', @textColour)"/>
+<!--    <xsl:key name="allStyles" match="TextStyle"
+        use="concat(translate(@fontFamily, ' ', '_'), '_', @fontSize, '_', @serif, '_', @bold, '_', @italic,'_', @subscript, '_', @superscript,'_', @underlined, '_', @textColour)"/>-->
 
     <xsl:template name="languageTable">
         <languageTable> </languageTable>
@@ -37,40 +42,6 @@
                 </ocrProcessingStep>
             </OCRProcessing>
         </Description>
-    </xsl:template>
-
-    <!--  styles are collected at the beginning in alto   -->
-    <xsl:template name="styleTable">
-        <Styles>
-            <xsl:for-each
-                select="//TextStyle[generate-id() = generate-id(key('allStyles',concat(translate(@fontFamily, ' ', '_'), '_', @fontSize, '_', @serif, '_', @bold, '_', @italic,'_', @subscript, '_', @superscript,'_', @underlined, '_', @textColour))[1])]">
-                <xsl:variable name="styleId"
-                    select="concat(translate(@fontFamily, ' ', '_'), '_', @fontSize, '_', @serif, '_', @bold, '_', @italic,'_', @subscript, '_', @superscript,'_', @underlined, '_', @textColour)"/>
-                <TextStyle ID="{$styleId}" FONTSIZE="{@fontSize}" FONTFAMILY="{@fontFamily}">
-                    <xsl:variable name="FONTTYPE">
-                        <xsl:choose>
-                            <xsl:when test="@serif='true'">serif</xsl:when>
-                            <xsl:otherwise>sans-serif</xsl:otherwise>
-                        </xsl:choose>
-                    </xsl:variable>
-                    <xsl:variable name="fontStyle">
-                        <xsl:choose>
-                            <xsl:when test="string-length(@bold) > 0">bold </xsl:when>
-                            <xsl:when test="string-length(@italic) > 0">italic </xsl:when>
-                            <xsl:when test="string-length(@underline) > 0">underline </xsl:when>
-                            <xsl:when test="string-length(@subscript) > 0">subscript </xsl:when>
-                            <xsl:when test="string-length(@superscript) > 0">superscript </xsl:when>
-                        </xsl:choose>
-                    </xsl:variable>
-                    <xsl:if test="string-length($fontStyle)>0">
-                        <xsl:attribute name="FONTSTYLE" select="normalize-space($fontStyle)"/>
-                    </xsl:if>
-                    <xsl:if test="string-length(@textColour) > 0">
-                        <xsl:attribute name="FONTCOLOR" select="@textColour"/>
-                    </xsl:if>
-                </TextStyle>
-            </xsl:for-each>
-        </Styles>
     </xsl:template>
 
     <xsl:template name="tags">
@@ -429,148 +400,189 @@
             <!-- <xsl:call-template name="applyStyleId"/> -->
             <!--  if textline without words then we create a new String with the total textline as CONTENT  -->
             <xsl:choose>
-                <xsl:when test="count(./page:Word)>0">
-                    <xsl:apply-templates select="page:Word">
-                        <xsl:with-param name="current_block" select="$current-block"/>
-                        <xsl:with-param name="stringsBefore"
-                            select="count(.//preceding-sibling::TextRegion//page:Word) + $stringsBefore"/>
-                        <xsl:with-param name="linesBefore"
-                            select="count(.//preceding-sibling::TextRegion//page:TextLine) + $linesBefore"
-                        />
-                    </xsl:apply-templates>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:variable name="text" select="./TextEquiv/Unicode/text()"/>
-                    <xsl:variable name="coords" select="./page:Coords/@points"/>
-                    <xsl:variable name="height">
-                        <xsl:call-template name="getHeightFromPointList">
-                            <xsl:with-param name="coords" select="$coords"/>
-                        </xsl:call-template>
-                    </xsl:variable>
-                    <xsl:variable name="width">
-                        <xsl:call-template name="getWidthFromPointList">
-                            <xsl:with-param name="coords" select="$coords"/>
-                        </xsl:call-template>
-                    </xsl:variable>
-                    <xsl:variable name="maxX">
-                        <xsl:call-template name="getMaxFromPointList">
-                            <xsl:with-param name="coords" select="$coords"/>
-                        </xsl:call-template>
-                    </xsl:variable>
-                    <xsl:variable name="maxY">
-                        <xsl:call-template name="getMaxFromPointList">
-                            <xsl:with-param name="coords" select="$coords"/>
-                            <xsl:with-param name="ordinate" select="'Y'"/>
-                        </xsl:call-template>
-                    </xsl:variable>
-<!--                    <xsl:message>
-                        <xsl:value-of select="name()"/>
-                    </xsl:message>-->
-                    <!--                    <xsl:message><xsl:value-of select="(.//ancestor::TextRegion//page:TextLine)[1]"/></xsl:message>
-                    <xsl:message><xsl:value-of select="preceding-sibling::*[1]/@points"/></xsl:message>-->
-<!--                    <xsl:message>
-                        <xsl:value-of
-                            select="string-length(preceding-sibling::*[1]/TextEquiv/Unicode/text())"
-                        />
-                    </xsl:message>-->
-
-                    <xsl:variable name="predecessorName" select="name(preceding-sibling::*[1])"/>
-                    <xsl:variable name="predecessorText">
-                        <xsl:choose>
-                            <xsl:when
-                                test="$predecessorName = 'TextLine' and (string-length(preceding-sibling::*[1]/TextEquiv/Unicode/text())&gt;0)">
-                                <xsl:value-of
-                                    select="preceding-sibling::*[1]/TextEquiv/Unicode/text()"/>
-                            </xsl:when>
-                            <xsl:otherwise>
-                                <xsl:value-of select="'NA'"/>
-                            </xsl:otherwise>
-                        </xsl:choose>
-                    </xsl:variable>
-
-                    <xsl:variable name="followerName" select="name(following-sibling::*[1])"/>
-                    <xsl:variable name="followerText">
-                        <xsl:choose>
-                            <xsl:when
-                                test="($followerName = 'TextLine') and (string-length(following-sibling::*[1]/TextEquiv/Unicode/text())&gt;0)">
-                                <xsl:value-of
-                                    select="following-sibling::*[1]/TextEquiv/Unicode/text()"/>
-                            </xsl:when>
-                            <xsl:otherwise>
-                                <xsl:value-of select="'NA'"/>
-                            </xsl:otherwise>
-                        </xsl:choose>
-                    </xsl:variable>
-
-                    <!--                    <xsl:message>
-                        <xsl:if test="not($predecessorName = 'NA')">
-                            <xsl:value-of select="$predecessorText"></xsl:value-of>
-                        </xsl:if>
-                    </xsl:message>-->
-
-                    <xsl:variable name="lastWordOfPrevLine">
-                        <xsl:choose>
-                            <xsl:when
-                                test="not($predecessorText = 'NA') and (ends-with($predecessorText, '¬') or ends-with($predecessorText, '&#x2010;') or ends-with($predecessorText, '&#x002D;') 
-                                or ends-with($predecessorText, '&#x2212;') or ends-with($predecessorText, '&#x201E;') or ends-with($predecessorText, '&#x003D;'))">
-<!--                                <xsl:message>
-                                    <xsl:value-of select="concat('last word of prev line found: ', $predecessorText)"/>
-                                </xsl:message>-->
-                                <xsl:value-of
-
-                                    select="tokenize(replace($predecessorText, '[\p{Zs}]', ' '), ' ')[last()]"
-                                />
-                            </xsl:when>
-                            <xsl:otherwise>
-                                <xsl:value-of select="'NA'"/>
-                            </xsl:otherwise>
-                        </xsl:choose>
-                    </xsl:variable>
-
-                    <xsl:variable name="firstWordOfNextLine">
-                        <xsl:choose>
-                            <xsl:when test="ends-with($text, '¬') or ends-with($text, '&#x2010;') or ends-with($text, '&#x002D;') or ends-with($text, '&#x2212;') or ends-with($text, '&#x201E;') or ends-with($text, '&#x003D;')">
-<!--                                <xsl:message>
+                <xsl:when test="$splitIntoWords and not($useWordLayer)">
+                        <xsl:variable name="text" select="./TextEquiv/Unicode/text()"/>
+                        <xsl:variable name="coords" select="./page:Coords/@points"/>
+                        <xsl:variable name="height">
+                            <xsl:call-template name="getHeightFromPointList">
+                                <xsl:with-param name="coords" select="$coords"/>
+                            </xsl:call-template>
+                        </xsl:variable>
+                        <xsl:variable name="width">
+                            <xsl:call-template name="getWidthFromPointList">
+                                <xsl:with-param name="coords" select="$coords"/>
+                            </xsl:call-template>
+                        </xsl:variable>
+                        <xsl:variable name="maxX">
+                            <xsl:call-template name="getMaxFromPointList">
+                                <xsl:with-param name="coords" select="$coords"/>
+                            </xsl:call-template>
+                        </xsl:variable>
+                        <xsl:variable name="maxY">
+                            <xsl:call-template name="getMaxFromPointList">
+                                <xsl:with-param name="coords" select="$coords"/>
+                                <xsl:with-param name="ordinate" select="'Y'"/>
+                            </xsl:call-template>
+                        </xsl:variable>
+                        <!--                    <xsl:message>
+                    <xsl:value-of select="name()"/>
+                </xsl:message>-->
+                        <!--                    <xsl:message><xsl:value-of select="(.//ancestor::TextRegion//page:TextLine)[1]"/></xsl:message>
+                <xsl:message><xsl:value-of select="preceding-sibling::*[1]/@points"/></xsl:message>-->
+                        <!--                    <xsl:message>
+                    <xsl:value-of
+                        select="string-length(preceding-sibling::*[1]/TextEquiv/Unicode/text())"
+                    />
+                </xsl:message>-->
+                        
+                        <xsl:variable name="predecessorName" select="name(preceding-sibling::*[1])"/>
+                        <xsl:variable name="predecessorText">
+                            <xsl:choose>
+                                <xsl:when
+                                    test="$predecessorName = 'TextLine' and (string-length(preceding-sibling::*[1]/TextEquiv/Unicode/text())&gt;0)">
                                     <xsl:value-of
-                                        select="substring-before(replace($followerText, '[\p{Zs}]', ' '),' ')"
+                                        select="preceding-sibling::*[1]/TextEquiv/Unicode/text()"/>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:value-of select="'NA'"/>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </xsl:variable>
+                        
+                        <xsl:variable name="followerName" select="name(following-sibling::*[1])"/>
+                        <xsl:variable name="followerText">
+                            <xsl:choose>
+                                <xsl:when
+                                    test="($followerName = 'TextLine') and (string-length(following-sibling::*[1]/TextEquiv/Unicode/text())&gt;0)">
+                                    <xsl:value-of
+                                        select="following-sibling::*[1]/TextEquiv/Unicode/text()"/>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:value-of select="'NA'"/>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </xsl:variable>
+                        
+                        <!--                    <xsl:message>
+                    <xsl:if test="not($predecessorName = 'NA')">
+                        <xsl:value-of select="$predecessorText"></xsl:value-of>
+                    </xsl:if>
+                </xsl:message>-->
+                        
+                        <xsl:variable name="lastWordOfPrevLine">
+                            <xsl:choose>
+                                <xsl:when
+                                    test="not($predecessorText = 'NA') and (ends-with($predecessorText, '¬') or ends-with($predecessorText, '&#x2010;') or ends-with($predecessorText, '&#x002D;') 
+                                    or ends-with($predecessorText, '&#x2212;') or ends-with($predecessorText, '&#x201E;') or ends-with($predecessorText, '&#x003D;'))">
+                                    <!--                                <xsl:message>
+                                <xsl:value-of select="concat('last word of prev line found: ', $predecessorText)"/>
+                            </xsl:message>-->
+                                    <xsl:value-of
+                                        
+                                        select="tokenize(replace($predecessorText, '[\p{Zs}]', ' '), ' ')[last()]"
                                     />
-                                </xsl:message>-->
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:value-of select="'NA'"/>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </xsl:variable>
+                        
+                        <xsl:variable name="firstWordOfNextLine">
+                            <xsl:choose>
+                                <xsl:when test="ends-with($text, '¬') or ends-with($text, '&#x2010;') or ends-with($text, '&#x002D;') or ends-with($text, '&#x2212;') or ends-with($text, '&#x201E;') or ends-with($text, '&#x003D;')">
+                                    <!--                                <xsl:message>
                                 <xsl:value-of
                                     select="substring-before(replace($followerText, '[\p{Zs}]', ' '),' ')"
                                 />
-                            </xsl:when>
-                            <xsl:otherwise>
-                                <xsl:value-of select="'NA'"/>
-                            </xsl:otherwise>
-                        </xsl:choose>
-                    </xsl:variable>
-
-                    <xsl:call-template name="getWords">
-                        <xsl:with-param name="lineString" select="replace($text, '[\p{Zs}]', ' ')"/>
-                        <xsl:with-param name="remainingContent"
-                            select="replace($text, '[\p{Zs}]', ' ')"/>
-                        <xsl:with-param name="firstWordOfNextLineIfAny"
-                            select="$firstWordOfNextLine"/>
-                        <xsl:with-param name="lastWordOfPreviousLineIfAny"
-                            select="$lastWordOfPrevLine"/>
-                        <xsl:with-param name="lineLength" select="string-length($text)"/>
-                        <xsl:with-param name="maxX" select="$maxX"/>
-                        <xsl:with-param name="maxY" select="$maxY"/>
-                        <xsl:with-param name="height" select="$height"/>
-                        <xsl:with-param name="width" select="$width"/>
-                        <xsl:with-param name="customTags" select="@custom"/>
-                    </xsl:call-template>
-                    <!-- 	                <xsl:call-template name="applyCoordinates"/>
+                            </xsl:message>-->
+                                    <xsl:value-of
+                                        select="substring-before(replace($followerText, '[\p{Zs}]', ' '),' ')"
+                                    />
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:value-of select="'NA'"/>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </xsl:variable>
+                        
+                        <xsl:call-template name="getWords">
+                            <xsl:with-param name="lineString" select="replace($text, '[\p{Zs}]', ' ')"/>
+                            <xsl:with-param name="remainingContent"
+                                select="replace($text, '[\p{Zs}]', ' ')"/>
+                            <xsl:with-param name="firstWordOfNextLineIfAny"
+                                select="$firstWordOfNextLine"/>
+                            <xsl:with-param name="lastWordOfPreviousLineIfAny"
+                                select="$lastWordOfPrevLine"/>
+                            <xsl:with-param name="lineLength" select="string-length($text)"/>
+                            <xsl:with-param name="maxX" select="$maxX"/>
+                            <xsl:with-param name="maxY" select="$maxY"/>
+                            <xsl:with-param name="height" select="$height"/>
+                            <xsl:with-param name="width" select="$width"/>
+                            <xsl:with-param name="customTags" select="@custom"/>
+                        </xsl:call-template>
+                        <!-- 	                <xsl:call-template name="applyCoordinates"/>
 	                <xsl:call-template name="applyStyleId"/> -->
-
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:choose>
+                        <xsl:when test="count(./page:Word)>0 and $useWordLayer">
+                            <xsl:for-each select="./page:Word">
+                                <xsl:call-template name="page:Word"></xsl:call-template>
+                            </xsl:for-each>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <String ID="string_{@id}">
+                                <xsl:call-template name="applyCoordinates"/>
+                                <xsl:attribute name="CONTENT" select="./TextEquiv/Unicode/text()"/>
+                            </String>
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </xsl:otherwise>
             </xsl:choose>
         </TextLine>
     </xsl:template>
 
 
-    <xsl:template match="page:Word">
-        <xsl:param name="stringsBefore"/>
+    <xsl:template name="page:Word">
+        <xsl:variable name="nrOfStringsBefore" select="count(./preceding-sibling::Word)"/>
+        <xsl:variable name="stringBefore" select="./preceding-sibling::Word[1]"></xsl:variable>
+        <xsl:if test="number($nrOfStringsBefore)>0">
+            <xsl:variable name="coords" select="./page:Coords/@points"/>
+            <xsl:variable name="prevCoords" select="$stringBefore/page:Coords/@points"/>
+            <xsl:variable name="height">
+                <xsl:call-template name="getHeightFromPointList">
+                    <xsl:with-param name="coords" select="$coords"/>
+                </xsl:call-template>
+            </xsl:variable>
+            <xsl:variable name="width">
+                <xsl:call-template name="getWidthFromPointList">
+                    <xsl:with-param name="coords" select="$coords"/>
+                </xsl:call-template>
+            </xsl:variable>
+            <xsl:variable name="prevMaxX">
+                <xsl:call-template name="getMaxFromPointList">
+                    <xsl:with-param name="coords" select="$prevCoords"/>
+                </xsl:call-template>
+            </xsl:variable>
+            <xsl:variable name="maxX">
+                <xsl:call-template name="getMaxFromPointList">
+                    <xsl:with-param name="coords" select="$coords"/>
+                </xsl:call-template>
+            </xsl:variable>
+            <xsl:variable name="maxY">
+                <xsl:call-template name="getMaxFromPointList">
+                    <xsl:with-param name="coords" select="$coords"/>
+                    <xsl:with-param name="ordinate" select="'Y'"/>
+                </xsl:call-template>
+            </xsl:variable>
+            <SP>
+                <xsl:attribute name="HEIGHT" select="$height"/>
+                <xsl:attribute name="WIDTH" select="$maxX - $width - $prevMaxX"/>
+                <xsl:attribute name="VPOS" select="$maxY - $height"/>
+                <xsl:attribute name="HPOS" select="$prevMaxX"/>
+            </SP>   
+        </xsl:if>
         <String ID="{@id}">
             <xsl:call-template name="applyCoordinates"/>
             <!-- <xsl:call-template name="applyStyleId"/> -->
@@ -975,13 +987,13 @@
     </xsl:template>
 
 
-    <xsl:template name="applyStyleId">
+<!--    <xsl:template name="applyStyleId">
         <xsl:for-each select="./TextStyle">
             <xsl:variable name="styleId"
                 select="concat(translate(@fontFamily, ' ', '_'), '_', @fontSize, '_', @serif, '_', @bold, '_', @italic,'_', @subscript, '_', @superscript,'_', @underlined, '_', @textColour)"/>
             <xsl:attribute name="STYLEREFS" select="$styleId"/>
         </xsl:for-each>
-    </xsl:template>
+    </xsl:template>-->
 
 
     <xsl:template name="determinePrimaryLanguage">

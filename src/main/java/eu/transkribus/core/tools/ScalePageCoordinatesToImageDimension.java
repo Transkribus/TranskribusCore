@@ -27,16 +27,15 @@ public class ScalePageCoordinatesToImageDimension {
 		/*
 		 * use LocalDocReader to create pageXMLs from Abbyy XMLs for a complete directory
 		 */
-		final String startDir = "Y:/HTR/Wiener_Adressbuch/4OCR/batch2";
-		loadAllDocsInDir(startDir);
+		//final String startDir = "Y:/Newseye/ONB_GT/Samples/ONB_Samples_initial";
+		//loadAllDocsInDir(startDir);
 		//loadSingleDoc(startDir);
 		
 //		fixNLF_GT();
 //		heldenbuch600to300dpi();
 		
-//		final String path = "Y:/Newseye/NLF_GT/nlf_ocr_groundtruth_sv";
-//
-//		TrpDoc doc = LocalDocReader.load(path);
+		final String path = "Y:/HTR/MdLHessenOnline/Imgs/Result/047883405_32_1907";
+		TrpDoc doc = LocalDocReader.load(path);
 		
 //		fixAltoFilenames();
 
@@ -141,8 +140,8 @@ public class ScalePageCoordinatesToImageDimension {
 	}
 	
 	private static void heldenbuch600to300dpi() throws JAXBException, IOException {
-		File input = new File("C:/01_Projekte/READ/Projekte/Tengnagel/export_job_309921/page");
-		File output = new File("C:/01_Projekte/READ/Projekte/Tengnagel/export_job_309921/page_edited");
+		File input = new File("Y:/HTR/Rein_Justus_Skalieren/page");
+		File output = new File("Y:/HTR/Rein_Justus_Skalieren/page_edited");
 		if (!output.isDirectory()) {
 			output.mkdirs();
 		}
@@ -151,14 +150,15 @@ public class ScalePageCoordinatesToImageDimension {
 		for (File f : files) {
 			System.out.println("Processing file: " + f.getName());
 			PcGtsType pc = PageXmlUtils.unmarshal(f);
-			TrpPageTypeUtils.applyAffineTransformation(pc.getPage(), 0, 0, 0.5, 0.5, 0);
+			TrpPageTypeUtils.applyAffineTransformation(pc.getPage(), 0, 0, 0.91935, 0.8719, 0);
 
 			final String filename;
-			if (f.getName().contains("_")) {
-				filename = f.getName().split("_")[1];
-			} else {
-				filename = f.getName();
-			}
+//			if (f.getName().contains("_")) {
+//				filename = f.getName().split("_")[1];
+//			} else {
+//				filename = f.getName();
+//			}
+			filename = f.getName();
 			System.out.println("Writing file: " + filename);
 			PageXmlUtils.marshalToFile(pc, new File(output.getAbsolutePath() + File.separator + filename));
 		}

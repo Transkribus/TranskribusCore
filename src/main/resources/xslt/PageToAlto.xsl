@@ -324,7 +324,8 @@
 
         <TextLine ID="{@id}" BASELINE="{$maxY}">
             <xsl:call-template name="applyCoordinates"/>
-            <xsl:call-template name="applyStyleId"/>
+            <!-- styles not used for now/>
+            <!-- xsl:call-template name="applyStyleId"/>
             <!--  if textline without words then we create a new String with the total textline as CONTENT  -->
             <xsl:choose>
                 <xsl:when test="count(./page:Word)>0">
@@ -350,7 +351,7 @@
         <xsl:param name="stringsBefore"/>
         <String ID="{@id}">
             <xsl:call-template name="applyCoordinates"/>
-            <xsl:call-template name="applyStyleId"/>
+            <!-- xsl:call-template name="applyStyleId"-->
             <xsl:attribute name="CONTENT" select="./TextEquiv/Unicode/text()"/>
         </String>
     </xsl:template>
