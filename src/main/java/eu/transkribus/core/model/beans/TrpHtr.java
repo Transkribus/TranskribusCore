@@ -125,6 +125,10 @@ public class TrpHtr {
 	@Column(name="COLLECTION_ID_LINK")
 	private Integer collectionIdLink;
 	
+	@Column(name="DEL_TIME")
+	@XmlJavaTypeAdapter(SqlTimestampAdapter.class)
+	private Timestamp delTime;
+	
 	//those fields just cache the split result from cerString and cerTestString
 	private double[] cerLog = null;
 	private double[] cerTestLog = null;
@@ -419,6 +423,18 @@ public class TrpHtr {
 	
 	public void setNrOfValidationGtPages(Integer nrOfValidationGtPages) {
 		this.nrOfValidationGtPages = nrOfValidationGtPages;
+	}
+
+	public Timestamp getDelTime() {
+		return delTime;
+	}
+	
+	public void setDelTime(Timestamp delTime) {
+		this.delTime = delTime;
+	}
+	
+	public boolean isDeleted() {
+		return this.delTime != null;
 	}
 	
 	public boolean hasTrainGt() {
