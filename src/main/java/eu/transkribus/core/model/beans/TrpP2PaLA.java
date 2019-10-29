@@ -43,10 +43,10 @@ public class TrpP2PaLA extends ATrpModel {
 	}
 	
 	public TrpP2PaLA(Integer modelId, String name, String description, String path, Timestamp created,
-			Integer parenId, Integer isActive, Integer releaseLevel, String params, String custom, Integer isDeleted, Integer jobId, Integer userId, String userName,
+			Integer parenId, Integer isActive, Integer releaseLevel, String params, String custom, Timestamp delTime, Integer jobId, Integer userId, String userName,
 			
 			String structTypes, String mergedStructTypes, String outMode) {
-		super(modelId, name, description, path, created, parenId, isActive, releaseLevel, params, custom, isDeleted, jobId, userId, userName);
+		super(modelId, name, description, path, created, parenId, isActive, releaseLevel, params, custom, delTime, jobId, userId, userName);
 		
 		this.structTypes = structTypes;
 		this.mergedStructTypes = mergedStructTypes;
@@ -87,7 +87,7 @@ public class TrpP2PaLA extends ATrpModel {
 				+ outMode + ", type=" + type + ", description="
 				+ description + ", path=" + path + ", created=" + created + ", parentId=" + parentId + ", isActive="
 				+ isActive + ", releaseLevel=" + releaseLevel + ", params=" + params + ", custom=" + custom
-				+ ", isDeleted=" + isDeleted + ", jobId=" + jobId + ", userId=" + userId + ", userName=" + userName
+				+ ", delTime=" + delTime + ", jobId=" + jobId + ", userId=" + userId + ", userName=" + userName
 				+ "]";
 	}
 	

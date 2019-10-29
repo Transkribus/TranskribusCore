@@ -31,14 +31,14 @@ public abstract class ATrpModel {
 	public final static String RELEASE_LEVEL_COL = "release_level";
 	public final static String PARAMS_COL = "params";
 	public final static String CUSTOM_COL = "custom";
-	public final static String IS_DELETED_COL = "is_deleted";
+	public final static String DEL_TIME_COL = "del_time";
 	public final static String JOBID_COL = "jobid";
 	public final static String USERID_COL = "userid";
 	public final static String USERNAME_COL = "username";
 	
 	public final static String[] COLS = { MODEL_ID_COL, NAME_COL, TYPE_COL, DESCRIPTION_COL,
 			PATH_COL, CREATED_COL, PARENT_ID_COL, IS_ACTIVE_COL, RELEASE_LEVEL_COL,
-			PARAMS_COL, CUSTOM_COL, IS_DELETED_COL, JOBID_COL, USERID_COL, USERNAME_COL };	
+			PARAMS_COL, CUSTOM_COL, DEL_TIME_COL, JOBID_COL, USERID_COL, USERNAME_COL };	
 
 	@Id @Column(name = MODEL_ID_COL) protected Integer modelId;
 	@Column(name = NAME_COL) protected String name;
@@ -51,7 +51,7 @@ public abstract class ATrpModel {
 	@Column(name = RELEASE_LEVEL_COL) protected Integer releaseLevel;
 	@Column(name = PARAMS_COL) protected String params;
 	@Column(name = CUSTOM_COL) protected String custom;
-	@Column(name = IS_DELETED_COL) protected Integer isDeleted;
+	@Column(name = DEL_TIME_COL) protected Timestamp delTime;
 	@Column(name = JOBID_COL) protected Integer jobId;
 	@Column(name = USERID_COL) protected Integer userId;
 	@Column(name = USERNAME_COL) protected String userName;
@@ -61,7 +61,7 @@ public abstract class ATrpModel {
 	
 	public ATrpModel(Integer modelId, String name, /*String type,*/ String description, String path, Timestamp created,
 			Integer parent_id, Integer isActive, Integer releaseLevel,
-			String params, String custom, Integer isDeleted, Integer jobId, Integer userId, String userName) {
+			String params, String custom, Timestamp delTime, Integer jobId, Integer userId, String userName) {
 		super();
 		this.modelId = modelId;
 		this.name = name;
@@ -74,7 +74,7 @@ public abstract class ATrpModel {
 		this.releaseLevel = releaseLevel;
 		this.params = params;
 		this.custom = custom;
-		this.isDeleted = isDeleted;
+		this.delTime = delTime;
 		this.jobId = jobId;
 		this.userId = userId;
 		this.userName = userName;
@@ -162,12 +162,12 @@ public abstract class ATrpModel {
 		this.params = params;
 	}
 
-	public Integer getIsDeleted() {
-		return isDeleted;
+	public Timestamp getDelTime() {
+		return delTime;
 	}
 
-	public void setIsDeleted(Integer isDeleted) {
-		this.isDeleted = isDeleted;
+	public void setDelTime(Timestamp delTime) {
+		this.delTime = delTime;
 	}
 
 	public Integer getJobId() {
