@@ -53,8 +53,10 @@ public class StreamGobbler extends Thread {
             		System.out.println(line);
             	}
             	text += line+"\n";
-            	writer.write(line+"\n");
-            	writer.flush();
+            	if (writer != null) {
+                	writer.write(line+"\n");
+                	writer.flush();            		
+            	}
             }
         } catch (IOException ioe) {
         	if (logger != null) {
