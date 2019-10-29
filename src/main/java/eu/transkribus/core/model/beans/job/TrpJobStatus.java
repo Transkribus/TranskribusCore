@@ -50,7 +50,7 @@ public class TrpJobStatus implements Serializable {
 	private String jobId = "-1";
 
 	@Column
-	private int docId;
+	private Integer docId;
 	
 	@Column
 	@Deprecated
@@ -203,7 +203,7 @@ public class TrpJobStatus implements Serializable {
 		setCreatedNow();
 	}
 	
-	public TrpJobStatus(String jobId, Integer batchId, int docId, String pages, int userId, String userName, String type, String jobData, Integer session_history_id, String jobImpl) {
+	public TrpJobStatus(String jobId, Integer batchId, Integer docId, String pages, int userId, String userName, String type, String jobData, Integer session_history_id, String jobImpl) {
 		this.jobId = jobId;
 		this.batchId = batchId;
 		this.docId = docId;
@@ -293,11 +293,11 @@ public class TrpJobStatus implements Serializable {
 		this.jobId = ""+jobId;
 	}
 
-	public int getDocId() {
+	public Integer getDocId() {
 		return docId;
 	}
 
-	public void setDocId(int docId) {
+	public void setDocId(Integer docId) {
 		this.docId = docId;
 	}
 	
