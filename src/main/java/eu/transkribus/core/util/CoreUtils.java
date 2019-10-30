@@ -16,6 +16,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -62,6 +63,8 @@ import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import eu.transkribus.core.model.beans.TrpP2PaLA;
 
 public class CoreUtils {
 	private final static Logger logger = LoggerFactory.getLogger(CoreUtils.class);
@@ -1423,6 +1426,21 @@ public class CoreUtils {
 		return path==null ? null : StringUtils.removeEnd(path.replaceAll("\\\\", "/"), "/");
 	}
 	
+	public static <T extends Comparable<T>> int compareTo(T o1, T o2) {
+		if (o1==null && o2==null) {
+			return 0;
+		}
+		else if (o1==null && o2!=null) {
+			return -1;
+		}
+		else if (o1!=null && o2==null) {
+			return 1;
+		}
+		else {
+			return o1.compareTo(o2);
+		}
+	}	
+	
 	public static void main(String[] args) throws Exception {
 		System.out.println(regularizedPath("c:\\hello\\world/by\\me\\"));
 		
@@ -1441,7 +1459,5 @@ public class CoreUtils {
 //		System.out.println(parseDate("Thu Jan 31 15:49:38 2019", new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy")));
 //		System.out.println(parseDate("Thu Jan 31 15:49:38 2019", new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy", Locale.ENGLISH)));
 	}
-
-
 	
 }
