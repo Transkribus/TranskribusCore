@@ -11,8 +11,12 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import eu.transkribus.core.exceptions.ParsePropertiesException;
+import eu.transkribus.core.io.util.TrpProperties;
 
 @Entity
 @Table(name = TrpP2PaLA.TABLE_NAME)
@@ -43,10 +47,10 @@ public class TrpP2PaLA extends ATrpModel {
 	}
 	
 	public TrpP2PaLA(Integer modelId, String name, String description, String path, Timestamp created,
-			Integer parenId, Integer isActive, Integer releaseLevel, String params, String custom, Timestamp delTime, Integer jobId, Integer userId, String userName,
+			Integer parenId, Integer isActive, Integer releaseLevel, String params, String custom, Timestamp delTime, Integer jobId, Integer userId, String userName, Double minError,
 			
 			String structTypes, String mergedStructTypes, String outMode) {
-		super(modelId, name, description, path, created, parenId, isActive, releaseLevel, params, custom, delTime, jobId, userId, userName);
+		super(modelId, name, description, path, created, parenId, isActive, releaseLevel, params, custom, delTime, jobId, userId, userName, minError);
 		
 		this.structTypes = structTypes;
 		this.mergedStructTypes = mergedStructTypes;
@@ -87,8 +91,21 @@ public class TrpP2PaLA extends ATrpModel {
 				+ outMode + ", type=" + type + ", description="
 				+ description + ", path=" + path + ", created=" + created + ", parentId=" + parentId + ", isActive="
 				+ isActive + ", releaseLevel=" + releaseLevel + ", params=" + params + ", custom=" + custom
-				+ ", delTime=" + delTime + ", jobId=" + jobId + ", userId=" + userId + ", userName=" + userName
+				+ ", delTime=" + delTime + ", jobId=" + jobId + ", userId=" + userId + ", userName=" + userName+", minError=" + minError
 				+ "]";
+	}
+	
+	public TrpProperties parseCustomProperties() {
+		if (!StringUtils.isEmpty(this.custom)) {
+			try {
+				return new TrpProperties(custom, false);
+			} catch (ParsePropertiesException e) {
+				logger.warn("Could not parse non-empty custom properties from TrpP2PaLA model: "+custom);
+				return new TrpProperties();
+			}
+		} else {
+			return new TrpProperties();
+		}
 	}
 	
 	public static void main(String[] args) throws Exception {

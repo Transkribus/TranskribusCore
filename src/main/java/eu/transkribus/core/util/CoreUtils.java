@@ -440,6 +440,14 @@ public class CoreUtils {
 			return errorVal;
 		}
 	}
+	
+	public static Double parseDouble(String str, Double errorVal) {
+		try {
+			return Double.parseDouble(str);
+		} catch (Exception e) {
+			return errorVal;
+		}
+	}	
 
 	public static long parseLong(String str, long errorVal) {
 		try {

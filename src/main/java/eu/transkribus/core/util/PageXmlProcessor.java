@@ -147,6 +147,12 @@ public abstract class PageXmlProcessor extends TrpXPathProcessor {
 		return super.getNodeList(doc, exp);
 	}
 	
+	public NodeList getBaselines(Document doc) throws XPathExpressionException, SAXException, IOException {
+		final String xPath = "//Baseline";
+		XPathExpression exp = super.compile(xPath);
+		return super.getNodeList(doc, exp);
+	}
+	
 	public Node getTextRegionById(final Document doc, final String regionId) throws XPathExpressionException, SAXException, IOException {
 		final String xPath = "//TextRegion[@id='" + regionId + "']";
 		XPathExpression exp = super.compile(xPath);

@@ -20,7 +20,7 @@ public class TrpShapeTypeUtils {
 		try {
 			Collections.sort(shapes, new TrpElementReadingOrderComparator<T>(true));
 		} catch (Exception e) {
-			logger.warn("could not sort regions by reading order, exception = "+e.getMessage() +" - no sorting by coordinates!");
+			logger.warn("could not sort regions by reading order, exception = "+e.getMessage() +" - now sorting by coordinates!");
 			Collections.sort(shapes, new TrpElementCoordinatesComparator<T>(true));
 		}
 	}

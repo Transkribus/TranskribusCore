@@ -47,6 +47,12 @@ public class StructTypesAnal {
 //	private CollectionManager cMan;
 //	private DocManager docMan;
 	
+	private boolean withStructs=true;
+	private boolean withBaselines=false;
+	
+	
+	public static final String BASELINE_STRUCT_TYPE = "_baselines_";
+	
 	public static final class ImgAndPageXml {
 		private TrpPage page=null;
 		private Pair<File, File> imgAndXml=null;
@@ -124,8 +130,24 @@ public class StructTypesAnal {
 	public StructTypesAnal(List<ImgAndPageXml> imgXmlPairs) {
 		this.imgXmlPairs = imgXmlPairs;
 		logger.info("StructTypesAnal, got "+imgXmlPairs.size()+" files");
-	}	
+	}
 	
+	public boolean isWithStructs() {
+		return withStructs;
+	}
+
+	public void setWithStructs(boolean withStructs) {
+		this.withStructs = withStructs;
+	}
+
+	public boolean isWithBaselines() {
+		return withBaselines;
+	}
+
+	public void setWithBaselines(boolean withBaselines) {
+		this.withBaselines = withBaselines;
+	}
+
 	public void setImgXmlPairs(List<ImgAndPageXml> imgXmlPairs) {
 		this.imgXmlPairs = imgXmlPairs;
 	}
@@ -188,6 +210,7 @@ public class StructTypesAnal {
 		analyzeStructureTypes(null);
 	}
 
+	// TODO: also count baselines as structure types (if specified!)
 	public void analyzeStructureTypes(IProgressMonitor monitor) throws Exception {
 //		parseImgPageXmlPairs();
 //		if (true) return;
@@ -209,25 +232,44 @@ public class StructTypesAnal {
 			PageXmlFileProcessor fp = new PageXmlFileProcessor(pageXml.toString());
 			Document d = fp.getDocument();
 
-			NodeList trs = fp.getTextRegions(d);
-			for (int j = 0; j < trs.getLength(); ++j) {
-				Node tr = trs.item(j);
-				String custom = tr.getAttributes().getNamedItem("custom").getNodeValue();
-				CssSyntaxTag structTag = CssSyntaxTag.parseTags(custom).stream()
-						.filter(t -> t.getTagName().equals("structure")).findAny().orElse(null);
-				if (structTag != null) {
-					String structType = (String) structTag.getAttributeValue("type");
-					String rid = tr.getAttributes().getNamedItem("id").getNodeValue();
-					logger.trace("Found struct type = " + structType + ", rid = " + rid);
-
-//						sts.put(rid, structType);
-//						Integer count = anal.counts.get(structType);
-//						count = count==null ? 1 : count+1;
-//						anal.counts.put(structType, count);
-
-					addStructType(p, rid, structType);
+			if (withStructs) {
+				NodeList trs = fp.getTextRegions(d);
+				for (int j = 0; j < trs.getLength(); ++j) {
+					Node tr = trs.item(j);
+					String custom = tr.getAttributes().getNamedItem("custom").getNodeValue();
+					CssSyntaxTag structTag = CssSyntaxTag.parseTags(custom).stream()
+							.filter(t -> t.getTagName().equals("structure")).findAny().orElse(null);
+					if (structTag != null) {
+						String structType = (String) structTag.getAttributeValue("type");
+						String rid = tr.getAttributes().getNamedItem("id").getNodeValue();
+						logger.trace("Found struct type = " + structType + ", rid = " + rid);
+	
+	//						sts.put(rid, structType);
+	//						Integer count = anal.counts.get(structType);
+	//						count = count==null ? 1 : count+1;
+	//						anal.counts.put(structType, count);
+	
+						addStructType(p, rid, structType);
+					}
 				}
 			}
+			
+			if (withBaselines) { // TODO: test
+				NodeList bls = fp.getBaselines(d);
+				for (int j = 0; j < bls.getLength(); ++j) {
+					Node bl = bls.item(j);
+					
+					if (bl.getParentNode()==null || bl.getParentNode().getAttributes().getNamedItem("id")==null) {
+						logger.warn("Parent line for baseline not found - skipping!");
+						continue;
+					}
+					String rid = bl.getParentNode().getAttributes().getNamedItem("id").getNodeValue();
+					logger.debug("bl, lid = "+rid);
+					
+					addStructType(p, rid, BASELINE_STRUCT_TYPE);
+				}
+			}
+			
 
 //				anal.occs.put(pageXml.getAbsolutePath(), sts);
 
@@ -400,7 +442,7 @@ public class StructTypesAnal {
 	}
 	
 	public String getStructTypesStrForP2PaLA() {
-		return counts.keySet().stream().collect(Collectors.joining(" "));
+		return counts.keySet().stream().filter(st -> !BASELINE_STRUCT_TYPE.equals(st)).collect(Collectors.joining(" "));
 	}
 	
 	
