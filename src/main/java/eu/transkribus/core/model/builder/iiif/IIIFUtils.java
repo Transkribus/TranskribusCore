@@ -30,6 +30,7 @@ import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
@@ -75,6 +76,7 @@ public class IIIFUtils {
 	
 	public static Manifest checkManifestValid(URL url) throws JsonParseException, JsonMappingException, IOException {
 		ObjectMapper iiifMapper = new IiifObjectMapper();
+		iiifMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
 		Manifest manifest = iiifMapper.readValue(url, Manifest.class);
 		return manifest;
 	}
