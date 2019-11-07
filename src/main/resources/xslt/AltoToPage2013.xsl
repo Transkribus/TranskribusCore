@@ -124,13 +124,6 @@
                     </xsl:apply-templates>
                 </TableRegion>
             </xsl:when>
-            <xsl:when test="@TYPE='container'">
-                <!-- recurse on inner ComposedBlocks and transform TextBlocks on this level to TextRegions -->
-                <xsl:apply-templates select="./ComposedBlock | ./TextBlock | ./GraphicalElement | ./Illustration"/>
-            </xsl:when>
-            <xsl:otherwise>
-                <!-- TODO not implemented! Check for other types that are written by finereader (arbitrary string is possible due to schema!) -->
-            </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
     
@@ -274,7 +267,8 @@
                     <xsl:with-param name="r" select="(./@HPOS+./@WIDTH)+1"/>
                     <xsl:with-param name="b" select="(./@VPOS+./@HEIGHT)+1"/>
                 </xsl:call-template> 
-                <Baseline points="{./@HPOS - 1},{(./@VPOS+./@HEIGHT)+1} {(./@HPOS+./@WIDTH)+1},{(./@VPOS+./@HEIGHT)+1}"/>                               
+                <xsl:call-template name="generateBaselineCoords"></xsl:call-template>
+<!--                <Baseline points="{./@HPOS - 1},{(./@VPOS+./@HEIGHT)+1} {(./@HPOS+./@WIDTH)+1},{(./@VPOS+./@HEIGHT)+1}"/>                               -->
                 <!-- produce Word nodes -->
                 <xsl:apply-templates select="./String"/>
                 <xsl:if test="not($textToWordsOnly)">  
@@ -424,6 +418,38 @@
             </xsl:choose>
         </xsl:variable>
         <Coords points="{$left},{$top} {$right},{$top} {$right},{$bottom} {$left},{$bottom}"/>
+    </xsl:template>
+    
+    <!-- creates baseline for a line: on oblique lines it is not sufficient to set the baseline on the bottom of the line rectangle
+    - because then the basline is not correct. So we create the baseline from the beginning of a word to each end of a word -->
+    <xsl:template name="generateBaselineCoords">
+        <xsl:variable name="coordPoints">
+            <xsl:for-each select="./String">
+                <xsl:variable name="actpos" select="position()"/>
+                <xsl:variable name="l" select="./@HPOS"/>
+                <xsl:variable name="t" select="./@VPOS"/>
+                <xsl:variable name="r" select="./@HPOS+./@WIDTH"/>
+                <xsl:variable name="b" select="./@VPOS+./@HEIGHT"/>
+                <xsl:choose>
+                    <xsl:when test="position()=1">
+                        <xsl:value-of select="$l"/>
+                        <xsl:value-of>,</xsl:value-of>
+                        <xsl:value-of select="$b"/>
+                        <xsl:text> </xsl:text>
+                        <xsl:value-of select="$r"/>
+                        <xsl:value-of>,</xsl:value-of>
+                        <xsl:value-of select="$b"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:text> </xsl:text>
+                        <xsl:value-of select="$r"/>
+                        <xsl:value-of>,</xsl:value-of>
+                        <xsl:value-of select="$b"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:for-each>
+        </xsl:variable>
+        <Baseline points="{$coordPoints}"/>
     </xsl:template>
     
     <xsl:template name="writeStyleAttribs">
