@@ -35,10 +35,11 @@ public abstract class ATrpModel {
 	public final static String JOBID_COL = "jobid";
 	public final static String USERID_COL = "userid";
 	public final static String USERNAME_COL = "username";
+	public final static String MIN_ERROR_COL = "min_error";
 	
 	public final static String[] COLS = { MODEL_ID_COL, NAME_COL, TYPE_COL, DESCRIPTION_COL,
 			PATH_COL, CREATED_COL, PARENT_ID_COL, IS_ACTIVE_COL, RELEASE_LEVEL_COL,
-			PARAMS_COL, CUSTOM_COL, DEL_TIME_COL, JOBID_COL, USERID_COL, USERNAME_COL };	
+			PARAMS_COL, CUSTOM_COL, DEL_TIME_COL, JOBID_COL, USERID_COL, USERNAME_COL, MIN_ERROR_COL };	
 
 	@Id @Column(name = MODEL_ID_COL) protected Integer modelId;
 	@Column(name = NAME_COL) protected String name;
@@ -55,13 +56,14 @@ public abstract class ATrpModel {
 	@Column(name = JOBID_COL) protected Integer jobId;
 	@Column(name = USERID_COL) protected Integer userId;
 	@Column(name = USERNAME_COL) protected String userName;
+	@Column(name = MIN_ERROR_COL) protected Double minError;
 	
 	public ATrpModel() {
 	}
 	
 	public ATrpModel(Integer modelId, String name, /*String type,*/ String description, String path, Timestamp created,
 			Integer parent_id, Integer isActive, Integer releaseLevel,
-			String params, String custom, Timestamp delTime, Integer jobId, Integer userId, String userName) {
+			String params, String custom, Timestamp delTime, Integer jobId, Integer userId, String userName, Double minError) {
 		super();
 		this.modelId = modelId;
 		this.name = name;
@@ -78,6 +80,7 @@ public abstract class ATrpModel {
 		this.jobId = jobId;
 		this.userId = userId;
 		this.userName = userName;
+		this.minError = minError;
 	}
 
 	public Integer getModelId() {
@@ -200,6 +203,14 @@ public abstract class ATrpModel {
 
 	public void setUserName(String userName) {
 		this.userName = userName;
+	}
+
+	public Double getMinError() {
+		return minError;
+	}
+
+	public void setMinError(Double minError) {
+		this.minError = minError;
 	}
 	
 }

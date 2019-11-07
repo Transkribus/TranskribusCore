@@ -32,7 +32,7 @@ import eu.transkribus.core.model.beans.customtags.CssSyntaxTag;
  * Can also be used to split files into train/val/test sets and copy the corresponding image and PAGE-XML files into dedicated folders.
  */
 public class StructTypesAnal {
-	private static final Logger logger = LoggerFactory.getLogger(StructTypesAnal.class);
+	public static final Logger logger = LoggerFactory.getLogger(StructTypesAnal.class);
 
 	private List<ImgAndPageXml> imgXmlPairs = new ArrayList<>();
 	private Map<String, Integer> counts = new HashMap<>(); // a counter for all unique struct types
@@ -46,6 +46,12 @@ public class StructTypesAnal {
 	
 //	private CollectionManager cMan;
 //	private DocManager docMan;
+	
+	private boolean withStructs=true;
+	private boolean withBaselines=false;
+	
+	
+	public static final String BASELINE_STRUCT_TYPE = "_baselines_";
 	
 	public static final class ImgAndPageXml {
 		private TrpPage page=null;
@@ -122,12 +128,28 @@ public class StructTypesAnal {
 	}
 	
 	public StructTypesAnal(List<ImgAndPageXml> imgXmlPairs) {
-		this.imgXmlPairs = imgXmlPairs;
-		logger.info("StructTypesAnal, got "+imgXmlPairs.size()+" files");
-	}	
+		setImgXmlPairs(imgXmlPairs);
+	}
 	
+	public boolean isWithStructs() {
+		return withStructs;
+	}
+
+	public void setWithStructs(boolean withStructs) {
+		this.withStructs = withStructs;
+	}
+
+	public boolean isWithBaselines() {
+		return withBaselines;
+	}
+
+	public void setWithBaselines(boolean withBaselines) {
+		this.withBaselines = withBaselines;
+	}
+
 	public void setImgXmlPairs(List<ImgAndPageXml> imgXmlPairs) {
 		this.imgXmlPairs = imgXmlPairs;
+		logger.info("StructTypesAnal, got "+imgXmlPairs.size()+" files");
 	}
 	
 	public void setPages(List<TrpPage> pages) {
@@ -188,6 +210,7 @@ public class StructTypesAnal {
 		analyzeStructureTypes(null);
 	}
 
+	// TODO: also count baselines as structure types (if specified!)
 	public void analyzeStructureTypes(IProgressMonitor monitor) throws Exception {
 //		parseImgPageXmlPairs();
 //		if (true) return;
@@ -203,31 +226,50 @@ public class StructTypesAnal {
 			
 			MonitorUtil.subTask(monitor, (i+1)+"/"+imgXmlPairs.size());
 			
-			logger.info("analyzeStructureTypes, Parsing page " + (i + 1) + "/" + imgXmlPairs.size());
+			logger.debug("analyzeStructureTypes, Parsing page " + (i + 1) + "/" + imgXmlPairs.size());
 			URL pageXml = p.getPageXmlUrl();
 
 			PageXmlFileProcessor fp = new PageXmlFileProcessor(pageXml.toString());
 			Document d = fp.getDocument();
 
-			NodeList trs = fp.getTextRegions(d);
-			for (int j = 0; j < trs.getLength(); ++j) {
-				Node tr = trs.item(j);
-				String custom = tr.getAttributes().getNamedItem("custom").getNodeValue();
-				CssSyntaxTag structTag = CssSyntaxTag.parseTags(custom).stream()
-						.filter(t -> t.getTagName().equals("structure")).findAny().orElse(null);
-				if (structTag != null) {
-					String structType = (String) structTag.getAttributeValue("type");
-					String rid = tr.getAttributes().getNamedItem("id").getNodeValue();
-					logger.trace("Found struct type = " + structType + ", rid = " + rid);
-
-//						sts.put(rid, structType);
-//						Integer count = anal.counts.get(structType);
-//						count = count==null ? 1 : count+1;
-//						anal.counts.put(structType, count);
-
-					addStructType(p, rid, structType);
+			if (withStructs) {
+				NodeList trs = fp.getTextRegions(d);
+				for (int j = 0; j < trs.getLength(); ++j) {
+					Node tr = trs.item(j);
+					String custom = tr.getAttributes().getNamedItem("custom").getNodeValue();
+					CssSyntaxTag structTag = CssSyntaxTag.parseTags(custom).stream()
+							.filter(t -> t.getTagName().equals("structure")).findAny().orElse(null);
+					if (structTag != null) {
+						String structType = (String) structTag.getAttributeValue("type");
+						String rid = tr.getAttributes().getNamedItem("id").getNodeValue();
+						logger.trace("Found struct type = " + structType + ", rid = " + rid);
+	
+	//						sts.put(rid, structType);
+	//						Integer count = anal.counts.get(structType);
+	//						count = count==null ? 1 : count+1;
+	//						anal.counts.put(structType, count);
+	
+						addStructType(p, rid, structType);
+					}
 				}
 			}
+			
+			if (withBaselines) {
+				NodeList bls = fp.getBaselines(d);
+				for (int j = 0; j < bls.getLength(); ++j) {
+					Node bl = bls.item(j);
+					
+					if (bl.getParentNode()==null || bl.getParentNode().getAttributes().getNamedItem("id")==null) {
+						logger.warn("Parent line for baseline not found - skipping!");
+						continue;
+					}
+					String rid = bl.getParentNode().getAttributes().getNamedItem("id").getNodeValue();
+					logger.trace("Found baseline, rid = "+rid);
+					
+					addStructType(p, rid, BASELINE_STRUCT_TYPE);
+				}
+			}
+			
 
 //				anal.occs.put(pageXml.getAbsolutePath(), sts);
 
@@ -310,7 +352,7 @@ public class StructTypesAnal {
 				}
 
 				int countNew = 0;
-				logger.info("frac = " + i + ", st = " + st + ", N = " + N + ", N-filesForStruct = "
+				logger.trace("frac = " + i + ", st = " + st + ", N = " + N + ", N-filesForStruct = "
 						+ filesForStruct.size() + ", start = " + start + ", end = " + end);
 				for (int j = start; j < end; ++j) {
 					ImgAndPageXml imgAndXml = filesForStruct.get(j);
@@ -331,7 +373,7 @@ public class StructTypesAnal {
 						++countNew;
 					}
 				}
-				logger.info("countNew = " + countNew + ", N-filesForFrac = " + filesForFrac.size());
+				logger.debug("countNew = " + countNew + ", N-filesForFrac = " + filesForFrac.size());
 
 				start += N;
 			}
@@ -400,7 +442,7 @@ public class StructTypesAnal {
 	}
 	
 	public String getStructTypesStrForP2PaLA() {
-		return counts.keySet().stream().collect(Collectors.joining(" "));
+		return counts.keySet().stream().filter(st -> !BASELINE_STRUCT_TYPE.equals(st)).collect(Collectors.joining(" "));
 	}
 	
 	
