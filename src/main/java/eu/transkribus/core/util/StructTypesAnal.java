@@ -32,7 +32,7 @@ import eu.transkribus.core.model.beans.customtags.CssSyntaxTag;
  * Can also be used to split files into train/val/test sets and copy the corresponding image and PAGE-XML files into dedicated folders.
  */
 public class StructTypesAnal {
-	private static final Logger logger = LoggerFactory.getLogger(StructTypesAnal.class);
+	public static final Logger logger = LoggerFactory.getLogger(StructTypesAnal.class);
 
 	private List<ImgAndPageXml> imgXmlPairs = new ArrayList<>();
 	private Map<String, Integer> counts = new HashMap<>(); // a counter for all unique struct types
@@ -128,8 +128,7 @@ public class StructTypesAnal {
 	}
 	
 	public StructTypesAnal(List<ImgAndPageXml> imgXmlPairs) {
-		this.imgXmlPairs = imgXmlPairs;
-		logger.info("StructTypesAnal, got "+imgXmlPairs.size()+" files");
+		setImgXmlPairs(imgXmlPairs);
 	}
 	
 	public boolean isWithStructs() {
@@ -150,6 +149,7 @@ public class StructTypesAnal {
 
 	public void setImgXmlPairs(List<ImgAndPageXml> imgXmlPairs) {
 		this.imgXmlPairs = imgXmlPairs;
+		logger.info("StructTypesAnal, got "+imgXmlPairs.size()+" files");
 	}
 	
 	public void setPages(List<TrpPage> pages) {
@@ -226,7 +226,7 @@ public class StructTypesAnal {
 			
 			MonitorUtil.subTask(monitor, (i+1)+"/"+imgXmlPairs.size());
 			
-			logger.info("analyzeStructureTypes, Parsing page " + (i + 1) + "/" + imgXmlPairs.size());
+			logger.debug("analyzeStructureTypes, Parsing page " + (i + 1) + "/" + imgXmlPairs.size());
 			URL pageXml = p.getPageXmlUrl();
 
 			PageXmlFileProcessor fp = new PageXmlFileProcessor(pageXml.toString());
@@ -254,7 +254,7 @@ public class StructTypesAnal {
 				}
 			}
 			
-			if (withBaselines) { // TODO: test
+			if (withBaselines) {
 				NodeList bls = fp.getBaselines(d);
 				for (int j = 0; j < bls.getLength(); ++j) {
 					Node bl = bls.item(j);
@@ -264,7 +264,7 @@ public class StructTypesAnal {
 						continue;
 					}
 					String rid = bl.getParentNode().getAttributes().getNamedItem("id").getNodeValue();
-					logger.debug("bl, lid = "+rid);
+					logger.trace("Found baseline, rid = "+rid);
 					
 					addStructType(p, rid, BASELINE_STRUCT_TYPE);
 				}
@@ -352,7 +352,7 @@ public class StructTypesAnal {
 				}
 
 				int countNew = 0;
-				logger.info("frac = " + i + ", st = " + st + ", N = " + N + ", N-filesForStruct = "
+				logger.trace("frac = " + i + ", st = " + st + ", N = " + N + ", N-filesForStruct = "
 						+ filesForStruct.size() + ", start = " + start + ", end = " + end);
 				for (int j = start; j < end; ++j) {
 					ImgAndPageXml imgAndXml = filesForStruct.get(j);
@@ -373,7 +373,7 @@ public class StructTypesAnal {
 						++countNew;
 					}
 				}
-				logger.info("countNew = " + countNew + ", N-filesForFrac = " + filesForFrac.size());
+				logger.debug("countNew = " + countNew + ", N-filesForFrac = " + filesForFrac.size());
 
 				start += N;
 			}

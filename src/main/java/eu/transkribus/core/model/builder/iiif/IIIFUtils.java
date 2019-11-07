@@ -76,6 +76,13 @@ public class IIIFUtils {
 	
 	public static Manifest checkManifestValid(URL url) throws JsonParseException, JsonMappingException, IOException {
 		ObjectMapper iiifMapper = new IiifObjectMapper();
+		if(checkIiifApi(url) == 200) {
+			JSONObject validation = validateManifest(url);
+			if(validation.getInt("okay") == 0) {
+				logger.error("IIIF is not valid : ", validation);
+				throw new IllegalArgumentException("IIIF is not valid (https://iiif.io/api/presentation/validator/service/) : "+validation.getString("error"));
+			}
+		}
 		iiifMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
 		Manifest manifest = iiifMapper.readValue(url, Manifest.class);
 		return manifest;
@@ -367,6 +374,13 @@ public class IIIFUtils {
 		
 		return manifestJson;
 		
+	}
+	
+	public static int checkIiifApi (final URL url) throws IOException {
+		URL validationUrl = new URL("https://iiif.io/api/presentation/validator/service/validate?format=json&version=2.1&url="+url.toString());
+		HttpURLConnection con = (HttpURLConnection) validationUrl.openConnection();
+		con.setRequestMethod("GET");	
+		return con.getResponseCode();
 	}
 	
 	public static JSONObject validateManifest (final URL url) throws IOException {
