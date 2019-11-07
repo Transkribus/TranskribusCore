@@ -37,9 +37,15 @@ public abstract class ATrpModel {
 	public final static String USERNAME_COL = "username";
 	public final static String MIN_ERROR_COL = "min_error";
 	
+	public final static String MODEL_ID_VARIABLE_NAME = "modelId";
+	public final static String NAME_VARIABLE_NAME = "name";
+	public final static String DESCRIPTION_VARIABLE_NAME = "description";
+	
 	public final static String[] COLS = { MODEL_ID_COL, NAME_COL, TYPE_COL, DESCRIPTION_COL,
 			PATH_COL, CREATED_COL, PARENT_ID_COL, IS_ACTIVE_COL, RELEASE_LEVEL_COL,
-			PARAMS_COL, CUSTOM_COL, DEL_TIME_COL, JOBID_COL, USERID_COL, USERNAME_COL, MIN_ERROR_COL };	
+			PARAMS_COL, CUSTOM_COL, DEL_TIME_COL, JOBID_COL, USERID_COL, USERNAME_COL, MIN_ERROR_COL };
+	
+	public final static String[] EDITABLE_VARIABLES = { NAME_VARIABLE_NAME, DESCRIPTION_VARIABLE_NAME };
 
 	@Id @Column(name = MODEL_ID_COL) protected Integer modelId;
 	@Column(name = NAME_COL) protected String name;
@@ -59,6 +65,7 @@ public abstract class ATrpModel {
 	@Column(name = MIN_ERROR_COL) protected Double minError;
 	
 	public ATrpModel() {
+		this.type = getModelType();
 	}
 	
 	public ATrpModel(Integer modelId, String name, /*String type,*/ String description, String path, Timestamp created,
@@ -81,6 +88,7 @@ public abstract class ATrpModel {
 		this.userId = userId;
 		this.userName = userName;
 		this.minError = minError;
+		this.type = getModelType();
 	}
 
 	public Integer getModelId() {
@@ -99,14 +107,12 @@ public abstract class ATrpModel {
 		this.name = name;
 	}
 	
-	public abstract String getType();
+	public String getType() {
+		return type;
+	}
 
-//	public String getType() {
-//		return type;
-//	}
-
-	public void setType(String type) { // does nothing -> type is hardcoded via getType method implemented in subclass!
-//		this.type = type;
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	public String getDescription() {
@@ -212,5 +218,7 @@ public abstract class ATrpModel {
 	public void setMinError(Double minError) {
 		this.minError = minError;
 	}
+	
+	protected abstract String getModelType();
 	
 }

@@ -10,6 +10,8 @@ import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -20,8 +22,10 @@ import eu.transkribus.core.io.util.TrpProperties;
 
 @Entity
 @Table(name = TrpP2PaLA.TABLE_NAME)
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@XmlType(name="") // needed to suppress Moxy's default 'type' attribute which collides with type attribute of the ATrpModel class
 public class TrpP2PaLA extends ATrpModel {
 	private static final Logger logger = LoggerFactory.getLogger(TrpP2PaLA.class);
 	
@@ -55,10 +59,6 @@ public class TrpP2PaLA extends ATrpModel {
 		this.structTypes = structTypes;
 		this.mergedStructTypes = mergedStructTypes;
 		this.outMode = outMode;
-	}
-	
-	public String getType() {
-		return TYPE;
 	}
 
 	public String getStructTypes() {
@@ -115,6 +115,11 @@ public class TrpP2PaLA extends ATrpModel {
 		}
 		
 		
+	}
+
+	@Override
+	protected String getModelType() {
+		return TYPE;
 	}
 	
 }
