@@ -286,21 +286,6 @@ public class PointStrUtils {
 		return corners;
 	}
 	
-	public static void main(String[] args) {
-		try {
-			List<Point> pts = parsePoints("");
-			System.out.println("nr of pts = "+pts.size());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		String test = "1,2 3,4 5,6";
-		for(Point p : parsePoints3(test)) {
-			System.out.println(p);
-		}
-		
-	}
-
 	public static Pair<Integer, Integer> getXBounds(String baseline) {
 		Polygon baselinePoly = PointStrUtils.buildPolygon(baseline);
 		int baselineMinX = Integer.MAX_VALUE;
@@ -321,4 +306,25 @@ public class PointStrUtils {
 		SimplePolygon2D p = new SimplePolygon2D(PointStrUtils.buildPoints2DList(coords));
 		return Math.abs(p.area());
 	}
+	
+	public static String getBoundsPointStr(String pointsStr) {
+		return PointStrUtils.pointsToString(PointStrUtils.buildPolygon(pointsStr).getBounds());
+	}
+	
+	public static void main(String[] args) {
+		try {
+			List<Point> pts = parsePoints("");
+			System.out.println("nr of pts = "+pts.size());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		String test = "1,2 3,4 5,6";
+		for(Point p : parsePoints3(test)) {
+			System.out.println(p);
+		}
+		
+	}
+
+
 }

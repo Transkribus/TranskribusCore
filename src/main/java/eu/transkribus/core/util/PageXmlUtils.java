@@ -1569,8 +1569,42 @@ public class PageXmlUtils {
 		return p;
 	}
 	
+	public static PcGtsType rectifyAllRegions(PcGtsType pc) {
+		TrpPageType page = (TrpPageType) pc.getPage();
+		for (RegionType r : page.getRegions()) {
+			if (r.getCoords()!=null) {
+				r.getCoords().setPoints(PointStrUtils.getBoundsPointStr(r.getCoords().getPoints()));
+			}
+		}
+		return pc;
+	}
+	
+	public static PageXmlFileProcessor rectifyAllRegions(PageXmlFileProcessor p) throws XPathExpressionException, SAXException, IOException {
+		Document d = p.getDocument();
+		NodeList nl = p.getRegions(d);
+		for (int i=0; i<nl.getLength(); ++i) {
+			Node n = nl.item(i);
+			try {
+				String id = p.getNodeId(n);
+				Node points = p.getNodeCoordsPoints(n);
+				String coordsStr = points.getNodeValue();
+				String coordsBounds = PointStrUtils.getBoundsPointStr(coordsStr);
+				logger.debug("id = "+id+"coordsStr = "+coordsStr+" coordsBounds = "+coordsBounds);
+				points.setNodeValue(coordsBounds);
+			} catch (Exception e) {
+				logger.error("Could not rectify region "+n+" - "+e.getMessage()+" - skipping!");
+			}
+		}
+		return p;
+	}
+	
 	public static void main(String[] args) throws Exception {
-		PageXmlUtils.filterOutSmallRegions("https://files.transkribus.eu/Get?id=AVHESCOEDXZYMYNPBOPGMEAR", 8000);
+		PageXmlFileProcessor p = PageXmlUtils.rectifyAllRegions(new PageXmlFileProcessor("https://files.transkribus.eu/Get?id=XTQBSHYLZUPUGOMECBOAVDDA"));
+		
+//		p.writeToFile(p.getDocument(), new File("c:/tmp/test_out.xml"), true);
+		
+		
+//		PageXmlUtils.filterOutSmallRegions("https://files.transkribus.eu/Get?id=AVHESCOEDXZYMYNPBOPGMEAR", 8000);
 		
 //		applyTextToLines(null, "I am a\ntext\n\nover\nmultiple   \nlines ! \n");
 		
@@ -1595,4 +1629,5 @@ public class PageXmlUtils {
 		
 		
 	}
+
 }
