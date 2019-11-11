@@ -23,6 +23,7 @@ public enum JobTask {
 	Ocr(JobType.recognition, "Optical Character Recognition", "uibk"),
 	UpvlcHtr(JobType.upvlc, "Handwritten Text Recognition", "upvlc"),
 	UpvlcHtrTraining(JobType.upvlc, "HTR Training", "upvlc"),
+	P2PaLATraining(JobType.upvlc, "P2PaLA Training", "upvlc"),
 	
 	Kws(JobType.kws, "Keyword Spotting", "uro");
 	

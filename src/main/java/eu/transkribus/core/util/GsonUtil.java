@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -20,9 +21,15 @@ public class GsonUtil {
 	public static final Gson GSON = new Gson();
 	
 	public static final Type STRING_LIST_TYPE = new TypeToken<List<String>>(){}.getType();
+	public static final Type INTEGER_LIST_TYPE = new TypeToken<List<Integer>>(){}.getType();
+	public static final Type LIST_OF_INT_LISTS_TYPE = new TypeToken<List<List<Integer>>>(){}.getType();
 	public static final Type DOCUMENT_SELECTION_DESCRIPTOR_LIST_TYPE = new TypeToken<List<DocumentSelectionDescriptor>>(){}.getType();
 	
 	public static final Type MAP_TYPE = new TypeToken<Map<String, Object>>(){}.getType();
+	public static final Type MAP_TYPE_STRING_VALUES = new TypeToken<Map<String, String>>(){}.getType();
+	public static final Type PAIR_OF_INT_TO_INT_MAP_TYPE = new TypeToken<Map<Pair<Integer, Integer>, Integer>>(){}.getType();
+	
+//	public static final Type MAP_TYPE = new TypeToken<Map<String, Object>>(){}.getType();
 	
 	public static String toJson(Object o, boolean prettyPrint) {
 		Gson gson = prettyPrint ? new GsonBuilder().setPrettyPrinting().create() : new GsonBuilder().create();
@@ -40,6 +47,14 @@ public class GsonUtil {
 			return null;
 		}
 	}	
+	
+	public static List<List<Integer>> toListOfIntLists(String json) {
+		return GSON.fromJson(json, LIST_OF_INT_LISTS_TYPE);
+	}
+	
+	public static List<Integer> toIntegerList(String json) {
+		return GSON.fromJson(json, INTEGER_LIST_TYPE);
+	}
 	
 	public static List<String> toStrList(String json) {
 		return GSON.fromJson(json, STRING_LIST_TYPE);
@@ -76,6 +91,14 @@ public class GsonUtil {
 	public static Map<String, Object> toMap(String json) {
 		return GSON.fromJson(json, MAP_TYPE);
 	}
+	
+	public static Map<String, String> toMapWithStringValues(String json) {
+		return GSON.fromJson(json, MAP_TYPE_STRING_VALUES);
+	}	
+	
+//	public static Map<Pair<Integer,Integer>, Object> toMap(String json) {
+//		return GSON.fromJson(json, MAP_TYPE);
+//	}	
 	
 	public static Map<String, Object> toMap2(String json) {
 		if (StringUtils.isEmpty(json))

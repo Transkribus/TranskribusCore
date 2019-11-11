@@ -125,9 +125,48 @@ public class TrpHtr {
 	@Column(name="COLLECTION_ID_LINK")
 	private Integer collectionIdLink;
 	
+	@Column(name="DEL_TIME")
+	@XmlJavaTypeAdapter(SqlTimestampAdapter.class)
+	private Timestamp delTime;
+	
 	//those fields just cache the split result from cerString and cerTestString
 	private double[] cerLog = null;
 	private double[] cerTestLog = null;
+	
+	public TrpHtr() {}
+	
+	public TrpHtr(TrpHtr otherHtr) {
+		super();
+		this.htrId = otherHtr.htrId;
+		this.name = otherHtr.name;
+		this.description = otherHtr.description;
+		this.provider = otherHtr.provider;
+		this.path = otherHtr.path;
+		this.created = otherHtr.created;
+		this.gtDocId = otherHtr.gtDocId;
+		this.testGtDocId = otherHtr.testGtDocId;
+		this.language = otherHtr.language;
+		this.baseHtrId = otherHtr.baseHtrId;
+		this.trainJobId = otherHtr.trainJobId;
+		this.cerString = otherHtr.cerString;
+		this.cerTestString = otherHtr.cerTestString;
+		this.charList = otherHtr.charList;
+		this.charSetString = otherHtr.charSetString;
+		this.bestNetStored = otherHtr.bestNetStored;
+		this.languageModelExists = otherHtr.languageModelExists;
+		this.nrOfLines = otherHtr.nrOfLines;
+		this.nrOfWords = otherHtr.nrOfWords;
+		this.params = otherHtr.params;
+		this.userName = otherHtr.userName;
+		this.userId = otherHtr.userId;
+		this.nrOfTrainGtPages = otherHtr.nrOfTrainGtPages;
+		this.nrOfValidationGtPages = otherHtr.nrOfValidationGtPages;
+		this.releaseLevelValue = otherHtr.releaseLevelValue;
+		this.collectionIdLink = otherHtr.collectionIdLink;
+		this.delTime = otherHtr.delTime;
+		this.cerLog = otherHtr.cerLog;
+		this.cerTestLog = otherHtr.cerTestLog;
+	}
 
 	public int getHtrId() {
 		return htrId;
@@ -419,6 +458,18 @@ public class TrpHtr {
 	
 	public void setNrOfValidationGtPages(Integer nrOfValidationGtPages) {
 		this.nrOfValidationGtPages = nrOfValidationGtPages;
+	}
+
+	public Timestamp getDelTime() {
+		return delTime;
+	}
+	
+	public void setDelTime(Timestamp delTime) {
+		this.delTime = delTime;
+	}
+	
+	public boolean isDeleted() {
+		return this.delTime != null;
 	}
 	
 	public boolean hasTrainGt() {

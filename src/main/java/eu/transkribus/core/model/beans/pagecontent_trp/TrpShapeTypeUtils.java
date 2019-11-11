@@ -1,6 +1,5 @@
 package eu.transkribus.core.model.beans.pagecontent_trp;
 
-import java.awt.Polygon;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,11 +12,18 @@ import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEven
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.PointStrUtils;
 import eu.transkribus.core.util.SebisStopWatch;
-import math.geom2d.polygon.Polygon2D;
-import math.geom2d.polygon.SimplePolygon2D;
 
 public class TrpShapeTypeUtils {
 	private final static Logger logger = LoggerFactory.getLogger(TrpShapeTypeUtils.class);
+	
+	public static <T> void sortShapesByReadingOrderOrCoordinates(List<T> shapes) {
+		try {
+			Collections.sort(shapes, new TrpElementReadingOrderComparator<T>(true));
+		} catch (Exception e) {
+			logger.warn("could not sort regions by reading order, exception = "+e.getMessage() +" - now sorting by coordinates!");
+			Collections.sort(shapes, new TrpElementCoordinatesComparator<T>(true));
+		}
+	}
 	
 	public static boolean removeShape(ITrpShapeType s) {
 		if (s == null) {

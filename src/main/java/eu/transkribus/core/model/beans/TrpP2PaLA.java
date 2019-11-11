@@ -10,14 +10,22 @@ import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.exceptions.ParsePropertiesException;
+import eu.transkribus.core.io.util.TrpProperties;
+
 @Entity
 @Table(name = TrpP2PaLA.TABLE_NAME)
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@XmlType(name="") // needed to suppress Moxy's default 'type' attribute which collides with type attribute of the ATrpModel class
 public class TrpP2PaLA extends ATrpModel {
 	private static final Logger logger = LoggerFactory.getLogger(TrpP2PaLA.class);
 	
@@ -43,18 +51,14 @@ public class TrpP2PaLA extends ATrpModel {
 	}
 	
 	public TrpP2PaLA(Integer modelId, String name, String description, String path, Timestamp created,
-			Integer parenId, Integer isActive, Integer releaseLevel, String params, String custom, Integer isDeleted, Integer jobId, 
+			Integer parenId, Integer isActive, Integer releaseLevel, String params, String custom, Timestamp delTime, Integer jobId, Integer userId, String userName, Double minError,
 			
 			String structTypes, String mergedStructTypes, String outMode) {
-		super(modelId, name, description, path, created, parenId, isActive, releaseLevel, params, custom, isDeleted, jobId);
+		super(modelId, name, description, path, created, parenId, isActive, releaseLevel, params, custom, delTime, jobId, userId, userName, minError);
 		
 		this.structTypes = structTypes;
 		this.mergedStructTypes = mergedStructTypes;
 		this.outMode = outMode;
-	}
-	
-	public String getType() {
-		return TYPE;
 	}
 
 	public String getStructTypes() {
@@ -83,18 +87,27 @@ public class TrpP2PaLA extends ATrpModel {
 
 	@Override
 	public String toString() {
-		return "TrpP2PaLA [modelId=" + modelId+", structTypes=" + structTypes + ", mergedStructTypes=" + mergedStructTypes + ", outMode="
-				+ outMode + ", name=" + name + ", type=" + type + ", description="
+		return "TrpP2PaLA [modelId="+modelId+", name=" + name + ", structTypes=" + structTypes + ", mergedStructTypes=" + mergedStructTypes + ", outMode="
+				+ outMode + ", type=" + type + ", description="
 				+ description + ", path=" + path + ", created=" + created + ", parentId=" + parentId + ", isActive="
 				+ isActive + ", releaseLevel=" + releaseLevel + ", params=" + params + ", custom=" + custom
-				+ ", isDeleted=" + isDeleted + ", jobId=" + jobId + "]";
+				+ ", delTime=" + delTime + ", jobId=" + jobId + ", userId=" + userId + ", userName=" + userName+", minError=" + minError
+				+ "]";
 	}
 	
-	public static TrpP2PaLA fromTrpP2PaLAModel(TrpP2PaLAModel oldModel) {
-		return new TrpP2PaLA(-1, oldModel.getName(), oldModel.getDescription(), oldModel.getPath(), oldModel.getCreated(), null, 
-				1, 2, null, null, null, null, oldModel.getStruct_types(), oldModel.getMerged_struct_types(), oldModel.getOut_mode());
+	public TrpProperties parseCustomProperties() {
+		if (!StringUtils.isEmpty(this.custom)) {
+			try {
+				return new TrpProperties(custom, false);
+			} catch (ParsePropertiesException e) {
+				logger.warn("Could not parse non-empty custom properties from TrpP2PaLA model: "+custom);
+				return new TrpProperties();
+			}
+		} else {
+			return new TrpProperties();
+		}
 	}
-
+	
 	public static void main(String[] args) throws Exception {
 		
 		for (Field f : TrpP2PaLA.class.getDeclaredFields()) {
@@ -102,6 +115,11 @@ public class TrpP2PaLA extends ATrpModel {
 		}
 		
 		
+	}
+
+	@Override
+	protected String getModelType() {
+		return TYPE;
 	}
 	
 }

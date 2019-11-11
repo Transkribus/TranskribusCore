@@ -115,7 +115,7 @@ public class DocExporter extends APassthroughObservable {
 	 * @throws TransformerException
 	 */
 	public File writeRawDoc(TrpDoc doc, final String dir, boolean doOverwrite, Set<Integer> pageIndices, 
-			boolean exportImg, boolean exportPage, boolean exportAlto, boolean splitIntoWordsInAlto, 
+			boolean exportImg, boolean exportPage, boolean exportAlto, boolean splitIntoWordsInAlto, boolean useWordLayer, 
 			String fileNamePattern, ImgType imgType) throws IOException,
 			IllegalArgumentException, URISyntaxException, JAXBException, TransformerException {
 		CommonExportPars pars = new CommonExportPars();
@@ -125,6 +125,7 @@ public class DocExporter extends APassthroughObservable {
 		pars.setDoWriteImages(exportImg);
 		pars.setUseOcrMasterDir(false);
 		pars.setSplitIntoWordsInAltoXml(splitIntoWordsInAlto);
+		pars.setWriteTextOnWordLevel(useWordLayer);
 		pars.setPages(CoreUtils.getRangeListStrFromSet(pageIndices));
 		pars.setDir(dir);
 		pars.setDoOverwrite(doOverwrite);

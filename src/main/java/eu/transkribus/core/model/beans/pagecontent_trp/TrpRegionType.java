@@ -151,7 +151,9 @@ public class TrpRegionType extends RegionType implements ITrpShapeType {
 	}
 	
 	public static void sortRegions(List<TrpRegionType> textRegionOrImageRegionOrLineDrawingRegion) {
-		Collections.sort(textRegionOrImageRegionOrLineDrawingRegion, new TrpElementReadingOrderComparator<RegionType>(true));
+		TrpShapeTypeUtils.sortShapesByReadingOrderOrCoordinates(textRegionOrImageRegionOrLineDrawingRegion);
+		// ORIG
+//		Collections.sort(textRegionOrImageRegionOrLineDrawingRegion, new TrpElementReadingOrderComparator<RegionType>(true));
 	}
 
 	@Override

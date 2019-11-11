@@ -31,12 +31,21 @@ public abstract class ATrpModel {
 	public final static String RELEASE_LEVEL_COL = "release_level";
 	public final static String PARAMS_COL = "params";
 	public final static String CUSTOM_COL = "custom";
-	public final static String IS_DELETED_COL = "is_deleted";
+	public final static String DEL_TIME_COL = "del_time";
 	public final static String JOBID_COL = "jobid";
+	public final static String USERID_COL = "userid";
+	public final static String USERNAME_COL = "username";
+	public final static String MIN_ERROR_COL = "min_error";
+	
+	public final static String MODEL_ID_VARIABLE_NAME = "modelId";
+	public final static String NAME_VARIABLE_NAME = "name";
+	public final static String DESCRIPTION_VARIABLE_NAME = "description";
 	
 	public final static String[] COLS = { MODEL_ID_COL, NAME_COL, TYPE_COL, DESCRIPTION_COL,
 			PATH_COL, CREATED_COL, PARENT_ID_COL, IS_ACTIVE_COL, RELEASE_LEVEL_COL,
-			PARAMS_COL, CUSTOM_COL, IS_DELETED_COL, JOBID_COL };	
+			PARAMS_COL, CUSTOM_COL, DEL_TIME_COL, JOBID_COL, USERID_COL, USERNAME_COL, MIN_ERROR_COL };
+	
+	public final static String[] EDITABLE_VARIABLES = { NAME_VARIABLE_NAME, DESCRIPTION_VARIABLE_NAME };
 
 	@Id @Column(name = MODEL_ID_COL) protected Integer modelId;
 	@Column(name = NAME_COL) protected String name;
@@ -49,15 +58,19 @@ public abstract class ATrpModel {
 	@Column(name = RELEASE_LEVEL_COL) protected Integer releaseLevel;
 	@Column(name = PARAMS_COL) protected String params;
 	@Column(name = CUSTOM_COL) protected String custom;
-	@Column(name = IS_DELETED_COL) protected Integer isDeleted;
+	@Column(name = DEL_TIME_COL) protected Timestamp delTime;
 	@Column(name = JOBID_COL) protected Integer jobId;
+	@Column(name = USERID_COL) protected Integer userId;
+	@Column(name = USERNAME_COL) protected String userName;
+	@Column(name = MIN_ERROR_COL) protected Double minError;
 	
 	public ATrpModel() {
+		this.type = getModelType();
 	}
 	
 	public ATrpModel(Integer modelId, String name, /*String type,*/ String description, String path, Timestamp created,
 			Integer parent_id, Integer isActive, Integer releaseLevel,
-			String params, String custom, Integer isDeleted, Integer jobId) {
+			String params, String custom, Timestamp delTime, Integer jobId, Integer userId, String userName, Double minError) {
 		super();
 		this.modelId = modelId;
 		this.name = name;
@@ -70,8 +83,12 @@ public abstract class ATrpModel {
 		this.releaseLevel = releaseLevel;
 		this.params = params;
 		this.custom = custom;
-		this.isDeleted = isDeleted;
+		this.delTime = delTime;
 		this.jobId = jobId;
+		this.userId = userId;
+		this.userName = userName;
+		this.minError = minError;
+		this.type = getModelType();
 	}
 
 	public Integer getModelId() {
@@ -90,14 +107,12 @@ public abstract class ATrpModel {
 		this.name = name;
 	}
 	
-	public abstract String getType();
+	public String getType() {
+		return type;
+	}
 
-//	public String getType() {
-//		return type;
-//	}
-
-	public void setType(String type) { // does nothing -> type is hardcoded via getType method implemented in subclass!
-//		this.type = type;
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	public String getDescription() {
@@ -156,12 +171,12 @@ public abstract class ATrpModel {
 		this.params = params;
 	}
 
-	public Integer getIsDeleted() {
-		return isDeleted;
+	public Timestamp getDelTime() {
+		return delTime;
 	}
 
-	public void setIsDeleted(Integer isDeleted) {
-		this.isDeleted = isDeleted;
+	public void setDelTime(Timestamp delTime) {
+		this.delTime = delTime;
 	}
 
 	public Integer getJobId() {
@@ -179,5 +194,31 @@ public abstract class ATrpModel {
 	public void setCustom(String custom) {
 		this.custom = custom;
 	}
+
+	public Integer getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Integer userId) {
+		this.userId = userId;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public Double getMinError() {
+		return minError;
+	}
+
+	public void setMinError(Double minError) {
+		this.minError = minError;
+	}
+	
+	protected abstract String getModelType();
 	
 }
