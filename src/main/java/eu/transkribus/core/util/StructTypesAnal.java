@@ -310,6 +310,10 @@ public class StructTypesAnal {
 
 	public List<Set<ImgAndPageXml>> splitIntoSets(boolean includeAllForLastSet, boolean allowDuplicateFilesInDifferentSets,
 			List<String> structs, double... fracs) {
+		if (CoreUtils.isEmpty(structs)) {
+			throw new IllegalArgumentException("structs cannot be empty!");
+		}
+		
 		List<Set<ImgAndPageXml>> res = new ArrayList<>();
 		for (int i = 0; i < fracs.length; ++i) {
 			res.add(new HashSet<>());
