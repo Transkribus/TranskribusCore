@@ -48,8 +48,10 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 //				coords1 = ((TrpPrintSpaceType) o1).getCoords().getPoints();
 //				coords2 = ((TrpPrintSpaceType) o2).getCoords().getPoints();
 //			}		
-						
+			
+			boolean performColumnSensitiveComparison = false;
 			if (o1 instanceof RegionType) {
+				performColumnSensitiveComparison = true;
 				RegionType r1 = (RegionType) o1;
 				RegionType r2 = (RegionType) o2;
 //				System.out.println("region1 id: " + r1.getId());
@@ -134,17 +136,27 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 //			System.out.println("b1.getWidth()) " + b1.getWidth());
 //			System.out.println("pt2.x " + pt2.x);
 //			System.out.println("b2.x+b2.getWidth() "+ (b2.x+b2.getWidth()));
-			double v1 = b1.getX()+(b1.getWidth()/2);
-			if ( v1 < pt2.x){
-				//System.out.println("region1 wins");
-				return -1;
+			
+			if (performColumnSensitiveComparison) { // FIXME: transitivity is broken and can lead to an exception => this kind of twisted column-specific sorting is currently only used for regions... 
+				String id1 = o1 instanceof ITrpShapeType ? ((ITrpShapeType)o1).getId() : "NA";
+				String id2 = o2 instanceof ITrpShapeType ? ((ITrpShapeType)o2).getId() : "NA";
+				String idStr = id1+"/"+id2;
+				double v1 = b1.getX()+(b1.getWidth()/2);
+				if ( v1 < pt2.x) {
+					logger.trace("h1 "+idStr);
+					return -1;
+				}
+				else if(v1 > (b2.x+b2.getWidth())) {
+					logger.trace("h2 "+idStr);
+					return 1;
+				}
+				else {
+					logger.trace("h3 "+idStr);
+					return compareByYX(pt1.x, pt2.x, pt1.y, pt2.y); 
+				}
 			}
-			else if(v1 > (b2.x+b2.getWidth())){
-				return 1;
-			}
-			else{	
-				//System.out.println("yx compare");
-				return compareByYX(pt1.x, pt2.x, pt1.y, pt2.y); 
+			else {
+				return compareByYX(pt1.x, pt2.x, pt1.y, pt2.y);
 			}
 			
 	}
