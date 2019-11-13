@@ -29,7 +29,7 @@ public class TrpErrorRateResult {
 			return Double.parseDouble(wer.replaceAll("%", "").replaceAll(",", "."));
 		}
 		catch(NumberFormatException e) {
-			return -1.0;
+			return null;
 		}
 	}
 
@@ -46,7 +46,7 @@ public class TrpErrorRateResult {
 			return Double.parseDouble(cer.replace("%", "").replaceAll(",", "."));
 		}
 		catch(NumberFormatException e) {
-			return -1.0;
+			return null;
 		}
 	}
 	
@@ -60,7 +60,13 @@ public class TrpErrorRateResult {
 	}
 	
 	public Double getwAccDouble() {
-		return Double.parseDouble(wAcc.replaceAll("%", "").replaceAll(",", "."));
+		try {
+			return Double.parseDouble(wAcc.replaceAll("%", "").replaceAll(",", "."));
+		}catch(NumberFormatException e) {
+			return null;
+		}
+		
+		
 	}
 
 	public void setwAcc(String wAcc) {
@@ -72,7 +78,12 @@ public class TrpErrorRateResult {
 	}
 	
 	public Double getcAccDouble() {
-		return Double.parseDouble(cAcc.replaceAll("%", "").replaceAll(",", "."));
+		try {
+			return Double.parseDouble(cAcc.replaceAll("%", "").replaceAll(",", "."));
+		}catch(NumberFormatException e) {
+			return null;
+		}
+		
 	}
 
 
@@ -85,7 +96,12 @@ public class TrpErrorRateResult {
 	}
 	
 	public Double getBagTokensPrecDouble() {
-		return Double.parseDouble(bagTokensPrec.replaceAll("%", "").replaceAll(",", ".")) / 100;
+		try {
+			return Double.parseDouble(bagTokensPrec.replaceAll("%", "").replaceAll(",", ".")) / 100;
+		}catch(NumberFormatException e) {
+			return null;
+		}
+		
 	}
 
 	public void setBagTokensPrec(String bagTokensPrec) {
@@ -97,7 +113,12 @@ public class TrpErrorRateResult {
 	}
 	
 	public Double getBagTokensRecDouble() {
-		return Double.parseDouble(bagTokensRec.replaceAll("%", "").replaceAll(",", ".")) / 100;
+		try {
+			return Double.parseDouble(bagTokensRec.replaceAll("%", "").replaceAll(",", ".")) / 100;
+		}catch(NumberFormatException e) {
+			return null;
+		}
+		
 	}
 
 	public void setBagTokensRec(String bagTokensRec) {
@@ -109,7 +130,12 @@ public class TrpErrorRateResult {
 	}
 	
 	public Double getBagTokensFDouble() {
-		return Double.parseDouble(bagTokensF.replaceAll("%", "").replaceAll(",", "."));
+		try {
+			return Double.parseDouble(bagTokensF.replaceAll("%", "").replaceAll(",", "."));
+		}catch(NumberFormatException e) {
+			return null;
+		}
+		
 	}
 
 	public void setBagTokensF(String bagTokensF) {
