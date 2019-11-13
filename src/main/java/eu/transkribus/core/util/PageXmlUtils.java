@@ -1423,9 +1423,15 @@ public class PageXmlUtils {
 	
 	public static void simplifyPoints(CoordsType coords, double perc) {
 		if (coords!=null && !StringUtils.isEmpty(coords.getPoints())) {
-			List<Point> pts = PointStrUtils.parsePoints2(coords.getPoints());
-			List<Point> simplified = RamerDouglasPeuckerFilter.filterByPercentageOfPolygonLength(perc, pts);
-			coords.setPoints(PointStrUtils.pointsToString(simplified));
+			try {
+				List<Point> pts = PointStrUtils.parsePoints2(coords.getPoints());
+				RamerDouglasPeuckerFilter f = new RamerDouglasPeuckerFilter(pts);
+				f.setNMin(3); // minmimum number of points
+				List<Point> simplified = f.filterByPercentageOfPolygonLength(perc);
+				coords.setPoints(PointStrUtils.pointsToString(simplified));
+			} catch (Throwable e) {
+				logger.error("Error simplifying points: "+coords.getPoints()+" - skipping simplification!", e);
+			}
 		}
 	}
 	
