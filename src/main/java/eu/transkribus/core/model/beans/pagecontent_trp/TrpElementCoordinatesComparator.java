@@ -50,6 +50,8 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 //			}		
 			
 			boolean performColumnSensitiveComparison = false;
+			boolean sortByXY=false;
+			
 			if (o1 instanceof RegionType) {
 				performColumnSensitiveComparison = true;
 				RegionType r1 = (RegionType) o1;
@@ -76,6 +78,7 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 				coords2 = ((TrpBaselineType) o2).getPoints();
 			}
 			else if (WordType.class.isAssignableFrom(o1.getClass())) {
+				sortByXY=true;
 				WordType w1 = (WordType) o1;
 				WordType w2 = (WordType) o2;
 				
@@ -154,6 +157,9 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 					logger.trace("h3 "+idStr);
 					return compareByYX(pt1.x, pt2.x, pt1.y, pt2.y); 
 				}
+			}
+			else if (sortByXY) {
+				return compareByXY(pt1.x, pt2.x, pt1.y, pt2.y);
 			}
 			else {
 				return compareByYX(pt1.x, pt2.x, pt1.y, pt2.y);
