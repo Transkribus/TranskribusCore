@@ -271,7 +271,7 @@ public class TrpIobBuilder {
 							tagLines = setTagsToList(tagList, tagLines, wordTagList.get(wordCount).getR(), offset ,wordTagList.get(wordCount).getL().length());
 						}
 					}
-					offset += word.length();
+					offset += word.length()+1;
 					
 				}
 			}
