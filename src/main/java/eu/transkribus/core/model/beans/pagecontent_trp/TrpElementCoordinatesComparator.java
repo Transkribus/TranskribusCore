@@ -118,8 +118,13 @@ import eu.transkribus.core.util.PointStrUtils;
 		
 //		performColumnSensitiveComparison = true; // for testing purposes to force column sensitive comparison on all elements
 		
-		if (!forceCompareByYX && performColumnSensitiveComparison) { // FIXME: transitivity broken 
-			return compareByYXIfOverlappingOnXAxis(b1, b2, 0.8d);
+		if (!forceCompareByYX && performColumnSensitiveComparison) { // FIXME: transitivity broken
+//			String id1 = o1 instanceof ITrpShapeType ? ((ITrpShapeType)o1).getId() : "NA";
+//			String id2 = o2 instanceof ITrpShapeType ? ((ITrpShapeType)o2).getId() : "NA";
+//			String idStr = id1+"/"+id2;	
+//			logger.trace("comparing: "+idStr);
+			
+			return compareByYXIfOverlappingOnXAxis(b1, b2);
 			
 //			int v1 = (int) (b1.getX()+(b1.getWidth()/2));
 //			int v2 = (int) (b2.getX()+(b2.getWidth()/2));
@@ -167,13 +172,20 @@ import eu.transkribus.core.util.PointStrUtils;
 		return (yCompare != 0) ? yCompare : Integer.compare(x1, x2);
 	}
 	
-	private int compareByYXIfOverlappingOnXAxis(Rectangle b1, Rectangle b2, double frac) {
-		int o = IntRange.getOverlapLength(b1.x, b1.width, b2.x, b2.width);
-		o = Math.max(o, 0);
-		int minOverlap = (int) (Math.min(b1.width, b2.width)*frac); // fraction of the width of the smaller rectangle
-		minOverlap=20;
-		logger.trace("overlap = "+o+", minOverlap = "+minOverlap);
-		if (o > minOverlap) {
+	private int compareByYXIfOverlappingOnXAxis(Rectangle b1, Rectangle b2) {
+		double xFrac = 0.8d;
+		double yFrac = 0.6d;
+		
+		int ox = IntRange.getOverlapLength(b1.x, b1.width, b2.x, b2.width);
+		int oy = IntRange.getOverlapLength(b1.y, b1.height, b2.y, b2.height);
+		
+		logger.trace("b1.width = "+b1.width+", b2.width = "+b2.width);
+		int minOverlap = (int) (Math.min(b1.width, b2.width)*xFrac); // fraction of the width of the smaller rectangle
+		int minOverlapY = (int) (Math.min(b1.height, b2.height)*yFrac); // fraction of the height of the smaller rectangle
+		logger.trace("minOverlapY = "+minOverlapY+" oy = "+oy);
+		
+		logger.trace("overlap = "+ox+", minOverlap = "+minOverlap);
+		if (ox > minOverlap && oy < minOverlapY) { // sort by yx if *not* overlapping in x-direction and overlapping in y-direction
 			logger.trace("yx compare");
 			return compareByYX(b1.x, b2.x, b1.y, b2.y);
 		}
