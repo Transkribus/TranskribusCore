@@ -327,7 +327,8 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 		}
 		
 		if (doSort){
-				Collections.sort(words, new TrpElementReadingOrderComparator<WordType>(true));
+//				Collections.sort(words, new TrpElementReadingOrderComparator<WordType>(true));
+				TrpShapeTypeUtils.sortShapesByReadingOrderOrCoordinates(words);
 		}
 
 		for (int i=0; i<word.size(); ++i) {

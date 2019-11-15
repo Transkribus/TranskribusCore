@@ -86,6 +86,7 @@ import eu.transkribus.core.model.beans.pagecontent_trp.RegionTypeUtil;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementReadingOrderComparator;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpShapeTypeUtils;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableCellType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
@@ -562,7 +563,8 @@ public class DocxBuilder {
 		
 		//TrpTableRegionType is contained in the regions too
 		List<TrpRegionType> regions = trpPage.getRegions();
-		Collections.sort(regions, new TrpElementReadingOrderComparator<RegionType>(true));
+//		Collections.sort(regions, new TrpElementReadingOrderComparator<RegionType>(true));
+		TrpShapeTypeUtils.sortShapesByReadingOrderOrCoordinates(regions);
 		
 		for (int j=0; j<regions.size(); ++j) {
 			TrpRegionType r = regions.get(j);
