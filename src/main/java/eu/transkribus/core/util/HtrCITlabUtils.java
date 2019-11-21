@@ -24,6 +24,7 @@ public class HtrCITlabUtils {
 	private static final Logger logger = LoggerFactory.getLogger(HtrCITlabUtils.class);
 	public final static String PROVIDER_CITLAB = "CITlab";
 	public final static String PROVIDER_CITLAB_PLUS = "CITlabPlus";
+	public final static String PROVIDER_PYLAIA = "PyLaia";
 
 	public static final String CITLAB_CM_EXT = ".cm";
 
