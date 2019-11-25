@@ -1,50 +1,42 @@
 package eu.transkribus.core.model.builder.iob;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.util.WorkbookUtil;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.io.ExportFilePatternUtils;
 import eu.transkribus.core.io.LocalDocReader;
 import eu.transkribus.core.model.beans.JAXBPageTranscript;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.beans.TrpPage;
 import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.customtags.CustomTag;
-import eu.transkribus.core.model.beans.customtags.CustomTagFactory;
+
 import eu.transkribus.core.model.beans.customtags.CustomTagList;
-import eu.transkribus.core.model.beans.pagecontent.TextLineType;
-import eu.transkribus.core.model.beans.pagecontent.WordType;
-import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
+import eu.transkribus.core.model.beans.customtags.OrganizationTag;
+import eu.transkribus.core.model.beans.customtags.PersonTag;
+import eu.transkribus.core.model.beans.customtags.PlaceTag;
+import eu.transkribus.core.model.beans.pagecontent.MetadataType;
+import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
-import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
-import eu.transkribus.core.model.beans.pagecontent_trp.TrpWordType;
 import eu.transkribus.core.model.builder.ExportCache;
-import eu.transkribus.core.model.builder.ExportUtils;
 import eu.transkribus.core.model.builder.NoTagsException;
 
 
@@ -226,36 +218,168 @@ public class TrpIobBuilder {
 		}
 	}
 	
+	public void importIOBForDoc(TrpDoc doc,File importFile, String pathDir) throws IOException {
+		
+		// Read IOB file line for line and save words + tag in a map
+		List<Pair<String,String>> wordTagList = wordTagsToMap(importFile);
+		
+		logger.info("Size of wordTagList : "+wordTagList.size());
+		
+		List<Pair<String,String>> pairList = new ArrayList<Pair<String,String>>();
+		
+		List<TrpPage> pages = doc.getPages();
+		
+		int wordCount = -1;
+		
+		for(TrpPage page : pages) {
+			
+			
+			final String baseFileName = ExportFilePatternUtils.buildBaseFileName(ExportFilePatternUtils.FILENAME_PATTERN, page);
+			JAXBPageTranscript tr = null;
+			TrpTranscriptMetadata md = page.getCurrentTranscript();
+			tr = new JAXBPageTranscript(md);
+			tr.build();
+			
+			MetadataType mdType = tr.getPage().getPcGtsType().getMetadata();
+			if (mdType == null) {
+				mdType = new MetadataType();
+				tr.getPage().getPcGtsType().setMetadata(mdType);
+			}		
+			
+			TrpPageType t = (TrpPageType)tr.getPage();
+			
+			PcGtsType pc = t.getPcGtsType();
+						
+			List<TrpTextLineType> lines = t.getLines();
+			
+			for(TrpTextLineType line : lines) {
+				
+				CustomTagList tagLines = line.getCustomTagList();
+				List<CustomTag> tagList = tagLines.getIndexedTags();
+				
+				
+				String lineText = line.getUnicodeText();
+				String[] wordToken = lineText.split(" ");
+				int offset = 0;
+				for(int i=0; i < wordToken.length; i++) {
+					wordCount++;
+					String word = wordToken[i].replace(" ", "");
+					
+					if(wordCount < wordTagList.size()) {
+						if(word.equals(wordTagList.get(wordCount).getL().replace(" ", "")) && !wordTagList.get(wordCount).getR().replaceAll(" ","").equals("O") ) {
+							logger.info("Found word and add to tagline ; word : "  +wordTagList.get(wordCount).getL() + " with tag : "+wordTagList.get(wordCount).getR());
+							tagLines = setTagsToList(tagList, tagLines, wordTagList.get(wordCount).getR(), offset ,wordTagList.get(wordCount).getL().length());
+						}
+					}
+					offset += word.length()+1;
+					
+				}
+			}
+			
+			tr.setPageData(t.getPcGtsType());
+			
+			File xmlFile = new File(pathDir  
+					+ File.separator +"page"+File.separator+ baseFileName +".xml");
+			
+			logger.debug("PAGE XMl output file: "+xmlFile.getAbsolutePath());
+			tr.write(xmlFile);
+			
+		}	
+	}
+	
+	private CustomTagList setTagsToList(List<CustomTag> tagList,CustomTagList tagLines, String tagType, int offset, int length){
+		
+		if(tagType.equals("B-PER") || tagType.equals("I-PER")) {
+			PersonTag tag = new  PersonTag( );
+			tag.setOffset(offset);
+			tag.setLength(length);
+			tagLines.addOrMergeTag(tag, null);
+			
+		}else if (tagType.equals("B-LOC") || tagType.equals("I-LOC")) {
+			PlaceTag tag = new  PlaceTag( );
+			tag.setOffset(offset);
+			tag.setLength(length);
+			tagLines.addOrMergeTag(tag, null);
+			
+			
+		}else if (tagType.equals("B-ORG") || tagType.equals("I-ORG")) {
+			OrganizationTag tag = new  OrganizationTag( );
+			tag.setOffset(offset);
+			tag.setLength(length);
+			tagLines.addOrMergeTag(tag, null);
+		}
+		
+		return tagLines;
+	}
+	
+	private List<Pair<String,String>> wordTagsToMap(File importFile) throws IOException {
+
+		List<Pair<String,String>> wordTagList = new ArrayList<Pair<String,String>>();
+		BufferedReader br = new BufferedReader(new FileReader(importFile));
+		try {
+		    String line;
+		    while ((line = br.readLine()) != null) {
+		       String[] list = line.split("\\t");
+		       wordTagList.add(new Pair<String, String>(list[0].replaceAll(" ",""), list[1].replaceAll(" ","")));
+		    }
+		} finally {
+		    br.close();
+		}
+		return wordTagList;
+	}
+	
 	
 	public static void main(String[] args) throws Exception {
 		
 
-		TrpDoc docWithTags = LocalDocReader.load("/home/lateknight/Documents/Master_Thesis/datensatz/151202/ONB_nfp_18950706_duplicated/");
-		
-		/*
-		 * here we store the page transcripts for all later exports regarding to the wished version status
-		 * if status can not be found -> we get the latest one, so values 
-		 *  
-		 */
-		
-		Set<Integer> pageIndices = null; // null means every page
-		
-		//pageIndices must be set here instead of being null because it gets used in ExportUtils
-		if (pageIndices == null){
-			pageIndices = new HashSet<Integer>();
-			for (int i = 0; i<docWithTags.getNPages(); i++){
-				pageIndices.add(i);
-			}
-		}
-		ExportCache exportCache = new ExportCache();
-//		exportCache.storePageTranscripts4Export(docWithTags, pageIndices, null, "Latest", -1, null);
-		exportCache.storeCustomTagMapForDoc(docWithTags, false, pageIndices, null, false);
-		
+//		TrpDoc docWithTags = LocalDocReader.load("/home/lateknight/Documents/Master_Thesis/datensatz/151202/ONB_nfp_18950706_duplicated/");
+//		
+//		/*
+//		 * here we store the page transcripts for all later exports regarding to the wished version status
+//		 * if status can not be found -> we get the latest one, so values 
+//		 *  
+//		 */
+//		
+//		Set<Integer> pageIndices = null; // null means every page
+//		
+//		//pageIndices must be set here instead of being null because it gets used in ExportUtils
+//		if (pageIndices == null){
+//			pageIndices = new HashSet<Integer>();
+//			for (int i = 0; i<docWithTags.getNPages(); i++){
+//				pageIndices.add(i);
+//			}
+//		}
+//		ExportCache exportCache = new ExportCache();
+////		exportCache.storePageTranscripts4Export(docWithTags, pageIndices, null, "Latest", -1, null);
+//		exportCache.storeCustomTagMapForDoc(docWithTags, false, pageIndices, null, false);
+//		
 		TrpIobBuilder iob = new TrpIobBuilder();
-		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Desktop/TagsText.txt"), pageIndices, null, exportCache);
+//		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Desktop/TagsText.txt"), pageIndices, null, exportCache);
+//		
+//		System.out.println("finished");
 		
-		System.out.println("finished");
+		//TODO write test for IOB import
+		
+		
+		TrpDoc docWithoutTags = LocalDocReader.load("/home/lateknight/Desktop/Iob_Import/ONB_nfp_18950706_NE_GT_duplicated/");
+		File file = new File("/home/lateknight/Desktop/Iob_Import/ONB_NE_GT_tags.txt");
+		
+		iob.importIOBForDoc(docWithoutTags, file, "/home/lateknight/Desktop/Iob_Import/ONB_nfp_18950706_NE_GT_duplicated/");
+	}
+	
+	public class Pair<L,R> {
+	    private L l;
+	    private R r;
+	    public Pair(L l, R r){
+	        this.l = l;
+	        this.r = r;
+	    }
+	    public L getL(){ return l; }
+	    public R getR(){ return r; }
+	    public void setL(L l){ this.l = l; }
+	    public void setR(R r){ this.r = r; }
 	}
 
 
 }
+

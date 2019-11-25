@@ -1,6 +1,5 @@
 package eu.transkribus.core.model.beans.pagecontent_trp;
 
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Comparator;
 
@@ -11,23 +10,26 @@ import org.slf4j.LoggerFactory;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
-import eu.transkribus.core.util.GeomUtils;
 import eu.transkribus.core.util.IntRange;
 import eu.transkribus.core.util.PointStrUtils;
 
-/*
- * this updated version should work for single column pages but also for multi column pages
+/**
+ * Updated version (should) sort *regions* according to multi-column order 
+ *  
+ * @fixme visibility is set to package for now because the multi-column-sensitive sorting is non-transitive for degenerate cases and thus you should use
+ * TrpShapeTypeUtils::sortShapesByCoordinates where Exceptions are handled!
+ * @see {@link TrpShapeTypeUtils#sortShapesByReadingOrderOrCoordinates(java.util.List)}
  */
-public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
+ class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 	private final static Logger logger = LoggerFactory.getLogger(TrpElementCoordinatesComparator.class);
 	
-	Boolean compareByYX = null;
+	boolean forceCompareByYX = false;
 
 	public TrpElementCoordinatesComparator() {
 	}
 	
-	public TrpElementCoordinatesComparator(boolean compareByYX) {
-		this.compareByYX=compareByYX;
+	public TrpElementCoordinatesComparator(boolean forceCompareByYX) {
+		this.forceCompareByYX=forceCompareByYX;
 	}
 	
 	private boolean isRegionLineOrWord(T o) {
@@ -41,119 +43,157 @@ public class TrpElementCoordinatesComparator<T> implements Comparator<T> {
 		
 		logger.trace("compare in TrpElementCoordinatesComparator4Columns");
 		
-//		try {
-			String coords1="", coords2="";
-						
+		String coords1="", coords2="";
+					
 //			if (o1 instanceof PrintSpaceType) {
 //				coords1 = ((TrpPrintSpaceType) o1).getCoords().getPoints();
 //				coords2 = ((TrpPrintSpaceType) o2).getCoords().getPoints();
 //			}		
-						
-			if (o1 instanceof RegionType) {
-				RegionType r1 = (RegionType) o1;
-				RegionType r2 = (RegionType) o2;
+		
+		boolean performColumnSensitiveComparison = false;
+		boolean sortByXY=false;
+		
+		if (o1 instanceof RegionType) {
+			performColumnSensitiveComparison = true;
+			RegionType r1 = (RegionType) o1;
+			RegionType r2 = (RegionType) o2;
 //				System.out.println("region1 id: " + r1.getId());
 //				System.out.println("region2 id: " + r2.getId());
-				if (r1.getCoords() != null && r2.getCoords() != null) {
-					coords1 = r1.getCoords().getPoints();
-					coords2 = r2.getCoords().getPoints();					
-				}
+			if (r1.getCoords() != null && r2.getCoords() != null) {
+				coords1 = r1.getCoords().getPoints();
+				coords2 = r2.getCoords().getPoints();					
 			}
-			else if (TextLineType.class.isAssignableFrom(o1.getClass())) {
-				// if existing, take baseline to compare position of lines
-				if (((TextLineType) o1).getBaseline() != null && ((TextLineType) o2).getBaseline() != null){
-					coords1 = ((TextLineType) o1).getBaseline().getPoints();
-					coords2 = ((TextLineType) o2).getBaseline().getPoints();
-				} else { //fall back if there are no baselines
-					coords1 = ((TextLineType) o1).getCoords().getPoints();
-					coords2 = ((TextLineType) o2).getCoords().getPoints();					
-				}
+		}
+		else if (TextLineType.class.isAssignableFrom(o1.getClass())) {
+			// if existing, take baseline to compare position of lines
+			if (((TextLineType) o1).getBaseline() != null && ((TextLineType) o2).getBaseline() != null){
+				coords1 = ((TextLineType) o1).getBaseline().getPoints();
+				coords2 = ((TextLineType) o2).getBaseline().getPoints();
+			} else { //fall back if there are no baselines
+				coords1 = ((TextLineType) o1).getCoords().getPoints();
+				coords2 = ((TextLineType) o2).getCoords().getPoints();					
 			}
-			else if (o1 instanceof TrpBaselineType) {
-				coords1 = ((TrpBaselineType) o1).getPoints();
-				coords2 = ((TrpBaselineType) o2).getPoints();
-			}
-			else if (WordType.class.isAssignableFrom(o1.getClass())) {
-				WordType w1 = (WordType) o1;
-				WordType w2 = (WordType) o2;
-				
-				if (w1.getCoords()!=null && w2.getCoords()!=null) {
-					coords1 = w1.getCoords().getPoints();
-					coords2 = w2.getCoords().getPoints();					
-				}
-
-			}
+		}
+		else if (o1 instanceof TrpBaselineType) {
+			coords1 = ((TrpBaselineType) o1).getPoints();
+			coords2 = ((TrpBaselineType) o2).getPoints();
+		}
+		else if (WordType.class.isAssignableFrom(o1.getClass())) {
+			sortByXY=true;
+			WordType w1 = (WordType) o1;
+			WordType w2 = (WordType) o2;
 			
+			if (w1.getCoords()!=null && w2.getCoords()!=null) {
+				coords1 = w1.getCoords().getPoints();
+				coords2 = w2.getCoords().getPoints();					
+			}
+		}
+		
 //			if (coords1.isEmpty() || coords2.isEmpty()) {
 //				throw new Exception("No coordinates in one of the objects - should not happen!");
 //			}
+		
+		// determine orientation of (parent) text regions
+		Double orientationInRadiants = null;
+		if (o1 instanceof ITrpShapeType && o2 instanceof ITrpShapeType && !(o1 instanceof RegionType) && !(o2 instanceof RegionType)) {
+			TrpTextRegionType tr1 = TrpShapeTypeUtils.getTextRegion((ITrpShapeType) o1);
+			TrpTextRegionType tr2 = TrpShapeTypeUtils.getTextRegion((ITrpShapeType) o2);
 			
-			// determine orientation of (parent) text regions
-			Float orientation = null;
-			if (o1 instanceof ITrpShapeType && o2 instanceof ITrpShapeType && !(o1 instanceof RegionType) && !(o2 instanceof RegionType)) {
-				TrpTextRegionType tr1 = TrpShapeTypeUtils.getTextRegion((ITrpShapeType) o1);
-				TrpTextRegionType tr2 = TrpShapeTypeUtils.getTextRegion((ITrpShapeType) o2);
-				
-				if (tr1!=null && tr2!=null && StringUtils.equals(tr1.getId(), tr2.getId()) && tr1.getOrientation()!=null) {
-					orientation = tr1.getOrientation();
-				}
+			if (tr1!=null && tr2!=null && StringUtils.equals(tr1.getId(), tr2.getId()) && tr1.getOrientation()!=null) {
+				orientationInRadiants = Math.toRadians(tr1.getOrientation());
 			}
-			// --------------------------
+		}
+		// --------------------------
+		
+		if (orientationInRadiants!=null) {
+			coords1 = PointStrUtils.rotatePoints(coords1, orientationInRadiants);
+			coords2 = PointStrUtils.rotatePoints(coords2, orientationInRadiants);
+			logger.trace("orientation set: "+orientationInRadiants+" rotated points: "+coords1+", "+coords2);
+		}
+		
+		Rectangle b1 = PointStrUtils.getBoundingBox(coords1);
+		Rectangle b2 = PointStrUtils.getBoundingBox(coords2);
+//			Point pt1 = new Point(b1.x, b1.y);
+//			Point pt2 = new Point(b2.x, b2.y);	
+		
+//		performColumnSensitiveComparison = true; // for testing purposes to force column sensitive comparison on all elements
+		
+		if (!forceCompareByYX && performColumnSensitiveComparison) { // FIXME: transitivity broken
+//			String id1 = o1 instanceof ITrpShapeType ? ((ITrpShapeType)o1).getId() : "NA";
+//			String id2 = o2 instanceof ITrpShapeType ? ((ITrpShapeType)o2).getId() : "NA";
+//			String idStr = id1+"/"+id2;	
+//			logger.trace("comparing: "+idStr);
 			
-			java.awt.Polygon p1 = new java.awt.Polygon();
-			try {
-				for (java.awt.Point p : PointStrUtils.parsePoints(coords1))
-					p1.addPoint(p.x, p.y);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
+			return compareByYXIfOverlappingOnXAxis(b1, b2);
 			
-			java.awt.Polygon p2 = new java.awt.Polygon();
-			try {
-				for (java.awt.Point p : PointStrUtils.parsePoints(coords2))
-					p2.addPoint(p.x, p.y);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-			
-			Rectangle b1 = p1.getBounds();
-			Rectangle b2 = p2.getBounds();
-			
-			Point pt1 = new Point(b1.x, b1.y);
-			Point pt2 = new Point(b2.x, b2.y);
-			
-			if (orientation != null) {
-				pt1 = GeomUtils.rotate(pt1, orientation);
-				pt2 = GeomUtils.rotate(pt2, orientation);
-				
-				logger.trace("orientation set: "+orientation+" rotated points: "+pt1+", "+pt2);
-			}
-			
-			//start point + widht / 2: should help to consider the columns
-//			System.out.println("b1.getX() " + b1.getX());
-//			System.out.println("b1.getWidth()) " + b1.getWidth());
-//			System.out.println("pt2.x " + pt2.x);
-//			System.out.println("b2.x+b2.getWidth() "+ (b2.x+b2.getWidth()));
-			double v1 = b1.getX()+(b1.getWidth()/2);
-			if ( v1 < pt2.x){
-				//System.out.println("region1 wins");
-				return -1;
-			}
-			else if(v1 > (b2.x+b2.getWidth())){
-				return 1;
-			}
-			else{	
-				//System.out.println("yx compare");
-				return compareByYX(pt1.x, pt2.x, pt1.y, pt2.y); 
-			}
+//			int v1 = (int) (b1.getX()+(b1.getWidth()/2));
+//			int v2 = (int) (b2.getX()+(b2.getWidth()/2));
+//			int l = 20;
+//			
+//			if (Math.abs(v1-v2) < l) {
+//				return compareByYX(b1.x, b2.x, b1.y, b2.y); 
+//			}
+//			else {
+//				return Integer.compare(v1, v2);
+//			}
+
+//			String id1 = o1 instanceof ITrpShapeType ? ((ITrpShapeType)o1).getId() : "NA";
+//			String id2 = o2 instanceof ITrpShapeType ? ((ITrpShapeType)o2).getId() : "NA";
+//			String idStr = id1+"/"+id2;
+//			if ( v1 < b2.x) {
+//				logger.debug("h1 "+idStr);
+//				return -1;
+//			}
+//			else if(v1 > (b2.x+b2.getWidth())) {
+//				logger.debug("h2 "+idStr);
+//				return 1;
+//			}
+//			else {
+//				logger.debug("h3 "+idStr);
+//				return compareByYX(b1.x, b2.x, b1.y, b2.y); 
+//			}
+		}
+		else if (sortByXY) {
+			return compareByXY(b1.x, b2.x, b1.y, b2.y);
+		}
+		else {
+			return compareByYX(b1.x, b2.x, b1.y, b2.y);
+		}
 			
 	}
 	
 	/** First compare by y, then x */
 	private int compareByYX(int x1, int x2, int y1, int y2) {
-		int yCompare = Integer.compare(y1, y2);
+//		int yCompare = Integer.compare(y1, y2);
 		//System.out.println("yCompare " +yCompare);
-		return (yCompare != 0) ? yCompare : -1;
+//		return (yCompare != 0) ? yCompare : -1;
+		
+		int yCompare = Integer.compare(y1, y2);
+		return (yCompare != 0) ? yCompare : Integer.compare(x1, x2);
+	}
+	
+	private int compareByYXIfOverlappingOnXAxis(Rectangle b1, Rectangle b2) {
+		double xFrac = 0.8d;
+		double yFrac = 0.6d;
+		
+		int ox = IntRange.getOverlapLength(b1.x, b1.width, b2.x, b2.width);
+		int oy = IntRange.getOverlapLength(b1.y, b1.height, b2.y, b2.height);
+		
+		logger.trace("b1.width = "+b1.width+", b2.width = "+b2.width);
+		int minOverlap = (int) (Math.min(b1.width, b2.width)*xFrac); // fraction of the width of the smaller rectangle
+		int minOverlapY = (int) (Math.min(b1.height, b2.height)*yFrac); // fraction of the height of the smaller rectangle
+		logger.trace("minOverlapY = "+minOverlapY+" oy = "+oy);
+		
+		logger.trace("overlap = "+ox+", minOverlap = "+minOverlap);
+		if (ox > minOverlap && oy < minOverlapY) { // sort by yx if *not* overlapping in x-direction and overlapping in y-direction
+			logger.trace("yx compare");
+			return compareByYX(b1.x, b2.x, b1.y, b2.y);
+		}
+		else {
+			logger.trace("xy compare");
+//			return compareByXY(b1.x, b2.x, b1.y, b2.y);
+			return Integer.compare(b1.x, b2.x);
+		}
 	}
 		
 	private int compareByYOverlap(Rectangle b1, Rectangle b2, double frac) {

@@ -33,6 +33,7 @@ import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementReadingOrderComparator;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpShapeTypeUtils;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
@@ -132,7 +133,8 @@ public class TrpTxtBuilder {
 		
 		//TrpTableRegionType is contained in the regions too
 		List<TrpRegionType> regions = trpPage.getRegions();
-		Collections.sort(regions, new TrpElementReadingOrderComparator<RegionType>(true));
+//		Collections.sort(regions, new TrpElementReadingOrderComparator<RegionType>(true));
+		TrpShapeTypeUtils.sortShapesByReadingOrderOrCoordinates(regions);
 		
 		List<String> content = new ArrayList<String>();
 		

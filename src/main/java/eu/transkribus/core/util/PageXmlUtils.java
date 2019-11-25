@@ -20,7 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -76,7 +75,6 @@ import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
 import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
-import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementCoordinatesComparator;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpObjectFactory;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
@@ -691,9 +689,11 @@ public class PageXmlUtils {
 			logger.error("There are no textLines to copy to in new Region " + newTr.getId());
 			return;
 		}
-		TrpElementCoordinatesComparator<TextLineType> comp = new TrpElementCoordinatesComparator<>();
-		Collections.sort(oldLines, comp);
-		Collections.sort(newLines, comp);
+//		TrpElementCoordinatesComparator<TextLineType> comp = new TrpElementCoordinatesComparator<>();
+//		Collections.sort(oldLines, comp);
+		TrpShapeTypeUtils.sortShapesByCoordinates(oldLines, false);
+//		Collections.sort(newLines, comp);
+		TrpShapeTypeUtils.sortShapesByCoordinates(newLines, false);
 		for(int i = 0; i < oldLines.size(); i++){
 			TextLineType l = oldLines.get(i);
 			if(i < newLines.size()){
@@ -956,12 +956,13 @@ public class PageXmlUtils {
 
 	public static String getFulltextFromLines(PcGtsType pc) {
 		List<TextRegionType> regions = PageXmlUtils.getTextRegions(pc);
-		TrpElementCoordinatesComparator<TextLineType> comp = new TrpElementCoordinatesComparator<>();
+//		TrpElementCoordinatesComparator<TextLineType> comp = new TrpElementCoordinatesComparator<>();
 		StringBuilder sb = new StringBuilder();
 		for(TextRegionType r : regions){
 			List<TextLineType> lines = r.getTextLine();
 			if(lines != null && !lines.isEmpty()){
-				Collections.sort(lines, comp);
+//				Collections.sort(lines, comp);
+				TrpShapeTypeUtils.sortShapesByCoordinates(lines, false);
 				for(TextLineType l : lines){
 					if(l.getTextEquiv() != null && l.getTextEquiv().getUnicode() != null){
 						sb.append(l.getTextEquiv().getUnicode() + " ");
@@ -1112,8 +1113,9 @@ public class PageXmlUtils {
 			.forEach(l -> matchingLines.add(l));
 		}
 		if(matchingLines.size() > 1) {
-			TrpElementCoordinatesComparator<TextLineType> comp = new TrpElementCoordinatesComparator<>(true);
-			Collections.sort(matchingLines, comp);
+//			TrpElementCoordinatesComparator<TextLineType> comp = new TrpElementCoordinatesComparator<>(true);
+//			Collections.sort(matchingLines, comp);
+			TrpShapeTypeUtils.sortShapesByCoordinates(matchingLines, true);
 		}
 		return matchingLines;
 	}
@@ -1423,9 +1425,15 @@ public class PageXmlUtils {
 	
 	public static void simplifyPoints(CoordsType coords, double perc) {
 		if (coords!=null && !StringUtils.isEmpty(coords.getPoints())) {
-			List<Point> pts = PointStrUtils.parsePoints2(coords.getPoints());
-			List<Point> simplified = RamerDouglasPeuckerFilter.filterByPercentageOfPolygonLength(perc, pts);
-			coords.setPoints(PointStrUtils.pointsToString(simplified));
+			try {
+				List<Point> pts = PointStrUtils.parsePoints2(coords.getPoints());
+				RamerDouglasPeuckerFilter f = new RamerDouglasPeuckerFilter(pts);
+				f.setNMin(3); // minmimum number of points
+				List<Point> simplified = f.filterByPercentageOfPolygonLength(perc);
+				coords.setPoints(PointStrUtils.pointsToString(simplified));
+			} catch (Throwable e) {
+				logger.error("Error simplifying points: "+coords.getPoints()+" - skipping simplification!", e);
+			}
 		}
 	}
 	
@@ -1569,8 +1577,42 @@ public class PageXmlUtils {
 		return p;
 	}
 	
+	public static PcGtsType rectifyAllRegions(PcGtsType pc) {
+		TrpPageType page = (TrpPageType) pc.getPage();
+		for (RegionType r : page.getRegions()) {
+			if (r.getCoords()!=null) {
+				r.getCoords().setPoints(PointStrUtils.getBoundsPointStr(r.getCoords().getPoints()));
+			}
+		}
+		return pc;
+	}
+	
+	public static PageXmlFileProcessor rectifyAllRegions(PageXmlFileProcessor p) throws XPathExpressionException, SAXException, IOException {
+		Document d = p.getDocument();
+		NodeList nl = p.getRegions(d);
+		for (int i=0; i<nl.getLength(); ++i) {
+			Node n = nl.item(i);
+			try {
+				String id = p.getNodeId(n);
+				Node points = p.getNodeCoordsPoints(n);
+				String coordsStr = points.getNodeValue();
+				String coordsBounds = PointStrUtils.getBoundsPointStr(coordsStr);
+				logger.debug("id = "+id+"coordsStr = "+coordsStr+" coordsBounds = "+coordsBounds);
+				points.setNodeValue(coordsBounds);
+			} catch (Exception e) {
+				logger.error("Could not rectify region "+n+" - "+e.getMessage()+" - skipping!");
+			}
+		}
+		return p;
+	}
+	
 	public static void main(String[] args) throws Exception {
-		PageXmlUtils.filterOutSmallRegions("https://files.transkribus.eu/Get?id=AVHESCOEDXZYMYNPBOPGMEAR", 8000);
+		PageXmlFileProcessor p = PageXmlUtils.rectifyAllRegions(new PageXmlFileProcessor("https://files.transkribus.eu/Get?id=XTQBSHYLZUPUGOMECBOAVDDA"));
+		
+//		p.writeToFile(p.getDocument(), new File("c:/tmp/test_out.xml"), true);
+		
+		
+//		PageXmlUtils.filterOutSmallRegions("https://files.transkribus.eu/Get?id=AVHESCOEDXZYMYNPBOPGMEAR", 8000);
 		
 //		applyTextToLines(null, "I am a\ntext\n\nover\nmultiple   \nlines ! \n");
 		
@@ -1595,4 +1637,5 @@ public class PageXmlUtils {
 		
 		
 	}
+
 }

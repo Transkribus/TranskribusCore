@@ -68,6 +68,7 @@ import eu.transkribus.core.model.beans.pagecontent_trp.RegionTypeUtil;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpBaselineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementReadingOrderComparator;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpShapeTypeUtils;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableCellType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
@@ -409,7 +410,8 @@ public class TrpPdfDocument extends APdfDocument {
 			 * use reading order comparator for sorting since at this time reading order is more trustable
 			 * other sorting is not transitive and seldomly produces "Comparison violates its general contract" exception
 			 */
-			Collections.sort(regions, new TrpElementReadingOrderComparator<RegionType>(true));
+//			Collections.sort(regions, new TrpElementReadingOrderComparator<RegionType>(true));
+			TrpShapeTypeUtils.sortShapesByReadingOrderOrCoordinates(regions);
 	
 			for(RegionType r : regions){
 				//TODO add paths for tables etc.
@@ -526,8 +528,8 @@ public class TrpPdfDocument extends APdfDocument {
 		 * use reading order comparator for sorting since at this time reading order is more trustable
 		 * other sorting is not transitive and seldomly produces "Comparison violates its general contract" exception
 		 */
-		Collections.sort(regions, new TrpElementReadingOrderComparator<RegionType>(true));
-		//Collections.sort(regions, new TrpElementCoordinatesComparator<RegionType>());
+//		Collections.sort(regions, new TrpElementReadingOrderComparator<RegionType>(true));
+		TrpShapeTypeUtils.sortShapesByReadingOrderOrCoordinates(regions);
 		
 		float textBlockXStart = 0;
 
@@ -808,7 +810,8 @@ public class TrpPdfDocument extends APdfDocument {
 			float lineStartY = 0;
 			
 			//sort according to reading order
-			Collections.sort(lines, new TrpElementReadingOrderComparator<TextLineType>(true));
+//			Collections.sort(lines, new TrpElementReadingOrderComparator<TextLineType>(true));
+			TrpShapeTypeUtils.sortShapesByReadingOrderOrCoordinates(lines);
 			
 			double minY = 0;
 			double maxY = 0;
@@ -1617,7 +1620,8 @@ public class TrpPdfDocument extends APdfDocument {
 		if(lines != null && !lines.isEmpty()){
 			//sort according to reading order
 
-			Collections.sort(lines, new TrpElementReadingOrderComparator<TextLineType>(true));
+//			Collections.sort(lines, new TrpElementReadingOrderComparator<TextLineType>(true));
+			TrpShapeTypeUtils.sortShapesByReadingOrderOrCoordinates(lines);
 			
 			double baseLineMeanY = 0;
 			double baseLineMeanYPrev = 0;

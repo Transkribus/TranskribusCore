@@ -1,5 +1,9 @@
 package eu.transkribus.core.model.beans.job.enums;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,6 +114,10 @@ public enum JobImpl {
 			logger.warn("Could not parse JobImpl from string: "+str+" - returning null value!");
 			return null;
 		}
+	}
+	
+	public static List<String> valuesAsString() {
+		return Arrays.stream(JobImpl.values()).map(ji -> ji.toString()).collect(Collectors.toList());
 	}
 	
 	public static void main(String[] args) {

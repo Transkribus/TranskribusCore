@@ -19,11 +19,27 @@ public class TrpShapeTypeUtils {
 	public static <T> void sortShapesByReadingOrderOrCoordinates(List<T> shapes) {
 		try {
 			Collections.sort(shapes, new TrpElementReadingOrderComparator<T>(true));
-		} catch (Exception e) {
-			logger.warn("could not sort regions by reading order, exception = "+e.getMessage() +" - now sorting by coordinates!");
-			Collections.sort(shapes, new TrpElementCoordinatesComparator<T>(true));
+		}
+		catch (Exception e) {
+			logger.warn("could not sort regions by reading order, exception = "+e.getMessage() +" - now sorting by yx coordinates(1)!");
+			sortShapesByCoordinates(shapes, true);
 		}
 	}
+	
+	public static <T> void sortShapesByCoordinates(List<T> shapes, boolean forceCompareByYX) {
+		try {
+			Collections.sort(shapes, new TrpElementCoordinatesComparator<T>(forceCompareByYX));
+		}
+		catch (Exception e) {
+			logger.warn("could not coordinates, exception = "+e.getMessage() +" - now sorting by yx coordinates(2)!");
+			try {
+				Collections.sort(shapes, new TrpElementCoordinatesComparator<T>(true));
+			} catch (Exception e1) {
+				logger.error("Still could not sort shapes -> should not happen here: "+e1.getMessage()+" - skipping sorting", e1);
+			}
+		}
+	}
+	
 	
 	public static boolean removeShape(ITrpShapeType s) {
 		if (s == null) {
@@ -162,7 +178,8 @@ public class TrpShapeTypeUtils {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void applyReadingOrderFromCoordinates(List<? extends ITrpShapeType> shapes, boolean fireEvents, boolean deleteReadingOrder, boolean recursive) {
 		//sort with coordinates
-		Collections.sort(shapes, new TrpElementCoordinatesComparator());
+//		Collections.sort(shapes, new TrpElementCoordinatesComparator());
+		TrpShapeTypeUtils.sortShapesByCoordinates(shapes, false);
 		
 		int i=0;
 		for (ITrpShapeType st : shapes) {

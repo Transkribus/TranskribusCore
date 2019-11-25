@@ -11,6 +11,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.util.LogUtil.Level;
+
 /**
  * Polygon simplification using Ramer-Douglas-Peucker algorithm with specified
  * tolerance
@@ -23,8 +25,10 @@ public class RamerDouglasPeuckerFilter {
 	private static Logger logger = LoggerFactory.getLogger(RamerDouglasPeuckerFilter.class);
 	
 	public final static int DEFAULT_PERC_OF_POLYGON_LENGTH = 1;
+	public final static int DEFAULT_MIN_POINTS = 3;
 
-	List<Point> pts;
+	private List<Point> pts;
+	private int nMin = DEFAULT_MIN_POINTS;
 
 	public RamerDouglasPeuckerFilter(List<Point> pts) {
 		Objects.requireNonNull(pts);
@@ -36,16 +40,26 @@ public class RamerDouglasPeuckerFilter {
 	}
 
 	public List<Point> filter(double eps) {
-		return filter(eps, pts);
+		return filter(eps, pts, nMin);
+	}
+	
+	public void setNMin(int nMin) {
+		this.nMin = nMin;
 	}
 	
 	public static List<Point> filterByPercentageOfPolygonLength(double percentOfLength, List<Point> pts) {
 		double eps = (GeomUtils.getPolygonLength(pts) * percentOfLength)/100.0d;
-		return filter(eps, pts);
+		return filter(eps, pts, DEFAULT_MIN_POINTS);
 	}
 	
-	public static List<Point> filter(double eps, List<Point> pts) {
-		logger.debug("filter, n-pts = "+pts.size());
+	public static List<Point> filter(double eps, List<Point> pts, int nMin) {
+		eps = Math.max(1e-4d, eps);
+		logger.debug("filter, n-pts = "+pts.size()+", eps = "+eps+", nMin = "+nMin);
+		
+		if (pts.size() <= nMin) {
+			logger.debug("n-pts <= "+nMin+" -> not simplifiying!");
+			return pts;
+		}
 		
 		Stack<Pair<Integer, Integer>> indexStack = new Stack<>();
 		indexStack.push(Pair.of(0, pts.size()-1));
@@ -80,7 +94,6 @@ public class RamerDouglasPeuckerFilter {
 			}
 		}
 		
-		logger.debug("n-pts-filtered = "+simpl.size());
 		return simpl;
 	}
 
