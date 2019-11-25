@@ -4,6 +4,7 @@ import java.awt.Rectangle;
 import java.util.Comparator;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,23 +94,9 @@ import eu.transkribus.core.util.PointStrUtils;
 //				throw new Exception("No coordinates in one of the objects - should not happen!");
 //			}
 		
-		// determine orientation of (parent) text regions
-		Double orientationInRadiants = null;
-		if (o1 instanceof ITrpShapeType && o2 instanceof ITrpShapeType && !(o1 instanceof RegionType) && !(o2 instanceof RegionType)) {
-			TrpTextRegionType tr1 = TrpShapeTypeUtils.getTextRegion((ITrpShapeType) o1);
-			TrpTextRegionType tr2 = TrpShapeTypeUtils.getTextRegion((ITrpShapeType) o2);
-			
-			if (tr1!=null && tr2!=null && StringUtils.equals(tr1.getId(), tr2.getId()) && tr1.getOrientation()!=null) {
-				orientationInRadiants = Math.toRadians(tr1.getOrientation());
-			}
-		}
-		// --------------------------
-		
-		if (orientationInRadiants!=null) {
-			coords1 = PointStrUtils.rotatePoints(coords1, orientationInRadiants);
-			coords2 = PointStrUtils.rotatePoints(coords2, orientationInRadiants);
-			logger.trace("orientation set: "+orientationInRadiants+" rotated points: "+coords1+", "+coords2);
-		}
+		Pair<String, String> fixedCoords = TrpShapeTypeUtils.invertCoordsCommonRegionOrientation(coords1, coords2, o1, o2);
+		coords1 = fixedCoords.getLeft();
+		coords2 = fixedCoords.getRight();		
 		
 		Rectangle b1 = PointStrUtils.getBoundingBox(coords1);
 		Rectangle b2 = PointStrUtils.getBoundingBox(coords2);

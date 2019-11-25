@@ -4,9 +4,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpTextChangedEvent;
 import eu.transkribus.core.util.CoreUtils;
@@ -38,6 +41,35 @@ public class TrpShapeTypeUtils {
 				logger.error("Still could not sort shapes -> should not happen here: "+e1.getMessage()+" - skipping sorting", e1);
 			}
 		}
+	}
+	
+	public static void sortShapesByXY(List<ITrpShapeType> shapes) {
+		try {
+			Collections.sort(shapes, new TrpShapeTypeXYComparator());
+		}
+		catch (Exception e) {
+			logger.error("Could not sort shape by XY coordinates - skipping!", e);
+		}
+	}
+	
+	public static Pair<String, String> invertCoordsCommonRegionOrientation(String coords1, String coords2, Object o1, Object o2) {
+		Double orientationInRadiants = null;
+		if (o1 instanceof ITrpShapeType && o2 instanceof ITrpShapeType && !(o1 instanceof RegionType) && !(o2 instanceof RegionType)) {
+			TrpTextRegionType tr1 = TrpShapeTypeUtils.getTextRegion((ITrpShapeType) o1);
+			TrpTextRegionType tr2 = TrpShapeTypeUtils.getTextRegion((ITrpShapeType) o2);
+			
+			if (tr1!=null && tr2!=null && StringUtils.equals(tr1.getId(), tr2.getId()) && tr1.getOrientation()!=null) {
+				orientationInRadiants = Math.toRadians(tr1.getOrientation());
+			}
+		}
+		
+		if (orientationInRadiants!=null) {
+			coords1 = PointStrUtils.rotatePoints(coords1, orientationInRadiants);
+			coords2 = PointStrUtils.rotatePoints(coords2, orientationInRadiants);
+			logger.trace("orientation set: "+orientationInRadiants+" rotated points: "+coords1+", "+coords2);
+		}
+		
+		return Pair.of(coords1, coords2);
 	}
 	
 	
