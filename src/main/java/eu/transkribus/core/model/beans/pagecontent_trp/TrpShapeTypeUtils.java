@@ -4,9 +4,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpTextChangedEvent;
 import eu.transkribus.core.util.CoreUtils;
@@ -19,11 +22,56 @@ public class TrpShapeTypeUtils {
 	public static <T> void sortShapesByReadingOrderOrCoordinates(List<T> shapes) {
 		try {
 			Collections.sort(shapes, new TrpElementReadingOrderComparator<T>(true));
-		} catch (Exception e) {
-			logger.warn("could not sort regions by reading order, exception = "+e.getMessage() +" - now sorting by coordinates!");
-			Collections.sort(shapes, new TrpElementCoordinatesComparator<T>(true));
+		}
+		catch (Exception e) {
+			logger.warn("could not sort regions by reading order, exception = "+e.getMessage() +" - now sorting by yx coordinates(1)!");
+			sortShapesByCoordinates(shapes, true);
 		}
 	}
+	
+	public static <T> void sortShapesByCoordinates(List<T> shapes, boolean forceCompareByYX) {
+		try {
+			Collections.sort(shapes, new TrpElementCoordinatesComparator<T>(forceCompareByYX));
+		}
+		catch (Exception e) {
+			logger.warn("could not coordinates, exception = "+e.getMessage() +" - now sorting by yx coordinates(2)!");
+			try {
+				Collections.sort(shapes, new TrpElementCoordinatesComparator<T>(true));
+			} catch (Exception e1) {
+				logger.error("Still could not sort shapes -> should not happen here: "+e1.getMessage()+" - skipping sorting", e1);
+			}
+		}
+	}
+	
+	public static void sortShapesByXY(List<ITrpShapeType> shapes) {
+		try {
+			Collections.sort(shapes, new TrpShapeTypeXYComparator());
+		}
+		catch (Exception e) {
+			logger.error("Could not sort shape by XY coordinates - skipping!", e);
+		}
+	}
+	
+	public static Pair<String, String> invertCoordsCommonRegionOrientation(String coords1, String coords2, Object o1, Object o2) {
+		Double orientationInRadiants = null;
+		if (o1 instanceof ITrpShapeType && o2 instanceof ITrpShapeType && !(o1 instanceof RegionType) && !(o2 instanceof RegionType)) {
+			TrpTextRegionType tr1 = TrpShapeTypeUtils.getTextRegion((ITrpShapeType) o1);
+			TrpTextRegionType tr2 = TrpShapeTypeUtils.getTextRegion((ITrpShapeType) o2);
+			
+			if (tr1!=null && tr2!=null && StringUtils.equals(tr1.getId(), tr2.getId()) && tr1.getOrientation()!=null) {
+				orientationInRadiants = Math.toRadians(tr1.getOrientation());
+			}
+		}
+		
+		if (orientationInRadiants!=null) {
+			coords1 = PointStrUtils.rotatePoints(coords1, orientationInRadiants);
+			coords2 = PointStrUtils.rotatePoints(coords2, orientationInRadiants);
+			logger.trace("orientation set: "+orientationInRadiants+" rotated points: "+coords1+", "+coords2);
+		}
+		
+		return Pair.of(coords1, coords2);
+	}
+	
 	
 	public static boolean removeShape(ITrpShapeType s) {
 		if (s == null) {
@@ -162,7 +210,8 @@ public class TrpShapeTypeUtils {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void applyReadingOrderFromCoordinates(List<? extends ITrpShapeType> shapes, boolean fireEvents, boolean deleteReadingOrder, boolean recursive) {
 		//sort with coordinates
-		Collections.sort(shapes, new TrpElementCoordinatesComparator());
+//		Collections.sort(shapes, new TrpElementCoordinatesComparator());
+		TrpShapeTypeUtils.sortShapesByCoordinates(shapes, false);
 		
 		int i=0;
 		for (ITrpShapeType st : shapes) {

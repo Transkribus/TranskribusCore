@@ -441,6 +441,14 @@ public class CoreUtils {
 		}
 	}
 	
+	public static Integer parseInteger(String str, Integer errorVal) {
+		try {
+			return Integer.parseInt(str);
+		} catch (Exception e) {
+			return errorVal;
+		}
+	}	
+	
 	public static Double parseDouble(String str, Double errorVal) {
 		try {
 			return Double.parseDouble(str);
