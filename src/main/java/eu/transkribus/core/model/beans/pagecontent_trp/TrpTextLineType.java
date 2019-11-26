@@ -482,6 +482,10 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	
 	@Override public CustomTagList getCustomTagList() { return customTagList; }
 	
+	public void setCustomTagList(CustomTagList customTagList) {
+		this.customTagList = customTagList;
+	}
+
 	@Override public void setReadingOrder(Integer readingOrder, Object who) {
 		CustomTagUtil.setReadingOrder(this, readingOrder, who);
 	}
