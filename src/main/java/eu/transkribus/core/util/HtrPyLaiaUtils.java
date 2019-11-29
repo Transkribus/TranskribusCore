@@ -11,11 +11,13 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.transkribus.core.model.beans.TrpHtr;
+
 public class HtrPyLaiaUtils {
 	private static final Logger logger = LoggerFactory.getLogger(HtrPyLaiaUtils.class);
 	
 	public final static String PROVIDER_PYLAIA = "PyLaia";
-
+	
 	public static String getCerSeriesString(File cerTrain, boolean toFraction) throws IOException {
 		List<String> lines = Files.readAllLines(Paths.get(cerTrain.getAbsolutePath()), Charset.defaultCharset());
 		String str = "";

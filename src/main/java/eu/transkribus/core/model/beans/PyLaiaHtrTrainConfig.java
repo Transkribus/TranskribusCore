@@ -24,7 +24,7 @@ public class PyLaiaHtrTrainConfig extends HtrTrainConfig implements Serializable
 	@Hidden
 	public final static String EARLY_STOPPING_KEY = "Early Stopping";		
 	
-	public final static int DEFAULT_NUM_EPOCHS = 200;
+	public final static int DEFAULT_NUM_EPOCHS = 250;
 	public final static int DEFAULT_EARLY_STOPPING = 20;
 	public final static double DEFAULT_LEARNING_RATE = 0.0003d;
 	public final static int DEFAULT_BATCH_SIZE = 32;
