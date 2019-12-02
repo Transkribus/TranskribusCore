@@ -83,7 +83,7 @@ public class CustomTag implements Comparable<CustomTag>, Serializable {
 		this.attributes = new HashMap<CustomTagAttribute, Object>();		
 	}
 
-	public CustomTag(String tagName, int offset, int length) throws InitializationFailedException {
+	private CustomTag(String tagName, int offset, int length) throws InitializationFailedException {
 		this(tagName);
 		setOffset(offset);
 		setLength(length);
