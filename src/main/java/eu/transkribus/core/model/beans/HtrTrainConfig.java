@@ -102,6 +102,13 @@ public class HtrTrainConfig implements Serializable {
 		this.customParams = customParams;
 	}
 
+	public void setCustomParam(String key, Object value) {
+		if(getCustomParams() == null) {
+			setCustomParams(new ParameterMap());
+		}
+		getCustomParams().addParameter(key, value);
+	}
+	
 	public List<DocumentSelectionDescriptor> getTrain() {
 		return train;
 	}

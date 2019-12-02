@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang.StringUtils;
 
 import eu.transkribus.core.io.util.TrpProperties;
+import eu.transkribus.core.rest.JobConst;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -119,6 +120,12 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 		p.setProperty(TRAIN_SIZE_KEY, trainSizePerEpoch);
 		if(baseModelId != null) {
 			p.setProperty(BASE_MODEL_ID_KEY, baseModelId);
+		}
+		if(getCustomParams() != null) {
+			String earlyStopping = getCustomParams().getParameterValue(JobConst.PROP_EARLY_STOPPING);
+			if(earlyStopping != null) {
+				p.setProperty("Early Stopping", earlyStopping);
+			}
 		}
 		return p;
 	}
