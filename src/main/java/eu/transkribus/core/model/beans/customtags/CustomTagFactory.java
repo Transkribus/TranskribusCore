@@ -323,7 +323,7 @@ public class CustomTagFactory {
 	public static boolean addToRegistry(CustomTag ct, String color, boolean isEmptyTag, boolean mergeAttributesIfAlreadyRegistered) throws NoSuchMethodException, SecurityException, IllegalAccessException, InvocationTargetException {
 		CustomTag t = getCustomTag(ct.getTagName());
 		if (t == null) { // not registered yet
-			logger.debug("registering new tag: "+ct);
+			logger.trace("registering new tag: "+ct);
 			if (color == null) { // color not given -> get default color
 				color = ct.getDefaultColor();
 			}

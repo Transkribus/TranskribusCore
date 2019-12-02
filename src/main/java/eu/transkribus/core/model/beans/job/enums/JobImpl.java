@@ -58,6 +58,9 @@ public enum JobImpl {
 	// --- Text recognition jobs ---
 	CITlabHtrTrainingJob(JobTask.HtrTraining, "CITlab " + JobTask.HtrTraining.getLabel(), "CITlabHtrTrainingJob", null),
 	CITlabHtrPlusTrainingJob(JobTask.HtrTraining, "CITlab HTR+ Training", "CITlabHtrPlusTrainingJob", null),
+	PyLaiaTrainingJob(JobTask.HtrTraining, "PyLaia Training", "PyLaiaTrainJob", null),
+	PyLaiaDecodingJob(JobTask.HtrTraining, "PyLaia Decoding", "PyLaiaDecodingJob", null),
+	
 	CITlabSemiSupervisedHtrTrainingJob(JobTask.HtrTraining, "CITlab Text2Image", "CITlabSemiSupervisedHtrTrainingJob", null),
 	CITlabHtrJob(JobTask.Htr, "CITlab " + JobTask.Htr.getLabel(), "CITlabHtrJob", null),
 	CITlabLocalHtrJob(JobTask.Htr, "Local CITlab " + JobTask.Htr.getLabel(), "CITlabLocalHtrJob", null),

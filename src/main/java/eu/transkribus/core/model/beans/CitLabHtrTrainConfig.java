@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang.StringUtils;
 
 import eu.transkribus.core.io.util.TrpProperties;
+import eu.transkribus.core.rest.JobConst;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -52,7 +53,7 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 	@Schema(description = "Optional. Can be used to specify an existing HTR to be used as starting point for the training. Provider string must match the one given.", required=false)
 	protected Integer baseModelId;
 	@Schema(description = "Optional. If CER does not improve after this number of epochs, stop the training early.", required=false)
-	protected Integer earlyStopping=DEFAULT_EARLY_STOPPING;
+	protected Integer earlyStopping = DEFAULT_EARLY_STOPPING;
 	
 	@Hidden
 	public final static String NUM_EPOCHS_KEY = "Nr. of Epochs";
@@ -67,7 +68,7 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 	@Hidden
 	public final static String BASE_MODEL_NAME_KEY = "HTR Base Model Name";
 	@Hidden
-	public final static String EARLY_STOPPING_KEY = "Early Stopping";	
+	public final static String EARLY_STOPPING_KEY = "Early Stopping";		
 	
 	public CitLabHtrTrainConfig() {
 		super();
@@ -110,7 +111,6 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 	public Integer getEarlyStopping() {
 		return earlyStopping;
 	}
-
 	public void setEarlyStopping(Integer earlyStopping) {
 		this.earlyStopping = earlyStopping;
 	}
@@ -118,7 +118,7 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 	@Override
 	public String toString() {
 		return "CitLabHtrTrainConfig [numEpochs=" + numEpochs + ", learningRate=" + learningRate + ", noise=" + noise
-				+ ", trainSizePerEpoch=" + trainSizePerEpoch + ", baseModelId=" + baseModelId + ", earlyStopping="+earlyStopping+", modelName="
+				+ ", trainSizePerEpoch=" + trainSizePerEpoch + ", baseModelId=" + baseModelId + ", modelName="
 				+ modelName + ", description=" + description + ", language=" + language + ", colId=" + colId
 				+ ", train=" + "["+StringUtils.join(train, ", ")+"]" + ", test=" + "["+StringUtils.join(test, ", ")+"]"+ "]";
 	}
@@ -132,6 +132,12 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 		p.setProperty(TRAIN_SIZE_KEY, trainSizePerEpoch);
 		if(baseModelId != null) {
 			p.setProperty(BASE_MODEL_ID_KEY, baseModelId);
+		}
+		if(getCustomParams() != null) {
+			String earlyStopping = getCustomParams().getParameterValue(JobConst.PROP_EARLY_STOPPING);
+			if(earlyStopping != null) {
+				p.setProperty("Early Stopping", earlyStopping);
+			}
 		}
 		if (earlyStopping!=null) {
 			p.setProperty(EARLY_STOPPING_KEY, earlyStopping);

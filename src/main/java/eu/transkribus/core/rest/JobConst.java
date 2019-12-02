@@ -54,6 +54,7 @@ public class JobConst {
 	public static final String PROP_NR_OF_THREADS = "nrOfThreads";
 	public static final String PROP_TRAIN_SIZE_PER_EPOCH = "trainSizePerEpoch";
 	public static final String PROP_BASE_MODEL = "baseModel";
+	public static final String PROP_EARLY_STOPPING = "earlyStopping";
 	
 	/**
 	 * Use {@link #PROP_PARAMETERS} for consistency

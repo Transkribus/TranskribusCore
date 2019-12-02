@@ -1455,7 +1455,17 @@ public class CoreUtils {
 		else {
 			return o1.compareTo(o2);
 		}
-	}	
+	}
+	
+	public static boolean isDouble(String text) {
+		try {
+			Double.parseDouble(text);
+			return true;
+		}
+		catch (Exception e) {
+			return false;
+		}
+	}
 	
 	public static void main(String[] args) throws Exception {
 		System.out.println(regularizedPath("c:\\hello\\world/by\\me\\"));
@@ -1475,5 +1485,7 @@ public class CoreUtils {
 //		System.out.println(parseDate("Thu Jan 31 15:49:38 2019", new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy")));
 //		System.out.println(parseDate("Thu Jan 31 15:49:38 2019", new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy", Locale.ENGLISH)));
 	}
+
+
 	
 }
