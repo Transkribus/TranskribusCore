@@ -1,6 +1,7 @@
 package eu.transkribus.core.util;
 
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -260,6 +261,17 @@ public class GeomUtils {
 	public static Point2D rotate(double x, double y, double angle) {
 		return AffineTransform2D.createRotation(angle).transform(new Point2D(x, y));
 	}
+	
+//	public static java.awt.Polygon rotate(java.awt.Polygon p, double angle) {
+//		java.awt.Polygon r = new Polygon();
+//		AffineTransform2D t = AffineTransform2D.createRotation(angle);
+//		for (int i=0; i<p.npoints; ++i) {
+//			t.transform(p)
+//			r.addPoint(x, y);
+//		}
+//		
+//		
+//	}
 	
 	public static java.awt.Point rotate(java.awt.Point pt, double angle) {
 		Point2D pt2d = rotate(pt.x, pt.y, angle);

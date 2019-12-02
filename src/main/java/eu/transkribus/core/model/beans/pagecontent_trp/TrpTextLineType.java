@@ -327,7 +327,8 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 		}
 		
 		if (doSort){
-				Collections.sort(words, new TrpElementReadingOrderComparator<WordType>(true));
+//				Collections.sort(words, new TrpElementReadingOrderComparator<WordType>(true));
+				TrpShapeTypeUtils.sortShapesByReadingOrderOrCoordinates(words);
 		}
 
 		for (int i=0; i<word.size(); ++i) {
@@ -482,6 +483,10 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	
 	@Override public CustomTagList getCustomTagList() { return customTagList; }
 	
+	public void setCustomTagList(CustomTagList customTagList) {
+		this.customTagList = customTagList;
+	}
+
 	@Override public void setReadingOrder(Integer readingOrder, Object who) {
 		CustomTagUtil.setReadingOrder(this, readingOrder, who);
 	}

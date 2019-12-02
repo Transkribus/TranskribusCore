@@ -234,7 +234,8 @@ public class TrpTextRegionType extends TextRegionType implements ITrpShapeType {
 		}
 		
 		if (doSort){
-			Collections.sort(textLines, new TrpElementReadingOrderComparator<TextLineType>(true));
+//			Collections.sort(textLines, new TrpElementReadingOrderComparator<TextLineType>(true));
+			TrpShapeTypeUtils.sortShapesByReadingOrderOrCoordinates(textLines);
 		}
 		
 		for (int i=0; i<textLines.size(); i++) {

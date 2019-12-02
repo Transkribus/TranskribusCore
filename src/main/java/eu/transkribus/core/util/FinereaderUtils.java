@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,8 +29,8 @@ import eu.transkribus.core.model.beans.pagecontent.RegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent.WordType;
-import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementCoordinatesComparator;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpShapeTypeUtils;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 
 public class FinereaderUtils {
@@ -406,7 +405,7 @@ public class FinereaderUtils {
 			nameStartList.add(tmp[0]);
 		}
 		
-		TrpElementCoordinatesComparator<WordType> wordComp = new TrpElementCoordinatesComparator<WordType>();
+//		TrpElementCoordinatesComparator<WordType> wordComp = new TrpElementCoordinatesComparator<WordType>();
 		for(TrpPage p : doc.getPages()){
 			System.out.println("Processing page: " + p.getPageNr());
 			URL url = p.getCurrentTranscript().getUrl();
@@ -424,7 +423,8 @@ public class FinereaderUtils {
 //					System.out.println("Processing line: " + l.getId());
 					List<WordType> words = l.getWord();
 					if(words != null && !words.isEmpty()){
-						Collections.sort(words, wordComp);
+//						Collections.sort(words, wordComp);
+						TrpShapeTypeUtils.sortShapesByCoordinates(words, false);
 						//read first word and iterate to second
 						WordType w1 = words.get(i);
 //						List<Integer> candidates = new LinkedList<>();

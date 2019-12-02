@@ -39,6 +39,8 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 	 */
 	@Deprecated
 	public final static int DEFAULT_NUM_EPOCHS = 20;
+	
+	public final static int DEFAULT_EARLY_STOPPING = 20;
 
 	@Schema(description = "the number of epochs. A positive natural number.", required=true)
 	protected Integer numEpochs = DEFAULT_NUM_EPOCHS;
@@ -50,6 +52,8 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 	protected Integer trainSizePerEpoch;
 	@Schema(description = "Optional. Can be used to specify an existing HTR to be used as starting point for the training. Provider string must match the one given.", required=false)
 	protected Integer baseModelId;
+	@Schema(description = "Optional. If CER does not improve after this number of epochs, stop the training early.", required=false)
+	protected Integer earlyStopping = DEFAULT_EARLY_STOPPING;
 	
 	@Hidden
 	public final static String NUM_EPOCHS_KEY = "Nr. of Epochs";
@@ -63,6 +67,8 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 	public final static String BASE_MODEL_ID_KEY = "HTR Base Model ID";
 	@Hidden
 	public final static String BASE_MODEL_NAME_KEY = "HTR Base Model Name";
+	@Hidden
+	public final static String EARLY_STOPPING_KEY = "Early Stopping";		
 	
 	public CitLabHtrTrainConfig() {
 		super();
@@ -102,6 +108,12 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 	public void setBaseModelId(Integer baseModelId) {
 		this.baseModelId = baseModelId;
 	}
+	public Integer getEarlyStopping() {
+		return earlyStopping;
+	}
+	public void setEarlyStopping(Integer earlyStopping) {
+		this.earlyStopping = earlyStopping;
+	}
 
 	@Override
 	public String toString() {
@@ -126,6 +138,9 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 			if(earlyStopping != null) {
 				p.setProperty("Early Stopping", earlyStopping);
 			}
+		}
+		if (earlyStopping!=null) {
+			p.setProperty(EARLY_STOPPING_KEY, earlyStopping);
 		}
 		return p;
 	}

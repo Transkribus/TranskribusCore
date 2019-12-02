@@ -123,8 +123,9 @@
                 </TableRegion>
             </xsl:when>
             <xsl:when test="@TYPE='container'">
-                <!-- recurse on inner ComposedBlocks and transform TextBlocks on this level to TextRegions -->
-                <xsl:apply-templates select="./ComposedBlock | ./TextBlock | ./GraphicalElement | ./Illustration"/>
+                <!-- recurse on inner ComposedBlocks and transform TextBlocks on this level to TextRegions 
+                brings error: textBlocks are contained twice since it is already applied on all textBlocks at the page level-->
+                <!-- xsl:apply-templates select="./ComposedBlock | ./TextBlock | ./GraphicalElement | ./Illustration"/-->
             </xsl:when>
             <xsl:otherwise>
                 <!-- TODO not implemented! Check for other types that are written by finereader (arbitrary string is possible due to schema!) -->
