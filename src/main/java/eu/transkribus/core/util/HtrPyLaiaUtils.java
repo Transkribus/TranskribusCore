@@ -18,6 +18,10 @@ public class HtrPyLaiaUtils {
 	
 	public final static String PROVIDER_PYLAIA = "PyLaia";
 	
+	public static boolean doesDecodingSupportDicts() {
+		return false;
+	}
+	
 	public static String getCerSeriesString(File cerTrain, boolean toFraction) throws IOException {
 		List<String> lines = Files.readAllLines(Paths.get(cerTrain.getAbsolutePath()), Charset.defaultCharset());
 		String str = "";
