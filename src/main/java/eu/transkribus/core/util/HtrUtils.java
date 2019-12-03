@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.model.beans.HtrModel;
 import eu.transkribus.core.model.beans.WordHypothesis;
+import eu.transkribus.core.model.beans.job.enums.JobImpl;
 
 public class HtrUtils {
 	private static final Logger logger = LoggerFactory.getLogger(HtrUtils.class);
@@ -374,4 +375,18 @@ public class HtrUtils {
 		}
 		return modelStr;
 	}
+	
+	public static JobImpl getTrainJobForProvider(String provider) {
+		switch (provider) {
+		case HtrCITlabUtils.PROVIDER_CITLAB:
+			return JobImpl.CITlabHtrTrainingJob;
+		case HtrCITlabUtils.PROVIDER_CITLAB_PLUS:
+			return JobImpl.CITlabHtrPlusTrainingJob;
+		case HtrPyLaiaUtils.PROVIDER_PYLAIA:
+			return JobImpl.PyLaiaTrainingJob;
+		default:
+			return null;
+		}
+	}
+	
 }
