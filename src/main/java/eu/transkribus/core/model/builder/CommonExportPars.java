@@ -68,6 +68,7 @@ public class CommonExportPars {
 	boolean doOverwrite=true;
 	boolean useOcrMasterDir=true;
 	boolean exportTranscriptMetadata = true;
+	boolean updatePageXmlImageDimensions = false;
 			
 	public CommonExportPars() {
 	}
@@ -363,6 +364,14 @@ public class CommonExportPars {
 	public void setExportTranscriptMetadata(boolean exportTranscriptMetadata) {
 		this.exportTranscriptMetadata = exportTranscriptMetadata;
 	}
+	
+	public boolean isUpdatePageXmlImageDimensions() {
+		return updatePageXmlImageDimensions;
+	}
+
+	public void setUpdatePageXmlImageDimensions(boolean updatePageXmlImageDimensions) {
+		this.updatePageXmlImageDimensions = updatePageXmlImageDimensions;
+	}
 
 	// --- utility methods ---
 
@@ -396,7 +405,7 @@ public class CommonExportPars {
 				+ ", splitIntoWordsInAltoXml=" + splitIntoWordsInAltoXml + ", pageDirName=" + pageDirName
 				+ ", fileNamePattern=" + fileNamePattern + ", useHttps=" + useHttps + ", remoteImgQuality="
 				+ remoteImgQuality + ", doOverwrite=" + doOverwrite + ", useOcrMasterDir=" + useOcrMasterDir
-				+ ", exportTranscriptMetadata=" + exportTranscriptMetadata + ", font=" + font + "]";
+				+ ", exportTranscriptMetadata=" + exportTranscriptMetadata + ", font=" + font + ", updatePageXmlImageDimensions = "+updatePageXmlImageDimensions+"]";
 	}
 
 	public static CommonExportPars getDefaultParSetForHtrTraining() {
@@ -458,8 +467,11 @@ public class CommonExportPars {
 		result = prime * result + (useOcrMasterDir ? 1231 : 1237);
 		result = prime * result + ((useVersionStatus == null) ? 0 : useVersionStatus.hashCode());
 		result = prime * result + (writeTextOnWordLevel ? 1231 : 1237);
+		result = prime * result + (updatePageXmlImageDimensions ? 1231 : 1237);
 		return result;
 	}
+	
+	
 
 	@Override
 	public boolean equals(Object obj) {
@@ -544,6 +556,8 @@ public class CommonExportPars {
 		} else if (!useVersionStatus.equals(other.useVersionStatus))
 			return false;
 		if (writeTextOnWordLevel != other.writeTextOnWordLevel)
+			return false;
+		if (updatePageXmlImageDimensions != other.updatePageXmlImageDimensions)
 			return false;
 		return true;
 	}
