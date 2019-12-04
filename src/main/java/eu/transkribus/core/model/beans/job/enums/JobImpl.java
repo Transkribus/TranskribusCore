@@ -74,7 +74,8 @@ public enum JobImpl {
 	//for testing
 	DummyJob(JobTask.CreateDocument, "Dummy Job", "DummyJob", null),
 	DummyMailJob(JobTask.CreateDocument, "Dummy Mail Job", "DummyMailJob", null), 
-	ErrorRateJob(JobTask.Htr, "Error Rate Computation", "ErrorRateJob", null);
+	ErrorRateJob(JobTask.Htr, "Error Rate Computation", "ErrorRateJob", null), 
+	IobImportJob(JobTask.CreateDocument, "IOB Import Job", "IobImportJob", null);
 	
 	private final static Logger logger = LoggerFactory.getLogger(JobImpl.class);
 	public final static String MULTI_THREAD_LA_JOB_SUFFIX = "MultiThread";
