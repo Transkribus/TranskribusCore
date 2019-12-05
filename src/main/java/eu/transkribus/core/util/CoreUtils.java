@@ -13,6 +13,7 @@ import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,6 +51,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.io.FileExistsException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
@@ -615,6 +617,14 @@ public class CoreUtils {
 	public static String readStringFromTxtFile(String fn) throws IOException {
 		String content = new String(Files.readAllBytes(Paths.get(fn)));
 		return content;
+	}
+	
+	public static String readStringFromResource(String fn) throws IOException {
+		try (InputStream is = CoreUtils.class.getClassLoader().getResourceAsStream(fn)) {
+			StringWriter writer = new StringWriter();
+	        IOUtils.copy(is, writer, StandardCharsets.UTF_8);
+	        return writer.toString();
+		}
 	}
 
 	public static void setLibraryPath(String path) throws Exception {
