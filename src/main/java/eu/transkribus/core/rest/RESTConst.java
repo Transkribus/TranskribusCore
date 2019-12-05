@@ -457,6 +457,7 @@ public final class RESTConst {
 	//uploads
 	public static final String UPLOAD_ID_PARAM = "uploadId";
 	public static final String DETAILS_PATH = "details";
+	public static final String IOB_IMPORT_PATH = "iobImport";
 	
 	//other consts
 	public static final String FALSE = "false";
