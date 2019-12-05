@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import eu.transkribus.core.model.beans.DocumentSelectionDescriptor;
+import eu.transkribus.core.model.beans.GroundTruthSelectionDescriptor;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -21,6 +22,9 @@ public class JobParameters {
 	@XmlElementWrapper(name="docList")
 	private List<DocumentSelectionDescriptor> docs;
 	private ParameterMap params;
+	
+	@XmlElementWrapper(name="gtList")
+	private List<GroundTruthSelectionDescriptor> gtList;
 	
 	public JobParameters() {
 		docs = new ArrayList<>(0);
@@ -49,6 +53,14 @@ public class JobParameters {
 
 	public void setDocs(List<DocumentSelectionDescriptor> docs) {
 		this.docs = docs;
+	}
+	
+	public List<GroundTruthSelectionDescriptor> getGtList() {
+		return gtList;
+	}
+
+	public void setGtList(List<GroundTruthSelectionDescriptor> gtList) {
+		this.gtList = gtList;
 	}
 
 	public ParameterMap getParams() {

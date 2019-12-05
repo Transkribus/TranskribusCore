@@ -1,5 +1,6 @@
 package eu.transkribus.core.io;
 
+import java.awt.Dimension;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -27,6 +28,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dea.fimgstoreclient.IFimgStoreGetClient;
@@ -64,7 +66,9 @@ import eu.transkribus.core.model.builder.tei.TeiExportPars;
 import eu.transkribus.core.model.builder.tei.TrpTeiStringBuilder;
 import eu.transkribus.core.model.builder.txt.TrpTxtBuilder;
 import eu.transkribus.core.util.CoreUtils;
+import eu.transkribus.core.util.ImgUtils;
 import eu.transkribus.core.util.JaxbUtils;
+import eu.transkribus.core.util.SebisStopWatch;
 
 public class DocExporter extends APassthroughObservable {
 	private static final Logger logger = LoggerFactory.getLogger(DocExporter.class);
@@ -578,6 +582,17 @@ public class DocExporter extends APassthroughObservable {
 				
 				//fix the image file name attribute in the Page element in case there was another name set for the export
 				transcript.getPageData().getPage().setImageFilename(baseFileName + imgExt);
+				if (pars.isUpdatePageXmlImageDimensions()) {
+//					SebisStopWatch sw = new SebisStopWatch();
+//					sw.start();
+					Dimension dim = ImgUtils.readImageDimensions(FileUtils.toFile(pageExport.getUrl()));
+					if (dim != null) {
+						logger.debug("Updating image dimensions in PAGE-XML: "+dim);
+						transcript.getPageData().getPage().setImageWidth(dim.width);
+						transcript.getPageData().getPage().setImageHeight(dim.height);
+					}
+//					sw.stop(true, "Time for updating img dims: ", logger);
+				}
 				
 				URL xmlUrl = transcriptMd.getUrl();
 				

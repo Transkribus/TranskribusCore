@@ -407,6 +407,7 @@ public final class RESTConst {
 	public static final String REGION_TYPE_PARAM = "regionType";
 	public static final String ATTRIBUTES_PARAM = "attributes";
 	public static final String PARS_PARAM = "pars";
+	public static final String IOB_IMPORT_PATH = "iob";
 	
 	//Actions
 	public static final String TYPE_ID_PARAM = "typeId";
