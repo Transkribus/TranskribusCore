@@ -17,9 +17,13 @@ public enum JobImpl {
 	ZipDocImportJob(JobTask.CreateDocument, JobTask.CreateDocument.getLabel(), "ZipDocImportJob", null),
 	GoobiMetsImportJob(JobTask.CreateDocument, JobTask.CreateDocument.getLabel(), "GoobiMetsImportJob", null),
 	IiifImportJob(JobTask.CreateDocument, JobTask.CreateDocument.getLabel(), "IiifImportJob", null),
+	IobImportJob(JobTask.CreateDocument, JobTask.CreateDocument.getLabel(), "IobImportJob", null),
+	//plain old DuplicateDocJob that copies all pages of a document to a new one.
 	DuplicateDocumentJob(JobTask.DuplicateDocument, JobTask.DuplicateDocument.getLabel(), "DuplicateDocJob", null),
-	CreateSampleDocJob(JobTask.CreateSample, JobTask.CreateSample.getLabel(), "CreateSampleDocJob", null),
+	//CopyJob that accepts DocumentSelectionDescriptors or GroundTruthSelectionDesctiptors for more control over the new document's content than DuplicateDocumentJob allows
+	CopyJob(JobTask.DuplicateDocument, JobTask.DuplicateDocument.getLabel(), "CopyJob", null),
 	ComputeSampleJob(JobTask.Htr,"Sample Computation","ComputeSampleJob",null),
+	CreateSampleDocJob(JobTask.CreateSample, JobTask.CreateSample.getLabel(), "CreateSampleDocJob", null),
 	DeleteDocJob(JobTask.DeleteDocument, JobTask.DeleteDocument.getLabel(), "DeleteDocJob", null),
 	RebuildSolrIndexJob(JobTask.RebuildSolrIndex, JobTask.RebuildSolrIndex.getLabel(), "RebuildSolrIndexJob", null),	
 	IndexDocumentJob(JobTask.IndexDocument, JobTask.IndexDocument.getLabel(), "IndexDocumentJob", null),
