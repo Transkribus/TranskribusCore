@@ -5,13 +5,10 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import eu.transkribus.core.model.beans.TrpHtr;
 
 public class HtrPyLaiaUtils {
 	private static final Logger logger = LoggerFactory.getLogger(HtrPyLaiaUtils.class);
