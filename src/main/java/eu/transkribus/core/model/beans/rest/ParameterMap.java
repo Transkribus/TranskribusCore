@@ -57,6 +57,11 @@ public class ParameterMap extends AJaxbMap {
 		return map.get(name);
 	}
 	
+	public String getParameterValue(String name, String defaultValue) {
+		String value = map.get(name);
+		return value != null ? value : defaultValue;
+	}	
+	
 	public Integer getIntParam(String key) {
 		String propStr = getParameterValue(key);
 		if(propStr == null) {
@@ -87,6 +92,14 @@ public class ParameterMap extends AJaxbMap {
 			return true;
 		}
 		return Boolean.parseBoolean(propStr);
+	}
+	
+	public Boolean getBoolParam(String key, boolean defaultValue) {
+		String propStr = getParameterValue(key);
+		if (propStr == null) {
+			return defaultValue;
+		}
+		return getBoolParam(key);
 	}
 	
 	public String remove(final String key) {

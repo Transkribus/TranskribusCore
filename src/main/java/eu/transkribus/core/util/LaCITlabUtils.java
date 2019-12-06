@@ -4,6 +4,7 @@ public class LaCITlabUtils {
 
 	public final static String SEP_SCHEME_KEY = "sepScheme";
 	public final static String ROT_SCHEME_KEY = "rotScheme";
+	public final static String LA_DELETE_SCHEME_KEY = "la_deletescheme";
 	
 	public final static String DEFAULT_LBL = "Default";
 	
