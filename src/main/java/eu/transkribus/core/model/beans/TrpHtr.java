@@ -553,6 +553,7 @@ public class TrpHtr {
 		 */
 		public static boolean isPrivateDataSet(ReleaseLevel level) {
 			switch (level) {
+			case None:
 			case UndisclosedDataSet:
 				return true;
 			default:
