@@ -38,6 +38,8 @@ public class PyLaiaHtrTrainConfig extends HtrTrainConfig implements Serializable
 	@Schema(description = "Optional. Can be used to specify an existing HTR to be used as starting point for the training. Provider string must match the one given.", required=false)
 	protected Integer baseModelId;
 	
+	protected TextFeatsCfg textFeatsCfg;
+	
 	public PyLaiaHtrTrainConfig() {
 		super();
 	}
@@ -82,6 +84,14 @@ public class PyLaiaHtrTrainConfig extends HtrTrainConfig implements Serializable
 		this.batchSize = batchSize;
 	}
 	
+	public TextFeatsCfg getTextFeatsCfg() {
+		return textFeatsCfg;
+	}
+
+	public void setTextFeatsCfg(TextFeatsCfg textFeatsCfg) {
+		this.textFeatsCfg = textFeatsCfg;
+	}
+
 	@Hidden
 	public TrpProperties getParamProps() {
 		TrpProperties p = new TrpProperties();
@@ -91,5 +101,16 @@ public class PyLaiaHtrTrainConfig extends HtrTrainConfig implements Serializable
 		p.setProperty(EARLY_STOPPING_KEY, earlyStopping);
 		return p;
 	}
+
+	@Override
+	public String toString() {
+		return "PyLaiaHtrTrainConfig [numEpochs=" + numEpochs + ", earlyStopping=" + earlyStopping + ", learningRate="
+				+ learningRate + ", batchSize=" + batchSize + ", baseModelId=" + baseModelId + ", textFeatsCfg="
+				+ textFeatsCfg + ", modelName=" + modelName + ", description=" + description + ", language=" + language
+				+ ", colId=" + colId + ", provider=" + provider + ", customParams=" + customParams + ", train=" + train
+				+ ", test=" + test + ", trainGt=" + trainGt + ", testGt=" + testGt + "]";
+	}
+	
+	
 	
 }
