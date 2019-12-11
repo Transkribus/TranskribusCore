@@ -13,12 +13,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import eu.transkribus.core.exceptions.ParsePropertiesException;
-import eu.transkribus.core.io.util.TrpProperties;
 
 @Entity
 @Table(name = TrpP2PaLA.TABLE_NAME)
@@ -93,19 +89,6 @@ public class TrpP2PaLA extends ATrpModel {
 				+ isActive + ", releaseLevel=" + releaseLevel + ", params=" + params + ", custom=" + custom
 				+ ", delTime=" + delTime + ", jobId=" + jobId + ", userId=" + userId + ", userName=" + userName+", minError=" + minError
 				+ "]";
-	}
-	
-	public TrpProperties parseCustomProperties() {
-		if (!StringUtils.isEmpty(this.custom)) {
-			try {
-				return new TrpProperties(custom, false);
-			} catch (ParsePropertiesException e) {
-				logger.warn("Could not parse non-empty custom properties from TrpP2PaLA model: "+custom);
-				return new TrpProperties();
-			}
-		} else {
-			return new TrpProperties();
-		}
 	}
 	
 	public static void main(String[] args) throws Exception {

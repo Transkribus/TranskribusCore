@@ -18,6 +18,10 @@ import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.util.HtrUtils;
 
+/**
+ * @deprecated old UPVLC HMM HTR model bean
+ *
+ */
 @Entity
 @Table(name = "HTR_MODELS")
 @XmlRootElement
