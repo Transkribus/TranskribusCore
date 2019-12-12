@@ -279,7 +279,6 @@ public class LocalDocReader {
 		final File docXml = new File(inputDir.getAbsolutePath() + File.separator + LocalDocConst.DOC_XML_FILENAME);
 
 		//validate input path ======================================================
-
 		checkInputDir(inputDir);
 		
 		// search for IMG files

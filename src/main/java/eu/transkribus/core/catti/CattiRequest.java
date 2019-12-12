@@ -1,8 +1,8 @@
 package eu.transkribus.core.catti;
 
 import java.io.Serializable;
+import java.util.Objects;
 
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,11 +32,11 @@ public class CattiRequest implements Serializable {
 		this.userid = userid;
 		this.docid = docid;
 		this.pid = pid;
-		
-		Assert.assertNotNull(lineid);
+
+		Objects.requireNonNull(lineid);
 		this.lineid = lineid;
-		
-		Assert.assertNotNull(method);
+
+		Objects.requireNonNull(method);
 		this.method = method;
 		
 		this.prefix = prefix==null ? "" : prefix;
