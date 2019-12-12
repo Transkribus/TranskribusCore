@@ -959,7 +959,7 @@ public class CustomTagList {
 			return null;
 
 		// should never happen!
-		if (tagsAtOffset.size() == 1) {
+		if (tagsAtOffset.size() != 1) {
 			throw new RuntimeException("Nr of tags at position " + offset + " is greater 1: " + tagsAtOffset.size());
 		}
 		CustomTag firstTag = tagsAtOffset.get(0);
