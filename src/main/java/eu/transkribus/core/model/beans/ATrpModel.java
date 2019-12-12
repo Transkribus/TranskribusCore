@@ -57,8 +57,11 @@ public abstract class ATrpModel {
 	
 	public final static String[] COLS = { MODEL_ID_COL, NAME_COL, TYPE_COL, DESCRIPTION_COL,
 			PATH_COL, CREATED_COL, PARENT_ID_COL, IS_ACTIVE_COL, RELEASE_LEVEL_COL,
-			PARAMS_COL, CUSTOM_COL, DEL_TIME_COL, JOBID_COL, USERID_COL, USERNAME_COL, MIN_ERROR_COL,
-			NR_OF_TRAIN_GT_PAGES_COL, NR_OF_VALIDATION_GT_PAGES_COL, COLLECTION_ID_LINK_COL };
+			PARAMS_COL, CUSTOM_COL, DEL_TIME_COL, JOBID_COL, USERID_COL, USERNAME_COL, MIN_ERROR_COL };
+	
+	/* FIXME those need to be added later
+	, NR_OF_TRAIN_GT_PAGES_COL, NR_OF_VALIDATION_GT_PAGES_COL, COLLECTION_ID_LINK_COL };
+	*/
 	
 	public final static String[] EDITABLE_VARIABLES = { NAME_VARIABLE_NAME, DESCRIPTION_VARIABLE_NAME };
 
@@ -124,10 +127,26 @@ public abstract class ATrpModel {
 	}
 	
 	public ATrpModel(ATrpModel otherModel) {
-		this(otherModel.modelId, otherModel.name, otherModel.description, otherModel.path, otherModel.created, otherModel.parentId, 
-				otherModel.isActive, otherModel.releaseLevel, otherModel.params, otherModel.custom, otherModel.delTime, otherModel.jobId, 
-				otherModel.userId, otherModel.userName, otherModel.minError, otherModel.nrOfTrainGtPages, otherModel.nrOfValidationGtPages,
-				otherModel.collectionIdLink);
+		this();
+		this.modelId = otherModel.modelId;
+		this.name = otherModel.name;
+		this.type = otherModel.type;
+		this.description = otherModel.description;
+		this.path = otherModel.path;
+		this.created = otherModel.created;
+		this.parentId = otherModel.parentId;
+		this.isActive = otherModel.isActive;
+		this.releaseLevel = otherModel.releaseLevel;
+		this.params = otherModel.params;
+		this.custom = otherModel.custom;
+		this.delTime = otherModel.delTime;
+		this.jobId = otherModel.jobId;
+		this.userId = otherModel.userId;
+		this.userName = otherModel.userName;
+		this.minError = otherModel.minError;
+		this.nrOfTrainGtPages = otherModel.nrOfTrainGtPages;
+		this.nrOfValidationGtPages = otherModel.nrOfValidationGtPages;
+		this.collectionIdLink = otherModel.collectionIdLink;
 	}
 
 	public Integer getModelId() {
@@ -321,5 +340,137 @@ public abstract class ATrpModel {
 			return new TrpProperties();
 		}
 	}
-	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((collectionIdLink == null) ? 0 : collectionIdLink.hashCode());
+		result = prime * result + ((created == null) ? 0 : created.hashCode());
+		result = prime * result + ((custom == null) ? 0 : custom.hashCode());
+		result = prime * result + ((delTime == null) ? 0 : delTime.hashCode());
+		result = prime * result + ((description == null) ? 0 : description.hashCode());
+		result = prime * result + ((isActive == null) ? 0 : isActive.hashCode());
+		result = prime * result + ((jobId == null) ? 0 : jobId.hashCode());
+		result = prime * result + ((minError == null) ? 0 : minError.hashCode());
+		result = prime * result + ((modelId == null) ? 0 : modelId.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((nrOfTrainGtPages == null) ? 0 : nrOfTrainGtPages.hashCode());
+		result = prime * result + ((nrOfValidationGtPages == null) ? 0 : nrOfValidationGtPages.hashCode());
+		result = prime * result + ((params == null) ? 0 : params.hashCode());
+		result = prime * result + ((parentId == null) ? 0 : parentId.hashCode());
+		result = prime * result + ((path == null) ? 0 : path.hashCode());
+		result = prime * result + ((releaseLevel == null) ? 0 : releaseLevel.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + ((userId == null) ? 0 : userId.hashCode());
+		result = prime * result + ((userName == null) ? 0 : userName.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ATrpModel other = (ATrpModel) obj;
+		if (collectionIdLink == null) {
+			if (other.collectionIdLink != null)
+				return false;
+		} else if (!collectionIdLink.equals(other.collectionIdLink))
+			return false;
+		if (created == null) {
+			if (other.created != null)
+				return false;
+		} else if (!created.equals(other.created))
+			return false;
+		if (custom == null) {
+			if (other.custom != null)
+				return false;
+		} else if (!custom.equals(other.custom))
+			return false;
+		if (delTime == null) {
+			if (other.delTime != null)
+				return false;
+		} else if (!delTime.equals(other.delTime))
+			return false;
+		if (description == null) {
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
+			return false;
+		if (isActive == null) {
+			if (other.isActive != null)
+				return false;
+		} else if (!isActive.equals(other.isActive))
+			return false;
+		if (jobId == null) {
+			if (other.jobId != null)
+				return false;
+		} else if (!jobId.equals(other.jobId))
+			return false;
+		if (minError == null) {
+			if (other.minError != null)
+				return false;
+		} else if (!minError.equals(other.minError))
+			return false;
+		if (modelId == null) {
+			if (other.modelId != null)
+				return false;
+		} else if (!modelId.equals(other.modelId))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (nrOfTrainGtPages == null) {
+			if (other.nrOfTrainGtPages != null)
+				return false;
+		} else if (!nrOfTrainGtPages.equals(other.nrOfTrainGtPages))
+			return false;
+		if (nrOfValidationGtPages == null) {
+			if (other.nrOfValidationGtPages != null)
+				return false;
+		} else if (!nrOfValidationGtPages.equals(other.nrOfValidationGtPages))
+			return false;
+		if (params == null) {
+			if (other.params != null)
+				return false;
+		} else if (!params.equals(other.params))
+			return false;
+		if (parentId == null) {
+			if (other.parentId != null)
+				return false;
+		} else if (!parentId.equals(other.parentId))
+			return false;
+		if (path == null) {
+			if (other.path != null)
+				return false;
+		} else if (!path.equals(other.path))
+			return false;
+		if (releaseLevel == null) {
+			if (other.releaseLevel != null)
+				return false;
+		} else if (!releaseLevel.equals(other.releaseLevel))
+			return false;
+		if (type == null) {
+			if (other.type != null)
+				return false;
+		} else if (!type.equals(other.type))
+			return false;
+		if (userId == null) {
+			if (other.userId != null)
+				return false;
+		} else if (!userId.equals(other.userId))
+			return false;
+		if (userName == null) {
+			if (other.userName != null)
+				return false;
+		} else if (!userName.equals(other.userName))
+			return false;
+		return true;
+	}
 }

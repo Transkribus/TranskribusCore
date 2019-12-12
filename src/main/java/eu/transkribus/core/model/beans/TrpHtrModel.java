@@ -34,7 +34,7 @@ public class TrpHtrModel extends ATrpModel {
 	private static final Logger logger = LoggerFactory.getLogger(TrpP2PaLA.class);
 	
 	public static final String TABLE_NAME = "HTR_MODEL_COLS";
-	public static final String TYPE = "TrpHtrModel";
+	public static final String TYPE = "HTR";
 	
 	public TrpHtrModel() {
 		super();
@@ -283,9 +283,88 @@ public class TrpHtrModel extends ATrpModel {
 				+ ", valNrOfLines=" + valNrOfLines + ", valNrOfWords=" + valNrOfWords + ", nrOfTrainGtPages="
 				+ nrOfTrainGtPages + ", nrOfValidationGtPages=" + nrOfValidationGtPages + ", collectionIdLink=" + collectionIdLink + ", ]";
 	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + (bestNetStored ? 1231 : 1237);
+		result = prime * result + Arrays.hashCode(cerTrainSeries);
+		result = prime * result + ((cerTrainString == null) ? 0 : cerTrainString.hashCode());
+		result = prime * result + Arrays.hashCode(cerValSeries);
+		result = prime * result + ((cerValString == null) ? 0 : cerValString.hashCode());
+		result = prime * result + ((charSetList == null) ? 0 : charSetList.hashCode());
+		result = prime * result + ((charSetString == null) ? 0 : charSetString.hashCode());
+		result = prime * result + ((language == null) ? 0 : language.hashCode());
+		result = prime * result + (languageModelExists ? 1231 : 1237);
+		result = prime * result + ((provider == null) ? 0 : provider.hashCode());
+		result = prime * result + trainNrOfLines;
+		result = prime * result + trainNrOfWords;
+		result = prime * result + valNrOfLines;
+		result = prime * result + valNrOfWords;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TrpHtrModel other = (TrpHtrModel) obj;
+		if (bestNetStored != other.bestNetStored)
+			return false;
+		if (!Arrays.equals(cerTrainSeries, other.cerTrainSeries))
+			return false;
+		if (cerTrainString == null) {
+			if (other.cerTrainString != null)
+				return false;
+		} else if (!cerTrainString.equals(other.cerTrainString))
+			return false;
+		if (!Arrays.equals(cerValSeries, other.cerValSeries))
+			return false;
+		if (cerValString == null) {
+			if (other.cerValString != null)
+				return false;
+		} else if (!cerValString.equals(other.cerValString))
+			return false;
+		if (charSetList == null) {
+			if (other.charSetList != null)
+				return false;
+		} else if (!charSetList.equals(other.charSetList))
+			return false;
+		if (charSetString == null) {
+			if (other.charSetString != null)
+				return false;
+		} else if (!charSetString.equals(other.charSetString))
+			return false;
+		if (language == null) {
+			if (other.language != null)
+				return false;
+		} else if (!language.equals(other.language))
+			return false;
+		if (languageModelExists != other.languageModelExists)
+			return false;
+		if (provider == null) {
+			if (other.provider != null)
+				return false;
+		} else if (!provider.equals(other.provider))
+			return false;
+		if (trainNrOfLines != other.trainNrOfLines)
+			return false;
+		if (trainNrOfWords != other.trainNrOfWords)
+			return false;
+		if (valNrOfLines != other.valNrOfLines)
+			return false;
+		if (valNrOfWords != other.valNrOfWords)
+			return false;
+		return true;
+	}
 
 	@Override
 	protected String getModelType() {
 		return TYPE;
-	}	
+	}
 }

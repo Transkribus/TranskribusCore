@@ -57,6 +57,13 @@ public class TrpP2PaLA extends ATrpModel {
 		this.outMode = outMode;
 	}
 
+	public TrpP2PaLA(TrpP2PaLA otherModel) {
+		super(otherModel);
+		this.structTypes = otherModel.structTypes;
+		this.mergedStructTypes = otherModel.mergedStructTypes;
+		this.outMode = otherModel.outMode;
+	}
+	
 	public String getStructTypes() {
 		return structTypes;
 	}
@@ -90,7 +97,49 @@ public class TrpP2PaLA extends ATrpModel {
 				+ ", delTime=" + delTime + ", jobId=" + jobId + ", userId=" + userId + ", userName=" + userName+", minError=" + minError
 				+ "]";
 	}
+
+	@Override
+	protected String getModelType() {
+		return TYPE;
+	}
 	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((mergedStructTypes == null) ? 0 : mergedStructTypes.hashCode());
+		result = prime * result + ((outMode == null) ? 0 : outMode.hashCode());
+		result = prime * result + ((structTypes == null) ? 0 : structTypes.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TrpP2PaLA other = (TrpP2PaLA) obj;
+		if (mergedStructTypes == null) {
+			if (other.mergedStructTypes != null)
+				return false;
+		} else if (!mergedStructTypes.equals(other.mergedStructTypes))
+			return false;
+		if (outMode == null) {
+			if (other.outMode != null)
+				return false;
+		} else if (!outMode.equals(other.outMode))
+			return false;
+		if (structTypes == null) {
+			if (other.structTypes != null)
+				return false;
+		} else if (!structTypes.equals(other.structTypes))
+			return false;
+		return true;
+	}
+
 	public static void main(String[] args) throws Exception {
 		
 		for (Field f : TrpP2PaLA.class.getDeclaredFields()) {
@@ -99,10 +148,4 @@ public class TrpP2PaLA extends ATrpModel {
 		
 		
 	}
-
-	@Override
-	protected String getModelType() {
-		return TYPE;
-	}
-	
 }
