@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -60,7 +61,12 @@ public class ParameterMap extends AJaxbMap {
 	public String getParameterValue(String name, String defaultValue) {
 		String value = map.get(name);
 		return value != null ? value : defaultValue;
-	}	
+	}
+	
+	public Integer getIntParam(String key, Integer defaultValue) {
+		Integer val = getIntParam(key);
+		return val!=null ? val : defaultValue;
+	}
 	
 	public Integer getIntParam(String key) {
 		String propStr = getParameterValue(key);
@@ -173,6 +179,25 @@ public class ParameterMap extends AJaxbMap {
 		return list;
 	}
 	
+	public String toSimpleString(String separator) {
+		String str="";
+		for (String key : map.keySet()) {
+			str+=key;
+			String val = map.get(key);
+			if (!StringUtils.isEmpty(val)) {
+				str+=" "+val+separator;
+			}
+		}
+		str = StringUtils.removeEnd(str, separator);
+		str = str.trim();
+		
+		return str;
+	}
+	
+	public String toSingleLineString() {
+		return toSimpleString(" ");
+	}
+	
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer(this.getClass().getName() + " {\n");
@@ -201,7 +226,19 @@ public class ParameterMap extends AJaxbMap {
 		return new TrpProperties(toProperties());
 	}
 	
-	public static void main(String[] args) {
-		System.out.println(-Double.MIN_VALUE);
-	}
+//	public static void main(String[] args) {
+//		System.out.println(-Double.MIN_VALUE);
+//		
+//		ParameterMap m = new ParameterMap();
+//		m.addBoolParam("key1", true);
+//		m.addParameter("asdf", "");
+////		m.addParameter("null_valu", null);
+//		m.addDoubleParam("res", 1.3);
+//		m.addDoubleParam("adsf", 1.3);
+//		
+//		for (String k: m.keySet()) {
+//			System.out.println("k = "+k);
+//		}
+//		
+//	}
 }
