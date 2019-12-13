@@ -5,8 +5,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.junit.Assert;
-import static org.junit.Assert.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,8 +24,10 @@ public class CustomTagAttribute {
 	}
 	
 	public CustomTagAttribute(String name, boolean isEditable, String displayName, String description) {
-		Assert.assertFalse("The tag name cannot be empty!", StringUtils.isEmpty(name));
-		
+		if(StringUtils.isEmpty(name)){
+			throw new RuntimeException("The tag name cannot be empty!");
+		}
+
 		this.name = name;
 		this.isEditable = isEditable;
 		this.displayName = displayName == null ? name : displayName;
@@ -143,38 +143,38 @@ public class CustomTagAttribute {
 	    return retValue;
 	}
 	
-	public static void main(String[] args) {
-		Map<CustomTagAttribute, Object> map = new HashMap<>();
-		
-		CustomTagAttribute a1 = new CustomTagAttribute("asdf", true, null, null, String.class);
-		CustomTagAttribute a2 = new CustomTagAttribute("asdf", true,  null, null);
-		CustomTagAttribute a3 = new CustomTagAttribute("asdfaa", true, null, null);
-		
-		logger.info("a1 = "+a1);
-		logger.info("a2 = "+a2);
-		logger.info("a1 = "+a3);
-		assertTrue("a1 == a2 ", a1.equals(a2));
-		assertTrue("a2 == a1 ", a2.equals(a1));
-		
-		assertFalse("a2 != a1 ", a2.equals(a3));
-		assertFalse("a2 != a1 ", a1.equals(a3));
-		
-		map.put(a1, null);
-		
-		assertTrue("map contains a2", map.containsKey(a2));
-		assertFalse("map not contains a3", map.containsKey(a3));
-				
-		map.put(a2, null);
-		map.put(a3, null);
-		
-		assertTrue("map size == 2: ", map.size()==2);
-		
-		logger.info("a1 hashcode "+a1.hashCode());
-		logger.info("a2 hashcode "+a2.hashCode());
-		logger.info("a3 hashcode "+a3.hashCode());
-		
-		assertTrue("hash a1 == a2: ", a1.hashCode() == a2.hashCode());
-		assertTrue("hash a1 != a3: ", a1.hashCode() != a3.hashCode());
-	}
+//	public static void main(String[] args) {
+//		Map<CustomTagAttribute, Object> map = new HashMap<>();
+//
+//		CustomTagAttribute a1 = new CustomTagAttribute("asdf", true, null, null, String.class);
+//		CustomTagAttribute a2 = new CustomTagAttribute("asdf", true,  null, null);
+//		CustomTagAttribute a3 = new CustomTagAttribute("asdfaa", true, null, null);
+//
+//		logger.info("a1 = "+a1);
+//		logger.info("a2 = "+a2);
+//		logger.info("a1 = "+a3);
+//		assertTrue("a1 == a2 ", a1.equals(a2));
+//		assertTrue("a2 == a1 ", a2.equals(a1));
+//
+//		assertFalse("a2 != a1 ", a2.equals(a3));
+//		assertFalse("a2 != a1 ", a1.equals(a3));
+//
+//		map.put(a1, null);
+//
+//		assertTrue("map contains a2", map.containsKey(a2));
+//		assertFalse("map not contains a3", map.containsKey(a3));
+//
+//		map.put(a2, null);
+//		map.put(a3, null);
+//
+//		assertTrue("map size == 2: ", map.size()==2);
+//
+//		logger.info("a1 hashcode "+a1.hashCode());
+//		logger.info("a2 hashcode "+a2.hashCode());
+//		logger.info("a3 hashcode "+a3.hashCode());
+//
+//		assertTrue("hash a1 == a2: ", a1.hashCode() == a2.hashCode());
+//		assertTrue("hash a1 != a3: ", a1.hashCode() != a3.hashCode());
+//	}
 	
 }
