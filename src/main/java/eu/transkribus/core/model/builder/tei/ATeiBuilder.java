@@ -1,32 +1,18 @@
 package eu.transkribus.core.model.builder.tei;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.xml.bind.JAXBException;
-
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.junit.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import eu.transkribus.core.model.beans.JAXBPageTranscript;
-import eu.transkribus.core.model.beans.TrpDoc;
-import eu.transkribus.core.model.beans.TrpDocMetadata;
-import eu.transkribus.core.model.beans.TrpPage;
-import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
+import eu.transkribus.core.model.beans.*;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.builder.CommonExportPars;
 import eu.transkribus.core.model.builder.ExportCache;
 import eu.transkribus.core.util.CoreUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.xml.bind.JAXBException;
+import java.io.*;
+import java.util.*;
 
 public abstract class ATeiBuilder {
 	private static final Logger logger = LoggerFactory.getLogger(ATeiBuilder.class);
@@ -87,7 +73,7 @@ public abstract class ATeiBuilder {
 			}
 		}
 
-		Assert.assertNotNull("tei pars is null!", this.pars);
+		Objects.requireNonNull(this.pars, "tei pars is null!");
 	}
 	
 	public void addTranscriptsFromCache(ExportCache cache) {

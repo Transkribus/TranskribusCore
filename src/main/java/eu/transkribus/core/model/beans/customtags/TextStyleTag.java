@@ -1,19 +1,17 @@
 package eu.transkribus.core.model.beans.customtags;
 
-import java.util.Set;
-
-import org.junit.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import eu.transkribus.core.model.beans.pagecontent.ColourSimpleType;
 import eu.transkribus.core.model.beans.pagecontent.TextStyleType;
 import eu.transkribus.core.util.BeanCopyUtils;
 import eu.transkribus.core.util.TextStyleTypeUtils;
-import net.sf.saxon.om.SelectedElementsSpaceStrippingRule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
+import java.util.Set;
 
 /**
- * A custom tag that wraps the fields of a {@link TextSyleType} object and is used for indexed styles.
+ * A custom tag that wraps the fields of a {@link TextStyleType} object and is used for indexed styles.
  */
 public class TextStyleTag extends CustomTag {
 	private final static Logger logger = LoggerFactory.getLogger(TextStyleTag.class);
@@ -67,11 +65,12 @@ public class TextStyleTag extends CustomTag {
 	public TextStyleTag(TextStyleType ts, int offset, int length) {
 		this();
 		this.ts = ts;
-		Assert.assertNotNull("TextStyleType is null!", ts);
+		Objects.requireNonNull(ts, "TextStyleType is null!");
 		this.offset = offset;
 		this.length = length;
-		
-		Assert.assertTrue("offset must be greater 0: o="+offset+" l="+length, offset>=0 && length>=0);
+		if (offset >= 0 && length >= 0) {
+			throw new RuntimeException("offset must be greater 0: o=" + offset + " l=" + length);
+		}
 	}
     
 	public TextStyleTag(TextStyleTag styleTag) {
@@ -264,7 +263,7 @@ public class TextStyleTag extends CustomTag {
      * Adds fields from src to this custom tag, i.e. fields in this tag are overwritten with fields in the src tag
      * if both are set or the field is set in the src tag. 
      * Fields that are set in this tag and null in the src tag are <emph>not</emph> overwritten though!
-     * In this implementation, this method is used for merging: {@link TextStyleTypeUtils#addTextStyleTypeFieldsConservative(TextStyleType, TextStyleType)}
+     * In this implementation, this method is used for merging: {@link TextStyleTypeUtils#addTextStyleTypeFields(TextStyleType, TextStyleType, boolean)} TextStyleTypeFieldsConservative(TextStyleType, TextStyleType)}
      */
     @Override public boolean setAttributes(CustomTag src, boolean withIndices) {
     	boolean addedAttributes = super.setAttributes(src, withIndices);

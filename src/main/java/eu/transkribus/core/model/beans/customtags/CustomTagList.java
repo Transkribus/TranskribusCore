@@ -1,25 +1,18 @@
 package eu.transkribus.core.model.beans.customtags;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import eu.transkribus.core.model.beans.customtags.search.CustomTagSearchFacets;
 import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpTagsChangedEvent;
 import eu.transkribus.core.model.beans.pagecontent_trp.observable.TrpObserveEvent.TrpTagsChangedEvent.Type;
 import eu.transkribus.core.util.IntRange;
 import eu.transkribus.core.util.OverlapType;
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 /**
  * Utility class that manages multiple CustomTag objects for a given
@@ -39,7 +32,7 @@ public class CustomTagList {
 	List<CustomTag> tags = new ArrayList<CustomTag>();
 
 	public CustomTagList(ITrpShapeType shape) {
-		Assert.assertNotNull(shape);
+		Objects.requireNonNull(shape);
 		this.shape = shape;
 		
 		initFromCustomTagString(shape.getCustom(), false);
@@ -286,7 +279,7 @@ public class CustomTagList {
 	 *            The tag to add or merge
 	 * @param addOnlyThisProperty
 	 *            If not null, only this property is added
-	 * @param sendSingal
+	 * @param sendSignal
 	 *            If true, a signal is sent that tags have changed
 	 */
 	public void addOrMergeTag(CustomTag givenTag, String addOnlyThisProperty, boolean sendSignal) throws IndexOutOfBoundsException {
@@ -343,7 +336,9 @@ public class CustomTagList {
 			case NONE:
 				break;
 			case LEFT:
-				Assert.assertEquals("For the LEFT overlap type, this must be the first element!", i, 0);
+				if (i != 0) {
+					throw new RuntimeException("For the LEFT overlap type, this must be the first element!");
+				}
 				left = overlapTag.copy();
 				left.setOffset(overlapTag.getOffset());
 				left.setLength(givenTag.getOffset() - overlapTag.getOffset());
@@ -393,7 +388,9 @@ public class CustomTagList {
 				removeCustomTagFromList(overlapTag);
 				break;
 			case RIGHT:
-				Assert.assertEquals("For the RIGHT overlap type, this must be the last element!", i + 1, N);
+				if (i + 1 != N) {
+					throw new RuntimeException("For the LEFT overlap type, this must be the first element!");
+				}
 				int o1 = Math.max(currentPosition, givenTag.getOffset());
 				int l1 = overlapTag.getOffset() - o1;
 
@@ -417,9 +414,10 @@ public class CustomTagList {
 				removeCustomTagFromList(overlapTag);
 				break;
 			case BOTH:
-				logger.trace("N=" + N);
-				Assert.assertEquals("For the BOTH overlap type, nr of overlapping elements must be 1!", N, 1);
-
+				logger.trace("N={}", N);
+				if (N != 1) {
+					throw new RuntimeException("For the BOTH overlap type, nr of overlapping elements must be 1!");
+				}
 				if (givenTag.getOffset() - overlapTag.getOffset() > 0) {
 					left = overlapTag.copy();
 					left.setOffset(overlapTag.getOffset());
@@ -961,8 +959,9 @@ public class CustomTagList {
 			return null;
 
 		// should never happen!
-		Assert.assertTrue("Nr of tags at position " + offset + " is greater 1: " + tagsAtOffset.size(), tagsAtOffset.size() == 1);
-
+		if (tagsAtOffset.size() != 1) {
+			throw new RuntimeException("Nr of tags at position " + offset + " is greater 1: " + tagsAtOffset.size());
+		}
 		CustomTag firstTag = tagsAtOffset.get(0);
 		return firstTag;
 	}
@@ -1068,13 +1067,9 @@ public class CustomTagList {
 	 * Finds custom tags in this list for given the facets - every facet can
 	 * include the wildcards '*' for multiple unknown characters and '?' for one
 	 * single unknown character
-	 * 
-	 * @param tagNameRegex
-	 *            The wildcarded tag name to search for
-	 * @param props
-	 *            A map containing wildcarded property names and (optional)
-	 *            wildcarded values for those properties that must be satisfied
-	 *            by the returned tags
+	 *
+	 * @param facets
+	 *				?
 	 * @param stopOnFirst
 	 *            Stop on the first tag matching
 	 * @param startOffset
