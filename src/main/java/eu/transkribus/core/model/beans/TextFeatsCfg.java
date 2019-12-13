@@ -164,6 +164,10 @@ public class TextFeatsCfg {
 		return str;
 	}
 	
+	public String toSingleLineConfigString() {
+		return toConfigString().replaceAll("\n", " ");
+	}	
+	
 	@Override
 	public String toString() {
 		return "TextFeatsCfg [verbose=" + verbose + ", deslope=" + deslope + ", deslant=" + deslant + ", type=" + type

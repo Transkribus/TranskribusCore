@@ -39,6 +39,17 @@ public class ParameterMap extends AJaxbMap {
 		}
 	}
 	
+	public void addParameterFromSingleLine(String parameterLine, String separator) {
+		parameterLine = parameterLine.trim();
+		int i = parameterLine.indexOf(separator);
+		if (i >= 0 && i+1<parameterLine.length()) {
+			addParameter(parameterLine.substring(0, i), parameterLine.substring(i+1));
+		}
+		else { // separator not found -> add parameter with empty value!
+			addParameter(parameterLine, "");
+		}
+	}
+	
 	public void addParameter(final String name, Object value) {
 		if(StringUtils.isEmpty(name)) {
 			logger.warn("Ignoring noname parameter with value: " + value);
@@ -197,6 +208,10 @@ public class ParameterMap extends AJaxbMap {
 	public String toSingleLineString() {
 		return toSimpleString(" ");
 	}
+	
+	public String toSimpleStringLineByLine() {
+		return toSimpleString("\n");
+	}	
 	
 	@Override
 	public String toString() {
