@@ -61,7 +61,8 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
-		</dependency>	    
+            <scope>test</scope>
+		</dependency>
 	    <dependency>
 	    	<groupId>eu.transkribus</groupId>
 			<artifactId>TranskribusInterfaces</artifactId>
