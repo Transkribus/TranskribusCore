@@ -2,6 +2,7 @@ package eu.transkribus.core.model.beans.rest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,7 +30,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.NONE)
 public abstract class AJaxbMap {
  
-    protected Map<String, String> map = new HashMap<String, String>();
+//    protected Map<String, String> map = new HashMap<String, String>();
+    protected Map<String, String> map = new LinkedHashMap<String, String>(); // LinkedHashMap keeps order of insertion
  
     @XmlElement(name = "entry")
     public MapEntry[] getMap() {

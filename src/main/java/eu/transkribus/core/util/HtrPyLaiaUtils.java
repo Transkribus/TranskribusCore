@@ -15,6 +15,10 @@ public class HtrPyLaiaUtils {
 	
 	public final static String PROVIDER_PYLAIA = "PyLaia";
 	
+	public static final String TEXT_FEATS_CFG_FILENAME = "textFeatsCfg";
+	public static final String CREATE_MODEL_PARS_FILENAME = "createModelPars";
+	public static final String TRAIN_CTC_PARS_FILENAME = "trainCtcPars";	
+	
 	public static boolean doesDecodingSupportDicts() {
 		return false;
 	}

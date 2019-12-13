@@ -8,6 +8,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import eu.transkribus.core.util.GsonUtil;
 import eu.transkribus.core.util.JaxbUtils;
 
+/**
+ * This class represents parameters for the TextFeats line preprocessing tool from Mauricio Villegas.
+ * It is currently used during PyLaia training / decoding.
+ * @see https://github.com/mauvilsa/textfeats
+ */
 @Entity
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -20,12 +25,12 @@ public class TextFeatsCfg {
 	boolean stretch = true; // Whether to do contrast stretching
 	boolean enh = true; //
 	int enh_win = 30; // Window size in pixels for local enhancement
-	double enh_prm = 0.2; // Sauvola enhancement parameter
+	double enh_prm = 0.1; // Sauvola enhancement parameter
 	//enh_prm = [ 0.05, 0.2, 0.5 ]; // 3 independent enhancements, each in a color channel
-	int normheight = 0; // Normalize image heights
+	int normheight = 128; // Normalize image heights
 	int normxheight = 0; //
 	boolean momentnorm = true; // Global line vertical moment normalization
-	boolean fpgram = false; // Whether to compute the features parallelograms
+	boolean fpgram = true; // Whether to compute the features parallelograms
 	boolean fcontour = true; // Whether to compute the features surrounding polygon
 	int fcontour_dilate = 0; //
 	int padding = 10; // Padding in pixels to add to the left and right
@@ -129,6 +134,8 @@ public class TextFeatsCfg {
 	public void setPadding(int padding) {
 		this.padding = padding;
 	}
+	
+	// TODO: implement function that reads parameters from a file!
 	
 	/**
 	 * Creates the string as required by the textfeats tool 
