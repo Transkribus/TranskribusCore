@@ -53,7 +53,7 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 	@Schema(description = "Optional. Can be used to specify an existing HTR to be used as starting point for the training. Provider string must match the one given.", required=false)
 	protected Integer baseModelId;
 	@Schema(description = "Optional. If CER does not improve after this number of epochs, stop the training early.", required=false)
-	protected Integer earlyStopping = DEFAULT_EARLY_STOPPING;
+	protected Integer earlyStopping;
 	
 	@Hidden
 	public final static String NUM_EPOCHS_KEY = "Nr. of Epochs";
