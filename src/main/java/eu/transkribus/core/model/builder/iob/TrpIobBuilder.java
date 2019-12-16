@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import javafx.util.Pair; 
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -335,7 +335,7 @@ public class TrpIobBuilder {
 					
 				}
 			}
-			idPageList.add(new Pair<Integer, PcGtsType> (page.getPageId(), t.getPcGtsType()));
+			idPageList.add(Pair.of(page.getPageId(), t.getPcGtsType()));
 		}
 	
 		return idPageList;
