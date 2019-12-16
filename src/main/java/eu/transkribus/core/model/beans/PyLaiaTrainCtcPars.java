@@ -41,6 +41,10 @@ public class PyLaiaTrainCtcPars extends ParameterMap {
 	
 	public static PyLaiaTrainCtcPars getDefault() {
 		PyLaiaTrainCtcPars pars = new PyLaiaTrainCtcPars();
+		pars.addParameter("--max_nondecreasing_epochs", ""+DEFAULT_MAX_NONDECREASING_EPOCHS);
+		pars.addParameter("--max_epochs", ""+DEFAULT_MAX_EPOCHS);		
+		pars.addParameter("--batch_size", ""+DEFAULT_BATCH_SIZE);
+		pars.addParameter("--learning_rate", ""+DEFAULT_LEARNING_RATE);
 		pars.addParameter("--print_args", "True");
 		pars.addParameter("--delimiters", "<SPACE>"); // note: this argument cannot be on the last position for some reason!
 		pars.addParameter("--use_baidu_ctc", "True");
@@ -50,11 +54,7 @@ public class PyLaiaTrainCtcPars extends ParameterMap {
 		pars.addParameter("--logging_also_to_stderr", "info");
 		pars.addParameter("--logging_file", "train-crnn.log");
 		pars.addParameter("--show_progress_bar", "False");
-		pars.addParameter("--batch_size", ""+DEFAULT_BATCH_SIZE);
-		pars.addParameter("--learning_rate", ""+DEFAULT_LEARNING_RATE);
 		pars.addParameter("--use_distortions", "True");
-		pars.addParameter("--max_nondecreasing_epochs", ""+DEFAULT_MAX_NONDECREASING_EPOCHS);
-		pars.addParameter("--max_epochs", ""+DEFAULT_MAX_EPOCHS);
 		
 		return pars;
 	}

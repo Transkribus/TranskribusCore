@@ -59,14 +59,14 @@ public class PyLaiaCreateModelPars extends ParameterMap {
 		return pars;
 	}
 	
-	public void setFixedInputHeight(int fixedInputHeight) {
-		if (fixedInputHeight > 0) {
-			addParameter("--fixed_input_height", fixedInputHeight);	
-		}
-		else {
-			remove("--fixed_input_height");
-		}
-	}
+//	public void setFixedInputHeight(int fixedInputHeight) {
+//		if (fixedInputHeight > 0) {
+//			addParameter("--fixed_input_height", fixedInputHeight);	
+//		}
+//		else {
+//			remove("--fixed_input_height");
+//		}
+//	}
 	
 	public Integer getFixedInputHeight() {
 		return getIntParam("--fixed_input_height");

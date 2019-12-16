@@ -17,8 +17,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -66,8 +67,6 @@ import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import eu.transkribus.core.model.beans.TrpP2PaLA;
-
 public class CoreUtils {
 	private final static Logger logger = LoggerFactory.getLogger(CoreUtils.class);
 	private static final AtomicLong LAST_TIME_MS = new AtomicLong();
@@ -96,6 +95,13 @@ public class CoreUtils {
 	 */
 	public static DateFormat newDateFormatddMMYY() {
 		return new SimpleDateFormat(DATE_FORMAT_STR_ddMMYY);
+	}
+	
+	public static String formatDoubleNonScientific(double d) {
+		// see https://stackoverflow.com/questions/16098046/how-do-i-print-a-double-value-without-scientific-notation-using-java#20937683
+		DecimalFormat df = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+		df.setMaximumFractionDigits(340); // 340 = DecimalFormat.DOUBLE_FRACTION_DIGITS
+		return df.format(d);
 	}
 
 	// public static void main(String[] args) {

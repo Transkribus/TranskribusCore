@@ -27,7 +27,7 @@ public class TextFeatsCfg {
 	int enh_win = 30; // Window size in pixels for local enhancement
 	double enh_prm = 0.1; // Sauvola enhancement parameter
 	//enh_prm = [ 0.05, 0.2, 0.5 ]; // 3 independent enhancements, each in a color channel
-	int normheight = 128; // Normalize image heights
+	int normheight = 64; // Normalize image heights
 	int normxheight = 0; //
 	boolean momentnorm = true; // Global line vertical moment normalization
 	boolean fpgram = true; // Whether to compute the features parallelograms
