@@ -180,6 +180,12 @@ public class HtrCITlabUtils {
 		}
 	}
 	
+	/**
+	 * @deprecated Logic for reading internal files of CITlab HTRs was moved to CITlabHtrAppModule as CITlabModule dependency is required.
+	 * 
+	 * @param h
+	 * @return
+	 */
 	public static boolean loadDataFromFileSystem(TrpHtr h) {
 		boolean hasChanged = false;
 		
