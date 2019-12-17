@@ -1,20 +1,20 @@
 package eu.transkribus.core.io;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-
+import eu.transkribus.core.model.beans.TrpDoc;
+import eu.transkribus.core.model.builder.CommonExportPars;
+import eu.transkribus.core.util.SysUtils;
 import org.apache.commons.io.FileUtils;
 import org.dea.fimgstoreclient.FimgStoreGetClient;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.transkribus.core.model.beans.TrpDoc;
-import eu.transkribus.core.model.builder.CommonExportPars;
-import eu.transkribus.core.util.SysUtils;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 public class DocExporterTest {
 	private static final Logger logger = LoggerFactory.getLogger(DocExporterTest.class);
@@ -65,7 +65,8 @@ public class DocExporterTest {
 		}
 		
 		File tmpDir = createTempDir();
-		
+		Assume.assumeTrue(new File(testDocPath).exists());
+
 		TrpDoc doc = LocalDocReader.load(testDocPath);
 		File teiFile = exportTei(tmpDir, doc);
 		Assert.assertTrue(teiFile.isFile());
@@ -96,7 +97,7 @@ public class DocExporterTest {
 		}
 		
 		File tmpDir = createTempDir();
-		
+		Assume.assumeTrue(new File(testDocPath).exists());
 		TrpDoc doc = LocalDocReader.load(testDocPath);
 		File outputDir = exportAlto(tmpDir, doc);
 		Assert.assertTrue(outputDir.isDirectory());
