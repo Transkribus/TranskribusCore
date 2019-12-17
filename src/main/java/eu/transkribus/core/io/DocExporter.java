@@ -519,6 +519,13 @@ public class DocExporter extends APassthroughObservable {
 		}
 		return exportedPages;
 	}
+
+	/**
+	 * Override this method to implement stuff that shall be done to the transcript before saving.
+	 * E.g.: building up a transcript cache, Baseline2Polygon etc.
+	 */
+	public void onBeforeTranscriptIsWritten(TrpPage page, JAXBPageTranscript transcript) throws IOException {
+	}
 	
 	/**
 	 * Exports a single TrpPage object to disk according to the CommonExportPars given to the {@link #init(CommonExportPars)} method.
@@ -619,6 +626,8 @@ public class DocExporter extends APassthroughObservable {
 					tmd.setImageId(pageExport.getImageId());
 					md.setTranskribusMetadata(tmd);
 				}
+				
+				onBeforeTranscriptIsWritten(pageExport, transcript);
 				
 				// write transcript to file
 				xmlFile = new File(FilenameUtils.normalizeNoEndSeparator(outputDir.getPageOutputDir().getAbsolutePath()) 

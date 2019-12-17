@@ -2,11 +2,14 @@ package eu.transkribus.core.io;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.model.beans.TrpPage;
 
 public class ExportFilePatternUtils {
-
+	private static final Logger logger = LoggerFactory.getLogger(ExportFilePatternUtils.class);
+	
 	public static final String FILENAME_PATTERN = "${filename}";
 	public static final String DOCID_PATTERN = "${docId}";
 	public static final String PAGEID_PATTERN = "${pageId}";
@@ -25,6 +28,11 @@ public class ExportFilePatternUtils {
 			
 	public static String buildBaseFileName(String fileNamePattern, TrpPage p) {
 		if(StringUtils.isEmpty(fileNamePattern) || fileNamePattern.equals(FILENAME_PATTERN)) {
+			return FilenameUtils.getBaseName(p.getImgFileName());
+		} else if(fileNamePattern.equals(PAGEID_PATTERN) && p.getPageId() < 1) {
+			//gtPages where the original page was deleted do no have a pageId set!
+			//use the img filename for now.
+			logger.info("PAGE_ID filename pattern was requested, but pageId is not set! Using original image base filename.");
 			return FilenameUtils.getBaseName(p.getImgFileName());
 		} else {
 			String fileName = buildBaseFileName(fileNamePattern, p.getImgFileName(), p.getPageId(), 
