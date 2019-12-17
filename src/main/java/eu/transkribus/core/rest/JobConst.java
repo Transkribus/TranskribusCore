@@ -82,6 +82,7 @@ public class JobConst {
 	public static final String PROP_DO_LINE_POLYGON_SIMPLIFICATION = "doLinePolygonSimplification";
 	public static final String PROP_DO_STORE_CONFMATS = "doStoreConfMats";
 	public static final String PROP_CLEAR_LINES = "clearLines";
+	public static final String PROP_BATCH_SIZE = "batchSize";
 	
 	public static final String PROP_TABLE_TEMPLATE_ID = "templateId";
 
