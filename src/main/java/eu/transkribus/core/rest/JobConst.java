@@ -121,6 +121,7 @@ public class JobConst {
 	
 	public static final String PROP_NUM_LINESAMPLES = "numLineSamples";
 	public static final String PROP_NUM_PAGESAMPLES = "numPageSamples";
+	public static final String PROP_OPTION_PAGESAMPLES = "optionPageSamples";
 
 	public static final String PROP_GPU_DEVICE_ENV_VAR = "GPU_DEVICE";
 
