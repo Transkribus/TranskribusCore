@@ -218,7 +218,8 @@ public class TrpGroundTruthPage extends TrpTranscriptStatistics implements ITrpF
 		TrpPage p = new TrpPage();
 		p.setImage(this.getImage());
 		p.setPageNr(this.pageNr != null ? this.pageNr : -1);
-		p.setPageId(this.originPageId);
+		//GT pages where the original page was deleted won't have a originPageId set!
+		p.setPageId(this.originPageId == null ? -1 : this.originPageId);
 		
 		TrpTranscriptMetadata t = new TrpTranscriptMetadata();
 		t.setKey(this.key);

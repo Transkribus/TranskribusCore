@@ -26,6 +26,10 @@ public class ExportFilePatternUtils {
 	public static String buildBaseFileName(String fileNamePattern, TrpPage p) {
 		if(StringUtils.isEmpty(fileNamePattern) || fileNamePattern.equals(FILENAME_PATTERN)) {
 			return FilenameUtils.getBaseName(p.getImgFileName());
+		} else if(fileNamePattern.equals(PAGEID_PATTERN) && p.getPageId() < 1) {
+			//gtPages where the original page was deleted do no have a pageId set!
+			//use the img filename for now.
+			return FilenameUtils.getBaseName(p.getImgFileName());
 		} else {
 			String fileName = buildBaseFileName(fileNamePattern, p.getImgFileName(), p.getPageId(), 
 					p.getDocId(), p.getKey(), p.getPageNr());
