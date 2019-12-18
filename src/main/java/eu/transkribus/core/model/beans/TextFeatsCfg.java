@@ -1,10 +1,21 @@
 package eu.transkribus.core.model.beans;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import eu.transkribus.core.exceptions.NullValueException;
 import eu.transkribus.core.util.GsonUtil;
 import eu.transkribus.core.util.JaxbUtils;
 
@@ -17,6 +28,10 @@ import eu.transkribus.core.util.JaxbUtils;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TextFeatsCfg {
+	private static final Logger logger = LoggerFactory.getLogger(TextFeatsCfg.class);
+	
+	public static final String CONFIG_STR_PREFIX = "TextFeatExtractor:";
+	
 	boolean verbose = false; // Whether to be verbose
 	boolean deslope = true; // Whether to do automatic desloping of the text
 	boolean deslant = true; // Whether to do automatic deslanting of the text
@@ -60,13 +75,15 @@ public class TextFeatsCfg {
 		return type;
 	}
 	public void setType(String type) {
-		this.type = type;
+//		this.type = type;
+		this.type = StringUtils.strip(type, "\"'");
 	}
 	public String getFormat() {
 		return format;
 	}
 	public void setFormat(String format) {
-		this.format = format;
+//		this.format = format;
+		this.format = StringUtils.strip(format, "\"'");
 	}
 	public boolean isStretch() {
 		return stretch;
@@ -141,7 +158,7 @@ public class TextFeatsCfg {
 	 * Creates the string as required by the textfeats tool 
 	 */
 	public String toConfigString() {
-		String str = "TextFeatExtractor: {\n";
+		String str = CONFIG_STR_PREFIX+" {\n";
 		str += "verbose = "+verbose+";\n";
 		str += "deslope = "+deslope+";\n";
 		str += "deslant = "+deslant+";\n";
@@ -164,6 +181,39 @@ public class TextFeatsCfg {
 		return str;
 	}
 	
+	public static TextFeatsCfg fromConfigString(String str) throws IllegalAccessException, InvocationTargetException, NullValueException {
+		if (StringUtils.isEmpty(str)) {
+			throw new NullValueException("String cannot be empty!");
+		}
+		
+		TextFeatsCfg cfg = new TextFeatsCfg();
+		String[] keyValuePairs = str.replace(CONFIG_STR_PREFIX, "").replaceAll("[{}]", "").split("; ");
+		for (String keyValuePair : keyValuePairs) {
+//			logger.debug("keyValuePair = "+keyValuePair);
+			String splits[] = keyValuePair.split("=");
+			if (splits.length==2) {
+				String key = splits[0].trim();
+				String value = splits[1].trim();
+				value = StringUtils.strip(value, "\"'");
+//				logger.debug("key = "+key+", value = "+value);
+				BeanUtils.setProperty(cfg, key, value);
+			}
+			else {
+				logger.warn("Ignoring invalid key/value pair: "+keyValuePair);
+			}
+		}
+
+		return cfg;
+	}
+	
+	public static TextFeatsCfg fromConfigString2(String str) {
+		try {
+			return fromConfigString(str);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
 	public String toSingleLineConfigString() {
 		return toConfigString().replaceAll("\n", " ");
 	}	
@@ -178,8 +228,12 @@ public class TextFeatsCfg {
 	}
 
 	public static void main(String[] args) throws Exception {
-		TextFeatsCfg c = new TextFeatsCfg();
-		System.out.println("config-str = \n"+c.toConfigString());
+		String str = "TextFeatExtractor: { verbose = true; deslope = true; deslant = true; type = \"raw\"; format = \"img\"; stretch = true; enh = true; enh_win = 30; enh_prm = 0.2; normheight = 32; normxheight = 0; momentnorm = true; fpgram = true; fcontour = true; fcontour_dilate = 0; padding = 10; }";
+		TextFeatsCfg cfg = TextFeatsCfg.fromConfigString(str);
+		if (cfg != null) {
+//			System.out.println("cfg = "+cfg);
+			logger.debug("cfg = "+cfg.toConfigString());
+		}
 	}
 
 }

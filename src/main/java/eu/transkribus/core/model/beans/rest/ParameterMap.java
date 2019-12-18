@@ -10,10 +10,12 @@ import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
+import org.docx4j.openpackaging.parts.relationships.RelationshipsPart.AddPartBehaviour;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.io.util.TrpProperties;
+import eu.transkribus.core.model.beans.PyLaiaTrainCtcPars;
 
 /**
  * Implements {@link AJaxbMap} and adds parameter-related helper methods.
@@ -47,6 +49,12 @@ public class ParameterMap extends AJaxbMap {
 		}
 		else { // separator not found -> add parameter with empty value!
 			addParameter(parameterLine, "");
+		}
+	}
+	
+	public void addAll(ParameterMap map) {
+		for (String key : map.getParamMap().keySet()) {
+			addParameter(key, map.getParamMap().get(key));
 		}
 	}
 	
@@ -198,12 +206,44 @@ public class ParameterMap extends AJaxbMap {
 			if (!StringUtils.isEmpty(val)) {
 				str+=" "+val+separator;
 			}
+			else {
+				str+=separator;
+			}
 		}
 		str = StringUtils.removeEnd(str, separator);
 		str = str.trim();
 		
 		return str;
 	}
+	
+	public static ParameterMap fromSingleLineString(String str, String argumentPrefix, String separator) {
+		ParameterMap pm = new ParameterMap();
+		
+		String currentArg=null, currentVal="";
+		for (String s : str.split(separator)) {
+			s = s.trim();
+			if (StringUtils.isEmpty(s)) {
+				continue;
+			}
+			
+			if (s.startsWith(argumentPrefix)) {
+				if (currentArg!=null) {
+					logger.debug("adding par: '"+currentArg+"', val = '"+currentVal+"'");
+					pm.addParameter(currentArg, currentVal);
+					currentVal="";
+				}
+				currentArg=s;
+			}
+			else {
+				currentVal = StringUtils.isEmpty(currentVal) ? s : currentVal+separator+s;
+			}
+		}
+		if (currentArg!=null) { // there was an empty value argument at the last place
+			pm.addParameter(currentArg, currentVal);
+		}
+		
+		return pm;
+	}	
 	
 	public String toSingleLineString() {
 		return toSimpleString(" ");
