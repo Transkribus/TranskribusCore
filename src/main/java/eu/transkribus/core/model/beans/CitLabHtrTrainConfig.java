@@ -68,9 +68,7 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 	@Hidden
 	public final static String BASE_MODEL_NAME_KEY = "HTR Base Model Name";
 	@Hidden
-	public final static String EARLY_STOPPING_KEY = "Early Stopping";
-	@Hidden
-	public static final String BEST_NET_EPOCH_KEY = "Best Net Epoch";		
+	public final static String EARLY_STOPPING_KEY = "Early Stopping";		
 	
 	public CitLabHtrTrainConfig() {
 		super();
