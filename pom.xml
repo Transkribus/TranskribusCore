@@ -82,15 +82,11 @@
 		<dependency>
             <groupId>de.uros.citlab</groupId>
             <artifactId>tokenizer</artifactId>
-            <version>1.1.0</version>
+            <version>2.0.1</version>
             <exclusions>
             	<exclusion>
             		<groupId>ch.qos.logback</groupId>
             		<artifactId>logback-core</artifactId>
-            	</exclusion>
-            	<exclusion>
-            		<groupId>eu.transkribus</groupId>
-            		<artifactId>TranskribusInterfaces</artifactId>
             	</exclusion>
             	<exclusion>
             		<groupId>ch.qos.logback</groupId>
