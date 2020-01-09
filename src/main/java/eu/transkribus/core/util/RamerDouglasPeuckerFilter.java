@@ -54,7 +54,7 @@ public class RamerDouglasPeuckerFilter {
 	
 	public static List<Point> filter(double eps, List<Point> pts, int nMin) {
 		eps = Math.max(1e-4d, eps);
-		logger.debug("filter, n-pts = "+pts.size()+", eps = "+eps+", nMin = "+nMin);
+		logger.trace("filter, n-pts = "+pts.size()+", eps = "+eps+", nMin = "+nMin);
 		
 		if (pts.size() <= nMin) {
 			logger.debug("n-pts <= "+nMin+" -> not simplifiying!");
