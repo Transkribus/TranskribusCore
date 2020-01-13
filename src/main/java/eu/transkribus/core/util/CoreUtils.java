@@ -1483,8 +1483,25 @@ public class CoreUtils {
 		}
 	}
 	
+	public static <T> List<List<T>> createSublists(List<T> list, int nEntries) {
+		List<List<T>> sublists = new ArrayList<>(); 
+		int i=0;
+		do {
+			sublists.add(list.subList(i, Math.min(list.size(), i+nEntries)));
+			i+=nEntries;
+		} while (i<list.size());
+		return sublists;
+	}
+	
 	public static void main(String[] args) throws Exception {
 		System.out.println(regularizedPath("c:\\hello\\world/by\\me\\"));
+		
+//		List<Integer> l = new ArrayList<>();
+//		for (int i=0; i<20; ++i) {
+//			l.add(i);
+//		}
+		
+//		System.out.println(createSublists(l, 7));
 		
 //		System.out.println(timeDiffToString(-1));
 //		System.out.println(timeDiffToString(0));
