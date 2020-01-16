@@ -1,18 +1,19 @@
 package eu.transkribus.core.model.beans.auth;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.sql.Timestamp;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import eu.transkribus.core.model.beans.TrpCollection;
+import org.apache.commons.lang3.StringUtils;
+
 import eu.transkribus.core.model.beans.TrpUserCollection;
+import eu.transkribus.core.model.beans.adapters.SqlTimestampAdapter;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -21,7 +22,8 @@ public class TrpUser implements Serializable {
 	protected int userId;
 	protected String userName;
 	protected String email;
-	protected String affiliation; //? TODO
+	protected Integer affiliationId;
+	protected String affiliation;
 	
 	protected String firstname;
 	protected String lastname;
@@ -29,12 +31,17 @@ public class TrpUser implements Serializable {
 	protected String orcid;
 	protected String profilePicUrl;
 	
-	
+	protected List<String> userRoleList;
 	
 	protected int isActive=1;
+	
+	/**
+	 * userRoleList is now used instead of this flag. Still here for backwards compatibility during transition
+	 */
 	protected boolean isAdmin = false;
 	
-	private java.sql.Timestamp created=null;
+	@XmlJavaTypeAdapter(SqlTimestampAdapter.class)
+	private Timestamp created=null;
 		
 	@XmlTransient // shall not be transferred!
 	protected String password;
@@ -64,6 +71,7 @@ public class TrpUser implements Serializable {
 	    this.isActive = trpUser.isActive;
 	    this.created = trpUser.created;
 	    this.profilePicUrl = trpUser.profilePicUrl;
+	    this.userRoleList = trpUser.userRoleList;
 	}
 
 	public TrpUser(final int userId, final String userName){
@@ -84,10 +92,20 @@ public class TrpUser implements Serializable {
 	}
 
 	public void setAdmin(boolean isAdmin) {
-		this.isAdmin = isAdmin;
+		this.isAdmin = isAdmin;			
 	}	
 	
-
+	public List<String> getUserRoleList() {
+		return userRoleList;
+	}
+	
+	public void setUserRoleList(List<String> userRoleList) {
+		this.userRoleList = userRoleList;
+		
+		if(userRoleList != null && userRoleList.contains("Admin")) {
+			setAdmin(true);
+		}
+	}
 
 	public int getIsActive() {
 		return isActive;
@@ -120,14 +138,17 @@ public class TrpUser implements Serializable {
 	public String getAffiliation() {
 		return affiliation;
 	}
-	
-	@Deprecated
-	public boolean canDelete() {
-		return affiliation.equals("DEA");
-	}
 
 	public void setAffiliation(String affiliation) {
 		this.affiliation = affiliation;
+	}
+	
+	public Integer getAffiliationId() {
+		return affiliationId;
+	}
+
+	public void setAffiliationId(Integer affiliationId) {
+		this.affiliationId = affiliationId;
 	}
 	
 	public String getFirstname() {
@@ -202,36 +223,22 @@ public class TrpUser implements Serializable {
 		return str;
 	}
 	
-//	public String getRoleStr() {
-//		TrpUserCollection uc = getUserCollection();
-//		TrpRole r = uc == null ? TrpRole.None : (uc.getRole() == null ? TrpRole.None : uc.getRole());
-//		return r.toString();
-//	}
-	
 	public TrpRole getRoleInCollection() {
 		TrpUserCollection uc = getUserCollection();
 		return (uc == null ? TrpRole.None : (uc.getRole() == null ? TrpRole.None : uc.getRole()));
-//		return r.toString();
 	}	
 	
 	public String getFullname() {
 		return firstname+" "+lastname;
 	}
 	
+	@Override
 	public String toString() {
-	    final String TAB = ", ";
-	    String retValue = "TrpUser ( "+super.toString();
-		retValue += TAB + "userId = " + this.userId;
-		retValue += TAB + "userName = " + this.userName;
-		retValue += TAB + "email = " + this.email;
-		retValue += TAB + "affiliation = " + this.affiliation;
-		retValue += TAB + "firstname = " + this.firstname;
-		retValue += TAB + "lastname = " + this.lastname;
-		retValue += TAB + "gender = " + this.gender;
-		retValue += TAB + "orcid = " + this.orcid;
-		retValue += TAB + "isActive = " + this.isActive;
-		retValue += TAB + "created = " + ((created==null) ? "null" : created.toString());
-		retValue += " )";
-	    return retValue;
+		return "TrpUser [userId=" + userId + ", userName=" + userName + ", email=" + email + ", affiliationId="
+				+ affiliationId + ", affiliation=" + affiliation + ", firstname=" + firstname + ", lastname=" + lastname
+				+ ", gender=" + gender + ", orcid=" + orcid + ", profilePicUrl=" + profilePicUrl + ", userRoleList="
+				+ userRoleList + ", isActive=" + isActive + ", isAdmin=" + isAdmin + ", created=" + created
+				+ ", password=" + (StringUtils.isEmpty(password) ? "null" : "[is set]") + ", hash=" + hash 
+				+ ", userCollection=" + userCollection + "]";
 	}
 }

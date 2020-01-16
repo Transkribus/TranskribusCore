@@ -4,6 +4,9 @@ import java.util.List;
 
 import eu.transkribus.core.util.AuthUtils;
 
+/**
+ * enum with roles that specify access right of a user in a specific collection, i.e. "TrpCollectionRole".
+ */
 public enum TrpRole {
 	Admin(Integer.MAX_VALUE),
 	Owner(10),
