@@ -41,7 +41,10 @@ public class TrpUser implements Serializable {
 	protected boolean isAdmin = false;
 	
 	@XmlJavaTypeAdapter(SqlTimestampAdapter.class)
-	private Timestamp created=null;
+	private Timestamp created = null;
+	
+	@XmlJavaTypeAdapter(SqlTimestampAdapter.class)
+	private Timestamp delTime = null;
 		
 	@XmlTransient // shall not be transferred!
 	protected String password;
@@ -70,6 +73,7 @@ public class TrpUser implements Serializable {
 	    this.password = trpUser.password;
 	    this.isActive = trpUser.isActive;
 	    this.created = trpUser.created;
+	    this.delTime = trpUser.delTime;
 	    this.profilePicUrl = trpUser.profilePicUrl;
 	    this.userRoleList = trpUser.userRoleList;
 	}
@@ -207,12 +211,20 @@ public class TrpUser implements Serializable {
 		this.hash = hash;
 	}
 	
-	public java.sql.Timestamp getCreated() {
+	public Timestamp getCreated() {
 		return created;
 	}
 
-	public void setCreated(java.sql.Timestamp created) {
+	public void setCreated(Timestamp created) {
 		this.created = created;
+	}
+	
+	public Timestamp getDelTime()  {
+		return delTime;
+	}
+	
+	public void setDelTime(Timestamp delTime) {
+		this.delTime = delTime;
 	}
 
 	public String getInfo(boolean withEmail) {
@@ -238,7 +250,7 @@ public class TrpUser implements Serializable {
 				+ affiliationId + ", affiliation=" + affiliation + ", firstname=" + firstname + ", lastname=" + lastname
 				+ ", gender=" + gender + ", orcid=" + orcid + ", profilePicUrl=" + profilePicUrl + ", userRoleList="
 				+ userRoleList + ", isActive=" + isActive + ", isAdmin=" + isAdmin + ", created=" + created
-				+ ", password=" + (StringUtils.isEmpty(password) ? "null" : "[is set]") + ", hash=" + hash 
+				+ ", delTime=" + delTime + ", password=" + (StringUtils.isEmpty(password) ? "null" : "[is set]") + ", hash=" + hash 
 				+ ", userCollection=" + userCollection + "]";
 	}
 }
