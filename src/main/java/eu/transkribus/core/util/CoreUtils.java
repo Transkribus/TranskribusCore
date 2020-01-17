@@ -81,7 +81,7 @@ public class CoreUtils {
 		return new SimpleDateFormat(DATE_FORMAT_STR);
 	}
 
-	public final static String DATE_FORMAT_STR_USER_FRIENDLY = "dd.MM.YY HH:mm:ss";
+	public final static String DATE_FORMAT_STR_USER_FRIENDLY = "dd.MM.yy HH:mm:ss";
 	/**
 	 * Create a date format instance for formatting dates for UIs: {@value #DATE_FORMAT_STR_USER_FRIENDLY}
 	 */
@@ -89,7 +89,7 @@ public class CoreUtils {
 		return new SimpleDateFormat(DATE_FORMAT_STR_USER_FRIENDLY);
 	}
 	
-	public final static String DATE_FORMAT_STR_ddMMYY = "dd.MM.YY";	
+	public final static String DATE_FORMAT_STR_ddMMYY = "dd.MM.yy";	
 	/**
 	 * Create a date format instance for formatting dates with day precision: {@value #DATE_FORMAT_STR_ddMMYY}
 	 */
