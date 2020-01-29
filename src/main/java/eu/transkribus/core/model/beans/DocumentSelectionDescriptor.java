@@ -176,6 +176,16 @@ public class DocumentSelectionDescriptor implements Serializable {
 				return false;
 			}
 			
+			//FIXME boxed type equality is checked with == operator before.
+//			if(pd.tsId != null && tsId == null) {
+//				return false;
+//			} else if(pd.tsId == null && tsId != null) {
+//				return false;
+//			} else if(pd.tsId != null && tsId != null 
+//					&& pd.tsId.intValue() != tsId.intValue()) {
+//				return false;
+//			}
+			
 			if (pd.tsId != tsId) {
 				return false;
 			}
