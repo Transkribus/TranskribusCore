@@ -2,10 +2,15 @@ package eu.transkribus.core.model.beans;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import eu.transkribus.core.model.beans.rest.ParameterMap;
 
 @XmlRootElement(name="trainCtcPars")
 public class PyLaiaTrainCtcPars extends ParameterMap {
+	private static final Logger logger = LoggerFactory.getLogger(PyLaiaTrainCtcPars.class);
+	
 //    [--logging_also_to_stderr LOGGING_ALSO_TO_STDERR]
 //    [--logging_config LOGGING_CONFIG]
 //    [--logging_file LOGGING_FILE]
@@ -41,6 +46,10 @@ public class PyLaiaTrainCtcPars extends ParameterMap {
 	
 	public static PyLaiaTrainCtcPars getDefault() {
 		PyLaiaTrainCtcPars pars = new PyLaiaTrainCtcPars();
+		pars.addParameter("--max_nondecreasing_epochs", ""+DEFAULT_MAX_NONDECREASING_EPOCHS);
+		pars.addParameter("--max_epochs", ""+DEFAULT_MAX_EPOCHS);		
+		pars.addParameter("--batch_size", ""+DEFAULT_BATCH_SIZE);
+		pars.addParameter("--learning_rate", ""+DEFAULT_LEARNING_RATE);
 		pars.addParameter("--print_args", "True");
 		pars.addParameter("--delimiters", "<SPACE>"); // note: this argument cannot be on the last position for some reason!
 		pars.addParameter("--use_baidu_ctc", "True");
@@ -50,11 +59,7 @@ public class PyLaiaTrainCtcPars extends ParameterMap {
 		pars.addParameter("--logging_also_to_stderr", "info");
 		pars.addParameter("--logging_file", "train-crnn.log");
 		pars.addParameter("--show_progress_bar", "False");
-		pars.addParameter("--batch_size", ""+DEFAULT_BATCH_SIZE);
-		pars.addParameter("--learning_rate", ""+DEFAULT_LEARNING_RATE);
 		pars.addParameter("--use_distortions", "True");
-		pars.addParameter("--max_nondecreasing_epochs", ""+DEFAULT_MAX_NONDECREASING_EPOCHS);
-		pars.addParameter("--max_epochs", ""+DEFAULT_MAX_EPOCHS);
 		
 		return pars;
 	}
@@ -96,9 +101,28 @@ public class PyLaiaTrainCtcPars extends ParameterMap {
 		return toSingleLineString();
 	}	
 	
+	public static PyLaiaTrainCtcPars fromSingleLineString(String str) {
+		ParameterMap m = ParameterMap.fromSingleLineString(str, "--", " ");
+		PyLaiaTrainCtcPars p = new PyLaiaTrainCtcPars();
+		p.setParamMap(m.getParamMap());
+		return p;
+	}
+	
+	public static PyLaiaTrainCtcPars fromSingleLineString2(String str) {
+		try {
+			return fromSingleLineString(str);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
 	public static void main(String[] args) throws Exception {
-		PyLaiaTrainCtcPars p = PyLaiaTrainCtcPars.getDefault();
-		System.out.println(p.toSingleLineString());
+//		PyLaiaTrainCtcPars p = PyLaiaTrainCtcPars.getDefault();
+//		System.out.println(p.toSingleLineString());
+		
+		String str = "--max_nondecreasing_epochs 20 --max_epochs 250 --batch_size 24 --learning_rate 3.0E-4 --delimiters <SPACE> --use_baidu_ctc True --add_logsoftmax_to_loss False --train_path ./model --logging_level info --logging_also_to_stderr info --logging_file train-crnn.log --show_progress_bar False --use_distortions True --print_args True";
+		PyLaiaTrainCtcPars p = PyLaiaTrainCtcPars.fromSingleLineString(str);
+		logger.info("p = "+p.toSingleLineString());
 	}	
 	
 	

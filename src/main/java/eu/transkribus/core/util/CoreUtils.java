@@ -17,8 +17,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -66,8 +67,6 @@ import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import eu.transkribus.core.model.beans.TrpP2PaLA;
-
 public class CoreUtils {
 	private final static Logger logger = LoggerFactory.getLogger(CoreUtils.class);
 	private static final AtomicLong LAST_TIME_MS = new AtomicLong();
@@ -82,7 +81,7 @@ public class CoreUtils {
 		return new SimpleDateFormat(DATE_FORMAT_STR);
 	}
 
-	public final static String DATE_FORMAT_STR_USER_FRIENDLY = "dd.MM.YY HH:mm:ss";
+	public final static String DATE_FORMAT_STR_USER_FRIENDLY = "dd.MM.yy HH:mm:ss";
 	/**
 	 * Create a date format instance for formatting dates for UIs: {@value #DATE_FORMAT_STR_USER_FRIENDLY}
 	 */
@@ -90,12 +89,19 @@ public class CoreUtils {
 		return new SimpleDateFormat(DATE_FORMAT_STR_USER_FRIENDLY);
 	}
 	
-	public final static String DATE_FORMAT_STR_ddMMYY = "dd.MM.YY";	
+	public final static String DATE_FORMAT_STR_ddMMYY = "dd.MM.yy";	
 	/**
 	 * Create a date format instance for formatting dates with day precision: {@value #DATE_FORMAT_STR_ddMMYY}
 	 */
 	public static DateFormat newDateFormatddMMYY() {
 		return new SimpleDateFormat(DATE_FORMAT_STR_ddMMYY);
+	}
+	
+	public static String formatDoubleNonScientific(double d) {
+		// see https://stackoverflow.com/questions/16098046/how-do-i-print-a-double-value-without-scientific-notation-using-java#20937683
+		DecimalFormat df = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+		df.setMaximumFractionDigits(340); // 340 = DecimalFormat.DOUBLE_FRACTION_DIGITS
+		return df.format(d);
 	}
 
 	// public static void main(String[] args) {
@@ -1477,8 +1483,25 @@ public class CoreUtils {
 		}
 	}
 	
+	public static <T> List<List<T>> createSublists(List<T> list, int nEntries) {
+		List<List<T>> sublists = new ArrayList<>(); 
+		int i=0;
+		do {
+			sublists.add(list.subList(i, Math.min(list.size(), i+nEntries)));
+			i+=nEntries;
+		} while (i<list.size());
+		return sublists;
+	}
+	
 	public static void main(String[] args) throws Exception {
 		System.out.println(regularizedPath("c:\\hello\\world/by\\me\\"));
+		
+//		List<Integer> l = new ArrayList<>();
+//		for (int i=0; i<20; ++i) {
+//			l.add(i);
+//		}
+		
+//		System.out.println(createSublists(l, 7));
 		
 //		System.out.println(timeDiffToString(-1));
 //		System.out.println(timeDiffToString(0));

@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -338,6 +339,31 @@ public class TrpDoc implements Serializable, Comparable<TrpDoc> {
 			}
 		}
 		return null;
+	}
+	
+	public void filterPagesByPageDescriptors(List<PageDescriptor> pds) {
+		if (pds==null || pds.isEmpty()) {
+			return;
+		}
+		List<Integer> pids = pds.stream().map(pd -> pd.getPageId()).collect(Collectors.toList());
+		this.pages = this.pages.stream().filter(p -> pids.contains(p.getPageId())).collect(Collectors.toList());
+		if (this.md!=null) {
+			this.md.setNrOfPages(this.pages.size());	
+		}
+	}
+	
+	public void filterPagesByPagesStr(String pagesStr) throws IOException {
+		if (StringUtils.isEmpty(pagesStr)) {
+			return;
+		}
+		
+		List<Integer> pageList = CoreUtils.parseRangeListStrToList(pagesStr, getNPages());
+		List<TrpPage> newPages = pages.stream().filter(p -> pageList.contains(p.getPageNr()-1)).collect(Collectors.toList());
+		logger.debug("N-newPages = "+newPages.size());
+		setPages(newPages);
+		if (this.md!=null) {
+			this.md.setNrOfPages(this.pages.size());	
+		}
 	}
 
 }

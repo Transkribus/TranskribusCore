@@ -1,6 +1,7 @@
 package eu.transkribus.core.model.beans.auth;
 
 import java.io.Serializable;
+import java.security.Principal;
 import java.util.Date;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -13,7 +14,7 @@ import eu.transkribus.core.model.beans.enums.OAuthProvider;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpUserLogin extends TrpUser implements Serializable {
+public class TrpUserLogin extends TrpUser implements Principal, Serializable {
 	private static final long serialVersionUID = 2370532427197634733L;
 	private Date loginTime = new Date();
 	private String sessionId;
@@ -90,6 +91,11 @@ public class TrpUserLogin extends TrpUser implements Serializable {
 	
 	public String getPic() {
 		return pic;		
+	}
+	
+	@Override
+	public String getName() {
+		return this.getEmail();
 	}
 	
 	public void setOAuthProvider(OAuthProvider prov) {

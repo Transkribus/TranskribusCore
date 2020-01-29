@@ -2,10 +2,15 @@ package eu.transkribus.core.model.beans;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import eu.transkribus.core.model.beans.rest.ParameterMap;
 
 @XmlRootElement(name="createModelPars")
 public class PyLaiaCreateModelPars extends ParameterMap {
+	private static final Logger logger = LoggerFactory.getLogger(PyLaiaCreateModelPars.class);
+	
 	// Possible parameter
 //    [--logging_also_to_stderr LOGGING_ALSO_TO_STDERR]
 //    [--logging_config LOGGING_CONFIG]
@@ -59,14 +64,14 @@ public class PyLaiaCreateModelPars extends ParameterMap {
 		return pars;
 	}
 	
-	public void setFixedInputHeight(int fixedInputHeight) {
-		if (fixedInputHeight > 0) {
-			addParameter("--fixed_input_height", fixedInputHeight);	
-		}
-		else {
-			remove("--fixed_input_height");
-		}
-	}
+//	public void setFixedInputHeight(int fixedInputHeight) {
+//		if (fixedInputHeight > 0) {
+//			addParameter("--fixed_input_height", fixedInputHeight);	
+//		}
+//		else {
+//			remove("--fixed_input_height");
+//		}
+//	}
 	
 	public Integer getFixedInputHeight() {
 		return getIntParam("--fixed_input_height");
@@ -77,11 +82,38 @@ public class PyLaiaCreateModelPars extends ParameterMap {
 		return toSingleLineString();
 	}
 	
+	public static PyLaiaCreateModelPars fromSingleLineString(String str) {
+		ParameterMap m = ParameterMap.fromSingleLineString(str, "--", " ");
+		PyLaiaCreateModelPars p = new PyLaiaCreateModelPars();
+		p.setParamMap(m.getParamMap());
+		return p;
+	}
+	
+	public static PyLaiaCreateModelPars fromSingleLineString2(String str) {
+		try {
+			return fromSingleLineString(str);
+		} catch (Exception e) {
+			return null;
+		}
+	}	
+	
 	public static void main(String[] args) throws Exception {
-		PyLaiaCreateModelPars p = PyLaiaCreateModelPars.getDefault();
-		System.out.println(p.toSimpleString("\n"));
-		System.out.println("-------");
-		System.out.println(p.toSingleLineString());
+//		PyLaiaCreateModelPars p = PyLaiaCreateModelPars.getDefault();
+//		System.out.println(p.toSimpleString("\n"));
+//		System.out.println("-------");
+//		System.out.println(p.toSingleLineString());
+		
+		String str = "--print_args True --train_path ./model --model_filename model --logging_level info --cnn_kernel_size 3 3 3 3 --cnn_dilation 1 1 1 1 --cnn_num_features 12 24 48 48 --cnn_batchnorm True True True True --cnn_activations LeakyReLU LeakyReLU LeakyReLU LeakyReLU --cnn_poolsize 2 2 0 2 --use_masked_conv True --rnn_type LSTM --rnn_layers 3 --rnn_units 256 --rnn_dropout 0.5 --lin_dropout 0.5 --logging_also_to_stderr info --logging_file train-crnn.log --empty_par_inside --logging_overwrite False --empty_last_par";
+		PyLaiaCreateModelPars p = PyLaiaCreateModelPars.fromSingleLineString(str);
+		logger.info("str1 = "+str);
+		logger.info("pars = "+p.toSingleLineString());
+		
+		if (str.equals(p.toSingleLineString())) {
+			logger.info("SUCCESS!");
+		}
+		else {
+			logger.info("ERROR!");
+		}
 	}
 
 }

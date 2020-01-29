@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -1604,6 +1605,49 @@ public class PageXmlUtils {
 			}
 		}
 		return p;
+	}
+	
+	public static int removeInvalidCoordsLines(PcGtsType pcGtsType) {
+		TrpPageType page = (TrpPageType) pcGtsType.getPage();
+		int nRemoved=0;
+		for (TrpTextRegionType tr : page.getTextRegions(true)) {
+			Iterator<TextLineType> it = tr.getTextLine().iterator();
+			while (it.hasNext()) {
+				TrpTextLineType line = (TrpTextLineType) it.next();
+				if (StringUtils.isEmpty(line.getCoordinates()) || PointStrUtils.parsePoints2(line.getCoordinates()).size() < 3) {
+					logger.warn("Removing line with empty coordinates: "+line);
+					it.remove();
+					nRemoved++;
+				}
+			}
+		}
+		
+		return nRemoved;
+	}
+	
+	/**
+	 * Adds a counter suffix to non-unique line IDs on this page
+	 */
+	public static int uniquifyLineIds(PcGtsType pcGtsType) {
+		TrpPageType page = (TrpPageType) pcGtsType.getPage();
+		
+		int nChanged=0;
+		List<TrpTextLineType> lines = page.getLines();
+		for (int i=0; i<lines.size(); ++i) {
+			TrpTextLineType l = lines.get(i);
+			int c=1;
+			for (int j=0; j<lines.size(); ++j) {
+				if (j==i) {
+					continue;
+				}
+				TrpTextLineType lOther = lines.get(j);
+				if (StringUtils.equals(l.getId(), lOther.getId())) {
+					lOther.setId(l.getId()+"_"+(c++));
+					nChanged++;
+				}
+			}
+		}
+		return nChanged;
 	}
 	
 	public static void main(String[] args) throws Exception {

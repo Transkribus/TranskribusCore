@@ -45,6 +45,7 @@ public class JobConst {
 	public static final String PROP_DEALOG_DOC_ID = "dealogDocId";
 	public static final String PROP_METS_PATH = "metsPath";
 	public static final String PROP_IIIF_PATH = "iiifPath";
+	public static final String PROP_DO_DELETE_IMPORT_SOURCE = "doDeleteImportSource";
 	
 	public static final String PROP_DICTNAME = "dictName";
 	public static final String PROP_TEMP_DICTNAME = "tempDictName";
@@ -81,6 +82,8 @@ public class JobConst {
 	public static final String PROP_KEEP_ORIGINAL_LINE_POLYGONS = "keepOriginalLinePolygons";
 	public static final String PROP_DO_LINE_POLYGON_SIMPLIFICATION = "doLinePolygonSimplification";
 	public static final String PROP_DO_STORE_CONFMATS = "doStoreConfMats";
+	public static final String PROP_CLEAR_LINES = "clearLines";
+	public static final String PROP_BATCH_SIZE = "batchSize";
 	
 	public static final String PROP_TABLE_TEMPLATE_ID = "templateId";
 
@@ -119,6 +122,8 @@ public class JobConst {
 	public static final String PROP_TODATE = "toDate";
 	
 	public static final String PROP_NUM_LINESAMPLES = "numLineSamples";
+	public static final String PROP_NUM_PAGESAMPLES = "numPageSamples";
+	public static final String PROP_OPTION_PAGESAMPLES = "optionPageSamples";
 
 	public static final String PROP_GPU_DEVICE_ENV_VAR = "GPU_DEVICE";
 
