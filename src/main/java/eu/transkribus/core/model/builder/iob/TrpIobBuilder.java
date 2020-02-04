@@ -187,7 +187,21 @@ public class TrpIobBuilder {
 												}
 											}
 											entityWritten = true;
+										}else if(tag.getTagName().equals("human_production")) {
+											if(tag.isContinued() && tag.getOffset() == 0) {
+												textLinebw.write("\t I-HumanProd");
+												if(exportProperties) {
+													addPropsToFile(tag, textLinebw);
+												}
+											}else {
+												textLinebw.write("\t B-HumanProd");
+												if(exportProperties) {
+													addPropsToFile(tag, textLinebw);
+												}
+											}
+											entityWritten = true;
 										}
+										
 									}else {
 										for(Map.Entry<String, CustomTag> entry : tagMap.entrySet()) {
 											CustomTag temp = entry.getValue();
@@ -206,6 +220,12 @@ public class TrpIobBuilder {
 													entityWritten = true;
 												}else if(temp.getTagName().equals("organization")) {
 													textLinebw.write("\t B-ORG");
+													if(exportProperties) {
+														addPropsToFile(temp, textLinebw);
+													}
+													entityWritten = true;
+												}else if(temp.getTagName().equals("human_production")) {
+													textLinebw.write("\t B-HumanProd");
 													if(exportProperties) {
 														addPropsToFile(temp, textLinebw);
 													}
@@ -230,6 +250,13 @@ public class TrpIobBuilder {
 													entityWritten = true;
 												}else if(temp.getTagName().equals("organization")) {
 													textLinebw.write("\t I-ORG");
+													if(exportProperties) {
+														addPropsToFile(temp, textLinebw);
+													}
+													entityWritten = true;
+												}
+												else if(temp.getTagName().equals("human_production")) {
+													textLinebw.write("\t I-HumanProd");
 													if(exportProperties) {
 														addPropsToFile(temp, textLinebw);
 													}
@@ -276,6 +303,14 @@ public class TrpIobBuilder {
 				textLinebw.write("\t null");
 			}else {
 				textLinebw.write("\t "+attrMap.get("stance"));
+			}
+			
+			if(temp.getTagName().equals("person")) {
+				if(attrMap.get("author") == null) {
+					textLinebw.write("\t author=false");
+				}else {
+					textLinebw.write("\t author="+attrMap.get("author"));
+				}
 			}
 
 			// Print all attributes to file
@@ -452,7 +487,7 @@ public class TrpIobBuilder {
 	public static void main(String[] args) throws Exception {
 		
 
-		TrpDoc docWithTags = LocalDocReader.load("/home/lateknight/Desktop/Iob_Export_NEL/export_job_808630/151203/ONB_aze_18950706_NE_GT/");
+		TrpDoc docWithTags = LocalDocReader.load("/home/lateknight/Documents/NLF_NER-NEL-Stance_IOB/export_job_896506/271631/NLF_GT_FI_Fraktur_duplicated");
 		
 		/*
 		 * here we store the page transcripts for all later exports regarding to the wished version status
@@ -474,7 +509,7 @@ public class TrpIobBuilder {
 		exportCache.storeCustomTagMapForDoc(docWithTags, false, pageIndices, null, false);
 		
 		TrpIobBuilder iob = new TrpIobBuilder();
-		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Desktop/TagsText.txt"), pageIndices, null, exportCache, true);
+		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Desktop/nlf_271631.txt"), pageIndices, null, exportCache, true);
 		
 		System.out.println("finished");
 		
