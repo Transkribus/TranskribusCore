@@ -694,8 +694,7 @@ public class LocalDocReader {
 			if(d.isDirectory()) {
 				docDir.setNrOfFiles(d.list().length);
 			}else if(d.getName().endsWith(".pdf")) {
-				try {
-					PDDocument document = PDDocument.load(d);
+				try (PDDocument document = PDDocument.load(d);) {
 					docDir.setNrOfFiles(document.getNumberOfPages());
 				} catch (IOException e) {
 					logger.error(e.getMessage(), e);
