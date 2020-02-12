@@ -236,7 +236,13 @@ public class StructTypesAnal {
 				NodeList trs = fp.getTextRegions(d);
 				for (int j = 0; j < trs.getLength(); ++j) {
 					Node tr = trs.item(j);
+					if (tr==null || tr.getAttributes()==null || tr.getAttributes().getNamedItem("custom")==null) {
+						continue;
+					}
 					String custom = tr.getAttributes().getNamedItem("custom").getNodeValue();
+					if (StringUtils.isEmpty(custom)) {
+						continue;
+					}
 					CssSyntaxTag structTag = CssSyntaxTag.parseTags(custom).stream()
 							.filter(t -> t.getTagName().equals("structure")).findAny().orElse(null);
 					if (structTag != null) {
