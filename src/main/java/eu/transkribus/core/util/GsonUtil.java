@@ -14,6 +14,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import eu.transkribus.core.model.beans.DocSelection;
 import eu.transkribus.core.model.beans.DocumentSelectionDescriptor;
 
 public class GsonUtil {
@@ -24,6 +25,7 @@ public class GsonUtil {
 	public static final Type INTEGER_LIST_TYPE = new TypeToken<List<Integer>>(){}.getType();
 	public static final Type LIST_OF_INT_LISTS_TYPE = new TypeToken<List<List<Integer>>>(){}.getType();
 	public static final Type DOCUMENT_SELECTION_DESCRIPTOR_LIST_TYPE = new TypeToken<List<DocumentSelectionDescriptor>>(){}.getType();
+	public static final Type DOC_SELECTION_LIST_TYPE = new TypeToken<List<DocSelection>>(){}.getType();
 	
 	public static final Type MAP_TYPE = new TypeToken<Map<String, Object>>(){}.getType();
 	public static final Type MAP_TYPE_STRING_VALUES = new TypeToken<Map<String, String>>(){}.getType();
@@ -63,6 +65,10 @@ public class GsonUtil {
 	public static List<DocumentSelectionDescriptor> toDocumentSelectionDescriptorList(String json) {
 		return GSON.fromJson(json, DOCUMENT_SELECTION_DESCRIPTOR_LIST_TYPE);
 	}
+	
+	public static List<DocSelection> toDocSelectionList(String json) {
+		return GSON.fromJson(json, DOC_SELECTION_LIST_TYPE);
+	}	
 	
 	/**
 	 * Generic toList method - creates a TypeToken depending on the type of the given clazz object 
