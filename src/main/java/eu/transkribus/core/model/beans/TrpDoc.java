@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.io.RemoteDocConst;
 import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescriptor;
+import eu.transkribus.core.model.beans.enums.EditStatus;
 import eu.transkribus.core.util.CoreUtils;
 
 @XmlRootElement
@@ -365,5 +367,41 @@ public class TrpDoc implements Serializable, Comparable<TrpDoc> {
 			this.md.setNrOfPages(this.pages.size());	
 		}
 	}
+	
+	public void filterPagesByPagesStrAndEditStatus(String pagesStr, EditStatus editStatus, boolean skipPagesWithMissingStatus) throws IOException {
+		List<TrpPage> newPages = new ArrayList<>();
+		
+		// filter by pagesStr
+		if (StringUtils.isEmpty(pagesStr)) {
+			newPages = new ArrayList<>(pages);
+		}
+		else {
+			List<Integer> pageList = CoreUtils.parseRangeListStrToList(pagesStr, getNPages());
+			newPages = pages.stream().filter(p -> pageList.contains(p.getPageNr()-1)).collect(Collectors.toList());			
+		}
+		
+		// filter transcripts of pages by editStatus, remove pages with no transcript
+		Iterator<TrpPage> it = newPages.iterator();
+		while (it.hasNext()) {
+			TrpPage p = it.next();
+			TrpTranscriptMetadata md = editStatus==null ? p.getCurrentTranscript() : p.getTranscriptWithStatusOrNull(editStatus);
+			if (!skipPagesWithMissingStatus) {
+				md = p.getCurrentTranscript();
+			}
+			if (md != null) {
+				p.getTranscripts().clear();
+				p.addTranscript(md);
+			}
+			else {
+				it.remove();
+			}
+		}
+		logger.debug("N-newPages = "+newPages.size());
+		
+		setPages(newPages);
+		if (this.md!=null) {
+			this.md.setNrOfPages(this.pages.size());	
+		}
+	}	
 
 }
