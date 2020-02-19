@@ -698,13 +698,6 @@ public class GoobiMetsImporter extends APassthroughObservable
 			result.setAuthor("unknownAuthor");
 		}
 		
-		try {
-			System.in.read();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
 		return result;
 
 	}
