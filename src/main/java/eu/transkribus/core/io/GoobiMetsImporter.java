@@ -197,6 +197,7 @@ public class GoobiMetsImporter extends APassthroughObservable
 		List<FileType> xmlGrp = null;
 		List<FileType> imgGrp = null;
 		List<FileType> defaultImgGrp = null;
+		List<FileType> altXmlGrp = null;
 		for (FileGrpType type : fileGrps) {
 			switch (type.getUSE()) {
 			case "MAX":
@@ -213,6 +214,10 @@ public class GoobiMetsImporter extends APassthroughObservable
 				//TODO: Abklären
 				xmlGrp = type.getFile();
 				break;
+			case "FULLTEXT":
+				//e.g. visual library uses 'FULLTEXT' 
+				altXmlGrp = type.getFile();
+				break;
 			default:
 				break;
 			}
@@ -221,6 +226,11 @@ public class GoobiMetsImporter extends APassthroughObservable
 		//take default images if no MAX images are available
 		if (imgGrp == null && defaultImgGrp != null){
 			imgGrp = defaultImgGrp;
+		}
+		
+		//take alternative if availabe
+		if (xmlGrp == null && altXmlGrp != null){
+			xmlGrp = altXmlGrp;
 		}
 		
 		if (imgGrp == null)
@@ -267,7 +277,8 @@ public class GoobiMetsImporter extends APassthroughObservable
 		File abbyyFile = null;
 		File altoFile = null;
 		
-		String imgDirPath = dir + File.separator + "img";
+		//String imgDirPath = dir + File.separator + "img";
+		String imgDirPath = dir;
 		String abbyyDirPath = dir + File.separator + LocalDocConst.OCR_FILE_SUB_FOLDER;
 		String altoDirPath = dir + File.separator + LocalDocConst.ALTO_FILE_SUB_FOLDER;
 		String pageDirPath = dir + File.separator + LocalDocConst.PAGE_FILE_SUB_FOLDER;
@@ -298,8 +309,16 @@ public class GoobiMetsImporter extends APassthroughObservable
 			}
 			
 			final String mimetype = type.getMIMETYPE();//MIMETYPE="image/jpeg"
+			logger.debug("mimetype " + mimetype);
 			final URL url = new URL(fLocat.getHref());
 			String ext = MimeTypes.lookupExtension(mimetype);
+			
+			//MimeTypes does not contain text/xml
+			if (ext==null){
+				ext = mimetype.substring(mimetype.indexOf("/")+1);
+			}
+			
+			logger.debug("ext2 " + ext);
 			
 			/*
 			 * brought problems with file/img links without the filname + ext at the end of the URL 
@@ -348,7 +367,7 @@ public class GoobiMetsImporter extends APassthroughObservable
 						//don't fail if abbyy XML could not be retrieved
 						abbyyFile = null;
 					}
-				} else if (xmlId.contains("Alto")){
+				} else if (xmlId.contains("Alto") || xmlId.contains("ALTO")){
 					logger.debug("Found potential ALTO XML: " + type.getID());
 					//TODO: implement
 					altoFile = new File(altoDirPath + File.separator + filename);
@@ -479,21 +498,30 @@ public class GoobiMetsImporter extends APassthroughObservable
 	public TrpDocMetadata readModsMetadata(Document mets) {
 		TrpDocMetadata result = new TrpDocMetadata();
 			
-		Element modsSection = (Element) XmlUtils.selectNode(mets.getDocumentElement(), "(*[contains(@ID,'DMDLOG_0000')])[1]");
-				
+		//Element modsSection = (Element) XmlUtils.selectNode(mets.getDocumentElement(), "(*[contains(@ID,'DMDLOG_0000')])[1]");
+		Element modsSection = (Element) XmlUtils.selectNode(mets.getDocumentElement(), "//*[local-name()='mods']");
+//		if (modsSection == null){
+//			modsSection = (Element) XmlUtils.selectNode(mets.getDocumentElement(), "mods:mods");
+//		}
+						
 		if (modsSection!=null)
 		{
 			NodeList actFields = modsSection.getElementsByTagName("mods:title");
+			if (actFields.getLength() == 0){
+				actFields = modsSection.getElementsByTagName("title");
+			}
+			logger.debug("actFields for title: " + actFields.getLength());
 			for (int i = 0; i < actFields.getLength(); i++) {
-				logger.debug("title element found: " + actFields.getLength());
+				
 				Element act = (Element)actFields.item(i);
 				String typeAttribute = ((Element)act.getParentNode()).getAttribute("type");
 				
 				String actValue = (actFields.item(i)).getTextContent();
-				
+				logger.debug("title element found: " + actValue);
 				if (typeAttribute==null || typeAttribute.equals("")){
 					//logger.debug("set actValue: " + actValue);
 					result.setTitle(actValue);
+					break;
 				}
 				
 				//would be used to add title with special type, e.g. an uniform title
@@ -503,40 +531,101 @@ public class GoobiMetsImporter extends APassthroughObservable
 //			actFields = modsSection.getElementsByTagName("mods:genre");
 //			for (int i = 0; i < actFields.getLength(); i++) {
 //			}
-			actFields = modsSection.getElementsByTagName("mods:dateIssued");
-			for (int i = 0; i < actFields.getLength(); i++) {
-				String dateString = actFields.item(i).getTextContent();
-				DateFormat format = new SimpleDateFormat("yyyy", Locale.GERMAN);
-				Date date;
-				try {
-					date = format.parse(dateString);
-					//System.out.println(date); // 2010-01-02
-					result.setCreatedFromDate(date);
-					result.setCreatedToDate(date);
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
- 
+			
+	
+			actFields = modsSection.getElementsByTagName("mods:dateCreated");
+			if (actFields.getLength() == 0){
+				actFields = modsSection.getElementsByTagName("dateCreated");
 			}
+
+			for (int i = 0; i < actFields.getLength(); i++) {
+				Element act = (Element)actFields.item(i);
+				String keyAttribute = act.getAttribute("keyDate");
+				if (keyAttribute.equals("yes")){
+					String dateString = actFields.item(i).getTextContent();
+					logger.debug("found date string: " + dateString);
+					DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.GERMAN);
+					DateFormat formatAlt = new SimpleDateFormat("yyyy", Locale.GERMAN);
+					Date date;
+					try {
+						date = format.parse(dateString);
+						result.setCreatedFromDate(date);
+						result.setCreatedToDate(date);
+					} catch (ParseException e) {
+							try {
+								date = formatAlt.parse(dateString);
+								result.setCreatedFromDate(date);
+								result.setCreatedToDate(date);
+							} catch (ParseException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+					}
+				}
+			}
+			
+			if (result.getCreatedFromDate()== null && result.getCreatedToDate()==null){
+				actFields = modsSection.getElementsByTagName("mods:dateIssued");
+				if (actFields.getLength() == 0){
+					actFields = modsSection.getElementsByTagName("dateIssued");
+				}
+				
+				for (int i = 0; i < actFields.getLength(); i++) {
+					String dateString = actFields.item(i).getTextContent();
+					DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.GERMAN);
+					DateFormat formatAlt = new SimpleDateFormat("yyyy", Locale.GERMAN);
+					Date date;
+					try {
+						date = format.parse(dateString);
+						result.setCreatedFromDate(date);
+						result.setCreatedToDate(date);
+					} catch (ParseException e) {
+							try {
+								date = formatAlt.parse(dateString);
+								result.setCreatedFromDate(date);
+								result.setCreatedToDate(date);
+							} catch (ParseException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+					}
+
+				}
+			
+			}
+			
+			logger.debug("date element found: " + result.getCreatedFromDate());
 //			actFields = modsSection.getElementsByTagName("mods:languageTerm");
 //			for (int i = 0; i < actFields.getLength(); i++) {
 //				result.addLanguage(actFields.item(i).getTextContent());
 //			}
-//
+			
 			actFields = modsSection.getElementsByTagName("mods:name");
+			if (actFields.getLength() == 0){
+				actFields = modsSection.getElementsByTagName("name");
+			}
+
 			for (int i = 0; i < actFields.getLength(); i++) {
 				Element act = (Element)actFields.item(i);
 				String typeAttribute = act.getAttribute("type");
 				if (typeAttribute!=null && typeAttribute.equals("personal")){
 					
 					String role = XmlUtils.getFirstSubElementFromElement(act, "mods:roleTerm");
+					if (role == null){
+						role = XmlUtils.getFirstSubElementFromElement(act, "roleTerm");
+					}
 					//author
 					if (role!=null && role.equals("aut")){
 						String author = XmlUtils.getFirstSubElementFromElement(act, "mods:displayForm");
+						if (author == null){
+							author = XmlUtils.getFirstSubElementFromElement(act, "displayForm");
+						}
 						logger.debug("Author found is " + author);
 						if (author == null || author.equals("")){
 							NodeList nl = act.getElementsByTagName("mods:namePart");
+							if (nl.getLength() == 0){
+								nl = act.getElementsByTagName("namePart");
+							}
 							for (int j = 0; j < nl.getLength(); j++){
 								logger.debug("NodeList length " + nl.getLength());
 								Element value = (Element) nl.item(j);
@@ -556,6 +645,15 @@ public class GoobiMetsImporter extends APassthroughObservable
 						        	else
 						        		author = value.getTextContent();
 						        }
+						        else if (valueType.equals("date")){
+						        	//do nothing
+						        }
+						        else{
+						        	if (author == null)
+						        		author = value.getTextContent();
+						        	else
+						        		author = author.concat(" " + value.getTextContent());
+						        }
 						        logger.debug("Author found is " + author);
 								
 								
@@ -568,6 +666,8 @@ public class GoobiMetsImporter extends APassthroughObservable
 				}
 			}
 			
+
+			
 			/*
 			 * extract external ID
 			 * 
@@ -576,21 +676,33 @@ public class GoobiMetsImporter extends APassthroughObservable
 			 * TODO add possible type attribute values here
 			 */
 			actFields = modsSection.getElementsByTagName("mods:identifier");
+			if (actFields.getLength() == 0){
+				actFields = modsSection.getElementsByTagName("identifier");
+			}
+			
 			for (int i = 0; i < actFields.getLength(); i++) {
 				Element act = (Element)actFields.item(i);
 				String typeAttribute = act.getAttribute("type");
 				//NAF uses type="CatalogueIdentifier"
-				if (typeAttribute!=null && typeAttribute.equals("CatalogueIdentifier")){
+				if (typeAttribute!=null && (typeAttribute.equals("CatalogueIdentifier") || typeAttribute.equals("urn"))){
 					final String extId = act.getTextContent();
 					result.setExternalId(extId);
+					logger.debug("ext id found: " + result.getExternalId());
 				}
 			}
-
+		
 		}
 		else{
 			logger.debug("mods section is null");
 			result.setTitle("unknownTitle");
 			result.setAuthor("unknownAuthor");
+		}
+		
+		try {
+			System.in.read();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 
 		return result;
