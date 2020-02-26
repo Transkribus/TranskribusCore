@@ -73,6 +73,9 @@ public class TrpCollection extends ATotalTranscriptStatistics implements Seriali
 	@XmlElement
 	private TrpCrowdProject crowdProject = null;
 	
+	@Column(name="ACCOUNTING_STATUS")
+	private Integer accountingStatus;
+	
 	public TrpCollection(){}
 	public TrpCollection(final int colId, final String name, final String description){
 		this.colId = colId;
@@ -180,6 +183,12 @@ public class TrpCollection extends ATotalTranscriptStatistics implements Seriali
 	public void setCrowdProject(TrpCrowdProject crowdProject) {
 		this.crowdProject = crowdProject;
 	}
+	public Integer getAccountingStatus() {
+		return accountingStatus;
+	}
+	public void setAccountingStatus(Integer accountingStatus) {
+		this.accountingStatus = accountingStatus;
+	}
 	public String toShortString() {
 		return 	this.getColId() 
 				+ " - " 
@@ -190,6 +199,28 @@ public class TrpCollection extends ATotalTranscriptStatistics implements Seriali
 				+ this.getRole();
 	}
 	
+	
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((accountingStatus == null) ? 0 : accountingStatus.hashCode());
+		result = prime * result + colId;
+		result = prime * result + ((colName == null) ? 0 : colName.hashCode());
+		result = prime * result + ((crowdProject == null) ? 0 : crowdProject.hashCode());
+		result = prime * result + (crowdsourcing ? 1231 : 1237);
+		result = prime * result + ((defaultForApp == null) ? 0 : defaultForApp.hashCode());
+		result = prime * result + ((description == null) ? 0 : description.hashCode());
+		result = prime * result + (elearning ? 1231 : 1237);
+		result = prime * result + ((label == null) ? 0 : label.hashCode());
+		result = prime * result + nrOfDocuments;
+		result = prime * result + ((pageId == null) ? 0 : pageId.hashCode());
+		result = prime * result + ((role == null) ? 0 : role.hashCode());
+		result = prime * result + ((thumbUrl == null) ? 0 : thumbUrl.hashCode());
+		result = prime * result + ((url == null) ? 0 : url.hashCode());
+		return result;
+	}
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -199,6 +230,11 @@ public class TrpCollection extends ATotalTranscriptStatistics implements Seriali
 		if (getClass() != obj.getClass())
 			return false;
 		TrpCollection other = (TrpCollection) obj;
+		if (accountingStatus == null) {
+			if (other.accountingStatus != null)
+				return false;
+		} else if (!accountingStatus.equals(other.accountingStatus))
+			return false;
 		if (colId != other.colId)
 			return false;
 		if (colName == null) {
@@ -259,6 +295,11 @@ public class TrpCollection extends ATotalTranscriptStatistics implements Seriali
 		if (getClass() != obj.getClass())
 			return "class";
 		TrpCollection other = (TrpCollection) obj;
+		if (accountingStatus == null) {
+			if (other.accountingStatus != null)
+				return "accountingStatus";
+		} else if (!accountingStatus.equals(other.accountingStatus))
+			return "accountingStatus";
 		if (colId != other.colId)
 			return "colId";
 		if (colName == null) {
