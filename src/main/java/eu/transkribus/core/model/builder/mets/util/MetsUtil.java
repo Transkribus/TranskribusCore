@@ -2,13 +2,20 @@ package eu.transkribus.core.model.builder.mets.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -94,6 +101,27 @@ public class MetsUtil {
 
 		}
 		return isCompliant;
+	}
+	
+	public void validateMets(File metsFile) {
+		/*
+		 * validate METS file to avoid errors later on
+		 */
+		try {
+			
+			URL schemaFile = new URL("http://www.loc.gov/standards/mets/version112/mets.xsd");
+			Source xmlFile = new StreamSource(metsFile);
+			SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+			
+			Schema schema = schemaFactory.newSchema(schemaFile);
+			Validator validator = schema.newValidator();
+			validator.validate(xmlFile);
+			System.out.println(metsFile.getName() + " is valid");
+			
+		} catch (SAXException e) {
+		  System.out.println(metsFile.getName() + " is NOT valid reason:" + e);
+		} catch (IOException e) {}
+		
 	}
 
 	public static List<FileGrpType> getMasterFileGrp(Mets mets) {

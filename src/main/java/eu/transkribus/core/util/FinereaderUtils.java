@@ -122,6 +122,7 @@ public class FinereaderUtils {
 		"LatvianGothic",
 	    "Lithuanian",
 	    "Maltese",
+	    "Norwegian",
 		"OldEnglish",
 		"OldFrench",
 		"OldGerman",

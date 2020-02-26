@@ -30,6 +30,10 @@ public class JobConst {
 	public static final String PROP_VAL_DESCS = "valDescs"; // property for list of DocumentSelectionDescriptor's for validation
 	public static final String PROP_TEST_DESCS = "testDescs"; // property for list of DocumentSelectionDescriptor's for test
 	
+	public static final String PROP_TRAIN_DOC_SELS = "trainDocSels"; // property for list of DocSelection's for training
+	public static final String PROP_VAL_DOC_SELS = "valDocSels"; // property for list of DocSelection's for validation
+	public static final String PROP_TEST_DOC_SELS = "testDocSels"; // property for list of DocSelection's for test	
+	
 	public static final String PROP_TSIDS = "tsIds"; // property for transcription ids
 //	public static final String PROP_TRAIN_TSIDS = "trainTsIds";
 //	public static final String PROP_VAL_TSIDS = "valTsIds";
