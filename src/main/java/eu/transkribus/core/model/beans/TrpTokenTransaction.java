@@ -17,28 +17,31 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Table(name = "TRANSACTIONS")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpTransaction {
+public class TrpTokenTransaction {
 
 	@Column(name = "TRANSACTION_ID")
-	int transactionId;
+	private int transactionId;
 
 	@Column(name = "JOBID")
-	Integer jobId;
+	private Integer jobId;
 
 	@Column(name = "CREDIT_ID")
-	int creditId;
+	private int creditId;
 
-	@Column(name = "time")
-	Date time;
+	@Column(name = "TIME")
+	private Date time;
 
 	/**
 	 * Positive or negative "token" value of this transaction.
 	 */
 	@Column(name = "TOKEN_VALUE")
-	int value;
+	private int tokenValue;
+	
+	@Column(name = "NR_OF_PAGES")
+	private Integer nrOfPages;
 
 	@Column(name = "CREDIT_BALANCE")
-	int creditBalance;
+	private int creditBalance;
 
 	public int getTransactionId() {
 		return transactionId;
@@ -72,12 +75,20 @@ public class TrpTransaction {
 		this.time = time;
 	}
 
-	public int getValue() {
-		return value;
+	public int getTokenValue() {
+		return tokenValue;
 	}
 
-	public void setValue(int value) {
-		this.value = value;
+	public void setTokenValue(int tokenValue) {
+		this.tokenValue = tokenValue;
+	}
+	
+	public Integer getNrOfPages() {
+		return nrOfPages;
+	}
+	
+	public void setNrOfPages(Integer nrOfPages) {
+		this.nrOfPages = nrOfPages;
 	}
 
 	public int getCreditBalance() {
@@ -91,7 +102,8 @@ public class TrpTransaction {
 	@Override
 	public String toString() {
 		return "TrpTransaction [transactionId=" + transactionId + ", jobId=" + jobId + ", creditId=" + creditId
-				+ ", time=" + time + ", value=" + value + ", creditBalance=" + creditBalance + "]";
+				+ ", time=" + time + ", tokenValue=" + tokenValue + ", nrOfPages=" + nrOfPages + ", creditBalance="
+				+ creditBalance + "]";
 	}
 
 	@Override
@@ -101,9 +113,10 @@ public class TrpTransaction {
 		result = prime * result + creditBalance;
 		result = prime * result + creditId;
 		result = prime * result + ((jobId == null) ? 0 : jobId.hashCode());
+		result = prime * result + ((nrOfPages == null) ? 0 : nrOfPages.hashCode());
 		result = prime * result + ((time == null) ? 0 : time.hashCode());
+		result = prime * result + tokenValue;
 		result = prime * result + transactionId;
-		result = prime * result + value;
 		return result;
 	}
 
@@ -115,7 +128,7 @@ public class TrpTransaction {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TrpTransaction other = (TrpTransaction) obj;
+		TrpTokenTransaction other = (TrpTokenTransaction) obj;
 		if (creditBalance != other.creditBalance)
 			return false;
 		if (creditId != other.creditId)
@@ -125,15 +138,22 @@ public class TrpTransaction {
 				return false;
 		} else if (!jobId.equals(other.jobId))
 			return false;
+		if (nrOfPages == null) {
+			if (other.nrOfPages != null)
+				return false;
+		} else if (!nrOfPages.equals(other.nrOfPages))
+			return false;
 		if (time == null) {
 			if (other.time != null)
 				return false;
 		} else if (!time.equals(other.time))
 			return false;
-		if (transactionId != other.transactionId)
+		if (tokenValue != other.tokenValue)
 			return false;
-		if (value != other.value)
+		if (transactionId != other.transactionId)
 			return false;
 		return true;
 	}
+
+	
 }
