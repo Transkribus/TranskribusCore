@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -14,11 +15,12 @@ import javax.xml.bind.annotation.XmlRootElement;
  * this transaction.
  */
 @Entity
-@Table(name = "TRANSACTIONS")
+@Table(name = "TOKEN_TRANSACTIONS")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TrpTokenTransaction {
 
+	@Id
 	@Column(name = "TRANSACTION_ID")
 	private int transactionId;
 
