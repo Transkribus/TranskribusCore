@@ -44,6 +44,11 @@ public class TrpTokenCredit {
 	 */
 	@Transient
 	private TrpTokenCreditProduct product;
+	
+	@Column(name = "CREDIT_BALANCE")
+	@Transient
+	private Integer balance;
+	
 
 	public TrpTokenCredit() {}
 	
@@ -111,19 +116,29 @@ public class TrpTokenCredit {
 		this.product = product;
 	}
 	
+	public Integer getBalance() {
+		return balance;
+	}
+	
+	public void setBalance(Integer balance) {
+		this.balance = balance;
+	}
+	
 	public int getNrOfTokens() {
 		//delegate to product
 		return product.getNrOfTokens();
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((balance == null) ? 0 : balance.hashCode());
 		result = prime * result + creditId;
 		result = prime * result + ((expirationDate == null) ? 0 : expirationDate.hashCode());
 		result = prime * result + (isActive ? 1231 : 1237);
 		result = prime * result + ((paymentReceived == null) ? 0 : paymentReceived.hashCode());
+		result = prime * result + ((product == null) ? 0 : product.hashCode());
 		result = prime * result + ((productId == null) ? 0 : productId.hashCode());
 		result = prime * result + ((purchaseDate == null) ? 0 : purchaseDate.hashCode());
 		result = prime * result + userId;
@@ -139,6 +154,11 @@ public class TrpTokenCredit {
 		if (getClass() != obj.getClass())
 			return false;
 		TrpTokenCredit other = (TrpTokenCredit) obj;
+		if (balance == null) {
+			if (other.balance != null)
+				return false;
+		} else if (!balance.equals(other.balance))
+			return false;
 		if (creditId != other.creditId)
 			return false;
 		if (expirationDate == null) {
@@ -152,6 +172,11 @@ public class TrpTokenCredit {
 			if (other.paymentReceived != null)
 				return false;
 		} else if (!paymentReceived.equals(other.paymentReceived))
+			return false;
+		if (product == null) {
+			if (other.product != null)
+				return false;
+		} else if (!product.equals(other.product))
 			return false;
 		if (productId == null) {
 			if (other.productId != null)
@@ -172,6 +197,6 @@ public class TrpTokenCredit {
 	public String toString() {
 		return "TrpTokenCredit [creditId=" + creditId + ", productId=" + productId + ", purchaseDate=" + purchaseDate
 				+ ", expirationDate=" + expirationDate + ", paymentReceived=" + paymentReceived + ", isActive="
-				+ isActive + ", userId=" + userId + "]";
+				+ isActive + ", userId=" + userId + ", product=" + product + ", balance=" + balance + "]";
 	}
 }
