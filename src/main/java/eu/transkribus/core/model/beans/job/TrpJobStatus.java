@@ -728,4 +728,235 @@ public class TrpJobStatus implements Serializable {
 				+ ", stackTrace="+stackTrace+", progress="+progress+", totalWork="+totalWork+"]";
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((batchId == null) ? 0 : batchId.hashCode());
+		result = prime * result + ((className == null) ? 0 : className.hashCode());
+		result = prime * result + ((colId == null) ? 0 : colId.hashCode());
+		result = prime * result + (int) (createTime ^ (createTime >>> 32));
+		result = prime * result + ((created == null) ? 0 : created.hashCode());
+		result = prime * result + ((description == null) ? 0 : description.hashCode());
+		result = prime * result + ((docId == null) ? 0 : docId.hashCode());
+		result = prime * result + (int) (endTime ^ (endTime >>> 32));
+		result = prime * result + ((ended == null) ? 0 : ended.hashCode());
+		result = prime * result + ((jobData == null) ? 0 : jobData.hashCode());
+		result = prime * result + ((jobDataOld == null) ? 0 : jobDataOld.hashCode());
+		result = prime * result + ((jobId == null) ? 0 : jobId.hashCode());
+		result = prime * result + ((jobImpl == null) ? 0 : jobImpl.hashCode());
+		result = prime * result + ((moduleName == null) ? 0 : moduleName.hashCode());
+		result = prime * result + ((moduleUrl == null) ? 0 : moduleUrl.hashCode());
+		result = prime * result + ((moduleVersion == null) ? 0 : moduleVersion.hashCode());
+		result = prime * result + nrOfErrors;
+		result = prime * result + ((output == null) ? 0 : output.hashCode());
+		result = prime * result + pageNr;
+		result = prime * result + ((pageid == null) ? 0 : pageid.hashCode());
+		result = prime * result + ((pages == null) ? 0 : pages.hashCode());
+		result = prime * result + ((parent_batchid == null) ? 0 : parent_batchid.hashCode());
+		result = prime * result + ((parent_jobid == null) ? 0 : parent_jobid.hashCode());
+		result = prime * result + ((pid == null) ? 0 : pid.hashCode());
+		result = prime * result + ((progress == null) ? 0 : progress.hashCode());
+		result = prime * result + ((regionids == null) ? 0 : regionids.hashCode());
+		result = prime * result + ((this.result == null) ? 0 : this.result.hashCode());
+		result = prime * result + (resumable ? 1231 : 1237);
+		result = prime * result + ((session_history_id == null) ? 0 : session_history_id.hashCode());
+		result = prime * result + ((stackTrace == null) ? 0 : stackTrace.hashCode());
+		result = prime * result + (int) (startTime ^ (startTime >>> 32));
+		result = prime * result + ((started == null) ? 0 : started.hashCode());
+		result = prime * result + ((state == null) ? 0 : state.hashCode());
+		result = prime * result + (success ? 1231 : 1237);
+		result = prime * result + ((totalWork == null) ? 0 : totalWork.hashCode());
+		result = prime * result + ((tsid == null) ? 0 : tsid.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + userId;
+		result = prime * result + ((userName == null) ? 0 : userName.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TrpJobStatus other = (TrpJobStatus) obj;
+		if (batchId == null) {
+			if (other.batchId != null)
+				return false;
+		} else if (!batchId.equals(other.batchId))
+			return false;
+		if (className == null) {
+			if (other.className != null)
+				return false;
+		} else if (!className.equals(other.className))
+			return false;
+		if (colId == null) {
+			if (other.colId != null)
+				return false;
+		} else if (!colId.equals(other.colId))
+			return false;
+		if (createTime != other.createTime)
+			return false;
+		if (created == null) {
+			if (other.created != null)
+				return false;
+		} else if (!created.equals(other.created))
+			return false;
+		if (description == null) {
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
+			return false;
+		if (docId == null) {
+			if (other.docId != null)
+				return false;
+		} else if (!docId.equals(other.docId))
+			return false;
+		if (endTime != other.endTime)
+			return false;
+		if (ended == null) {
+			if (other.ended != null)
+				return false;
+		} else if (!ended.equals(other.ended))
+			return false;
+		if (jobData == null) {
+			if (other.jobData != null)
+				return false;
+		} else if (!jobData.equals(other.jobData))
+			return false;
+		if (jobDataOld == null) {
+			if (other.jobDataOld != null)
+				return false;
+		} else if (!jobDataOld.equals(other.jobDataOld))
+			return false;
+		if (jobId == null) {
+			if (other.jobId != null)
+				return false;
+		} else if (!jobId.equals(other.jobId))
+			return false;
+		if (jobImpl == null) {
+			if (other.jobImpl != null)
+				return false;
+		} else if (!jobImpl.equals(other.jobImpl))
+			return false;
+		if (moduleName == null) {
+			if (other.moduleName != null)
+				return false;
+		} else if (!moduleName.equals(other.moduleName))
+			return false;
+		if (moduleUrl == null) {
+			if (other.moduleUrl != null)
+				return false;
+		} else if (!moduleUrl.equals(other.moduleUrl))
+			return false;
+		if (moduleVersion == null) {
+			if (other.moduleVersion != null)
+				return false;
+		} else if (!moduleVersion.equals(other.moduleVersion))
+			return false;
+		if (nrOfErrors != other.nrOfErrors)
+			return false;
+		if (output == null) {
+			if (other.output != null)
+				return false;
+		} else if (!output.equals(other.output))
+			return false;
+		if (pageNr != other.pageNr)
+			return false;
+		if (pageid == null) {
+			if (other.pageid != null)
+				return false;
+		} else if (!pageid.equals(other.pageid))
+			return false;
+		if (pages == null) {
+			if (other.pages != null)
+				return false;
+		} else if (!pages.equals(other.pages))
+			return false;
+		if (parent_batchid == null) {
+			if (other.parent_batchid != null)
+				return false;
+		} else if (!parent_batchid.equals(other.parent_batchid))
+			return false;
+		if (parent_jobid == null) {
+			if (other.parent_jobid != null)
+				return false;
+		} else if (!parent_jobid.equals(other.parent_jobid))
+			return false;
+		if (pid == null) {
+			if (other.pid != null)
+				return false;
+		} else if (!pid.equals(other.pid))
+			return false;
+		if (progress == null) {
+			if (other.progress != null)
+				return false;
+		} else if (!progress.equals(other.progress))
+			return false;
+		if (regionids == null) {
+			if (other.regionids != null)
+				return false;
+		} else if (!regionids.equals(other.regionids))
+			return false;
+		if (result == null) {
+			if (other.result != null)
+				return false;
+		} else if (!result.equals(other.result))
+			return false;
+		if (resumable != other.resumable)
+			return false;
+		if (session_history_id == null) {
+			if (other.session_history_id != null)
+				return false;
+		} else if (!session_history_id.equals(other.session_history_id))
+			return false;
+		if (stackTrace == null) {
+			if (other.stackTrace != null)
+				return false;
+		} else if (!stackTrace.equals(other.stackTrace))
+			return false;
+		if (startTime != other.startTime)
+			return false;
+		if (started == null) {
+			if (other.started != null)
+				return false;
+		} else if (!started.equals(other.started))
+			return false;
+		if (state == null) {
+			if (other.state != null)
+				return false;
+		} else if (!state.equals(other.state))
+			return false;
+		if (success != other.success)
+			return false;
+		if (totalWork == null) {
+			if (other.totalWork != null)
+				return false;
+		} else if (!totalWork.equals(other.totalWork))
+			return false;
+		if (tsid == null) {
+			if (other.tsid != null)
+				return false;
+		} else if (!tsid.equals(other.tsid))
+			return false;
+		if (type == null) {
+			if (other.type != null)
+				return false;
+		} else if (!type.equals(other.type))
+			return false;
+		if (userId != other.userId)
+			return false;
+		if (userName == null) {
+			if (other.userName != null)
+				return false;
+		} else if (!userName.equals(other.userName))
+			return false;
+		return true;
+	}
+	
+	
+
 }
