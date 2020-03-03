@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
@@ -124,77 +125,89 @@ public class TrpIobBuilder {
 					List<CustomTag> tagList = tagLines.getIndexedTags();
 
 					String lineText = line.getUnicodeText();
-					int offset = 0;
 					
-					HashMap<Integer, CustomTag> tagMap = new HashMap<Integer, CustomTag>();
+					HashMap<Integer,List<CustomTag> > tagMap = new HashMap<Integer, List<CustomTag>>();
 					// continueMap needed for multi word entities
 					HashMap<String, CustomTag> continueMap = new HashMap<String, CustomTag>();
-					// nestedMap for nesting entities
-					HashMap<CustomTag,String> nestedMap = new HashMap<CustomTag,String>();
+			
 					
 					for(CustomTag tag : tagList) {
-						tagMap.put(tag.getOffset(), tag);
+						
 						String tokenText = tag.getContainedText();
 						StringTokenizer st = new StringTokenizer(tokenText," ,;\"„?!",true);
-					
-						while(st.hasMoreTokens()) {
-							String token = st.nextToken();
-							continueMap.put(token, tag);
-							nestedMap.put(tag,tokenText);
-						}			
+						List<CustomTag> overlappingTags = tagLines.getOverlappingTags(null, tag.getOffset(),tag.getEnd());
+						List<CustomTag> listWithOverlap = new ArrayList<>();
+						listWithOverlap.add(tag);
+						CustomTag overlapTag = null;
+						for(CustomTag overlap : overlappingTags) {
+							if(!tag.getTagName().equals(overlap.getTagName())) {
+								overlapTag = overlap;
+								
+							}
+						}
+						listWithOverlap.add(overlapTag);
+						tagMap.put(tag.getOffset(), listWithOverlap);
+						if(st.countTokens() > 1) {
+							while(st.hasMoreTokens()) {
+								String token = st.nextToken();
+								int insideOffset = lineText.indexOf(token);
+								continueMap.put(token+""+insideOffset, tag);
+							}		
+						}
+							
 					}
+					
+					// split text according to offset and length of tag
+					
+//					for(String sub : substrings) {
+//						int index = lineText.indexOf(sub);
+//						String split = lineText.substring(subOffset, index);
+////						logger.info("String before : "+split);
+//						logger.info("Substring : "+sub);		
+//						
+//					}
 	
 					try {
 						StringTokenizer st = new StringTokenizer(lineText, " ,;\"„?!",true);
 						
 						while(st.hasMoreTokens()) {
 							String token = st.nextToken();
+							
 							if(token.equals(" ")) {
 								continue; 
 							}
-							offset = lineText.indexOf(token);
-										
-							textLinebw.write(token);
-							token = token.replace(",", "").replace(".", "").replace(";", "");
 							
-							CustomTag nestedTag = continueMap.get(token);
-							if(nestedTag != null) {
-								String containedText = nestedMap.get(nestedTag);
-								logger.debug(containedText);
-								String nestedType = nestedTag.getTagName();
-								CustomTag insideTag = tagMap.get(offset);
-								if(insideTag != null) {
-									String tagType = insideTag.getTagName();
-									//check for nesting
-									if(!nestedType.equals(tagType)) {
-										logger.debug("Nested entities for "+nestedTag.getContainedText()+" with "+insideTag.getContainedText());
-									}
-								}
-								
-							}	
+							int offset = lineText.indexOf(token);
 							
+							CustomTag tag = null;
+							CustomTag overlap = null;
 							
 							if(tagMap.containsKey(offset)) {
-								CustomTag tag = tagMap.get(offset);
+								List<CustomTag> tags = tagMap.get(offset);
+								tag = tags.get(0);
+								overlap = tags.get(1);
+								if(tag != null && overlap != null) {
+									logger.info("Found an overlapping tag for "+tag.getContainedText()+ " type :"+tag.getTagName()+" => overlap : "+overlap.getContainedText()+" type : "+overlap.getTagName());
+									
 								
+								}			
 								if(tag.isContinued() && offset == 0) {
-									addContinueTag(tag, textLinebw, exportProperties);
-								
-								}else if(offset == tag.getOffset()) {
-									addBeginningTag(tag, textLinebw, exportProperties);
-								
+									textLinebw.write(token);
+									addContinueTag(tag, textLinebw, exportProperties);					
 								}
-								else {
-									textLinebw.write("\t O");
+								else if(offset == tag.getOffset()) {
+									textLinebw.write(token);
+									addBeginningTag(tag, textLinebw, exportProperties);				
 								}
-							}else if (continueMap.containsKey(token)){
-								CustomTag tag = continueMap.get(token);
-								addContinueTag(tag, textLinebw, exportProperties);
+							}else if (continueMap.containsKey(token+""+offset)){
+								CustomTag tagCont = continueMap.get(token+""+offset);
+								textLinebw.write(token);
+								addContinueTag(tagCont, textLinebw, exportProperties);
+							}else {
+								textLinebw.write(token);
+								textLinebw.write("\tO\tO");
 							}
-		
-							else {
-								textLinebw.write("\t O");
-							}
+												
 							
 							textLinebw.newLine();
 							
@@ -216,24 +229,26 @@ public class TrpIobBuilder {
 		}
 	}
 	
+	
+	
 	private void addBeginningTag(CustomTag temp, BufferedWriter textLinebw, boolean exportProperties) throws IOException {
 		if(temp.getTagName().equals("person")) {
-				textLinebw.write("\t B-PER");
+				textLinebw.write("\tB-PER\tO");
 				if(exportProperties) {
 					addPropsToFile(temp, textLinebw);
 				}
 		}else if(temp.getTagName().equals("place")){
-			textLinebw.write("\t B-LOC");
+			textLinebw.write("\tB-LOC\tO");
 			if(exportProperties) {
 				addPropsToFile(temp, textLinebw);
 			}
 		}else if(temp.getTagName().equals("organization")){
-			textLinebw.write("\t B-ORG");
+			textLinebw.write("\tB-ORG\tO");
 			if(exportProperties) {
 				addPropsToFile(temp, textLinebw);
 			}
 		}else if(temp.getTagName().equals("human_production")){
-			textLinebw.write("\t B-HumanProd");
+			textLinebw.write("\tB-HumanProd\tO");
 			if(exportProperties) {
 				addPropsToFile(temp, textLinebw);
 			}
@@ -243,22 +258,22 @@ public class TrpIobBuilder {
 	
 	private void addContinueTag(CustomTag temp, BufferedWriter textLinebw, boolean exportProperties) throws IOException {
 		if(temp.getTagName().equals("person")) {
-				textLinebw.write("\t I-PER");
+				textLinebw.write("\tI-PER\tO");
 				if(exportProperties) {
 					addPropsToFile(temp, textLinebw);
 				}
 		}else if(temp.getTagName().equals("place")){
-			textLinebw.write("\t I-LOC");
+			textLinebw.write("\tI-LOC\tO");
 			if(exportProperties) {
 				addPropsToFile(temp, textLinebw);
 			}
 		}else if(temp.getTagName().equals("organization")){
-			textLinebw.write("\t I-ORG");
+			textLinebw.write("\tI-ORG\tO");
 			if(exportProperties) {
 				addPropsToFile(temp, textLinebw);
 			}
 		}else if(temp.getTagName().equals("human_production")){
-			textLinebw.write("\t I-HumanProd");
+			textLinebw.write("\tI-HumanProd\tO");
 			if(exportProperties) {
 				addPropsToFile(temp, textLinebw);
 			}
@@ -274,22 +289,24 @@ public class TrpIobBuilder {
 			Map<String, Object> attrMap = temp.getAttributeNamesValuesMap();
 			// Method for NewsEye GT creation
 			if(attrMap.get("nel") == null) {
-				textLinebw.write("\t null");
+				textLinebw.write("\tnull");
 			}else {
-				textLinebw.write("\t "+attrMap.get("nel"));
+				// replace space
+				String nelLink = (String) attrMap.get("nel");
+				textLinebw.write("\t"+nelLink.replace(" ", "_"));
 			}
 			
 			if(attrMap.get("stance") == null) {
-				textLinebw.write("\t null");
+				textLinebw.write("\tnull");
 			}else {
-				textLinebw.write("\t "+attrMap.get("stance"));
+				textLinebw.write("\t"+attrMap.get("stance"));
 			}
 			
 			if(temp.getTagName().equals("person")) {
 				if(attrMap.get("author") == null) {
-					textLinebw.write("\t author=false");
+					textLinebw.write("\tauthor=false");
 				}else {
-					textLinebw.write("\t author="+attrMap.get("author"));
+					textLinebw.write("\tauthor="+attrMap.get("author"));
 				}
 			}
 		}	
@@ -460,7 +477,7 @@ public class TrpIobBuilder {
 	public static void main(String[] args) throws Exception {
 		
 
-		TrpDoc docWithTags = LocalDocReader.load("/home/lateknight/Documents/NewsEye/export_job_949597/313396/ONB_inter_annotator_doc_v2");
+		TrpDoc docWithTags = LocalDocReader.load("/home/lateknight/Downloads/NER-NEL-Stance_IOB/export_job_949597/313396/ONB_inter_annotator_doc_v2");
 		
 		/*
 		 * here we store the page transcripts for all later exports regarding to the wished version status
@@ -481,7 +498,7 @@ public class TrpIobBuilder {
 		exportCache.storeCustomTagMapForDoc(docWithTags, false, pageIndices, null, false);
 		
 		TrpIobBuilder iob = new TrpIobBuilder();
-		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Desktop/interAnnotator_new4.txt"), pageIndices, null, exportCache, true);
+		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Desktop/interAnnotator_new2.txt"), pageIndices, null, exportCache, true);
 		
 		System.out.println("finished");
 		
