@@ -129,33 +129,54 @@ public class TrpIobBuilder {
 					HashMap<Integer, CustomTag> tagMap = new HashMap<Integer, CustomTag>();
 					// continueMap needed for multi word entities
 					HashMap<String, CustomTag> continueMap = new HashMap<String, CustomTag>();
+					// nestedMap for nesting entities
+					HashMap<CustomTag,String> nestedMap = new HashMap<CustomTag,String>();
 					
 					for(CustomTag tag : tagList) {
 						tagMap.put(tag.getOffset(), tag);
 						String tokenText = tag.getContainedText();
-						StringTokenizer st = new StringTokenizer(tokenText);
+						StringTokenizer st = new StringTokenizer(tokenText," ,;\"„?!",true);
+					
 						while(st.hasMoreTokens()) {
 							String token = st.nextToken();
 							continueMap.put(token, tag);
+							nestedMap.put(tag,tokenText);
 						}			
 					}
 	
 					try {
-						StringTokenizer st = new StringTokenizer(lineText);
+						StringTokenizer st = new StringTokenizer(lineText, " ,;\"„?!",true);
 						
 						while(st.hasMoreTokens()) {
 							String token = st.nextToken();
+							if(token.equals(" ")) {
+								continue; 
+							}
 							offset = lineText.indexOf(token);
 										
-							//TODO improve export by working with offset 
-							
-							
 							textLinebw.write(token);
 							token = token.replace(",", "").replace(".", "").replace(";", "");
 							
+							CustomTag nestedTag = continueMap.get(token);
+							if(nestedTag != null) {
+								String containedText = nestedMap.get(nestedTag);
+								logger.debug(containedText);
+								String nestedType = nestedTag.getTagName();
+								CustomTag insideTag = tagMap.get(offset);
+								if(insideTag != null) {
+									String tagType = insideTag.getTagName();
+									//check for nesting
+									if(!nestedType.equals(tagType)) {
+										logger.debug("Nested entities for "+nestedTag.getContainedText()+" with "+insideTag.getContainedText());
+									}
+								}
+								
+							}	
+							
+							
 							if(tagMap.containsKey(offset)) {
 								CustomTag tag = tagMap.get(offset);
-								logger.info("Token "+token+ " Tag "+tag.getContainedText()+" Offset Token "+offset+ " Offset Tag"+tag.getOffset());
+								
 								if(tag.isContinued() && offset == 0) {
 									addContinueTag(tag, textLinebw, exportProperties);
 								
@@ -439,7 +460,7 @@ public class TrpIobBuilder {
 	public static void main(String[] args) throws Exception {
 		
 
-		TrpDoc docWithTags = LocalDocReader.load("/home/lateknight/Downloads/barbara_stefan_sarah_annotation/313397/ONB_inter_annotator_doc_v1");
+		TrpDoc docWithTags = LocalDocReader.load("/home/lateknight/Documents/NewsEye/export_job_949597/313396/ONB_inter_annotator_doc_v2");
 		
 		/*
 		 * here we store the page transcripts for all later exports regarding to the wished version status
@@ -460,7 +481,7 @@ public class TrpIobBuilder {
 		exportCache.storeCustomTagMapForDoc(docWithTags, false, pageIndices, null, false);
 		
 		TrpIobBuilder iob = new TrpIobBuilder();
-		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Desktop/barbara_stefan_sarah_inter_annotatorV3.txt"), pageIndices, null, exportCache, true);
+		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Desktop/interAnnotator_new4.txt"), pageIndices, null, exportCache, true);
 		
 		System.out.println("finished");
 		
