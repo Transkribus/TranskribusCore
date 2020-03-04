@@ -44,6 +44,19 @@ public class TrpTokenTransaction {
 
 	@Column(name = "CREDIT_BALANCE")
 	private int creditBalance;
+	
+	public TrpTokenTransaction() {}
+
+	public TrpTokenTransaction(TrpTokenTransaction other) {
+		this();
+		this.transactionId = other.transactionId;
+		this.jobId = other.jobId;
+		this.creditId = other.creditId;
+		this.time = other.time;
+		this.tokenValue = other.tokenValue;
+		this.nrOfPages = other.nrOfPages;
+		this.creditBalance = other.creditBalance;
+	}
 
 	public int getTransactionId() {
 		return transactionId;

@@ -34,7 +34,7 @@ public class TrpTokenCredit {
 	private Date paymentReceived;
 	
 	@Column(name = "IS_ACTIVE")
-	private boolean isActive;
+	private boolean active;
 	
 	@Column(name = "USER_ID")
 	private int userId;
@@ -93,11 +93,11 @@ public class TrpTokenCredit {
 	}
 
 	public boolean isActive() {
-		return isActive;
+		return active;
 	}
 
 	public void setActive(boolean isActive) {
-		this.isActive = isActive;
+		this.active = isActive;
 	}
 
 	public int getUserId() {
@@ -136,7 +136,7 @@ public class TrpTokenCredit {
 		result = prime * result + ((balance == null) ? 0 : balance.hashCode());
 		result = prime * result + creditId;
 		result = prime * result + ((expirationDate == null) ? 0 : expirationDate.hashCode());
-		result = prime * result + (isActive ? 1231 : 1237);
+		result = prime * result + (active ? 1231 : 1237);
 		result = prime * result + ((paymentReceived == null) ? 0 : paymentReceived.hashCode());
 		result = prime * result + ((product == null) ? 0 : product.hashCode());
 		result = prime * result + ((productId == null) ? 0 : productId.hashCode());
@@ -166,7 +166,7 @@ public class TrpTokenCredit {
 				return false;
 		} else if (!expirationDate.equals(other.expirationDate))
 			return false;
-		if (isActive != other.isActive)
+		if (active != other.active)
 			return false;
 		if (paymentReceived == null) {
 			if (other.paymentReceived != null)
@@ -196,7 +196,7 @@ public class TrpTokenCredit {
 	@Override
 	public String toString() {
 		return "TrpTokenCredit [creditId=" + creditId + ", productId=" + productId + ", purchaseDate=" + purchaseDate
-				+ ", expirationDate=" + expirationDate + ", paymentReceived=" + paymentReceived + ", isActive="
-				+ isActive + ", userId=" + userId + ", product=" + product + ", balance=" + balance + "]";
+				+ ", expirationDate=" + expirationDate + ", paymentReceived=" + paymentReceived + ", active="
+				+ active + ", userId=" + userId + ", product=" + product + ", balance=" + balance + "]";
 	}
 }
