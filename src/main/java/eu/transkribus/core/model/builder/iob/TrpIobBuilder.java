@@ -76,8 +76,14 @@ public class TrpIobBuilder {
 		}
 		
 		BufferedWriter textLinebw = new BufferedWriter(new OutputStreamWriter(fOut));
+		
+		if(exportProperties) {
+			textLinebw.write("# Token\tTag\tNested-Tag\tFine-Grained\tWikidataID\tStance\tIsSpaceAfter");
+		}else {
+			textLinebw.write("# Token\tTag\tNested-Tag\tIsSpaceAfter/EndOfLine");
+		}
 	
-		textLinebw.write("# Token\tTag\tNested-Tag\tFine-Grained\tWikidataID\tStance\tIsSpaceAfter");
+		
 				
 		/*
 		 * write IOB only if tags are available - otherwise say 'No tags available for the chosen export' when exporting on Server
@@ -162,6 +168,7 @@ public class TrpIobBuilder {
 					try {
 						StringTokenizer st = new StringTokenizer(lineText, " .,;\"„?!",true);
 						while(st.hasMoreTokens()) {
+							
 							String token = st.nextToken();
 							
 							
@@ -169,10 +176,13 @@ public class TrpIobBuilder {
 								textLinebw.write("\tSpaceAfter");
 								continue; 
 							}
+							
+							
 									
 							int offset = lineText.indexOf(token);
 							
 							textLinebw.newLine();
+							
 							
 							CustomTag tag = null;
 							CustomTag overlap = null;
@@ -277,7 +287,10 @@ public class TrpIobBuilder {
 								textLinebw.write(token);
 								textLinebw.write("\tO\tO");
 							}
-												
+							
+							if(!st.hasMoreTokens()) {
+								textLinebw.write("\tEndOfLine");
+							}
 							
 						}
 						
@@ -565,7 +578,7 @@ public class TrpIobBuilder {
 	public static void main(String[] args) throws Exception {
 		
 
-		TrpDoc docWithTags = LocalDocReader.load("/home/lateknight/Documents/NewsEye/export_job_949597/313396/ONB_inter_annotator_doc_v2");
+		TrpDoc docWithTags = LocalDocReader.load("/home/lateknight/Downloads/florian_annotation/313396/ONB_inter_annotator_doc_v2");
 		
 		/*
 		 * here we store the page transcripts for all later exports regarding to the wished version status
@@ -586,7 +599,7 @@ public class TrpIobBuilder {
 		exportCache.storeCustomTagMapForDoc(docWithTags, false, pageIndices, null, false);
 		
 		TrpIobBuilder iob = new TrpIobBuilder();
-		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Desktop/interAnnotator_new3.txt"), pageIndices, null, exportCache, true);
+		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Desktop/interAnnotator_new3.txt"), pageIndices, null, exportCache, false);
 		
 		System.out.println("finished");
 		
