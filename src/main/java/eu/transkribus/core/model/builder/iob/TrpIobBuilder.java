@@ -188,21 +188,27 @@ public class TrpIobBuilder {
 											textLinebw.write(token);
 											addNestedTag(tag, textLinebw, "B");
 											addNestedTag(overlap, textLinebw, "B");
-											addPropsToFile(tag, textLinebw);
-											addPropsToFile(overlap, textLinebw);
+											if(exportProperties) {
+												addPropsToFile(tag, textLinebw);
+												addPropsToFile(overlap, textLinebw);
+											}	
 										}else if(continueMap.containsKey(token+""+offset)) {
 											textLinebw.write(token);
 											addNestedTag(overlap, textLinebw, "I");
 											addNestedTag(tag, textLinebw, "B");
-											addPropsToFile(overlap, textLinebw);
-											addPropsToFile(tag, textLinebw);
+											if(exportProperties) {
+												addPropsToFile(overlap, textLinebw);
+												addPropsToFile(tag, textLinebw);
+											}
 										}
 										else {
 											textLinebw.write(token);
 											addNestedTag(tag, textLinebw, "B");
 											addNestedTag(overlap, textLinebw, "I");
-											addPropsToFile(tag, textLinebw);
-											addPropsToFile(overlap, textLinebw);
+											if(exportProperties) {
+												addPropsToFile(tag, textLinebw);
+												addPropsToFile(overlap, textLinebw);
+											}
 										}
 									}else {
 										textLinebw.write(token);
@@ -233,22 +239,28 @@ public class TrpIobBuilder {
 										if(tag.getContainedText().contains(token)){
 											textLinebw.write(token);
 											addNestedTag(tag, textLinebw, "I");
-											addNestedTag(overlap, textLinebw, "I");				
-											addPropsToFile(tag, textLinebw);
-											addPropsToFile(overlap, textLinebw);
+											addNestedTag(overlap, textLinebw, "I");
+											if(exportProperties) {
+												addPropsToFile(tag, textLinebw);
+												addPropsToFile(overlap, textLinebw);
+											}
 										}
 										else {
 											textLinebw.write(token);
 											textLinebw.write("\tO");
 											addNestedTag(overlap, textLinebw, "I");
-											addPropsToFile(overlap, textLinebw);
+											if(exportProperties) {
+												addPropsToFile(overlap, textLinebw);
+											}
 										}
 									}else if(overlap.getEnd() <= offset && tag.getEnd() <= offset) {
 										textLinebw.write(token);
 										addNestedTag(tag, textLinebw, "I");
 										addNestedTag(overlap, textLinebw, "I");
-										addPropsToFile(tag, textLinebw);
-										addPropsToFile(overlap, textLinebw);
+										if(exportProperties) {
+											addPropsToFile(tag, textLinebw);
+											addPropsToFile(overlap, textLinebw);
+										}
 									}
 									// check punctutation issue with correct offset
 									else {
