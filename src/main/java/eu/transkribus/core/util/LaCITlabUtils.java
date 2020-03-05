@@ -5,6 +5,7 @@ public class LaCITlabUtils {
 	public final static String SEP_SCHEME_KEY = "sepScheme";
 	public final static String ROT_SCHEME_KEY = "rotScheme";
 	public final static String LA_DELETE_SCHEME_KEY = "la_deletescheme";
+	public static final String LA_SINGLE_CORE = "la_single_core";
 	
 	public final static String DEFAULT_LBL = "Default";
 	
@@ -15,6 +16,7 @@ public class LaCITlabUtils {
 	public final static String SEP_SCHEME_LBL = "Use separators";
 	public final static String SEP_NEVER_LBL = "Never";
 	public final static String SEP_ALWAYS_LBL = "Always";
+	
 	
 	private LaCITlabUtils() {}
 
