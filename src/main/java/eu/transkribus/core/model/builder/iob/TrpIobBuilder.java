@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
@@ -75,6 +76,14 @@ public class TrpIobBuilder {
 		}
 		
 		BufferedWriter textLinebw = new BufferedWriter(new OutputStreamWriter(fOut));
+		
+		if(exportProperties) {
+			textLinebw.write("# Token\tTag\tNested-Tag\tFine-Grained\tWikidataID\tStance\tIsSpaceAfter");
+		}else {
+			textLinebw.write("# Token\tTag\tNested-Tag\tIsSpaceAfter/EndOfLine");
+		}
+	
+		
 				
 		/*
 		 * write IOB only if tags are available - otherwise say 'No tags available for the chosen export' when exporting on Server
@@ -84,11 +93,7 @@ public class TrpIobBuilder {
 			logger.info("Tags available for export!");
 
 			List<TrpPage> pages = doc.getPages();
-			
-			//TODO get first 3 letters of all selected tags and create IOB schmema
-			// example : abbreviation -> B-abb
-//			Set<String> selectedTags = cache.getOnlySelectedTagnames(ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames()));
-								
+	
 			int totalPages = pageIndices==null ? pages.size() : pageIndices.size();
 			if (monitor!=null) {
 				monitor.beginTask("Exporting to IOB", totalPages);
@@ -107,7 +112,6 @@ public class TrpIobBuilder {
 				}
 				
 				TrpPage page = pages.get(i);
-				//try to get previously loaded JAXB transcript
 				JAXBPageTranscript tr = null;
 				if(cache != null) {
 					tr = cache.getPageTranscriptAtIndex(i);
@@ -122,161 +126,179 @@ public class TrpIobBuilder {
 				
 				List<TrpTextLineType> lines = t.getLines();
 				
-				
-					for(TrpTextLineType line : lines) {
-						
-						CustomTagList tagLines = line.getCustomTagList();
-						List<CustomTag> tagList = tagLines.getIndexedTags();
+			
+				for(TrpTextLineType line : lines) {
+					
+					CustomTagList tagLines = line.getCustomTagList();
+					List<CustomTag> tagList = tagLines.getIndexedTags();
 
-						String lineText = line.getUnicodeText();
-						HashMap<String, CustomTag> tagMap = new HashMap<String, CustomTag>();
+					String lineText = line.getUnicodeText();
+					
+					HashMap<Integer,List<CustomTag> > tagMap = new HashMap<Integer, List<CustomTag>>();
+					// continueMap needed for multi word entities
+					HashMap<String, CustomTag> continueMap = new HashMap<String, CustomTag>();
+			
+					
+					for(CustomTag tag : tagList) {
 						
-						for(CustomTag tag : tagList) {
-							tagMap.put(tag.getContainedText(), tag);
-						}
-		
-							try {
-								StringTokenizer st = new StringTokenizer(lineText);
-								while(st.hasMoreTokens()) {
-									String token = st.nextToken();
-									textLinebw.write(token);
-									token = token.replace(",", "").replace(".", "").replace(";", "");
-		
-									boolean entityWritten= false;
-									CustomTag tag = tagMap.get(token);
-									//TODO use all custom tags i.e B-abbreveation, I-address
-									// Handle continued tags
-									if(tagMap.containsKey(token)) {
-										if(tag.getTagName().equals("person")) {
-											if(tag.isContinued() && tag.getOffset() == 0) {
-												textLinebw.write("\t I-PER");
-												if(exportProperties) {
-													addPropsToFile(tag, textLinebw);
-												}
-											}else {
-												textLinebw.write("\t B-PER");
-												if(exportProperties) {
-													addPropsToFile(tag, textLinebw);
-												}
-											}
-											
-											entityWritten = true;
-										}else if(tag.getTagName().equals("place")) {
-											if(tag.isContinued() && tag.getOffset() == 0) {
-												textLinebw.write("\t I-LOC");
-												if(exportProperties) {
-													addPropsToFile(tag, textLinebw);
-												}
-											}else {
-												textLinebw.write("\t B-LOC");
-												if(exportProperties) {
-													addPropsToFile(tag, textLinebw);
-												}
-											}
-											entityWritten = true;
-										}else if(tag.getTagName().equals("organization")) {
-											if(tag.isContinued() && tag.getOffset() == 0) {
-												textLinebw.write("\t I-ORG");
-												if(exportProperties) {
-													addPropsToFile(tag, textLinebw);
-												}
-											}else {
-												textLinebw.write("\t B-ORG");
-												if(exportProperties) {
-													addPropsToFile(tag, textLinebw);
-												}
-											}
-											entityWritten = true;
-										}else if(tag.getTagName().equals("human_production")) {
-											if(tag.isContinued() && tag.getOffset() == 0) {
-												textLinebw.write("\t I-HumanProd");
-												if(exportProperties) {
-													addPropsToFile(tag, textLinebw);
-												}
-											}else {
-												textLinebw.write("\t B-HumanProd");
-												if(exportProperties) {
-													addPropsToFile(tag, textLinebw);
-												}
-											}
-											entityWritten = true;
-										}
-										
-									}else {
-										for(Map.Entry<String, CustomTag> entry : tagMap.entrySet()) {
-											CustomTag temp = entry.getValue();
-											if(entry.getKey().startsWith(token)) {
-												if(temp.getTagName().equals("person")) {
-													textLinebw.write("\t B-PER");
-													if(exportProperties) {
-														addPropsToFile(temp, textLinebw);
-													}
-													entityWritten = true;
-												}else if(temp.getTagName().equals("place")) {
-													textLinebw.write("\t B-LOC");
-													if(exportProperties) {
-														addPropsToFile(temp, textLinebw);
-													}
-													entityWritten = true;
-												}else if(temp.getTagName().equals("organization")) {
-													textLinebw.write("\t B-ORG");
-													if(exportProperties) {
-														addPropsToFile(temp, textLinebw);
-													}
-													entityWritten = true;
-												}else if(temp.getTagName().equals("human_production")) {
-													textLinebw.write("\t B-HumanProd");
-													if(exportProperties) {
-														addPropsToFile(temp, textLinebw);
-													}
-													entityWritten = true;
-												}
-											}
-											Set<String> tokenSplit = new HashSet<String>(
-													Arrays.asList(entry.getKey().split(" "))
-													);
-											if(!entityWritten && (tokenSplit.contains(token) || entry.getKey().endsWith(token))) {
-												if(temp.getTagName().equals("person")) {
-													textLinebw.write("\t I-PER");
-													if(exportProperties) {
-														addPropsToFile(temp, textLinebw);
-													}
-													entityWritten = true;
-												}else if(temp.getTagName().equals("place")) {
-													textLinebw.write("\t I-LOC");
-													if(exportProperties) {
-														addPropsToFile(temp, textLinebw);
-													}
-													entityWritten = true;
-												}else if(temp.getTagName().equals("organization")) {
-													textLinebw.write("\t I-ORG");
-													if(exportProperties) {
-														addPropsToFile(temp, textLinebw);
-													}
-													entityWritten = true;
-												}
-												else if(temp.getTagName().equals("human_production")) {
-													textLinebw.write("\t I-HumanProd");
-													if(exportProperties) {
-														addPropsToFile(temp, textLinebw);
-													}
-													entityWritten = true;
-												}
-											}
-										}
-									}
-									if(!entityWritten) {
-										textLinebw.write("\t O");
-									}
+						String tokenText = tag.getContainedText();
+						StringTokenizer st = new StringTokenizer(tokenText," .,;\"„?!",true);
+						List<CustomTag> overlappingTags = tagLines.getOverlappingTags(null, tag.getOffset(),tag.getEnd());
+						List<CustomTag> listWithOverlap = new ArrayList<>();
+						listWithOverlap.add(tag);
+						CustomTag overlapTag = null;
+						for(CustomTag overlap : overlappingTags) {
+							if(!tag.getTagName().equals(overlap.getTagName())) {
+								overlapTag = overlap;
 								
-									textLinebw.newLine();
-	
-								}							
-							} catch (IOException e) {
-								e.printStackTrace();
 							}
-						
+						}
+						listWithOverlap.add(overlapTag);
+						tagMap.put(tag.getOffset(), listWithOverlap);
+						if(st.countTokens() > 1) {
+							while(st.hasMoreTokens()) {
+								String token = st.nextToken();
+								int insideOffset = lineText.indexOf(token);
+								continueMap.put(token+""+insideOffset, tag);
+							}		
+						}
+							
 					}
+	
+					try {
+						StringTokenizer st = new StringTokenizer(lineText, " .,;\"„?!",true);
+						while(st.hasMoreTokens()) {
+							
+							String token = st.nextToken();
+							
+							
+							if(token.equals(" ")) {
+								textLinebw.write("\tSpaceAfter");
+								continue; 
+							}
+							
+							
+									
+							int offset = lineText.indexOf(token);
+							
+							textLinebw.newLine();
+							
+							
+							CustomTag tag = null;
+							CustomTag overlap = null;
+							
+							if(tagMap.containsKey(offset)) {
+								List<CustomTag> tags = tagMap.get(offset);
+								tag = tags.get(0);
+								overlap = tags.get(1);
+								if(tag != null && overlap != null) {
+									logger.info("Token : "+token+" Found an overlapping tag for "+tag.getContainedText()+ " type :"+tag.getTagName()+" => overlap : "+overlap.getContainedText()+" type : "+overlap.getTagName());
+									if(overlap.getContainedText().contains(tag.getContainedText())) {
+										if(overlap.getContainedText().startsWith(token)) {
+											textLinebw.write(token);
+											addNestedTag(tag, textLinebw, "B");
+											addNestedTag(overlap, textLinebw, "B");
+											if(exportProperties) {
+												addPropsToFile(tag, textLinebw);
+												addPropsToFile(overlap, textLinebw);
+											}	
+										}else if(continueMap.containsKey(token+""+offset)) {
+											textLinebw.write(token);
+											addNestedTag(overlap, textLinebw, "I");
+											addNestedTag(tag, textLinebw, "B");
+											if(exportProperties) {
+												addPropsToFile(overlap, textLinebw);
+												addPropsToFile(tag, textLinebw);
+											}
+										}
+										else {
+											textLinebw.write(token);
+											addNestedTag(tag, textLinebw, "B");
+											addNestedTag(overlap, textLinebw, "I");
+											if(exportProperties) {
+												addPropsToFile(tag, textLinebw);
+												addPropsToFile(overlap, textLinebw);
+											}
+										}
+									}else {
+										textLinebw.write(token);
+										addBeginningTag(tag, textLinebw, exportProperties);	
+									}
+									
+								
+								}else {
+									if(tag.isContinued() && offset == 0) {
+										textLinebw.write(token);
+										addContinueTag(tag, textLinebw, exportProperties);					
+									}
+									else if(offset == tag.getOffset()) {
+										textLinebw.write(token);
+										addBeginningTag(tag, textLinebw, exportProperties);				
+									}
+								}
+								
+							}else if (continueMap.containsKey(token+""+offset)){
+								CustomTag tagCont = continueMap.get(token+""+offset);
+								List<CustomTag> tags = tagMap.get(tagCont.getOffset());
+								tag = tags.get(0);
+								overlap = tags.get(1);
+								if(tag != null && overlap != null) {
+									logger.info("Token : "+token+ " CONTINUE Found an overlapping tag for "+tag.getContainedText()+ " type :"+tag.getTagName()+" => overlap : "+overlap.getContainedText()+" type : "+overlap.getTagName());
+									// check if token starts with tag Text
+									if(overlap.getContainedText().contains(tag.getContainedText())) {
+										if(tag.getContainedText().contains(token)){
+											textLinebw.write(token);
+											addNestedTag(tag, textLinebw, "I");
+											addNestedTag(overlap, textLinebw, "I");
+											if(exportProperties) {
+												addPropsToFile(tag, textLinebw);
+												addPropsToFile(overlap, textLinebw);
+											}
+										}
+										else {
+											textLinebw.write(token);
+											textLinebw.write("\tO");
+											addNestedTag(overlap, textLinebw, "I");
+											if(exportProperties) {
+												addPropsToFile(overlap, textLinebw);
+											}
+										}
+									}else if(overlap.getEnd() <= offset && tag.getEnd() <= offset) {
+										textLinebw.write(token);
+										addNestedTag(tag, textLinebw, "I");
+										addNestedTag(overlap, textLinebw, "I");
+										if(exportProperties) {
+											addPropsToFile(tag, textLinebw);
+											addPropsToFile(overlap, textLinebw);
+										}
+									}
+									// check punctutation issue with correct offset
+									else {
+										textLinebw.write(token);
+										addContinueTag(tagCont, textLinebw, exportProperties);
+									}
+									
+								}else {
+									textLinebw.write(token);
+									addContinueTag(tagCont, textLinebw, exportProperties);
+								}
+								
+							}else {
+								textLinebw.write(token);
+								textLinebw.write("\tO\tO");
+							}
+							
+							if(!st.hasMoreTokens()) {
+								textLinebw.write("\tEndOfLine");
+							}
+							
+						}
+						
+					}catch (IOException e) {
+						e.printStackTrace();
+					}
+						
+				}
 
 				++c;
 				if (monitor!=null) {
@@ -288,37 +310,106 @@ public class TrpIobBuilder {
 		}
 	}
 	
+	private void addNestedTag(CustomTag temp, BufferedWriter textLinebw, String preFix) throws IOException {
+		if(temp.getTagName().equals("person")) {
+				textLinebw.write("\t"+preFix+"-PER");
+		}else if(temp.getTagName().equals("place")){
+			textLinebw.write("\t"+preFix+"-LOC");
+		}else if(temp.getTagName().equals("organization")){
+			textLinebw.write("\t"+preFix+"-ORG");
+		}else if(temp.getTagName().equals("human_production")){
+			textLinebw.write("\t"+preFix+"-HumanProd");
+		}
+		
+	}
+	
+	private void addBeginningTag(CustomTag temp, BufferedWriter textLinebw, boolean exportProperties) throws IOException {
+		if(temp.getTagName().equals("person")) {
+				textLinebw.write("\tB-PER\tO");
+				if(exportProperties) {
+					addPropsToFile(temp, textLinebw);
+				}
+		}else if(temp.getTagName().equals("place")){
+			textLinebw.write("\tB-LOC\tO");
+			if(exportProperties) {
+				addPropsToFile(temp, textLinebw);
+			}
+		}else if(temp.getTagName().equals("organization")){
+			textLinebw.write("\tB-ORG\tO");
+			if(exportProperties) {
+				addPropsToFile(temp, textLinebw);
+			}
+		}else if(temp.getTagName().equals("human_production")){
+			textLinebw.write("\tB-HumanProd\tO");
+			if(exportProperties) {
+				addPropsToFile(temp, textLinebw);
+			}
+		}
+		
+	}
+	
+	private void addContinueTag(CustomTag temp, BufferedWriter textLinebw, boolean exportProperties) throws IOException {
+		if(temp.getTagName().equals("person")) {
+				textLinebw.write("\tI-PER\tO");
+				if(exportProperties) {
+					addPropsToFile(temp, textLinebw);
+				}
+		}else if(temp.getTagName().equals("place")){
+			textLinebw.write("\tI-LOC\tO");
+			if(exportProperties) {
+				addPropsToFile(temp, textLinebw);
+			}
+		}else if(temp.getTagName().equals("organization")){
+			textLinebw.write("\tI-ORG\tO");
+			if(exportProperties) {
+				addPropsToFile(temp, textLinebw);
+			}
+		}else if(temp.getTagName().equals("human_production")){
+			textLinebw.write("\tI-HumanProd\tO");
+			if(exportProperties) {
+				addPropsToFile(temp, textLinebw);
+			}
+		}
+		
+	}
+	
+	
+	
 	private void addPropsToFile(CustomTag temp, BufferedWriter textLinebw) throws IOException {
 		
 		if(!temp.getAttributes().isEmpty()) {
 			Map<String, Object> attrMap = temp.getAttributeNamesValuesMap();
 			// Method for NewsEye GT creation
-			if(attrMap.get("nel") == null) {
-				textLinebw.write("\t null");
-			}else {
-				textLinebw.write("\t "+attrMap.get("nel"));
-			}
-			
-			if(attrMap.get("stance") == null) {
-				textLinebw.write("\t null");
-			}else {
-				textLinebw.write("\t "+attrMap.get("stance"));
-			}
 			
 			if(temp.getTagName().equals("person")) {
 				if(attrMap.get("author") == null) {
-					textLinebw.write("\t author=false");
+					textLinebw.write("\tO");
 				}else {
-					textLinebw.write("\t author="+attrMap.get("author"));
+					String isAuthor = (String) attrMap.get("author");
+					if(isAuthor.equals("true")) {
+						textLinebw.write("\tPER.author");
+					}else {
+						textLinebw.write("\tO");
+					}
+					
 				}
+			}else {
+				textLinebw.write("\tO");
 			}
-
-			// Print all attributes to file
-//			for (Map.Entry<String, Object> attrEnt : attrMap.entrySet()) {
-//			    logger.info(attrEnt.getKey() + "/" + attrEnt.getValue());
-//			    textLinebw.write("\t "+attrEnt.getKey()+" : "+attrEnt.getValue());
-//			}
 			
+			if(attrMap.get("nel") == null) {
+				textLinebw.write("\tnull");
+			}else {
+				// replace space
+				String nelLink = (String) attrMap.get("nel");
+				textLinebw.write("\t"+nelLink.replace("https://www.wikidata.org/wiki/", ""));
+			}
+			
+			if(attrMap.get("stance") == null) {
+				textLinebw.write("\tnull");
+			}else {
+				textLinebw.write("\t"+attrMap.get("stance"));
+			}
 		}	
 	}
 
@@ -487,7 +578,7 @@ public class TrpIobBuilder {
 	public static void main(String[] args) throws Exception {
 		
 
-		TrpDoc docWithTags = LocalDocReader.load("/home/lateknight/Documents/NLF_NER-NEL-Stance_IOB/export_job_896506/271631/NLF_GT_FI_Fraktur_duplicated");
+		TrpDoc docWithTags = LocalDocReader.load("/home/lateknight/Downloads/florian_annotation/313396/ONB_inter_annotator_doc_v2");
 		
 		/*
 		 * here we store the page transcripts for all later exports regarding to the wished version status
@@ -505,11 +596,10 @@ public class TrpIobBuilder {
 			}
 		}
 		ExportCache exportCache = new ExportCache();
-//		exportCache.storePageTranscripts4Export(docWithTags, pageIndices, null, "Latest", -1, null);
 		exportCache.storeCustomTagMapForDoc(docWithTags, false, pageIndices, null, false);
 		
 		TrpIobBuilder iob = new TrpIobBuilder();
-		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Desktop/nlf_271631.txt"), pageIndices, null, exportCache, true);
+		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Desktop/interAnnotator_new3.txt"), pageIndices, null, exportCache, false);
 		
 		System.out.println("finished");
 		

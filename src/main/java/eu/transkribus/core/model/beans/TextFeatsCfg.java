@@ -49,6 +49,7 @@ public class TextFeatsCfg {
 	boolean fcontour = true; // Whether to compute the features surrounding polygon
 	int fcontour_dilate = 0; //
 	int padding = 10; // Padding in pixels to add to the left and right
+	int maxwidth = 6000; // max width of resulting line image -> if greater, pixels on the right are discarded; default if not set = 4000
 	
 	public TextFeatsCfg() {
 	}
@@ -151,9 +152,16 @@ public class TextFeatsCfg {
 	public void setPadding(int padding) {
 		this.padding = padding;
 	}
+	public int getMaxwidth() {
+		return maxwidth;
+	}
+
+	public void setMaxwidth(int maxwidth) {
+		this.maxwidth = maxwidth;
+	}
 	
 	// TODO: implement function that reads parameters from a file!
-	
+
 	/**
 	 * Creates the string as required by the textfeats tool 
 	 */
@@ -177,6 +185,7 @@ public class TextFeatsCfg {
 		str += "fcontour = "+fcontour+";\n";
 		str += "fcontour_dilate = "+fcontour_dilate+";\n";
 		str += "padding = "+padding+";\n";
+		str += "maxwidth = "+maxwidth+";\n";
 		str += "}";
 		return str;
 	}
@@ -224,11 +233,11 @@ public class TextFeatsCfg {
 				+ ", format=" + format + ", stretch=" + stretch + ", enh=" + enh + ", enh_win=" + enh_win + ", enh_prm="
 				+ enh_prm + ", normheight=" + normheight + ", normxheight=" + normxheight + ", momentnorm=" + momentnorm
 				+ ", fpgram=" + fpgram + ", fcontour=" + fcontour + ", fcontour_dilate=" + fcontour_dilate
-				+ ", padding=" + padding + "]";
+				+ ", padding=" + padding + ", maxwidth=" + maxwidth + "]";
 	}
 
 	public static void main(String[] args) throws Exception {
-		String str = "TextFeatExtractor: { verbose = true; deslope = true; deslant = true; type = \"raw\"; format = \"img\"; stretch = true; enh = true; enh_win = 30; enh_prm = 0.2; normheight = 32; normxheight = 0; momentnorm = true; fpgram = true; fcontour = true; fcontour_dilate = 0; padding = 10; }";
+		String str = "TextFeatExtractor: { verbose = true; deslope = true; deslant = true; type = \"raw\"; format = \"img\"; stretch = true; enh = true; enh_win = 30; enh_prm = 0.2; normheight = 32; normxheight = 0; momentnorm = true; fpgram = true; fcontour = true; fcontour_dilate = 0; padding = 10; maxwidth = 5500; }";
 		TextFeatsCfg cfg = TextFeatsCfg.fromConfigString(str);
 		if (cfg != null) {
 //			System.out.println("cfg = "+cfg);
