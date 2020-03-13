@@ -45,6 +45,9 @@ public class TrpTokenTransaction {
 	@Column(name = "CREDIT_BALANCE")
 	private int creditBalance;
 	
+	@Column(name = "DESCRIPTION")
+	private String description;
+	
 	public TrpTokenTransaction() {}
 
 	public TrpTokenTransaction(TrpTokenTransaction other) {
@@ -56,6 +59,7 @@ public class TrpTokenTransaction {
 		this.tokenValue = other.tokenValue;
 		this.nrOfPages = other.nrOfPages;
 		this.creditBalance = other.creditBalance;
+		this.description = other.description;
 	}
 
 	public int getTransactionId() {
@@ -113,12 +117,20 @@ public class TrpTokenTransaction {
 	public void setCreditBalance(int creditBalance) {
 		this.creditBalance = creditBalance;
 	}
-
+	
+	public String getDescription() {
+		return description;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
 	@Override
 	public String toString() {
-		return "TrpTransaction [transactionId=" + transactionId + ", jobId=" + jobId + ", creditId=" + creditId
+		return "TrpTokenTransaction [transactionId=" + transactionId + ", jobId=" + jobId + ", creditId=" + creditId
 				+ ", time=" + time + ", tokenValue=" + tokenValue + ", nrOfPages=" + nrOfPages + ", creditBalance="
-				+ creditBalance + "]";
+				+ creditBalance + ", description=" + description + "]";
 	}
 
 	@Override
@@ -127,6 +139,7 @@ public class TrpTokenTransaction {
 		int result = 1;
 		result = prime * result + creditBalance;
 		result = prime * result + creditId;
+		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((jobId == null) ? 0 : jobId.hashCode());
 		result = prime * result + ((nrOfPages == null) ? 0 : nrOfPages.hashCode());
 		result = prime * result + ((time == null) ? 0 : time.hashCode());
@@ -147,6 +160,11 @@ public class TrpTokenTransaction {
 		if (creditBalance != other.creditBalance)
 			return false;
 		if (creditId != other.creditId)
+			return false;
+		if (description == null) {
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
 			return false;
 		if (jobId == null) {
 			if (other.jobId != null)
@@ -169,6 +187,4 @@ public class TrpTokenTransaction {
 			return false;
 		return true;
 	}
-
-	
 }
