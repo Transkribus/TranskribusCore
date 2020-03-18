@@ -17,7 +17,10 @@ public class HtrPyLaiaUtils {
 	public final static String WORKDIR_NAME = PROVIDER_PYLAIA+"Workdir";
 	public static final String TEXT_FEATS_CFG_FILENAME = "textFeatsCfg";
 	public static final String CREATE_MODEL_PARS_FILENAME = "createModelPars";
-	public static final String TRAIN_CTC_PARS_FILENAME = "trainCtcPars";	
+	public static final String TRAIN_CTC_PARS_FILENAME = "trainCtcPars";
+	public static final String SYMBOLS_FILENAME = "symbols.txt";
+	public static final String LM_SUBDIR = "lm";
+	public static final String HYPOTHESES_FILENAME = "hypotheses.out";
 	
 	public static boolean doesDecodingSupportDicts() {
 		return false;

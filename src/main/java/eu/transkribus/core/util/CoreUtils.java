@@ -1441,6 +1441,10 @@ public class CoreUtils {
 //		}
 	}
 	
+	public static void addOptionToCommandList(List<String> commandList, String option) {
+		addOptionToCommandList(commandList, option, null);
+	}
+	
 	public static void addOptionToCommandList(List<String> commandList, String option, String value) {
 		if (commandList==null) {
 			return;
