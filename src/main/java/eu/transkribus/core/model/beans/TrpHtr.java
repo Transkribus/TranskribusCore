@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import eu.transkribus.core.model.beans.adapters.SqlTimestampAdapter;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.HtrCITlabUtils;
+import eu.transkribus.core.util.HtrPyLaiaUtils;
 
 @Entity
 @Table(name = "HTR")
@@ -86,6 +87,7 @@ public class TrpHtr {
 	
 	@Column(name="CHARSET")
 	private String charSetString;
+	
 	
 	@Column(name="HAS_BEST_NET")
 	private boolean bestNetStored = true;
@@ -478,6 +480,10 @@ public class TrpHtr {
 	
 	public boolean hasValidationGt() {
 		return getNrOfValidationGtPages() != null && getNrOfValidationGtPages() > 0;
+	}
+	
+	public boolean isPyLaiaModel() {
+		return StringUtils.equals(getProvider(), HtrPyLaiaUtils.PROVIDER_PYLAIA);
 	}
 	
 	public String toShortString() {

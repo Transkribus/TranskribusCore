@@ -1650,6 +1650,29 @@ public class PageXmlUtils {
 		return nChanged;
 	}
 	
+	/**
+	 * Adds a line to the creator field
+	 */
+	public static String addCreatorLine(PcGtsType pc, String creator, int maxLines) {
+		if (pc.getMetadata()==null) {
+			pc.setMetadata(new MetadataType());
+		}
+		String oldCreator = pc.getMetadata().getCreator()==null ? "" : pc.getMetadata().getCreator();
+		String newCreator = creator + "\n" + oldCreator;
+		
+		if (maxLines > 0) {
+			String[] lines = newCreator.split("\\r?\\n");
+			newCreator="";
+			for (int i=0; i<Math.min(maxLines, lines.length); ++i) {
+				newCreator += lines[i]+"\n";
+			}
+			newCreator = newCreator.trim();
+		}
+		
+		pc.getMetadata().setCreator(newCreator);
+		return newCreator;
+	}
+	
 	public static void main(String[] args) throws Exception {
 		PageXmlFileProcessor p = PageXmlUtils.rectifyAllRegions(new PageXmlFileProcessor("https://files.transkribus.eu/Get?id=XTQBSHYLZUPUGOMECBOAVDDA"));
 		

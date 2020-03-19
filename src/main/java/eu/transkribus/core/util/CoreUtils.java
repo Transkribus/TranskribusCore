@@ -38,6 +38,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -792,6 +793,11 @@ public class CoreUtils {
 		return new File(path).exists();
 //		return Files.exists(Paths.get(path));
 	}
+	
+	public static boolean dirExists(String path) {
+		return new File(path).isDirectory();
+//		return Files.exists(Paths.get(path));
+	}	
 
 	public static String removeFileTypeFromUrl(String urlStr) {
 		StringBuffer buf = new StringBuffer(urlStr);
@@ -1495,6 +1501,17 @@ public class CoreUtils {
 			i+=nEntries;
 		} while (i<list.size());
 		return sublists;
+	}
+	
+	public interface MyRunnable {
+	    void run() throws Exception;
+	}
+	
+	public static long measureTime(MyRunnable r, boolean verbose, String verbosePrefix, Logger logger) throws Exception {
+		SebisStopWatch sw = new SebisStopWatch();
+		sw.start();
+		r.run();
+		return sw.stop(verbose, verbosePrefix, logger);
 	}
 	
 	public static void main(String[] args) throws Exception {
