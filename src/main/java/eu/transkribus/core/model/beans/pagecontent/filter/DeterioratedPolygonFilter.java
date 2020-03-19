@@ -55,9 +55,8 @@ public class DeterioratedPolygonFilter implements IPageContentFilter {
 					}
 				}
 			}
-			
-			logger.debug("DeterioratedPolygonFilter removed {} elements", removeCount);
-		}	
+		}
+		logger.debug("DeterioratedPolygonFilter removed {} elements", removeCount);
 	}
 	
 	boolean isDeteriorated(String pointStr) {
