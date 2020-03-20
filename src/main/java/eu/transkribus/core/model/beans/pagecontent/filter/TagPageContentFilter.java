@@ -1,12 +1,11 @@
 package eu.transkribus.core.model.beans.pagecontent.filter;
 
 import java.awt.Point;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +33,19 @@ import eu.transkribus.core.util.PointStrUtils;
  */
 public class TagPageContentFilter implements IPageContentFilter {
 	Logger logger = LoggerFactory.getLogger(TagPageContentFilter.class);
+	private int removedLinesCount;
 	
-	private Set<String> tagSet;
+	/**
+	 * Map with tags to remove and a counter keeping track of removals 
+	 */
+	private Map<String, Integer> tagMap;
 	
 	public TagPageContentFilter(String...tags) {
-		tagSet = new HashSet<>();
-		tagSet.addAll(Arrays.asList(tags));
+		removedLinesCount = 0;
+		tagMap = new HashMap<>();
+		for(String t : tags) {
+			tagMap.put(t, 0);
+		}
 	}
 	
 	@Override
@@ -56,21 +62,25 @@ public class TagPageContentFilter implements IPageContentFilter {
 				boolean doRemove = false;
 				//use strings to discriminate tags. No easy way for doing this by CustomTag type equivalence!?
 				for(CustomTag t : tagList.getTags()) {
-					if(tagSet.contains(t.getTagName())) {
-						logger.debug("Found tag to be removed: {}", t.getTagName());
+					logger.trace("Checking tag: {}", t);
+					if(tagMap.containsKey(t.getTagName())) {
+						logger.debug("Found tag to be removed in line {}: {}", l.getId(), t.getTagName());
 						doRemove = true;
+						final int tagCount = tagMap.get(t.getTagName());
+						tagMap.put(t.getTagName(), tagCount + 1);
 					}
 				}
 				
 				if(doRemove) {
-					logger.info("Discarding line {} containing discrimanated custom tag: {}", l.getId(), tagList.getCustomTag());
+					logger.info("Discarding line {} containing discriminated custom tags: {}", l.getId(), tagList.getCustomTag());
 					lineIt.remove();
 					removeCount++;
 					continue;
 				}
 			}
 		}
-		logger.debug("DeterioratedPolygonFilter removed {} elements", removeCount);	
+		removedLinesCount += removeCount;
+		logger.debug("Removed {} lines", removeCount);	
 	}
 	
 	boolean isDeteriorated(String pointStr) {
@@ -88,5 +98,9 @@ public class TagPageContentFilter implements IPageContentFilter {
 			return true;
 		}
 		return false;
+	}
+	
+	public int getRemovedLinesCount() {
+		return removedLinesCount;
 	}
 }

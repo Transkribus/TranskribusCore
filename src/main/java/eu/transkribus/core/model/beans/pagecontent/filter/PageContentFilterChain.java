@@ -2,6 +2,7 @@ package eu.transkribus.core.model.beans.pagecontent.filter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +20,23 @@ public class PageContentFilterChain implements IPageContentFilter {
 		filterChain = new ArrayList<>();
 	}
 	
-	public void addFilter(IPageContentFilter filter) {
+	public void prependFilter(IPageContentFilter filter) {
+		logger.debug("Prepending filter: {}", filter);
+		filterChain.add(0, filter);
+		logChainInfo();
+	}
+	
+	public void appendFilter(IPageContentFilter filter) {
+		logger.debug("Appending filter: {}", filter);
 		filterChain.add(filter);
+		logChainInfo();
+	}
+	
+	private void logChainInfo() {
+		if(logger.isDebugEnabled()) {
+			final String chainInfo = filterChain.stream().map(f -> "" + f).collect(Collectors.joining(" -> "));
+			logger.debug("Chain content = {}", chainInfo);
+		}
 	}
 
 	/**
@@ -32,7 +48,7 @@ public class PageContentFilterChain implements IPageContentFilter {
 	public static PageContentFilterChain of(IPageContentFilter...contentFilters) {
 		PageContentFilterChain chain = new PageContentFilterChain();
 		for(IPageContentFilter filter : contentFilters) {
-			chain.addFilter(filter);
+			chain.appendFilter(filter);
 		}
 		return chain;
 	}

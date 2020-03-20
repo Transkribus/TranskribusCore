@@ -23,14 +23,18 @@ public class DeterioratedPolygonFilter implements IPageContentFilter {
 	Logger logger = LoggerFactory.getLogger(DeterioratedPolygonFilter.class);
 	
 	private final boolean doFilterLines;
+	private int overallRemovedLineCount, overallRemovedRegionCount;
 	
 	public DeterioratedPolygonFilter(boolean doFilterLines) {
 		this.doFilterLines = doFilterLines;
+		overallRemovedLineCount = 0;
+		overallRemovedRegionCount = 0;
 	}
 	
 	@Override
 	public void doFilter(PcGtsType pc) {
-		int removeCount = 0;
+		int removedLineCount = 0;
+		int removedRegionCount = 0;
 		Iterator<TrpRegionType> regionIt = pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion().iterator();
 		while(regionIt.hasNext()) {
 			RegionType r = regionIt.next();
@@ -38,7 +42,7 @@ public class DeterioratedPolygonFilter implements IPageContentFilter {
 			if(isDeteriorated(r.getCoords().getPoints())) {
 				logger.info("Discarding region {} due to invalid points string: {}", r.getId(), r.getCoords().getPoints());
 				regionIt.remove();
-				removeCount++;
+				removedRegionCount++;
 				continue;
 			}
 								
@@ -50,13 +54,16 @@ public class DeterioratedPolygonFilter implements IPageContentFilter {
 					if(isDeteriorated(l.getCoords().getPoints())) {
 						logger.info("Discarding line {} due to invalid points string: {}", l.getId(), l.getCoords().getPoints());
 						lineIt.remove();
-						removeCount++;
+						removedLineCount++;
 						continue;
 					}
 				}
 			}
 		}
-		logger.debug("DeterioratedPolygonFilter removed {} elements", removeCount);
+		logger.debug("Removed {} elements from PcGtsType: {} lines, {} regions", 
+				(removedLineCount + removedRegionCount), removedLineCount, removedRegionCount);
+		overallRemovedLineCount += removedLineCount;
+		overallRemovedRegionCount += removedRegionCount;
 	}
 	
 	boolean isDeteriorated(String pointStr) {
@@ -74,5 +81,13 @@ public class DeterioratedPolygonFilter implements IPageContentFilter {
 			return true;
 		}
 		return false;
+	}
+	
+	public int getRemovedLineCount() {
+		return overallRemovedLineCount;
+	}
+	
+	public int getRemovedRegionCount() {
+		return overallRemovedRegionCount;
 	}
 }

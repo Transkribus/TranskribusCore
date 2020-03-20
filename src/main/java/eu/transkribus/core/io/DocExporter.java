@@ -52,6 +52,8 @@ import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.mets.Mets;
 import eu.transkribus.core.model.beans.pagecontent.MetadataType;
 import eu.transkribus.core.model.beans.pagecontent.TranskribusMetadataType;
+import eu.transkribus.core.model.beans.pagecontent.filter.IPageContentFilter;
+import eu.transkribus.core.model.beans.pagecontent.filter.PageContentFilterChain;
 import eu.transkribus.core.model.builder.CommonExportPars;
 import eu.transkribus.core.model.builder.ExportCache;
 import eu.transkribus.core.model.builder.alto.AltoExporter;
@@ -68,7 +70,6 @@ import eu.transkribus.core.model.builder.txt.TrpTxtBuilder;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.ImgUtils;
 import eu.transkribus.core.util.JaxbUtils;
-import eu.transkribus.core.util.SebisStopWatch;
 
 public class DocExporter extends APassthroughObservable {
 	private static final Logger logger = LoggerFactory.getLogger(DocExporter.class);
@@ -81,6 +82,8 @@ public class DocExporter extends APassthroughObservable {
 	
 	protected CommonExportPars pars;
 	protected OutputDirStructure outputDir;
+	
+	protected IPageContentFilter pageContentFilter;
 	
 	public DocExporter(IFimgStoreGetClient getClient) {
 		this(getClient, new ExportCache());
@@ -632,6 +635,10 @@ public class DocExporter extends APassthroughObservable {
 				// write transcript to file
 				xmlFile = new File(FilenameUtils.normalizeNoEndSeparator(outputDir.getPageOutputDir().getAbsolutePath()) 
 							+ File.separator + baseFileName + xmlExt);
+				if(pageContentFilter != null) {
+					//apply any filter defined
+					pageContentFilter.doFilter(transcript.getPageData());
+				}
 				logger.debug("PAGE XMl output file: "+xmlFile.getAbsolutePath());
 				transcript.write(xmlFile);
 
@@ -721,6 +728,15 @@ public class DocExporter extends APassthroughObservable {
 
 	public ExportCache getCache() {
 		return cache;
+	}
+	
+	/**
+	 * Set a {@link IPageContentFilter} (or {@link PageContentFilterChain}) all exported page XMLs are sent through.
+	 * 
+	 * @param filter the filter or filter chain to apply
+	 */
+	public void setPageContentFilter(IPageContentFilter filter) {
+		this.pageContentFilter = filter;
 	}
 		
 	protected static class OutputDirStructure {
