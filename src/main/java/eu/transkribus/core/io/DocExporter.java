@@ -70,6 +70,7 @@ import eu.transkribus.core.model.builder.txt.TrpTxtBuilder;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.ImgUtils;
 import eu.transkribus.core.util.JaxbUtils;
+import eu.transkribus.core.util.PageXmlUtils;
 
 public class DocExporter extends APassthroughObservable {
 	private static final Logger logger = LoggerFactory.getLogger(DocExporter.class);
@@ -659,8 +660,10 @@ public class DocExporter extends APassthroughObservable {
 			if (pars.isDoWriteImages()) {
 				imgFile = writeImage(pageExport.getUrl(), baseFileName + imgExt);
 			}
+			
 			if(pars.isDoExportPageXml()) {
-				xmlFile = LocalDocWriter.copyTranscriptFile(pageExport, outputDir.getPageOutputDir().getAbsolutePath(), baseFileName + xmlExt, cache);
+				xmlFile = copyTranscriptFile(pageExport, 
+						outputDir.getPageOutputDir().getAbsolutePath(), baseFileName + xmlExt);
 			}
 		}
 		// export alto:
@@ -696,6 +699,46 @@ public class DocExporter extends APassthroughObservable {
 		return pageExport;
 	}
 	
+	/**
+	 * Store a local transcript file in another location.
+	 * Code from LocalDocWriter and adapted to apply DocExporter's PAGE XML preprocessing.
+	 * 
+	 * @param p
+	 * @param path
+	 * @param fileName
+	 * @return
+	 * @throws IOException
+	 */
+	private File copyTranscriptFile(TrpPage p, String path, String fileName) throws IOException {
+		if (p.getTranscripts().isEmpty()) {
+			return null;
+		}
+		TrpTranscriptMetadata tmd = p.getTranscripts().get(p.getTranscripts().size()-1);
+
+		//load page transcript only once during export
+		JAXBPageTranscript tr = cache.getPageTranscriptAtIndex(p.getPageNr()-1);
+					
+		if (tr == null){
+			tr = new JAXBPageTranscript(tmd);
+			tr.build();
+		}
+		
+		onBeforeTranscriptIsWritten(p, tr);
+		
+		if(pageContentFilter != null) {
+			//apply any filter defined
+			pageContentFilter.doFilter(tr.getPageData());
+		}
+		
+		File xmlFile = new File(path, fileName);
+		try {
+			PageXmlUtils.marshalToFile(tr.getPageData(), xmlFile);
+		} catch (JAXBException e) {
+			throw new IOException("Could not write PAGE XML file.", e);
+		}
+		return xmlFile;
+	}
+
 	/**
 	 * Copy local image file at URL to outFilename according to {@link #pars} and {@link #outputDir}.
 	 * 
