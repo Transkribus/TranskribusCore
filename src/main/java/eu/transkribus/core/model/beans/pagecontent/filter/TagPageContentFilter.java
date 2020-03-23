@@ -1,7 +1,5 @@
 package eu.transkribus.core.model.beans.pagecontent.filter;
 
-import java.awt.Point;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -17,7 +15,6 @@ import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.util.PageXmlUtils;
-import eu.transkribus.core.util.PointStrUtils;
 
 /**
  * Filter that removes line-regions that contain specific text tags.
