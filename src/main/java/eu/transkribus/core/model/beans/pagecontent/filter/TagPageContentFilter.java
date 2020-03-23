@@ -21,15 +21,8 @@ import eu.transkribus.core.util.PointStrUtils;
 
 /**
  * Filter that removes line-regions that contain specific text tags.
- * <br><br>
- * Yet untested!<br> 
  * <br>
- * Use case: Users want to have the HTR training ignore lines with unclear or gap tags.<br>
- * TODO: This will alter the nrOfTranscribedLines and nrOfWordsInLines of the transcript.<br>
- * Those numbers are summed up and written to the HTR's metadata.<br>
- * The computation has to be updated when applying this filter during HTR training!<br>
- * See https://github.com/Transkribus/TranskribusAppServerModules#69
- * 
+ * Use case: Users want to have the HTR training ignore lines with unclear or gap tags. 
  */
 public class TagPageContentFilter implements IPageContentFilter {
 	Logger logger = LoggerFactory.getLogger(TagPageContentFilter.class);
