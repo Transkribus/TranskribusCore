@@ -120,6 +120,7 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 		return "CitLabHtrTrainConfig [numEpochs=" + numEpochs + ", learningRate=" + learningRate + ", noise=" + noise
 				+ ", trainSizePerEpoch=" + trainSizePerEpoch + ", baseModelId=" + baseModelId + ", modelName="
 				+ modelName + ", description=" + description + ", language=" + language + ", colId=" + colId
+				+ ", customProps=" + customParams
 				+ ", train=" + "["+StringUtils.join(train, ", ")+"]" + ", test=" + "["+StringUtils.join(test, ", ")+"]"+ "]";
 	}
 	
