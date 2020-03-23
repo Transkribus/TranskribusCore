@@ -62,6 +62,7 @@ public class JobConst {
 	public static final String PROP_TRAIN_SIZE_PER_EPOCH = "trainSizePerEpoch";
 	public static final String PROP_BASE_MODEL = "baseModel";
 	public static final String PROP_EARLY_STOPPING = "earlyStopping";
+	public static final String PROP_HTR_OMIT_LINES_BY_TAG = "omitLinesByTag";
 	
 	/**
 	 * Use {@link #PROP_PARAMETERS} for consistency
@@ -131,6 +132,5 @@ public class JobConst {
 
 	public static final String PROP_GPU_DEVICE_ENV_VAR = "GPU_DEVICE";
 
-	public static final String PROP_SKIP_PAGES_WITH_MISSING_STATUS = "skipPagesWithMissingStatus";
-	
+	public static final String PROP_SKIP_PAGES_WITH_MISSING_STATUS = "skipPagesWithMissingStatus";	
 }
