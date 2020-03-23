@@ -76,23 +76,6 @@ public class TagPageContentFilter implements IPageContentFilter {
 		logger.debug("Removed {} lines", removeCount);	
 	}
 	
-	boolean isDeteriorated(String pointStr) {
-		Collection<Point> regionPoints;
-		try {
-			regionPoints = PointStrUtils.parsePoints3(pointStr);
-		} catch (NumberFormatException e) {
-			logger.debug("Invalid number format in points: {}", pointStr);
-			return true;
-		}
-		
-		//check number of points
-		if(regionPoints.size() < 3) {
-			logger.debug("Less than 3 points: {}", pointStr);
-			return true;
-		}
-		return false;
-	}
-	
 	public int getRemovedLinesCount() {
 		return removedLinesCount;
 	}
