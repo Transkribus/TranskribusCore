@@ -5,17 +5,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
-import org.docx4j.openpackaging.parts.relationships.RelationshipsPart.AddPartBehaviour;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.io.util.TrpProperties;
-import eu.transkribus.core.model.beans.PyLaiaTrainCtcPars;
 
 /**
  * Implements {@link AJaxbMap} and adds parameter-related helper methods.
@@ -31,12 +28,12 @@ public class ParameterMap extends AJaxbMap {
 		super();
 	}
 	
-	public ParameterMap(Map<String, Object> paramMap) {
+	public ParameterMap(Map<String, ? extends Object> paramMap) {
 		super();
 		if(paramMap == null || paramMap.isEmpty()) {
 			return;
 		}
-		for(Entry<String, Object> e : paramMap.entrySet()) {
+		for(Entry<String, ? extends Object> e : paramMap.entrySet()) {
 			this.addParameter(e.getKey(), convertToString(e.getValue()));
 		}
 	}
@@ -53,8 +50,12 @@ public class ParameterMap extends AJaxbMap {
 	}
 	
 	public void addAll(ParameterMap map) {
-		for (String key : map.getParamMap().keySet()) {
-			addParameter(key, map.getParamMap().get(key));
+		addAll(map.getParamMap());
+	}
+	
+	public void addAll(Map<String, ? extends Object> map) {
+		for (String key : map.keySet()) {
+			addParameter(key, map.get(key));
 		}
 	}
 	

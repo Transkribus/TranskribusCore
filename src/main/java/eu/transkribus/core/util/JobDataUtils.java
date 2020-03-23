@@ -40,14 +40,32 @@ public class JobDataUtils {
 		if(props == null) {
 			props = new Properties();
 		}
+		Map<String, String> propMap = setStringListToMap(null, key, values);
+		props.putAll(propMap);
+		return props;
+	}
+	
+	/**
+	 * Set a list of strings to the properties.<br/>
+	 * This method uses a separate key for each entry in the list and won't break on commas in the value.
+	 * 
+	 * @param key
+	 * @param values
+	 * @return
+	 */
+	public static Map<String, String> setStringListToMap(Map<String, String> map, final String key, List<String> values) {
+		if(map == null) {
+			map = new HashMap<>();
+		}
 		for(int i = 0; i < values.size(); i++) {
 			final String value = values.get(i);
 			if(value != null && !value.trim().isEmpty()) {
-				props.setProperty(buildKey(key, i), value);
+				map.put(buildKey(key, i), value);
 			}
 		}
-		return props;
+		return map;
 	}
+	
 	/**
 	 * get a list of strings from the properties, that have been set with {@link #setStringList(String, List)}. 
 	 * In contrast to {@link #getCsvStringListProperty(String, boolean)}
