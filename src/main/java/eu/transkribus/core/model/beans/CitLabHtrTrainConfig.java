@@ -1,15 +1,19 @@
 package eu.transkribus.core.model.beans;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import eu.transkribus.core.io.util.TrpProperties;
 import eu.transkribus.core.rest.JobConst;
+import eu.transkribus.core.util.JobDataUtils;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -68,7 +72,9 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 	@Hidden
 	public final static String BASE_MODEL_NAME_KEY = "HTR Base Model Name";
 	@Hidden
-	public final static String EARLY_STOPPING_KEY = "Early Stopping";		
+	public final static String EARLY_STOPPING_KEY = "Early Stopping";
+	@Hidden
+	public final static String OMITTED_TAGS_KEY = "Omitted Tags";
 	
 	public CitLabHtrTrainConfig() {
 		super();
@@ -138,6 +144,15 @@ public class CitLabHtrTrainConfig extends HtrTrainConfig implements Serializable
 			String earlyStopping = getCustomParams().getParameterValue(JobConst.PROP_EARLY_STOPPING);
 			if(earlyStopping != null) {
 				p.setProperty("Early Stopping", earlyStopping);
+			}
+			
+			List<String> omittedLineTags = JobDataUtils.getStringList(
+					getCustomParams().toProperties(), JobConst.PROP_HTR_OMIT_LINES_BY_TAG);
+			if(!CollectionUtils.isEmpty(omittedLineTags)) {
+				//for now just use commas to delimit tag names. 
+				//Hopefully nobody will use those within custom tag names... (spoiler: they will)
+				final String tagCsv = omittedLineTags.stream().collect(Collectors.joining(", "));
+				p.setProperty(OMITTED_TAGS_KEY, tagCsv);
 			}
 		}
 		if (earlyStopping!=null) {
