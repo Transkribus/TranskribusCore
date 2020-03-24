@@ -8,11 +8,13 @@ import java.util.Properties;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.io.util.TrpProperties;
+import eu.transkribus.core.util.JobDataUtils;
 
 /**
  * Implements {@link AJaxbMap} and adds parameter-related helper methods.
@@ -74,6 +76,23 @@ public class ParameterMap extends AJaxbMap {
 		}
 	}
 
+	/**
+	 * Add a list of string values to the map, associated with name.
+	 * No escaping of values needed, which would be the case when using csv format.
+	 * @see {@link JobDataUtils#setStringListToMap(Map, String, List)}
+	 * 
+	 * @param name the parameter key
+	 * @param valueList list of string values
+	 */
+	public void addStringListParameter(final String name, List<String> valueList) {
+		if(CollectionUtils.isEmpty(valueList)) {
+			logger.debug("Parameter value list is null or empty. Doing nothing.");
+			return;
+		}
+		Map<String, String> props = JobDataUtils.setStringListToMap(null, name, valueList);
+		this.addAll(props);
+	}
+	
 	public String getParameterValue(final String name) {
 		return map.get(name);
 	}
