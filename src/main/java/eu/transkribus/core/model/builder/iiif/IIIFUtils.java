@@ -92,15 +92,6 @@ public class IIIFUtils {
 	
 		logger.debug("Url transmitted to UploadManager : "+url.toString());
 		
-//		logger.debug("Checking if IIIF Manifest is valid");
-//		
-//		JSONObject validation = validateManifest(url);
-//		
-//		if(validation.getInt("okay") == 0) {
-//			logger.error("IIIF is not valid : "+validation.getString("error"), validation);
-//			throw new IllegalArgumentException("IIIF is not valid (https://iiif.io/api/presentation/validator/service/) : "+validation.getString("error"));
-//		}
-			
 		Manifest manifest =  checkManifestValid(url);
 
 		TrpDocMetadata md = new TrpDocMetadata();
@@ -182,26 +173,6 @@ public class IIIFUtils {
 								//the image URL connection attempt returns a response with code > 400
 								problemMsg = getBrokenUrlMsg(url, imgDownloadStatus);
 							}
-							
-//							// Get alto in case of being used in seeAlso
-//							List<OtherContent> seeAlso = image.getSeeAlso();
-//							
-//							if(seeAlso != null) {
-//								for(OtherContent content : seeAlso) {
-//									if(content.getFormat() == MimeType.MIME_APPLICATION_XML  ) {
-//	
-//										altoFile = new File(altoDirPath + File.separator + filename);
-//										logger.debug("Create Alto File");
-//										if(DeaFileUtils.copyUrlToFile(content.getIdentifier().toURL(), altoFile) >= 400) {
-//											logger.error("Could not download ALTO XML and it will be ignored!");
-//											//don't fail if ALTO XML could not be retrieved
-//											altoFile = null;
-//										}
-//									}		
-//								}
-//							}
-							
-							
 						}
 					}
 				}
@@ -379,6 +350,7 @@ public class IIIFUtils {
 	public static int checkIiifApi (final URL url) throws IOException {
 		URL validationUrl = new URL("https://iiif.io/api/presentation/validator/service/validate?format=json&version=2.1&url="+url.toString());
 		HttpURLConnection con = (HttpURLConnection) validationUrl.openConnection();
+		con.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
 		con.setRequestMethod("GET");	
 		return con.getResponseCode();
 	}
