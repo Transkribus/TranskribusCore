@@ -372,6 +372,7 @@ public final class RESTConst {
 
 	public static final String HTR_DICT_NAME_PARAM = "dict";
 	public static final String HTR_TEMP_DICT_NAME_PARAM = "tempDict";
+	public static final String LANG_MOD_PARAM = "languageModel";
 	
 	public static final String TYPE_FACE_PARAM = "typeFace";
 	public static final String LANGUAGE_PARAM = "language";
