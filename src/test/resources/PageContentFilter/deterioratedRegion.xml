@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15 http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15/pagecontent.xsd">
+    <Metadata>
+        <Creator>prov=University of Rostock/Institute of Mathematics/CITlab/Tobias Gruening/tobias.gruening@uni-rostock.de:name=/net_tf/LA73_249_0mod360.pb:de.uro.citlab.module.la.core.CITlab_LA_ML:v=?0.1
+TRP</Creator>
+        <Created>2017-12-29T10:26:24.747+01:00</Created>
+        <LastChange>2020-03-18T19:03:10.560+01:00</LastChange>
+    </Metadata>
+    <Page imageFilename="U-17_0307_r.jpg" imageWidth="7360" imageHeight="4912">
+        <ReadingOrder>
+            <OrderedGroup id="ro_1584554590628" caption="Regions reading order">
+                <RegionRefIndexed index="0" regionRef="region_1584554587246_10"/>
+                <RegionRefIndexed index="1" regionRef="region_1584554490310_7"/>
+                <RegionRefIndexed index="2" regionRef="region_1584554480427_4"/>
+            </OrderedGroup>
+        </ReadingOrder>
+        <TextRegion id="region_1584554587246_10" custom="readingOrder {index:0;}">
+            <Coords points="1031,846 5391,846 5391,2766 1031,2766"/>
+        </TextRegion>
+        <TextRegion id="region_1584554490310_7" custom="readingOrder {index:1;}">
+            <Coords points="1368,837 5372,837 5372,2797 1368,2797"/>
+        </TextRegion>
+        <TextRegion id="region_1584554480427_4" custom="readingOrder {index:2;}">
+            <Coords points="5310,2847"/>
+        </TextRegion>
+    </Page>
+</PcGts>

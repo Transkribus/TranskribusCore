@@ -89,6 +89,72 @@ public class TrpTranscriptStatistics extends ATranscriptStatistics {
 	}
 	
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((nrOfLines == null) ? 0 : nrOfLines.hashCode());
+		result = prime * result + ((nrOfRegions == null) ? 0 : nrOfRegions.hashCode());
+		result = prime * result + ((nrOfTranscribedLines == null) ? 0 : nrOfTranscribedLines.hashCode());
+		result = prime * result + ((nrOfTranscribedRegions == null) ? 0 : nrOfTranscribedRegions.hashCode());
+		result = prime * result + ((nrOfTranscribedWords == null) ? 0 : nrOfTranscribedWords.hashCode());
+		result = prime * result + ((nrOfWords == null) ? 0 : nrOfWords.hashCode());
+		result = prime * result + ((nrOfWordsInLines == null) ? 0 : nrOfWordsInLines.hashCode());
+		result = prime * result + ((nrOfWordsInRegions == null) ? 0 : nrOfWordsInRegions.hashCode());
+		return result;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TrpTranscriptStatistics other = (TrpTranscriptStatistics) obj;
+		if (nrOfLines == null) {
+			if (other.nrOfLines != null)
+				return false;
+		} else if (!nrOfLines.equals(other.nrOfLines))
+			return false;
+		if (nrOfRegions == null) {
+			if (other.nrOfRegions != null)
+				return false;
+		} else if (!nrOfRegions.equals(other.nrOfRegions))
+			return false;
+		if (nrOfTranscribedLines == null) {
+			if (other.nrOfTranscribedLines != null)
+				return false;
+		} else if (!nrOfTranscribedLines.equals(other.nrOfTranscribedLines))
+			return false;
+		if (nrOfTranscribedRegions == null) {
+			if (other.nrOfTranscribedRegions != null)
+				return false;
+		} else if (!nrOfTranscribedRegions.equals(other.nrOfTranscribedRegions))
+			return false;
+		if (nrOfTranscribedWords == null) {
+			if (other.nrOfTranscribedWords != null)
+				return false;
+		} else if (!nrOfTranscribedWords.equals(other.nrOfTranscribedWords))
+			return false;
+		if (nrOfWords == null) {
+			if (other.nrOfWords != null)
+				return false;
+		} else if (!nrOfWords.equals(other.nrOfWords))
+			return false;
+		if (nrOfWordsInLines == null) {
+			if (other.nrOfWordsInLines != null)
+				return false;
+		} else if (!nrOfWordsInLines.equals(other.nrOfWordsInLines))
+			return false;
+		if (nrOfWordsInRegions == null) {
+			if (other.nrOfWordsInRegions != null)
+				return false;
+		} else if (!nrOfWordsInRegions.equals(other.nrOfWordsInRegions))
+			return false;
+		return true;
+	}
+	@Override
 	public String toString() {
 		return "TrpTranscriptStatistics [nrOfRegions=" + nrOfRegions + ", nrOfTranscribedRegions="
 				+ nrOfTranscribedRegions + ", nrOfWordsInRegions=" + nrOfWordsInRegions + ", nrOfLines=" + nrOfLines

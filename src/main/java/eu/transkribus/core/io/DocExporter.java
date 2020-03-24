@@ -52,6 +52,8 @@ import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.mets.Mets;
 import eu.transkribus.core.model.beans.pagecontent.MetadataType;
 import eu.transkribus.core.model.beans.pagecontent.TranskribusMetadataType;
+import eu.transkribus.core.model.beans.pagecontent.filter.IPageContentFilter;
+import eu.transkribus.core.model.beans.pagecontent.filter.PageContentFilterChain;
 import eu.transkribus.core.model.builder.CommonExportPars;
 import eu.transkribus.core.model.builder.ExportCache;
 import eu.transkribus.core.model.builder.alto.AltoExporter;
@@ -68,7 +70,7 @@ import eu.transkribus.core.model.builder.txt.TrpTxtBuilder;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.ImgUtils;
 import eu.transkribus.core.util.JaxbUtils;
-import eu.transkribus.core.util.SebisStopWatch;
+import eu.transkribus.core.util.PageXmlUtils;
 
 public class DocExporter extends APassthroughObservable {
 	private static final Logger logger = LoggerFactory.getLogger(DocExporter.class);
@@ -81,6 +83,8 @@ public class DocExporter extends APassthroughObservable {
 	
 	protected CommonExportPars pars;
 	protected OutputDirStructure outputDir;
+	
+	protected IPageContentFilter pageContentFilter;
 	
 	public DocExporter(IFimgStoreGetClient getClient) {
 		this(getClient, new ExportCache());
@@ -632,6 +636,10 @@ public class DocExporter extends APassthroughObservable {
 				// write transcript to file
 				xmlFile = new File(FilenameUtils.normalizeNoEndSeparator(outputDir.getPageOutputDir().getAbsolutePath()) 
 							+ File.separator + baseFileName + xmlExt);
+				if(pageContentFilter != null) {
+					//apply any filter defined
+					pageContentFilter.doFilter(transcript.getPageData());
+				}
 				logger.debug("PAGE XMl output file: "+xmlFile.getAbsolutePath());
 				transcript.write(xmlFile);
 
@@ -652,8 +660,10 @@ public class DocExporter extends APassthroughObservable {
 			if (pars.isDoWriteImages()) {
 				imgFile = writeImage(pageExport.getUrl(), baseFileName + imgExt);
 			}
+			
 			if(pars.isDoExportPageXml()) {
-				xmlFile = LocalDocWriter.copyTranscriptFile(pageExport, outputDir.getPageOutputDir().getAbsolutePath(), baseFileName + xmlExt, cache);
+				xmlFile = copyTranscriptFile(pageExport, 
+						outputDir.getPageOutputDir().getAbsolutePath(), baseFileName + xmlExt);
 			}
 		}
 		// export alto:
@@ -690,6 +700,46 @@ public class DocExporter extends APassthroughObservable {
 	}
 	
 	/**
+	 * Store a local transcript file in another location.
+	 * Code from LocalDocWriter and adapted to apply DocExporter's PAGE XML preprocessing.
+	 * 
+	 * @param p
+	 * @param path
+	 * @param fileName
+	 * @return
+	 * @throws IOException
+	 */
+	private File copyTranscriptFile(TrpPage p, String path, String fileName) throws IOException {
+		if (p.getTranscripts().isEmpty()) {
+			return null;
+		}
+		TrpTranscriptMetadata tmd = p.getTranscripts().get(p.getTranscripts().size()-1);
+
+		//load page transcript only once during export
+		JAXBPageTranscript tr = cache.getPageTranscriptAtIndex(p.getPageNr()-1);
+					
+		if (tr == null){
+			tr = new JAXBPageTranscript(tmd);
+			tr.build();
+		}
+		
+		onBeforeTranscriptIsWritten(p, tr);
+		
+		if(pageContentFilter != null) {
+			//apply any filter defined
+			pageContentFilter.doFilter(tr.getPageData());
+		}
+		
+		File xmlFile = new File(path, fileName);
+		try {
+			PageXmlUtils.marshalToFile(tr.getPageData(), xmlFile);
+		} catch (JAXBException e) {
+			throw new IOException("Could not write PAGE XML file.", e);
+		}
+		return xmlFile;
+	}
+
+	/**
 	 * Copy local image file at URL to outFilename according to {@link #pars} and {@link #outputDir}.
 	 * 
 	 * @param url locator of the local image
@@ -721,6 +771,15 @@ public class DocExporter extends APassthroughObservable {
 
 	public ExportCache getCache() {
 		return cache;
+	}
+	
+	/**
+	 * Set a {@link IPageContentFilter} (or {@link PageContentFilterChain}) all exported page XMLs are sent through.
+	 * 
+	 * @param filter the filter or filter chain to apply
+	 */
+	public void setPageContentFilter(IPageContentFilter filter) {
+		this.pageContentFilter = filter;
 	}
 		
 	protected static class OutputDirStructure {
