@@ -41,6 +41,7 @@ public class TrpTokenCredit {
 	
 	/**
 	 * The product instance as in webshop. Defines nrOfTokens
+	 * TODO this might be obsolete now as we do not need to model this stuff in Transkribus...
 	 */
 	@Transient
 	private TrpTokenCreditProduct product;

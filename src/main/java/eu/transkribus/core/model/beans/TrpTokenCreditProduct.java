@@ -20,6 +20,9 @@ public class TrpTokenCreditProduct {
 	@Column(name = "PRODUCT_ID")
 	private Integer productId;
 	
+	@Column(name = "CREDIT_TYPE")
+	private String creditType;
+	
 	@Column(name = "NR_OF_TOKENS")
 	private int nrOfTokens;
 	
@@ -42,6 +45,14 @@ public class TrpTokenCreditProduct {
 		this.productId = productId;
 	}
 
+	public String getCreditType() {
+		return creditType;
+	}
+	
+	public void setCreditType(String creditType) {
+		this.creditType = creditType;
+	}
+	
 	public int getNrOfTokens() {
 		return nrOfTokens;
 	}
@@ -80,6 +91,7 @@ public class TrpTokenCreditProduct {
 		int result = 1;
 		result = prime * result + ((availableFrom == null) ? 0 : availableFrom.hashCode());
 		result = prime * result + ((availableUntil == null) ? 0 : availableUntil.hashCode());
+		result = prime * result + ((creditType == null) ? 0 : creditType.hashCode());
 		result = prime * result + ((label == null) ? 0 : label.hashCode());
 		result = prime * result + nrOfTokens;
 		result = prime * result + ((productId == null) ? 0 : productId.hashCode());
@@ -105,6 +117,11 @@ public class TrpTokenCreditProduct {
 				return false;
 		} else if (!availableUntil.equals(other.availableUntil))
 			return false;
+		if (creditType == null) {
+			if (other.creditType != null)
+				return false;
+		} else if (!creditType.equals(other.creditType))
+			return false;
 		if (label == null) {
 			if (other.label != null)
 				return false;
@@ -122,7 +139,8 @@ public class TrpTokenCreditProduct {
 
 	@Override
 	public String toString() {
-		return "TrpTokenCreditProduct [productId=" + productId + ", nrOfTokens=" + nrOfTokens + ", label=" + label
-				+ ", availableFrom=" + availableFrom + ", availableUntil=" + availableUntil + "]";
+		return "TrpTokenCreditProduct [productId=" + productId + ", creditType=" + creditType + ", nrOfTokens="
+				+ nrOfTokens + ", label=" + label + ", availableFrom=" + availableFrom + ", availableUntil="
+				+ availableUntil + "]";
 	}
 }
