@@ -84,8 +84,54 @@ public class IIIFUtils {
 			}
 		}
 		iiifMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
-		Manifest manifest = iiifMapper.readValue(url, Manifest.class);
+		String responseJson = getJSON(url.toString(),100000);
+		logger.info(responseJson);
+		Manifest manifest = iiifMapper.readValue(responseJson, Manifest.class);
 		return manifest;
+	}
+	
+	public static String getJSON(String url, int timeout) {
+	    HttpURLConnection c = null;
+	    try {
+	        URL u = new URL(url);
+	        c = (HttpURLConnection) u.openConnection();
+			c.addRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:74.0) Gecko/20100101 Firefox/74.0");
+	        c.setRequestMethod("GET");
+	        c.setRequestProperty("Content-length", "0");
+	        c.setUseCaches(false);
+	        c.setAllowUserInteraction(false);
+	        c.setConnectTimeout(timeout);
+	        c.setReadTimeout(timeout);
+	        c.connect();
+	        int status = c.getResponseCode();
+
+	        switch (status) {
+	            case 200:
+	            case 201:
+	                BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream()));
+	                StringBuilder sb = new StringBuilder();
+	                String line;
+	                while ((line = br.readLine()) != null) {
+	                    sb.append(line+"\n");
+	                }
+	                br.close();
+	                return sb.toString();
+	        }
+
+	    } catch (MalformedURLException ex) {
+	    	logger.info(ex.getMessage());
+	    } catch (IOException ex) {
+	    	logger.info(ex.getMessage());
+	    } finally {
+	       if (c != null) {
+	          try {
+	              c.disconnect();
+	          } catch (Exception ex) {
+	        	  logger.info(ex.getMessage());
+	          }
+	       }
+	    }
+	    return null;
 	}
 	
 	public static TrpDoc createDocFromIIIF(URL url, String path) throws JsonParseException, JsonMappingException, IOException, SQLException, ReflectiveOperationException, IllegalArgumentException {
@@ -350,7 +396,7 @@ public class IIIFUtils {
 	public static int checkIiifApi (final URL url) throws IOException {
 		URL validationUrl = new URL("https://iiif.io/api/presentation/validator/service/validate?format=json&version=2.1&url="+url.toString());
 		HttpURLConnection con = (HttpURLConnection) validationUrl.openConnection();
-		con.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
+		con.addRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:74.0) Gecko/20100101 Firefox/74.0");
 		con.setRequestMethod("GET");	
 		return con.getResponseCode();
 	}
@@ -358,6 +404,7 @@ public class IIIFUtils {
 	public static JSONObject validateManifest (final URL url) throws IOException {
 		URL validationUrl = new URL("https://iiif.io/api/presentation/validator/service/validate?format=json&version=2.1&url="+url.toString());
 		HttpURLConnection con = (HttpURLConnection) validationUrl.openConnection();
+		con.addRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:74.0) Gecko/20100101 Firefox/74.0");
 		con.setRequestMethod("GET");
 		
 		int status = con.getResponseCode();
