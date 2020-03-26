@@ -84,23 +84,60 @@ public class IIIFUtils {
 			}
 		}
 		iiifMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
-		Manifest manifest = iiifMapper.readValue(url, Manifest.class);
+		String responseJson = getJSON(url.toString(),100000);
+		logger.info(responseJson);
+		Manifest manifest = iiifMapper.readValue(responseJson, Manifest.class);
 		return manifest;
+	}
+	
+	public static String getJSON(String url, int timeout) {
+	    HttpURLConnection c = null;
+	    try {
+	        URL u = new URL(url);
+	        c = (HttpURLConnection) u.openConnection();
+			c.addRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:74.0) Gecko/20100101 Firefox/74.0");
+	        c.setRequestMethod("GET");
+	        c.setRequestProperty("Content-length", "0");
+	        c.setUseCaches(false);
+	        c.setAllowUserInteraction(false);
+	        c.setConnectTimeout(timeout);
+	        c.setReadTimeout(timeout);
+	        c.connect();
+	        int status = c.getResponseCode();
+
+	        switch (status) {
+	            case 200:
+	            case 201:
+	                BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream()));
+	                StringBuilder sb = new StringBuilder();
+	                String line;
+	                while ((line = br.readLine()) != null) {
+	                    sb.append(line+"\n");
+	                }
+	                br.close();
+	                return sb.toString();
+	        }
+
+	    } catch (MalformedURLException ex) {
+	    	logger.info(ex.getMessage());
+	    } catch (IOException ex) {
+	    	logger.info(ex.getMessage());
+	    } finally {
+	       if (c != null) {
+	          try {
+	              c.disconnect();
+	          } catch (Exception ex) {
+	        	  logger.info(ex.getMessage());
+	          }
+	       }
+	    }
+	    return null;
 	}
 	
 	public static TrpDoc createDocFromIIIF(URL url, String path) throws JsonParseException, JsonMappingException, IOException, SQLException, ReflectiveOperationException, IllegalArgumentException {
 	
 		logger.debug("Url transmitted to UploadManager : "+url.toString());
 		
-//		logger.debug("Checking if IIIF Manifest is valid");
-//		
-//		JSONObject validation = validateManifest(url);
-//		
-//		if(validation.getInt("okay") == 0) {
-//			logger.error("IIIF is not valid : "+validation.getString("error"), validation);
-//			throw new IllegalArgumentException("IIIF is not valid (https://iiif.io/api/presentation/validator/service/) : "+validation.getString("error"));
-//		}
-			
 		Manifest manifest =  checkManifestValid(url);
 
 		TrpDocMetadata md = new TrpDocMetadata();
@@ -182,26 +219,6 @@ public class IIIFUtils {
 								//the image URL connection attempt returns a response with code > 400
 								problemMsg = getBrokenUrlMsg(url, imgDownloadStatus);
 							}
-							
-//							// Get alto in case of being used in seeAlso
-//							List<OtherContent> seeAlso = image.getSeeAlso();
-//							
-//							if(seeAlso != null) {
-//								for(OtherContent content : seeAlso) {
-//									if(content.getFormat() == MimeType.MIME_APPLICATION_XML  ) {
-//	
-//										altoFile = new File(altoDirPath + File.separator + filename);
-//										logger.debug("Create Alto File");
-//										if(DeaFileUtils.copyUrlToFile(content.getIdentifier().toURL(), altoFile) >= 400) {
-//											logger.error("Could not download ALTO XML and it will be ignored!");
-//											//don't fail if ALTO XML could not be retrieved
-//											altoFile = null;
-//										}
-//									}		
-//								}
-//							}
-							
-							
 						}
 					}
 				}
@@ -379,6 +396,7 @@ public class IIIFUtils {
 	public static int checkIiifApi (final URL url) throws IOException {
 		URL validationUrl = new URL("https://iiif.io/api/presentation/validator/service/validate?format=json&version=2.1&url="+url.toString());
 		HttpURLConnection con = (HttpURLConnection) validationUrl.openConnection();
+		con.addRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:74.0) Gecko/20100101 Firefox/74.0");
 		con.setRequestMethod("GET");	
 		return con.getResponseCode();
 	}
@@ -386,6 +404,7 @@ public class IIIFUtils {
 	public static JSONObject validateManifest (final URL url) throws IOException {
 		URL validationUrl = new URL("https://iiif.io/api/presentation/validator/service/validate?format=json&version=2.1&url="+url.toString());
 		HttpURLConnection con = (HttpURLConnection) validationUrl.openConnection();
+		con.addRequestProperty("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:74.0) Gecko/20100101 Firefox/74.0");
 		con.setRequestMethod("GET");
 		
 		int status = con.getResponseCode();

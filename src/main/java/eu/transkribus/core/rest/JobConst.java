@@ -53,6 +53,7 @@ public class JobConst {
 	
 	public static final String PROP_DICTNAME = "dictName";
 	public static final String PROP_TEMP_DICTNAME = "tempDictName";
+	public static final String PROP_LANGUAGE_MODEL = "languageModel";
 	public static final String PROP_TRAIN_DATA_DICT_VALUE = "trainDataDictionary";
 	public static final String PROP_TRAIN_DATA_LM_VALUE = "trainDataLanguageModel";
 	public static final String PROP_NUM_EPOCHS = "numEpochs";
