@@ -101,7 +101,7 @@ public class TrpProperties {
 			String v = (String) props.get(string);
 			
 			try {
-				return Boolean.valueOf(v);
+				return v==null ? defaultValue : Boolean.valueOf(v);
 			} catch (Exception e) {
 				return defaultValue;
 			}

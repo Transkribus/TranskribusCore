@@ -6,6 +6,12 @@ import org.junit.Test;
 public class TrpPropertiesTest {
 	
 	@Test
+	public void testBoolGetOrDefault() {
+		TrpProperties p = new TrpProperties();
+		Assert.assertEquals("", true, p.getOrDefault("nichtda", true));
+	}
+	
+	@Test
 	public void testGetBoolProperty() {
 		TrpProperties p = new TrpProperties();
 		
