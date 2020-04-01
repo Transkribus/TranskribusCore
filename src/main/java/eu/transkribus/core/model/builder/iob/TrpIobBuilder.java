@@ -142,7 +142,7 @@ public class TrpIobBuilder {
 					for(CustomTag tag : tagList) {
 						
 						String tokenText = tag.getContainedText();
-						StringTokenizer st = new StringTokenizer(tokenText," .,;\"„?!",true);
+						StringTokenizer st = new StringTokenizer(tokenText," .,;\"„?!»",true);
 						List<CustomTag> overlappingTags = tagLines.getOverlappingTags(null, tag.getOffset(),tag.getEnd());
 						List<CustomTag> listWithOverlap = new ArrayList<>();
 						listWithOverlap.add(tag);
@@ -166,7 +166,7 @@ public class TrpIobBuilder {
 					}
 	
 					try {
-						StringTokenizer st = new StringTokenizer(lineText, " .,;\"„?!",true);
+						StringTokenizer st = new StringTokenizer(lineText, " .,;\"„?!»",true);
 						while(st.hasMoreTokens()) {
 							
 							String token = st.nextToken();
@@ -578,7 +578,7 @@ public class TrpIobBuilder {
 	public static void main(String[] args) throws Exception {
 		
 
-		TrpDoc docWithTags = LocalDocReader.load("/home/lateknight/Downloads/florian_annotation/313396/ONB_inter_annotator_doc_v2");
+		TrpDoc docWithTags = LocalDocReader.load("/home/lateknight/Documents/NewsEye/NLF/Jani/export_job_979020/271632/NLF_GT_FI_Antiqua_duplicated");
 		
 		/*
 		 * here we store the page transcripts for all later exports regarding to the wished version status
@@ -599,7 +599,7 @@ public class TrpIobBuilder {
 		exportCache.storeCustomTagMapForDoc(docWithTags, false, pageIndices, null, false);
 		
 		TrpIobBuilder iob = new TrpIobBuilder();
-		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Desktop/interAnnotator_new3.txt"), pageIndices, null, exportCache, false);
+		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Documents/NewsEye/NLF/Jani/jani_inter_ann.txt"), pageIndices, null, exportCache, true);
 		
 		System.out.println("finished");
 		

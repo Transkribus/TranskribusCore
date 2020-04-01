@@ -84,13 +84,13 @@ public class IIIFUtils {
 			}
 		}
 		iiifMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
-		String responseJson = getJSON(url.toString(),100000);
+		String responseJson = getJSON(url.toString());
 		logger.info(responseJson);
 		Manifest manifest = iiifMapper.readValue(responseJson, Manifest.class);
 		return manifest;
 	}
 	
-	public static String getJSON(String url, int timeout) {
+	public static String getJSON(String url) {
 	    HttpURLConnection c = null;
 	    try {
 	        URL u = new URL(url);
@@ -100,8 +100,6 @@ public class IIIFUtils {
 	        c.setRequestProperty("Content-length", "0");
 	        c.setUseCaches(false);
 	        c.setAllowUserInteraction(false);
-	        c.setConnectTimeout(timeout);
-	        c.setReadTimeout(timeout);
 	        c.connect();
 	        int status = c.getResponseCode();
 
