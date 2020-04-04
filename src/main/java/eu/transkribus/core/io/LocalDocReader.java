@@ -26,6 +26,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.pdfbox.jbig2.segments.TextRegion;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.dea.util.pdf.PageImageWriter;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -56,6 +57,9 @@ import eu.transkribus.core.model.beans.enums.EditStatus;
 import eu.transkribus.core.model.beans.enums.TranscriptionLevel;
 import eu.transkribus.core.model.beans.mets.Mets;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
+import eu.transkribus.core.model.beans.pagecontent.RegionType;
+import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
+import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.rest.JaxbList;
 import eu.transkribus.core.model.builder.mets.TrpMetsBuilder;
 import eu.transkribus.core.model.builder.mets.util.MetsUtil;
@@ -424,7 +428,7 @@ public class LocalDocReader {
 				pageXml = createPageXml(pageOutFile, false, abbyyXml, altoXml, txtFile, 
 						config.isPreserveOcrFontFamily(), 
 						config.isPreserveOcrTxtStyles(), 
-						config.isReplaceBadChars(), imgFile.getName(), dim);
+						config.isReplaceBadChars(), imgFile.getName(), dim, config.isClearRegionText());
 			}
 			
 			// TODO: merge text of txt files into existing PAGE-XMLs
@@ -550,7 +554,7 @@ public class LocalDocReader {
 	 */
 	public static File createPageXml(File pageOutFile, boolean doOverwrite, File abbyyXml, 
 			File altoXml, File txtFile, boolean preserveOcrFontFamily, boolean preserveOcrTxtStyles, 
-			boolean replaceBadChars, final String imgFileName, Dimension dim) 
+			boolean replaceBadChars, final String imgFileName, Dimension dim, boolean clearRegionText) 
 					throws FileNotFoundException, IOException {
 		if(pageOutFile == null) {
 			throw new IllegalArgumentException("PAGE XML output File is null.");
@@ -590,6 +594,14 @@ public class LocalDocReader {
 			logger.warn("No Transcript XML found for img: " + FilenameUtils.getBaseName(imgFileName));
 			logger.info("Creating empty PageXml.");
 			pc = PageXmlUtils.createEmptyPcGtsType(imgFileName, dim);
+		}
+		// clear region text if desired
+		if (clearRegionText) {
+			for (RegionType r : pc.getPage().getTextRegionOrImageRegionOrLineDrawingRegion()) {
+				if (r instanceof TextRegionType) {
+					((TextRegionType) r).setTextEquiv(null);
+				}
+			}
 		}
 		
 		//create the file
@@ -1436,6 +1448,7 @@ public class LocalDocReader {
 		protected boolean skipAbbyy=false; // set to true to skip finding ABBYY OCR files
 		protected boolean skipAlto=false; // set to true to skip findin ALTO files
 		protected boolean skipTxt=false; // set to true to skip finding txt files
+		protected boolean clearRegionText=false; // clear text from TextRegion's when creating PAGE-XMLs? -> can save a lot of space...
 		
 		/**
 		 * If set to true, then all server-related data is removed from the TrpDocMetadata if existent
@@ -1589,6 +1602,14 @@ public class LocalDocReader {
 
 		public void setSkipTxt(boolean skipTxt) {
 			this.skipTxt = skipTxt;
+		}
+
+		public boolean isClearRegionText() {
+			return clearRegionText;
+		}
+
+		public void setClearRegionText(boolean clearRegionText) {
+			this.clearRegionText = clearRegionText;
 		}
 		
 	}
