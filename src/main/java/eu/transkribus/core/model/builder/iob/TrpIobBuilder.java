@@ -142,7 +142,7 @@ public class TrpIobBuilder {
 					for(CustomTag tag : tagList) {
 						
 						String tokenText = tag.getContainedText();
-						StringTokenizer st = new StringTokenizer(tokenText," .,;\"„?!»",true);
+						StringTokenizer st = new StringTokenizer(tokenText," ;\"„?!»",true);
 						List<CustomTag> overlappingTags = tagLines.getOverlappingTags(null, tag.getOffset(),tag.getEnd());
 						List<CustomTag> listWithOverlap = new ArrayList<>();
 						listWithOverlap.add(tag);
@@ -166,7 +166,7 @@ public class TrpIobBuilder {
 					}
 	
 					try {
-						StringTokenizer st = new StringTokenizer(lineText, " .,;\"„?!»",true);
+						StringTokenizer st = new StringTokenizer(lineText, " ;\"„?!»",true);
 						while(st.hasMoreTokens()) {
 							
 							String token = st.nextToken();
@@ -236,9 +236,9 @@ public class TrpIobBuilder {
 										addBeginningTag(tag, textLinebw, exportProperties);				
 									}
 								}
-								
-							}else if (continueMap.containsKey(token+""+offset)){
-								CustomTag tagCont = continueMap.get(token+""+offset);
+							// Get continued with overlapping tags
+							}else if (continueMap.containsKey(token.replace(".", "")+""+offset)){
+								CustomTag tagCont = continueMap.get(token.replace(".", "")+""+offset);
 								List<CustomTag> tags = tagMap.get(tagCont.getOffset());
 								tag = tags.get(0);
 								overlap = tags.get(1);
@@ -256,6 +256,7 @@ public class TrpIobBuilder {
 											}
 										}
 										else {
+											logger.info("We are inside with overlap TOKEN : "+token);
 											textLinebw.write(token);
 											textLinebw.write("\tO");
 											addNestedTag(overlap, textLinebw, "I");
@@ -272,15 +273,22 @@ public class TrpIobBuilder {
 											addPropsToFile(overlap, textLinebw);
 										}
 									}
-									// check punctutation issue with correct offset
 									else {
 										textLinebw.write(token);
 										addContinueTag(tagCont, textLinebw, exportProperties);
 									}
 									
-								}else {
+								}else if(tagCont.getEnd() <= offset) {
+									logger.info("This is continued outside issue TOKEN : "+token+" Token offset : "+offset+ " tag Offset : "+tagCont.getOffset() );
 									textLinebw.write(token);
 									addContinueTag(tagCont, textLinebw, exportProperties);
+								}else  if (tag.getEnd() >= offset){
+									logger.info("This is TAG issue TOKEN : "+token+" Token offset : "+offset+ " tag Offset : "+tag.getOffset() );
+									textLinebw.write(token);
+									addContinueTag(tag, textLinebw, exportProperties);		
+								}else {
+									textLinebw.write(token);
+									textLinebw.write("\tO\tO");
 								}
 								
 							}else {
@@ -578,7 +586,7 @@ public class TrpIobBuilder {
 	public static void main(String[] args) throws Exception {
 		
 
-		TrpDoc docWithTags = LocalDocReader.load("/home/lateknight/Documents/NewsEye/NLF/Jani/export_job_979020/271632/NLF_GT_FI_Antiqua_duplicated");
+		TrpDoc docWithTags = LocalDocReader.load("/home/lateknight/Documents/NewsEye/export_job_949597/313396/ONB_inter_annotator_doc_v2");
 		
 		/*
 		 * here we store the page transcripts for all later exports regarding to the wished version status
@@ -599,7 +607,7 @@ public class TrpIobBuilder {
 		exportCache.storeCustomTagMapForDoc(docWithTags, false, pageIndices, null, false);
 		
 		TrpIobBuilder iob = new TrpIobBuilder();
-		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Documents/NewsEye/NLF/Jani/jani_inter_ann.txt"), pageIndices, null, exportCache, true);
+		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Desktop/inter_ann.txt"), pageIndices, null, exportCache, true);
 		
 		System.out.println("finished");
 		
