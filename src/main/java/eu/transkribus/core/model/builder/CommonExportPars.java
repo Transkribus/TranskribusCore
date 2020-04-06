@@ -380,7 +380,7 @@ public class CommonExportPars {
 	}
 	
 	public boolean isTaggableExport() {
-		return (isDoWritePdf() || isDoWriteDocx() || isDoWriteTagsXlsx() || isDoWriteTei());			
+		return (isDoWritePdf() || isDoWriteDocx() || isDoWriteTagsXlsx() || isDoWriteTei() || isDoWriteTagsIob());			
 //		return (isDoWritePdf() || isDoWriteDocx() || isDoWriteTagsXlsx() || isDoWriteTei())
 //				&& (isHighlightTags() || isDocxTagExport() || isTagXlsxExport());
 	}
