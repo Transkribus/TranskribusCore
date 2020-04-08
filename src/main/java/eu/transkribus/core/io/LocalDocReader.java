@@ -706,11 +706,15 @@ public class LocalDocReader {
 			if(d.isDirectory()) {
 				docDir.setNrOfFiles(d.list().length);
 			}else if(d.getName().endsWith(".pdf")) {
-				try (PDDocument document = PDDocument.load(d);) {
-					docDir.setNrOfFiles(document.getNumberOfPages());
-				} catch (IOException e) {
-					logger.error(e.getMessage(), e);
-				}
+				/*
+				 * nrOfPages extraction is disabled here due to several issues with 
+				 * very large PDFs (>1GB size). E.g. files not being closed correctly or OutOfMemoryError				
+				 */
+//				try (PDDocument document = PDDocument.load(d);) {
+//					docDir.setNrOfFiles(document.getNumberOfPages());
+//				} catch (IOException e) {
+//					logger.error(e.getMessage(), e);
+//				}
 			}
 			
 			docDir.setCreateDate(date);
