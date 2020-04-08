@@ -158,11 +158,15 @@ public class TrpIobBuilder {
 						logger.info("LineText : "+lineText );
 						HashMap<String, CustomTag> tagMap = new HashMap<String, CustomTag>();
 						
+						List<String> elements = new ArrayList<String>();
+						 while(st.hasMoreTokens()) {
+				            elements.add(st.nextToken());
+				        }
+						
 						for(CustomTag tag : tagList) {
-							
-//							logger.info("Tag Range : "+tag.getRange().toString());		
 				
 							String tagText = lineText.substring(tag.getOffset(), tag.getEnd());
+							
 							StringTokenizer tagToken = new StringTokenizer(tagText, " .,;\"„?!»",true);
 							
 							List<String> tagElements = new ArrayList<String>();
@@ -170,35 +174,25 @@ public class TrpIobBuilder {
 							 while(tagToken.hasMoreTokens()) {
 								 tagElements.add(tagToken.nextToken());
 					        }
-							 
 							// get offset of tag in tag Text
 							 int offset = tag.getOffset()-1;
 							 for(String s: tagElements) {
-							     offset = lineText.indexOf(s, offset + 1); // avoid duplicates
+							     offset = lineText.indexOf(s, offset + 1);
 							     tagMap.put(s+""+offset, tag);
-//							     logger.info("Tag with offset : "+s+"_"+offset);
 							 }
-				
-							logger.info("Tag Text : "+tagText);
 							
 						}
 						
-						List<String> elements = new ArrayList<String>();
-						 while(st.hasMoreTokens()) {
-				            elements.add(st.nextToken());
-				        }	 
+							 
 						// get offset of token	 
 						 int offset = -1;
 						 for(String s: elements) {
 							 if(!s.equals(" ")) {
 								 
 								 textLinebw.newLine();
-							     offset = lineText.indexOf(s, offset + 1); // avoid duplicates
+							     offset = lineText.indexOf(s, offset + 1); 
 							     if(tagMap.containsKey(s+""+offset)) {
 							    	 CustomTag tag = tagMap.get(s+""+offset);
-							    	 
-							    	 // check for over lap
-							    	 
 							    	List<CustomTag> overlap = tagLines.getOverlappingTags(null,tag.getOffset(),tag.getLength());
 									
 							    	if(!overlap.isEmpty()) {
@@ -206,28 +200,26 @@ public class TrpIobBuilder {
 							    		if(overlap.size() > 1) {
 							    			CustomTag first = overlap.get(0);
 							    			CustomTag nested = overlap.get(1);
-								    		System.out.println("First tag "+first.getContainedText()+ " nested tag : "+nested.getContainedText());
-
-							    			
+								    		System.out.println("First tag "+first.getContainedText()+ " nested tag : "+nested.getContainedText());	
 							    			if(nested.getContainedText().contains(s)) {
 							    				if(first.getContainedText().startsWith(s) && nested.getContainedText().startsWith(s)) {
 										    		textLinebw.write(s);
-										    		addNestedTag(overlap.get(0), textLinebw, "B");
-													addNestedTag(overlap.get(1), textLinebw, "B");
-													addPropsToFile(overlap.get(0), textLinebw);
+										    		addNestedTag(first, textLinebw, "B");
+													addNestedTag(nested, textLinebw, "B");
+													addPropsToFile(first, textLinebw);
 								    			}else if(first.getContainedText().contains(s) && nested.getContainedText().startsWith(s)) {
 										    		textLinebw.write(s);
-										    		addNestedTag(overlap.get(0), textLinebw, "I");
-													addNestedTag(overlap.get(1), textLinebw, "B");
-													addPropsToFile(overlap.get(0), textLinebw);
+										    		addNestedTag(first, textLinebw, "I");
+													addNestedTag(nested, textLinebw, "B");
+													addPropsToFile(first, textLinebw);
 										    	}else {
 										    		textLinebw.write(s);
-										    		addNestedTag(overlap.get(0), textLinebw, "I");
-													addNestedTag(overlap.get(1), textLinebw, "I");
-													addPropsToFile(overlap.get(0), textLinebw);
+										    		addNestedTag(first, textLinebw, "I");
+													addNestedTag(nested, textLinebw, "I");
+													addPropsToFile(first, textLinebw);
 										    	}
 							    			}else {
-							    				if(overlap.get(0).getOffset() == offset) {
+							    				if(overlap.get(0).getContainedText().startsWith(s)) {
 								    				textLinebw.write(s);
 													addBeginningTag(overlap.get(0), textLinebw, exportProperties);	
 								    			}else {
@@ -237,7 +229,7 @@ public class TrpIobBuilder {
 							    			}
 							    			
 							    		}else {
-							    			if(overlap.get(0).getOffset() == offset) {
+							    			if(overlap.get(0).getContainedText().startsWith(s)) {
 							    				textLinebw.write(s);
 												addBeginningTag(overlap.get(0), textLinebw, exportProperties);	
 							    			}else {
@@ -817,7 +809,6 @@ public class TrpIobBuilder {
 		exportCache.storeCustomTagMapForDoc(docWithTags, false, pageIndices, null, false);
 		
 		TrpIobBuilder iob = new TrpIobBuilder();
-//		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Documents/NewsEye/NE_GT_dataset_v1/BNF/l-oeuvre-IOB.txt"), pageIndices, null, exportCache, true);
 		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Desktop/what3.txt"), pageIndices, null, exportCache, true);
 
 		System.out.println("finished");
