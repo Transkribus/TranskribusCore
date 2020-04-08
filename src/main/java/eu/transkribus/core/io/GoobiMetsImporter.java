@@ -403,7 +403,7 @@ public class GoobiMetsImporter extends APassthroughObservable
 			
 			File pageOutFile = new File(pageDirPath + File.separatorChar + FilenameUtils.getBaseName(imgFile.getName()) + ".xml");
 			pageXml = LocalDocReader.createPageXml(pageOutFile, true, abbyyFile, altoFile, 
-					null, true, true, false, imgFile.getName(), dim);
+					null, true, true, false, imgFile.getName(), dim, false);
 			thumb = LocalDocReader.getThumbFile(imgDir, imgFile.getName());
 		}
 		TrpPage page = LocalDocReader.buildPage(new File(dir), pageNr, imgFile, pageXml, thumb, dim,

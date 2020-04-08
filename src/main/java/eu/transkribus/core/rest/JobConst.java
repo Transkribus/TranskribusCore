@@ -133,5 +133,6 @@ public class JobConst {
 
 	public static final String PROP_GPU_DEVICE_ENV_VAR = "GPU_DEVICE";
 
-	public static final String PROP_SKIP_PAGES_WITH_MISSING_STATUS = "skipPagesWithMissingStatus";	
+	public static final String PROP_SKIP_PAGES_WITH_MISSING_STATUS = "skipPagesWithMissingStatus";
+	public static final String PROP_HAS_IMAGES = "hasImages";	
 }

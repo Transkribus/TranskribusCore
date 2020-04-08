@@ -66,7 +66,7 @@ public class LocalDocReaderTest {
 		}
 		
 		File pageXml = LocalDocReader.createPageXml(pageOutFile, true, null, altoFile, 
-				null, true, true, false, imgFile.getName(), dim);
+				null, true, true, false, imgFile.getName(), dim, false);
 		
 //		logger.debug("Setting up doc loading process...");
 //		try {
