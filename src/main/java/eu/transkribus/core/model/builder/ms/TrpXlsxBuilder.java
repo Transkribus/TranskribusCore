@@ -50,6 +50,11 @@ public class TrpXlsxBuilder {
 	private final static Logger logger = LoggerFactory.getLogger(TrpXlsxBuilder.class);
 	private final String overview = "Overview";
 	
+	//continued: tag is continued in the next line - we concat it with the previous tag in previous line
+	private boolean continuedTagPossible = true;
+	//nextShape - used to determin if a tag is contained in the same shape or not
+	private boolean nextShape = true;
+	
 	static Workbook wb;
 	
 	public TrpXlsxBuilder() {
@@ -57,14 +62,20 @@ public class TrpXlsxBuilder {
 	}
 	
 	private void writeTagsForShapeElement(ITrpShapeType element, String imgFilename, String context, String doc, String page, String regionID, String lineID, String wordId, Set<String> selectedTags) throws IOException{
-
+		
+		nextShape = true;
 		String textStr = element.getUnicodeText();
 		CustomTagList cl = element.getCustomTagList();
 		
 		if (cl == null){
-			throw new IOException("Element has no custom tag list: "+element+", class: "+element.getClass().getName());
+			continuedTagPossible = false;
+			throw new IOException("Element xtShapelass: "+element.getClass().getName());
 		}
-				
+		
+		if(cl.getIndexedTags().size()==0){
+			continuedTagPossible = false;
+		}
+			
 		for (CustomTag indexedTag : cl.getIndexedTags()) {
 			
 			//check for nonIndexed tags only
@@ -83,7 +94,7 @@ public class TrpXlsxBuilder {
 				Map<String, Object> attributes = indexedTag.getAttributeNamesValuesMap();
 				
 				updateExcelWB(true, imgFilename, tagname, attributes, textStr, context, doc, page, regionID, lineID, wordId);
-
+				nextShape = false;
 			}
 
 		}
@@ -116,6 +127,89 @@ public class TrpXlsxBuilder {
 
 	}
 	
+	/*
+	 * if a tag in a previous line gets continued in the next line
+	 */
+	private void handleContinuedTags(String continued, Sheet tagnameSheet, String tagname){
+		//handles continued tags over several lines
+		Sheet overviewSheet;
+		if (wb.getSheet(overview) != null){
+			overviewSheet = wb.getSheet(overview);
+		}
+		else{
+			return;
+		}
+		
+		int lastRowIdxOfFirstSheet = overviewSheet.getLastRowNum();
+		if (lastRowIdxOfFirstSheet == 0){
+			return;
+		}
+		
+		int lastRowIdxOfTagnameSheet = tagnameSheet.getLastRowNum();
+		if (lastRowIdxOfTagnameSheet == 0){
+			return;
+		}
+		
+		Row prevRowOfOverviewSheet = overviewSheet.getRow(lastRowIdxOfFirstSheet);
+		String allAttributes = prevRowOfOverviewSheet.getCell(prevRowOfOverviewSheet.getLastCellNum()-1).getStringCellValue();
+		
+		int i = 1;
+		while (!allAttributes.contains(tagname) && lastRowIdxOfFirstSheet>i){
+			prevRowOfOverviewSheet = overviewSheet.getRow(lastRowIdxOfFirstSheet-i);
+			allAttributes = prevRowOfOverviewSheet.getCell(prevRowOfOverviewSheet.getLastCellNum()-1).getStringCellValue();
+			i++;
+			if(allAttributes.contains(tagname)){
+				logger.debug("same tagname found");
+				break;
+			}
+		}
+		
+		Row prevRowOfTagnameSheet = tagnameSheet.getRow(lastRowIdxOfTagnameSheet);
+		
+		String currValue = prevRowOfOverviewSheet.getCell(0).getStringCellValue();
+		String lastChar = currValue.substring(currValue.length()-1);
+		logger.debug("last char is " + lastChar);
+		
+		if (lastChar.matches("[\\\u00AD\\\u002D\\\u00AC\\\u003D]")){
+			logger.debug("last char is soft hyphen, minus, not sign, equal sign");
+			lastChar = lastChar.replaceAll("[\\\u00AD\\\u002D\\\u00AC\\\u003D]", "");
+		}
+		else{
+			lastChar = lastChar.concat(" ");
+		}
+		
+		currValue = currValue.substring(0, currValue.length()-1).concat(lastChar).concat(continued);
+		logger.debug("value to store " + currValue);
+		prevRowOfOverviewSheet.getCell(0).setCellValue(currValue);
+		
+		
+		String currValueTag = prevRowOfTagnameSheet.getCell(0).getStringCellValue();
+		String lastCharTag = currValueTag.substring(currValueTag.length()-1);
+		logger.debug("last char is " + lastCharTag);
+		
+		if (lastCharTag.matches("[\\\u00AD\\\u002D\\\u00AC\\\u003D]")){
+			logger.debug("last char is soft hyphen, minus, not sign, equal sign");
+			lastCharTag = lastCharTag.replaceAll("[\\\u00AD\\\u002D\\\u00AC\\\u003D]", "");
+		}
+		else{
+			lastCharTag = lastCharTag.concat(" ");
+		}
+		
+		currValueTag = currValueTag.substring(0, currValueTag.length()-1).concat(lastCharTag).concat(continued);
+		logger.debug("value to store " + currValueTag);
+		prevRowOfTagnameSheet.getCell(0).setCellValue(currValueTag);
+		
+//		//soft hyphen
+//		currValue = currValue.replaceAll("\u00AD", "");
+//		//minus
+//		currValue = currValue.replaceAll("\u002D", "");
+//		//not sign
+//		currValue = currValue.replaceAll("\u00AC", "");
+//		//= equal sign
+//		currValue = currValue.replaceAll("\u003D", "");
+
+	}
+	
 	private void updateExcelWB(boolean indexed, String imgFilename, String tagname, Map<String, Object> attributes, String textStr, String context, String doc, String page, String regionID, String lineID, String wordId) {
 		Sheet firstSheet;
 		Sheet currSheet;
@@ -134,11 +228,84 @@ public class TrpXlsxBuilder {
 
 			int offset = (int) attributes.get("offset");
 			int length = (int) attributes.get("length");
-			
+
 			//logger.debug("text string " + textStr + " length " +textStr.length() + " offset " + offset + " length of substring " + length);
 			tmpTextStr = textStr.substring(offset, offset+length);
 			
 			int lastRowIdxOfFirstSheet = firstSheet.getLastRowNum();
+			
+//			boolean continued = (Boolean) attributes.get("continued");
+//			if(continued == true){
+//				//check previous tag is continued as well
+//				if (lastRowIdxOfFirstSheet == 0){
+//					return;
+//				}
+//				
+//				//either find existent sheet or create new one
+//				if (wb.getSheet(tagname) != null){
+//					currSheet = wb.getSheet(tagname);
+//					//logger.debug("existent sheet " + tagname);
+//				}
+//				
+//				Row prevRowOfOverviewSheet = firstSheet.getRow(lastRowIdxOfFirstSheet);
+//				
+//				String allAttributes = prevRowOfOverviewSheet.getCell(prevRowOfOverviewSheet.getLastCellNum()-1).getStringCellValue();
+//				if (allAttributes.contains("continued=true") && continuedTagPossible && allAttributes.contains(tagname) ){
+//					handleContinuedTags(tmpTextStr);
+//					if (offset == 0 && textStr.length() > length){
+//						continuedTagPossible = false;
+//					}
+//					return;
+//				}
+//				
+//				continuedTagPossible = true;
+//			}
+			
+			boolean continued = (Boolean) attributes.get("continued");
+			if(continued == true){
+				//check previous tag is continued as well
+				if (lastRowIdxOfFirstSheet == 0){
+					return;
+				}
+				
+				Sheet tagnameSheet;
+				//either find existent sheet or create new one
+				if (wb.getSheet(tagname) != null){
+					tagnameSheet = wb.getSheet(tagname);
+					//logger.debug("existent sheet " + tagname);
+				}
+				else{
+					return;
+				}
+				
+				int lastRowIdx = tagnameSheet.getLastRowNum();
+				int cellIdxContinued = 0;
+				
+				Row prevRowOfTagnameSheet = tagnameSheet.getRow(lastRowIdx);
+				
+				Row fstRowOfTagnameSheet = tagnameSheet.getRow(0);
+				for (int i = 0; i<fstRowOfTagnameSheet.getLastCellNum(); i++){
+					if (fstRowOfTagnameSheet.getCell(i).getStringCellValue().equals("continued")){
+						cellIdxContinued = i;
+						break;
+					}
+				}
+				
+				String continuedAttr = prevRowOfTagnameSheet.getCell(cellIdxContinued).getStringCellValue();
+//				logger.debug("tagname " + tagname);
+//				logger.debug("continuedAttr " + continuedAttr);
+				if (continuedAttr.contains("true") && (( continuedTagPossible && offset == 0)  || (offset == 0 && !nextShape))){
+					handleContinuedTags(tmpTextStr, tagnameSheet, tagname);
+					if (offset == 0 && textStr.length() > length){
+						continuedTagPossible = false;
+					}
+					return;
+				}
+				
+				continuedTagPossible = true;
+			}
+			
+			
 			if (lastRowIdxOfFirstSheet == 0){
 				fillFirstOverviewRow(firstSheet);
 			}
