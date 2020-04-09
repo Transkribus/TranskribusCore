@@ -16,8 +16,7 @@
     
     <xsl:param name="useWordLayer" select="false()"/>
 
-<!--    <xsl:key name="allStyles" match="TextStyle"
-        use="concat(translate(@fontFamily, ' ', '_'), '_', @fontSize, '_', @serif, '_', @bold, '_', @italic,'_', @subscript, '_', @superscript,'_', @underlined, '_', @textColour)"/>-->
+	<!--    <xsl:key name="allStyles" match="TextStyle" use="concat(translate(@fontFamily, ' ', '_'), '_', @fontSize, '_', @serif, '_', @bold, '_', @italic,'_', @subscript, '_', @superscript,'_', @underlined, '_', @textColour)"/>-->
 
     <xsl:template name="languageTable">
         <languageTable> </languageTable>
@@ -105,9 +104,9 @@
         <xsl:param name="tagref" select="''"/>
         <xsl:param name="lineString"/>
         <xsl:param name="wordString"/>
-<!--        <xsl:message>
+<!--   <xsl:message>
             <xsl:value-of select="$remainingCustomTag"/>
-        </xsl:message>-->
+        </xsl:message> -->
         <xsl:choose>
             <xsl:when
                 test="starts-with($remainingCustomTag, 'person') or starts-with($remainingCustomTag, 'place')">
@@ -121,7 +120,7 @@
                     select="substring-before(substring-after($value, 'length:'), ';')"/>
                 <xsl:variable name="tagValue"
                     select="substring($lineString, number($offset)+1, number($length))"/>
-                <!--                <xsl:element name="{$type}"><xsl:value-of select="$remaining"/></xsl:element>-->
+                <!-- <xsl:element name="{$type}"><xsl:value-of select="$remaining"/></xsl:element>-->
                 <xsl:variable name="lineID" select="@id"/>
                 <xsl:variable name="id"
                     select="concat('Tag_', $lineID, '_', $offset, '_', $length, '_', substring($type,1,3))"/>
@@ -160,14 +159,12 @@
         <xsl:apply-templates select="page:PcGts"/>
     </xsl:template>
 
-
     <xsl:template match="page:PcGts">
         <alto xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="http://www.loc.gov/standards/alto/ns-v2# http://www.loc.gov/standards/alto/alto.xsd">
             <xsl:apply-templates select="page:Page"/>
         </alto>
     </xsl:template>
-
 
     <xsl:template match="page:Page">
         <xsl:variable name="actId" select="generate-id(.)"/>
@@ -211,10 +208,6 @@
                 </xsl:when>
                 <xsl:otherwise>
                     <xsl:value-of select="$maxYFromPrintspace"/>
-                    <!--                    <xsl:call-template name="getMaxFromPointList">
-                        <xsl:with-param name="coords" select="./page:PrintSpace/page:Coords/@points"/>
-                        <xsl:with-param name="ordinate" select="'Y'"/>
-                    </xsl:call-template>-->
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
@@ -321,7 +314,6 @@
 
         <TextBlock ID="{@id}">
             <xsl:call-template name="applyCoordinates"/>
-            <!-- <xsl:attribute name="language" select="$language"></xsl:attribute> -->
             <Shape>
                 <Polygon>
                     <xsl:attribute name="POINTS" select="./page:Coords/@points"/>
@@ -424,7 +416,7 @@
                                 <xsl:with-param name="ordinate" select="'Y'"/>
                             </xsl:call-template>
                         </xsl:variable>
-                        <!--                    <xsl:message>
+                        <!-- [                  <xsl:message>
                     <xsl:value-of select="name()"/>
                 </xsl:message>-->
                         <!--                    <xsl:message><xsl:value-of select="(.//ancestor::TextRegion//page:TextLine)[1]"/></xsl:message>
@@ -434,7 +426,6 @@
                         select="string-length(preceding-sibling::*[1]/TextEquiv/Unicode/text())"
                     />
                 </xsl:message>-->
-                        
                         <xsl:variable name="predecessorName" select="name(preceding-sibling::*[1])"/>
                         <xsl:variable name="predecessorText">
                             <xsl:choose>
@@ -463,24 +454,12 @@
                             </xsl:choose>
                         </xsl:variable>
                         
-                        <!--                    <xsl:message>
-                    <xsl:if test="not($predecessorName = 'NA')">
-                        <xsl:value-of select="$predecessorText"></xsl:value-of>
-                    </xsl:if>
-                </xsl:message>-->
-                        
                         <xsl:variable name="lastWordOfPrevLine">
                             <xsl:choose>
                                 <xsl:when
                                     test="not($predecessorText = 'NA') and (ends-with($predecessorText, '¬') or ends-with($predecessorText, '&#x2010;') or ends-with($predecessorText, '&#x002D;') 
                                     or ends-with($predecessorText, '&#x2212;') or ends-with($predecessorText, '&#x201E;') or ends-with($predecessorText, '&#x003D;'))">
-                                    <!--                                <xsl:message>
-                                <xsl:value-of select="concat('last word of prev line found: ', $predecessorText)"/>
-                            </xsl:message>-->
-                                    <xsl:value-of
-                                        
-                                        select="tokenize(replace($predecessorText, '[\p{Zs}]', ' '), ' ')[last()]"
-                                    />
+                                    <xsl:value-of select="tokenize(replace($predecessorText, '[\p{Zs}]', ' '), ' ')[last()]"/>
                                 </xsl:when>
                                 <xsl:otherwise>
                                     <xsl:value-of select="'NA'"/>
@@ -491,11 +470,6 @@
                         <xsl:variable name="firstWordOfNextLine">
                             <xsl:choose>
                                 <xsl:when test="ends-with($text, '¬') or ends-with($text, '&#x2010;') or ends-with($text, '&#x002D;') or ends-with($text, '&#x2212;') or ends-with($text, '&#x201E;') or ends-with($text, '&#x003D;')">
-                                    <!--                                <xsl:message>
-                                <xsl:value-of
-                                    select="substring-before(replace($followerText, '[\p{Zs}]', ' '),' ')"
-                                />
-                            </xsl:message>-->
                                     <xsl:value-of
                                         select="substring-before(replace($followerText, '[\p{Zs}]', ' '),' ')"
                                     />
@@ -521,7 +495,7 @@
                             <xsl:with-param name="width" select="$width"/>
                             <xsl:with-param name="customTags" select="@custom"/>
                         </xsl:call-template>
-                        <!-- 	                <xsl:call-template name="applyCoordinates"/>
+                        <!--	                <xsl:call-template name="applyCoordinates"/>
 	                <xsl:call-template name="applyStyleId"/> -->
                 </xsl:when>
                 <xsl:otherwise>
@@ -602,10 +576,10 @@
         <xsl:param name="width"/>
         <xsl:param name="customTags"/>
         <xsl:variable name="stringId" select="@id"/>
-        <!--   		<xsl:variable name="text" select="./TextEquiv/Unicode/text()"/>
-  		<xsl:variable name="coords" select="./page:Coords/@points"/> -->
+        <!--[   		<xsl:variable name="text" select="./TextEquiv/Unicode/text()"/>
+  		<xsl:variable name="coords" select="./page:Coords/@points"/> ]-->
 
-<!--        <xsl:message>
+<!--[	<xsl:message>
             <xsl:value-of select="concat('lineString is ', $lineString)"/>
         </xsl:message>
         <xsl:message>
@@ -616,7 +590,7 @@
         </xsl:message>
         <xsl:message>
             <xsl:value-of select="concat('previous word is ', $lastWordOfPreviousLineIfAny)"/>
-        </xsl:message>-->
+        </xsl:message>]-->
 
         <xsl:choose>
             <xsl:when test="contains($remainingContent,' ')">
@@ -625,7 +599,7 @@
                 <xsl:variable name="actStringLength" select="string-length($actString)"/>
                 <xsl:variable name="restStringLength" select="string-length($restString)"/>
                 <String>
-                    <!-- <xsl:attribute name="ID" select="$stringId"/> -->
+                    <!--[<xsl:attribute name="ID" select="$stringId"/>]-->
                     <xsl:call-template name="getCoordinates">
                         <xsl:with-param name="lineLength" select="$lineLength"/>
                         <xsl:with-param name="maxX" select="$maxX"/>
@@ -636,7 +610,7 @@
                         <xsl:with-param name="restStringLength"
                             select="string-length($restString)-2"/>
                     </xsl:call-template>
-                    <!-- 	            <xsl:call-template name="applyStyleId"/> -->
+                    <!--[<xsl:call-template name="applyStyleId"/>]-->
                     <xsl:attribute name="CONTENT" select="$actString"/>
                     <!-- so we know that the last word in the previous line has been separated. --> 
                     <xsl:if test="not($lastWordOfPreviousLineIfAny = 'NA') and not($lastWordOfPreviousLineIfAny = '')">
@@ -694,22 +668,12 @@
                             select="string-length($remainingContent)+2"/>
                         <xsl:with-param name="restStringLength" select="0"/>
                     </xsl:call-template>
-                    <!-- 	            <xsl:call-template name="applyStyleId"/> -->
+                    <!--	            <xsl:call-template name="applyStyleId"/> -->
                     <xsl:attribute name="CONTENT" select="tokenize($remainingContent,'&#x00AC;|&#x002D;|&#x2010;|&#x2212;|&#x201E;|&#x003D;')[1]"/>
                     <xsl:choose>
                         <xsl:when
                             test="not($firstWordOfNextLineIfAny = 'NA') and not($firstWordOfNextLineIfAny = '')">
                             <xsl:attribute name="SUBS_TYPE" select="'HypPart1'"/>
-<!--                            <xsl:message>
-                                <xsl:value-of
-                                    select="concat('try to tokenize ', tokenize($remainingContent,'[¬U+2010]')[1])"
-                                />
-                            </xsl:message>
-                            <xsl:message>
-                                <xsl:value-of
-                                    select="concat('try to tokenize(2) ', tokenize($remainingContent,'[¬]')[1])"
-                                />
-                            </xsl:message>-->
                             <!-- different Unicode chars of hyphens -->
                             <xsl:attribute name="SUBS_CONTENT"
                                 select="concat((tokenize($remainingContent,'&#x00AC;|&#x002D;|&#x2010;|&#x2212;|&#x201E;|&#x003D;')[1]),$firstWordOfNextLineIfAny)"
@@ -987,13 +951,13 @@
     </xsl:template>
 
 
-<!--    <xsl:template name="applyStyleId">
+<!--[<xsl:template name="applyStyleId">
         <xsl:for-each select="./TextStyle">
             <xsl:variable name="styleId"
                 select="concat(translate(@fontFamily, ' ', '_'), '_', @fontSize, '_', @serif, '_', @bold, '_', @italic,'_', @subscript, '_', @superscript,'_', @underlined, '_', @textColour)"/>
             <xsl:attribute name="STYLEREFS" select="$styleId"/>
         </xsl:for-each>
-    </xsl:template>-->
+    </xsl:template>]-->
 
 
     <xsl:template name="determinePrimaryLanguage">
