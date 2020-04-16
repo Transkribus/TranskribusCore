@@ -56,7 +56,7 @@ public class TrpIobBuilder {
 	public void writeIobForDoc(TrpDoc doc, boolean wordBased, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor, ExportCache cache) throws NoTagsException, Exception {
 		writeIobForDoc(doc,wordBased, exportFile, pageIndices, monitor, cache, false);
 	}
-	
+		
 	
 	public void writeIobForDoc(TrpDoc doc, boolean wordBased, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor, ExportCache cache, boolean exportProperties) throws NoTagsException, Exception {
 		
@@ -136,7 +136,7 @@ public class TrpIobBuilder {
 					CustomTagList tagLines = line.getCustomTagList();
 					List<CustomTag> tagList = tagLines.getIndexedTags();
 					String lineText = line.getUnicodeText();
-					StringTokenizer st = new StringTokenizer(lineText, " .,();\"„“?!»«'’",true);
+					StringTokenizer st = new StringTokenizer(lineText, " .,();\"„“?!»«'’—-",true);
 					
 					// Split textLine by tag offset 
 					if(tagList.isEmpty()) {
@@ -157,14 +157,22 @@ public class TrpIobBuilder {
 						HashMap<String, CustomTag> tagMap = new HashMap<String, CustomTag>();
 						
 						List<String> elements = new ArrayList<String>();
-						 while(st.hasMoreTokens()) {
-				            elements.add(st.nextToken());
-				        }
+						
+						
+						
+
+						ArrayList<IntRange> rangeList = new ArrayList<>();
 						
 						for(CustomTag tag : tagList) {
-				
-							String tagText = lineText.substring(tag.getOffset(), tag.getEnd());			
-							StringTokenizer tagToken = new StringTokenizer(tagText, " .,();\"„“?!»«'’",true);		
+							
+							String tagText = lineText.substring(tag.getOffset(), tag.getEnd());	
+							
+							IntRange tagRange = tag.getRange();
+				            System.out.println("TagRange "+tagRange.getOffset()+ " " + tagRange.getEnd()+" Sentence length : "+lineText.length() );
+
+							rangeList.add(tagRange);
+							
+							StringTokenizer tagToken = new StringTokenizer(tagText, " .,();\"„“?!»«'’—-",true);		
 							List<String> tagElements = new ArrayList<String>();
 							
 							 while(tagToken.hasMoreTokens()) {
@@ -175,93 +183,108 @@ public class TrpIobBuilder {
 							 for(String s: tagElements) {
 							     offset = lineText.indexOf(s, offset + 1);
 							     tagMap.put(s+""+offset, tag);
+							    
 							 }
 							
 						}
+						int tokenOffset = -1;
 						
-						// get offset of token
-						 int offset = -1;
-						 for(String s: elements) {
-							 if(!s.equals(" ")) {
-								 
-								 textLinebw.newLine();
-							     offset = lineText.indexOf(s, offset + 1); 
-							     if(tagMap.containsKey(s+""+offset)) {
-							    	CustomTag tag = tagMap.get(s+""+offset);
-							    	List<CustomTag> overlap = tagLines.getOverlappingTags(null,tag.getOffset(),tag.getLength());
+						while(st.hasMoreTokens()) {
+							String token = st.nextToken();
+							tokenOffset = lineText.indexOf(token, tokenOffset + 1); 
+							
+							if(!token.equals(" ")) {
+								boolean written = false;
+								textLinebw.newLine();
+								
+								for(IntRange iRange : rangeList)
+						        {
+									String tagText = lineText.substring(iRange.getOffset(), iRange.getEnd()).replace(" ", "");
+							    	List<CustomTag> overlap = tagLines.getOverlappingTags(null,iRange.getOffset(),iRange.getLength());
 									
-							    	if(!overlap.isEmpty()) {
-							    		CustomTag first = overlap.get(0);
-							    		if(overlap.size() > 1) {	    			
-							    			CustomTag nested = overlap.get(1);
-							    			if(nested.getContainedText().contains(s)) {
-							    				if(offset == 0 ) {
-							    					if(first.isContinued() && nested.isContinued()) {
-							    						textLinebw.write(s);
-											    		addNestedTag(first, textLinebw, "I");
-														addNestedTag(nested, textLinebw, "I");
+									CustomTag first = overlap.get(0);
+									CustomTag nested = null;
+									
+									//solve continuation issue
+//									
+									
+						    		if(overlap.size() > 1) {	    			
+						    			nested = overlap.get(1);
+						    		}
+									if(iRange.isInside(tokenOffset)) {
+							            
+								    	//Split subwords
+								    	 String[] splitted = token.split(tagText.replace("(", "\\(").replace(")", "\\)"));
+								    	 if(splitted.length > 1 ) {										 
+											 if(token.startsWith(tagText)) {
+												textLinebw.write(tagText);
+												addBeginningTag(first, textLinebw, exportProperties);
+									    		textLinebw.newLine();
+												textLinebw.write(splitted[1]);
+										    	textLinebw.write("\tO\tO\tO\tnull\tnull");
+										    	written= true;
+											 }
+											 
+								    	 }else {
+								    		 // get nestings
+								    		 if(nested != null && !written && nested.getContainedText().contains(token)) {
+								    			 if(tagText.startsWith(token) && nested.getContainedText().startsWith(token)) {
+											    		textLinebw.write(token);
+											    		addNestedTag(first, textLinebw, "B");
+														addNestedTag(nested, textLinebw, "B");
 														addPropsToFile(first, textLinebw);
-							    					}else if(first.isContinued() && !nested.isContinued()) {
-							    						textLinebw.write(s);
+														written= true;
+									    			}else if(tagText.contains(token) && nested.getContainedText().startsWith(token)) {
+											    		textLinebw.write(token);
 											    		addNestedTag(first, textLinebw, "I");
 														addNestedTag(nested, textLinebw, "B");
 														addPropsToFile(first, textLinebw);
-							    					}else if(!first.isContinued() && nested.isContinued()) {
-							    						textLinebw.write(s);
-											    		addNestedTag(first, textLinebw, "B");
+														written= true;
+											    	}else {
+											    		textLinebw.write(token);
+											    		addNestedTag(first, textLinebw, "I");
 														addNestedTag(nested, textLinebw, "I");
 														addPropsToFile(first, textLinebw);
-							    					}
-							    					
-							    				}
-							    				else if(first.getContainedText().startsWith(s) && nested.getContainedText().startsWith(s)) {
-										    		textLinebw.write(s);
-										    		addNestedTag(first, textLinebw, "B");
-													addNestedTag(nested, textLinebw, "B");
-													addPropsToFile(first, textLinebw);
-								    			}else if(first.getContainedText().contains(s) && nested.getContainedText().startsWith(s)) {
-										    		textLinebw.write(s);
-										    		addNestedTag(first, textLinebw, "I");
-													addNestedTag(nested, textLinebw, "B");
-													addPropsToFile(first, textLinebw);
-										    	}else {
-										    		textLinebw.write(s);
-										    		addNestedTag(first, textLinebw, "I");
-													addNestedTag(nested, textLinebw, "I");
-													addPropsToFile(first, textLinebw);
-										    	}
-							    			}else {
-							    				if(offset == 0 && first.isContinued()) {
-							    					textLinebw.write(s);
-								    				addContinueTag(first, textLinebw, exportProperties);
-							    				}else if(first.getContainedText().startsWith(s)) {
-								    				textLinebw.write(s);
-													addBeginningTag(first, textLinebw, exportProperties);	
-								    			}else {
-								    				textLinebw.write(s);
-								    				addContinueTag(first, textLinebw, exportProperties);
-								    			}
-							    			}
-							    			
-							    		}else {
-							    			if(offset == 0 && first.isContinued()) {
-						    					textLinebw.write(s);
-							    				addContinueTag(first, textLinebw, exportProperties);
-						    				}else if(first.getContainedText().startsWith(s)) {
-							    				textLinebw.write(s);
-												addBeginningTag(first, textLinebw, exportProperties);	
-							    			}else {
-							    				textLinebw.write(s);
-							    				addContinueTag(first, textLinebw, exportProperties);
-							    			}
-							    		}
-							    	}	 				    	 
-							     }else {
-							    	 textLinebw.write(s);
+														written= true;
+											    	}
+								    		 }else if(!written){
+								    			 //Unnested
+								    			 if(tokenOffset == 0 && first.isContinued()) {
+								    				 	Pair<CustomTagList, CustomTag> continuedPrevoiusPair = tagLines.getPreviousContinuedCustomTag(first);
+														if(continuedPrevoiusPair != null && continuedPrevoiusPair.getValue().getContainedText().equals(tagText) ) {
+															textLinebw.write(token);
+										    				addContinueTag(first, textLinebw, exportProperties);
+														}else {
+															textLinebw.write(token);
+															addBeginningTag(first, textLinebw, exportProperties);
+														}	
+									    				written= true;
+								    				}else if(tagText.replace(" ", "").startsWith(token) ) {
+									    				textLinebw.write(token);
+														addBeginningTag(first, textLinebw, exportProperties);
+														written= true;
+									    			}else {
+									    				textLinebw.write(token);
+									    				addContinueTag(first, textLinebw, exportProperties);
+									    				written= true;
+									    			}
+								    			 
+								    		 }  		 
+					    		 
+								    	 }
+
+							    	}
+		
+						        }
+								if(!written) {
+									 textLinebw.write(token);
 							    	 textLinebw.write("\tO\tO\tO\tnull\tnull");
-							     }
-							 }			     
-						 }
+								}
+							}else {
+								textLinebw.write("\tSpaceAfter");
+								continue; 
+							}
+						}
 					}	
 				}
 				
@@ -542,7 +565,7 @@ public class TrpIobBuilder {
 	public static void main(String[] args) throws Exception {
 		
 
-		TrpDoc docWithTags = LocalDocReader.load("/home/lateknight/Documents/NewsEye/NE_GT_inter-annotator_v0.95/ONB/florian_inter_annotator_v2/313396/ONB_inter_annotator_doc_v2");
+		TrpDoc docWithTags = LocalDocReader.load("/home/lateknight/Documents/NewsEye/NE_GT_dataset_v0.95/BNF/BNF_GT/269290/BnF_GT_Document");
 		Set<Integer> pageIndices = null;
 		
 		if (pageIndices == null){
@@ -555,7 +578,7 @@ public class TrpIobBuilder {
 		exportCache.storeCustomTagMapForDoc(docWithTags, false, pageIndices, null, false);
 		
 		TrpIobBuilder iob = new TrpIobBuilder();
-		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Documents/NewsEye/NE_GT_inter-annotator_v0.95/ONB/florian_inter_annotator-IOB.txt"), pageIndices, null, exportCache, true);
+		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Documents/NewsEye/NE_GT_dataset_v0.95/BNF/BNF_GT-IOB.txt"), pageIndices, null, exportCache, true);
 
 	}
 	
@@ -571,6 +594,8 @@ public class TrpIobBuilder {
 	    public void setL(L l){ this.l = l; }
 	    public void setR(R r){ this.r = r; }
 	}
+	
+	
 
 
 }
