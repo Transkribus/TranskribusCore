@@ -28,8 +28,8 @@ public class TrpErrorRateResult {
 		try {
 			return Double.parseDouble(wer.replaceAll("%", "").replaceAll(",", "."));
 		}
-		catch(NumberFormatException e) {
-			return null;
+		catch (Exception e) {
+			return 0.0d;
 		}
 	}
 
@@ -45,8 +45,8 @@ public class TrpErrorRateResult {
 		try {
 			return Double.parseDouble(cer.replace("%", "").replaceAll(",", "."));
 		}
-		catch(NumberFormatException e) {
-			return null;
+		catch (Exception e) {
+			return 0.0d;
 		}
 	}
 	
@@ -62,8 +62,8 @@ public class TrpErrorRateResult {
 	public Double getwAccDouble() {
 		try {
 			return Double.parseDouble(wAcc.replaceAll("%", "").replaceAll(",", "."));
-		}catch(NumberFormatException e) {
-			return null;
+		}catch (Exception e) {
+			return 0.0d;
 		}
 		
 		
@@ -80,8 +80,8 @@ public class TrpErrorRateResult {
 	public Double getcAccDouble() {
 		try {
 			return Double.parseDouble(cAcc.replaceAll("%", "").replaceAll(",", "."));
-		}catch(NumberFormatException e) {
-			return null;
+		}catch (Exception e) {
+			return 0.0d;
 		}
 		
 	}
@@ -98,8 +98,8 @@ public class TrpErrorRateResult {
 	public Double getBagTokensPrecDouble() {
 		try {
 			return Double.parseDouble(bagTokensPrec.replaceAll("%", "").replaceAll(",", ".")) / 100;
-		}catch(NumberFormatException e) {
-			return null;
+		}catch (Exception e) {
+			return 0.0d;
 		}
 		
 	}
@@ -115,8 +115,8 @@ public class TrpErrorRateResult {
 	public Double getBagTokensRecDouble() {
 		try {
 			return Double.parseDouble(bagTokensRec.replaceAll("%", "").replaceAll(",", ".")) / 100;
-		}catch(NumberFormatException e) {
-			return null;
+		}catch (Exception e) {
+			return 0.0d;
 		}
 		
 	}
@@ -132,8 +132,8 @@ public class TrpErrorRateResult {
 	public Double getBagTokensFDouble() {
 		try {
 			return Double.parseDouble(bagTokensF.replaceAll("%", "").replaceAll(",", "."));
-		}catch(NumberFormatException e) {
-			return null;
+		}catch (Exception e) {
+			return 0.0d;
 		}
 		
 	}
