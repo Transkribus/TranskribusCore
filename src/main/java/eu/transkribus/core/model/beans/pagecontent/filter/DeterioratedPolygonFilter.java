@@ -17,6 +17,8 @@ import eu.transkribus.core.util.PointStrUtils;
 /**
  * Filter that removes "deteriorated" text- and (optionally) line-regions, 
  * i.e. pointStr in Coords does not obey correct format or contains less than 3 points.
+ * <br><br>
+ * FIXME: tables and tableCells are not taken into account!
  */
 public class DeterioratedPolygonFilter implements IPageContentFilter {
 	
