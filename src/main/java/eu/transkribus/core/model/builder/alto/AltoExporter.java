@@ -98,7 +98,14 @@ public class AltoExporter extends Observable {
 			 */
 			Map<String, Object> params = null;
 			params = new HashMap<>();
-			//params.put("includeTags", new Boolean(includeTags));
+			
+			/*
+			 *  if splitIntoWords we also export 'place' and 'person' tags
+			 *  ToDo: add all possible tag types?
+			 *  add it for 'export lines' as well
+			 *  add it for word layer as well - will be more important when we have words as result of ATR
+			 */
+			params.put("includeTags", new Boolean(splitIntoWords));
 			params.put("splitIntoWords", new Boolean(splitIntoWords));
 			params.put("useWordLayer", new Boolean(useWordLayer));
 

@@ -1514,6 +1514,10 @@ public class CoreUtils {
 		return sw.stop(verbose, verbosePrefix, logger);
 	}
 	
+	public static double roundTo2(double v) {
+		return Math.round(v*100.0d)/100.0d;
+	}
+	
 	public static void main(String[] args) throws Exception {
 		System.out.println(regularizedPath("c:\\hello\\world/by\\me\\"));
 		

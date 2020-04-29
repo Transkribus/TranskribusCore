@@ -56,7 +56,7 @@ public class TrpIobBuilder {
 	public void writeIobForDoc(TrpDoc doc, boolean wordBased, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor, ExportCache cache) throws NoTagsException, Exception {
 		writeIobForDoc(doc,wordBased, exportFile, pageIndices, monitor, cache, false);
 	}
-	
+		
 	
 	public void writeIobForDoc(TrpDoc doc, boolean wordBased, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor, ExportCache cache, boolean exportProperties) throws NoTagsException, Exception {
 		
@@ -130,14 +130,13 @@ public class TrpIobBuilder {
 				TrpPageType t = (TrpPageType)tr.getPage();
 				
 				List<TrpTextLineType> lines = t.getLines();
-				
 			
 				for(TrpTextLineType line : lines) {
 					
 					CustomTagList tagLines = line.getCustomTagList();
 					List<CustomTag> tagList = tagLines.getIndexedTags();
 					String lineText = line.getUnicodeText();
-					StringTokenizer st = new StringTokenizer(lineText, " .,;\"„?!»",true);
+					StringTokenizer st = new StringTokenizer(lineText, " .,();\"„“?!»«'’—-",true);
 					
 					// Split textLine by tag offset 
 					if(tagList.isEmpty()) {
@@ -155,20 +154,25 @@ public class TrpIobBuilder {
 						}
 					}else {
 						
-						logger.info("LineText : "+lineText );
 						HashMap<String, CustomTag> tagMap = new HashMap<String, CustomTag>();
 						
 						List<String> elements = new ArrayList<String>();
-						 while(st.hasMoreTokens()) {
-				            elements.add(st.nextToken());
-				        }
+						
+						
+						
+
+						ArrayList<IntRange> rangeList = new ArrayList<>();
 						
 						for(CustomTag tag : tagList) {
-				
-							String tagText = lineText.substring(tag.getOffset(), tag.getEnd());
 							
-							StringTokenizer tagToken = new StringTokenizer(tagText, " .,;\"„?!»",true);
+							String tagText = lineText.substring(tag.getOffset(), tag.getEnd());	
 							
+							IntRange tagRange = tag.getRange();
+				            System.out.println("TagRange "+tagRange.getOffset()+ " " + tagRange.getEnd()+" Sentence length : "+lineText.length() );
+
+							rangeList.add(tagRange);
+							
+							StringTokenizer tagToken = new StringTokenizer(tagText, " .,();\"„“?!»«'’—-",true);		
 							List<String> tagElements = new ArrayList<String>();
 							
 							 while(tagToken.hasMoreTokens()) {
@@ -179,73 +183,108 @@ public class TrpIobBuilder {
 							 for(String s: tagElements) {
 							     offset = lineText.indexOf(s, offset + 1);
 							     tagMap.put(s+""+offset, tag);
+							    
 							 }
 							
 						}
+						int tokenOffset = -1;
 						
-							 
-						// get offset of token	 
-						 int offset = -1;
-						 for(String s: elements) {
-							 if(!s.equals(" ")) {
-								 
-								 textLinebw.newLine();
-							     offset = lineText.indexOf(s, offset + 1); 
-							     if(tagMap.containsKey(s+""+offset)) {
-							    	 CustomTag tag = tagMap.get(s+""+offset);
-							    	List<CustomTag> overlap = tagLines.getOverlappingTags(null,tag.getOffset(),tag.getLength());
+						while(st.hasMoreTokens()) {
+							String token = st.nextToken();
+							tokenOffset = lineText.indexOf(token, tokenOffset + 1); 
+							
+							if(!token.equals(" ")) {
+								boolean written = false;
+								textLinebw.newLine();
+								
+								for(IntRange iRange : rangeList)
+						        {
+									String tagText = lineText.substring(iRange.getOffset(), iRange.getEnd()).replace(" ", "");
+							    	List<CustomTag> overlap = tagLines.getOverlappingTags(null,iRange.getOffset(),iRange.getLength());
 									
-							    	if(!overlap.isEmpty()) {
+									CustomTag first = overlap.get(0);
+									CustomTag nested = null;
+									
+									//solve continuation issue
+//									
+									
+						    		if(overlap.size() > 1) {	    			
+						    			nested = overlap.get(1);
+						    		}
+									if(iRange.isInside(tokenOffset)) {
+							            
+								    	//Split subwords
+								    	 String[] splitted = token.split(tagText.replace("(", "\\(").replace(")", "\\)"));
+								    	 if(splitted.length > 1 ) {										 
+											 if(token.startsWith(tagText)) {
+												textLinebw.write(tagText);
+												addBeginningTag(first, textLinebw, exportProperties);
+									    		textLinebw.newLine();
+												textLinebw.write(splitted[1]);
+										    	textLinebw.write("\tO\tO\tO\tnull\tnull");
+										    	written= true;
+											 }
+											 
+								    	 }else {
+								    		 // get nestings
+								    		 if(nested != null && !written && nested.getContainedText().contains(token)) {
+								    			 if(tagText.startsWith(token) && nested.getContainedText().startsWith(token)) {
+											    		textLinebw.write(token);
+											    		addNestedTag(first, textLinebw, "B");
+														addNestedTag(nested, textLinebw, "B");
+														addPropsToFile(first, textLinebw);
+														written= true;
+									    			}else if(tagText.contains(token) && nested.getContainedText().startsWith(token)) {
+											    		textLinebw.write(token);
+											    		addNestedTag(first, textLinebw, "I");
+														addNestedTag(nested, textLinebw, "B");
+														addPropsToFile(first, textLinebw);
+														written= true;
+											    	}else {
+											    		textLinebw.write(token);
+											    		addNestedTag(first, textLinebw, "I");
+														addNestedTag(nested, textLinebw, "I");
+														addPropsToFile(first, textLinebw);
+														written= true;
+											    	}
+								    		 }else if(!written){
+								    			 //Unnested
+								    			 if(tokenOffset == 0 && first.isContinued()) {
+								    				 	Pair<CustomTagList, CustomTag> continuedPrevoiusPair = tagLines.getPreviousContinuedCustomTag(first);
+														if(continuedPrevoiusPair != null && continuedPrevoiusPair.getValue().getContainedText().equals(tagText) ) {
+															textLinebw.write(token);
+										    				addContinueTag(first, textLinebw, exportProperties);
+														}else {
+															textLinebw.write(token);
+															addBeginningTag(first, textLinebw, exportProperties);
+														}	
+									    				written= true;
+								    				}else if(tagText.replace(" ", "").startsWith(token) ) {
+									    				textLinebw.write(token);
+														addBeginningTag(first, textLinebw, exportProperties);
+														written= true;
+									    			}else {
+									    				textLinebw.write(token);
+									    				addContinueTag(first, textLinebw, exportProperties);
+									    				written= true;
+									    			}
+								    			 
+								    		 }  		 
+					    		 
+								    	 }
 
-							    		if(overlap.size() > 1) {
-							    			CustomTag first = overlap.get(0);
-							    			CustomTag nested = overlap.get(1);
-								    		System.out.println("First tag "+first.getContainedText()+ " nested tag : "+nested.getContainedText());	
-							    			if(nested.getContainedText().contains(s)) {
-							    				if(first.getContainedText().startsWith(s) && nested.getContainedText().startsWith(s)) {
-										    		textLinebw.write(s);
-										    		addNestedTag(first, textLinebw, "B");
-													addNestedTag(nested, textLinebw, "B");
-													addPropsToFile(first, textLinebw);
-								    			}else if(first.getContainedText().contains(s) && nested.getContainedText().startsWith(s)) {
-										    		textLinebw.write(s);
-										    		addNestedTag(first, textLinebw, "I");
-													addNestedTag(nested, textLinebw, "B");
-													addPropsToFile(first, textLinebw);
-										    	}else {
-										    		textLinebw.write(s);
-										    		addNestedTag(first, textLinebw, "I");
-													addNestedTag(nested, textLinebw, "I");
-													addPropsToFile(first, textLinebw);
-										    	}
-							    			}else {
-							    				if(overlap.get(0).getContainedText().startsWith(s)) {
-								    				textLinebw.write(s);
-													addBeginningTag(overlap.get(0), textLinebw, exportProperties);	
-								    			}else {
-								    				textLinebw.write(s);
-								    				addContinueTag(overlap.get(0), textLinebw, exportProperties);
-								    			}
-							    			}
-							    			
-							    		}else {
-							    			if(overlap.get(0).getContainedText().startsWith(s)) {
-							    				textLinebw.write(s);
-												addBeginningTag(overlap.get(0), textLinebw, exportProperties);	
-							    			}else {
-							    				textLinebw.write(s);
-							    				addContinueTag(overlap.get(0), textLinebw, exportProperties);
-							    			}
-							    		}
-							    	}	 
-							    	 
-							     }else {
-							    	 System.out.println("Write word  in list "+s);
-							    	 textLinebw.write(s);
+							    	}
+		
+						        }
+								if(!written) {
+									 textLinebw.write(token);
 							    	 textLinebw.write("\tO\tO\tO\tnull\tnull");
-							     }
-							 }			     
-						 }
+								}
+							}else {
+								textLinebw.write("\tSpaceAfter");
+								continue; 
+							}
+						}
 					}	
 				}
 				
@@ -256,268 +295,6 @@ public class TrpIobBuilder {
 			}
 		}
 		textLinebw.close();
-	}
-	
-	public void oldWriteIobForDoc(TrpDoc doc, boolean wordBased, File exportFile, Set<Integer> pageIndices, IProgressMonitor monitor, ExportCache cache, boolean exportProperties) throws NoTagsException, Exception {
-		
-		if(cache == null) {
-			throw new IllegalArgumentException("ExportCache must not be null.");
-		}
-		
-		String exportPath = exportFile.getPath();
-		
-		FileOutputStream fOut;
-		try {
-
-		
-			fOut = new FileOutputStream(exportPath);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			throw e;
-		}
-		
-		BufferedWriter textLinebw = new BufferedWriter(new OutputStreamWriter(fOut));
-		
-		if(exportProperties) {
-			textLinebw.write("# Token\tTag\tNested-Tag\tFine-Grained\tWikidataID\tStance\tIsSpaceAfter");
-		}else {
-			textLinebw.write("# Token\tTag\tNested-Tag\tIsSpaceAfter/EndOfLine");
-		}
-	
-		
-				
-		/*
-		 * write IOB only if tags are available - otherwise say 'No tags available for the chosen export' when exporting on Server
-		 * otherwise the user doesn't know what's happening
-		 */
-		if (!cache.getCustomTagMapForDoc().isEmpty()) {
-			logger.info("Tags available for export!");
-
-			List<TrpPage> pages = doc.getPages();
-	
-			int totalPages = pageIndices==null ? pages.size() : pageIndices.size();
-			if (monitor!=null) {
-				monitor.beginTask("Exporting to IOB", totalPages);
-			}
-
-			int c=0;
-			for (int i=0; i<pages.size(); ++i) {
-				if (pageIndices!=null && !pageIndices.contains(i))
-					continue;
-				
-				if (monitor!=null) {
-					if (monitor.isCanceled()) {
-						throw new InterruptedException("Export was canceled by user");
-					}
-					monitor.subTask("Processing page "+(c+1));
-				}
-				
-				TrpPage page = pages.get(i);
-				JAXBPageTranscript tr = null;
-				if(cache != null) {
-					tr = cache.getPageTranscriptAtIndex(i);
-				}
-				if (tr == null){
-					TrpTranscriptMetadata md = page.getCurrentTranscript();
-					tr = new JAXBPageTranscript(md);
-					tr.build();
-				}
-			
-				TrpPageType t = (TrpPageType)tr.getPage();
-				
-				List<TrpTextLineType> lines = t.getLines();
-				
-			
-				for(TrpTextLineType line : lines) {
-					
-					CustomTagList tagLines = line.getCustomTagList();
-					List<CustomTag> tagList = tagLines.getIndexedTags();
-
-					String lineText = line.getUnicodeText();
-					
-					HashMap<Integer,List<CustomTag> > tagMap = new HashMap<Integer, List<CustomTag>>();
-					// continueMap needed for multi word entities
-					HashMap<String, CustomTag> continueMap = new HashMap<String, CustomTag>();
-			
-					
-					for(CustomTag tag : tagList) {
-						
-						String tokenText = tag.getContainedText();
-						StringTokenizer st = new StringTokenizer(tokenText," .,;\"„?!»",true);
-						List<CustomTag> overlappingTags = tagLines.getOverlappingTags(null, tag.getOffset(),tag.getEnd());
-						List<CustomTag> listWithOverlap = new ArrayList<>();
-						listWithOverlap.add(tag);
-						CustomTag overlapTag = null;
-						for(CustomTag overlap : overlappingTags) {
-							if(!tag.getTagName().equals(overlap.getTagName())) {
-								overlapTag = overlap;
-								
-							}
-						}
-						listWithOverlap.add(overlapTag);
-						tagMap.put(tag.getOffset(), listWithOverlap);
-						if(st.countTokens() > 1) {
-							while(st.hasMoreTokens()) {
-								String token = st.nextToken();
-								int insideOffset = lineText.indexOf(token);
-								continueMap.put(token+""+insideOffset, tag);
-							}		
-						}
-							
-					}
-	
-					try {
-						StringTokenizer st = new StringTokenizer(lineText, " .,;\"„?!»",true);
-						while(st.hasMoreTokens()) {
-							
-							String token = st.nextToken();
-							
-							
-							if(token.equals(" ")) {
-								textLinebw.write("\tSpaceAfter");
-								continue; 
-							}
-							
-							
-									
-							int offset = lineText.indexOf(token);
-							
-							textLinebw.newLine();
-							
-							
-							CustomTag tag = null;
-							CustomTag overlap = null;
-							
-							if(tagMap.containsKey(offset)) {
-								List<CustomTag> tags = tagMap.get(offset);
-								tag = tags.get(0);
-								overlap = tags.get(1);
-								if(tag != null && overlap != null) {
-									logger.info("Token : "+token+" Found an overlapping tag for "+tag.getContainedText()+ " type :"+tag.getTagName()+" => overlap : "+overlap.getContainedText()+" type : "+overlap.getTagName());
-									if(overlap.getContainedText().contains(tag.getContainedText())) {
-										if(overlap.getContainedText().startsWith(token)) {
-											textLinebw.write(token);
-											addNestedTag(tag, textLinebw, "B");
-											addNestedTag(overlap, textLinebw, "B");
-											if(exportProperties) {
-												addPropsToFile(tag, textLinebw);
-												addPropsToFile(overlap, textLinebw);
-											}	
-										}else if(continueMap.containsKey(token+""+offset)) {
-											textLinebw.write(token);
-											addNestedTag(overlap, textLinebw, "I");
-											addNestedTag(tag, textLinebw, "B");
-											if(exportProperties) {
-												addPropsToFile(overlap, textLinebw);
-												addPropsToFile(tag, textLinebw);
-											}
-										}
-										else {
-											textLinebw.write(token);
-											addNestedTag(tag, textLinebw, "B");
-											addNestedTag(overlap, textLinebw, "I");
-											if(exportProperties) {
-												addPropsToFile(tag, textLinebw);
-												addPropsToFile(overlap, textLinebw);
-											}
-										}
-									}else {
-										textLinebw.write(token);
-										addBeginningTag(tag, textLinebw, exportProperties);	
-									}
-									
-								
-								}else {
-									if(tag.isContinued() && offset == 0) {
-										textLinebw.write(token);
-										addContinueTag(tag, textLinebw, exportProperties);					
-									}
-									else if(offset == tag.getOffset()) {
-										textLinebw.write(token);
-										addBeginningTag(tag, textLinebw, exportProperties);				
-									}
-								}
-							// Get continued with overlapping tags
-							}else if (continueMap.containsKey(token+""+offset)){
-								CustomTag tagCont = continueMap.get(token+""+offset);
-								List<CustomTag> tags = tagMap.get(tagCont.getOffset());
-								tag = tags.get(0);
-								overlap = tags.get(1);
-								if(tag != null && overlap != null) {
-									logger.info("Token : "+token+ " CONTINUE Found an overlapping tag for "+tag.getContainedText()+ " type :"+tag.getTagName()+" => overlap : "+overlap.getContainedText()+" type : "+overlap.getTagName());
-									// check if token starts with tag Text
-									if(overlap.getContainedText().contains(tag.getContainedText())) {
-										if(tag.getContainedText().contains(token)){
-											textLinebw.write(token);
-											addNestedTag(tag, textLinebw, "I");
-											addNestedTag(overlap, textLinebw, "I");
-											if(exportProperties) {
-												addPropsToFile(tag, textLinebw);
-												addPropsToFile(overlap, textLinebw);
-											}
-										}
-										else {
-											logger.info("We are inside with overlap TOKEN : "+token);
-											textLinebw.write(token);
-											textLinebw.write("\tO");
-											addNestedTag(overlap, textLinebw, "I");
-											if(exportProperties) {
-												addPropsToFile(overlap, textLinebw);
-											}
-										}
-									}else if(overlap.getEnd() <= offset && tag.getEnd() <= offset) {
-										textLinebw.write(token);
-										addNestedTag(tag, textLinebw, "I");
-										addNestedTag(overlap, textLinebw, "I");
-										if(exportProperties) {
-											addPropsToFile(tag, textLinebw);
-											addPropsToFile(overlap, textLinebw);
-										}
-									}
-									else {
-										textLinebw.write(token);
-										addContinueTag(tagCont, textLinebw, exportProperties);
-									}
-									
-								}else if(tagCont.getEnd() <= offset) {
-									logger.info("This is continued outside issue TOKEN : "+token+" Token offset : "+offset+ " tag Offset : "+tagCont.getOffset() );
-									textLinebw.write(token);
-									addContinueTag(tagCont, textLinebw, exportProperties);
-								}else  if (tag.getEnd() >= offset){
-									logger.info("This is TAG issue TOKEN : "+token+" Token offset : "+offset+ " tag Offset : "+tag.getOffset() );
-									textLinebw.write(token);
-									addContinueTag(tag, textLinebw, exportProperties);		
-								}else {
-									textLinebw.write(token);
-									textLinebw.write("\tO\tO");
-								}
-								
-							}else {
-								textLinebw.write(token);
-								textLinebw.write("\tO\tO");
-							}
-							
-							if(!st.hasMoreTokens()) {
-								textLinebw.write("\tEndOfLine");
-							}
-							
-						}
-						
-					}catch (IOException e) {
-						e.printStackTrace();
-					}
-						
-				}
-
-				++c;
-				if (monitor!=null) {
-					monitor.worked(c);
-				}
-			}
-			textLinebw.close();
-
-		}
 	}
 	
 	private void addNestedTag(CustomTag temp, BufferedWriter textLinebw, String preFix) throws IOException {
@@ -616,7 +393,7 @@ public class TrpIobBuilder {
 			}
 			
 			if(attrMap.get("stance") == null) {
-				textLinebw.write("\tnull");
+				textLinebw.write("\tn");
 			}else {
 				textLinebw.write("\t"+attrMap.get("stance"));
 			}
@@ -788,17 +565,9 @@ public class TrpIobBuilder {
 	public static void main(String[] args) throws Exception {
 		
 
-		TrpDoc docWithTags = LocalDocReader.load("/home/lateknight/Documents/NewsEye/NE_GT_dataset_v1/ONB/florian_inter_annotator_v2/313396/ONB_inter_annotator_doc_v2");
+		TrpDoc docWithTags = LocalDocReader.load("/home/lateknight/Documents/NewsEye/NE_GT_dataset_v0.95/BNF/BNF_GT/269290/BnF_GT_Document");
+		Set<Integer> pageIndices = null;
 		
-		/*
-		 * here we store the page transcripts for all later exports regarding to the wished version status
-		 * if status can not be found -> we get the latest one, so values 
-		 *  
-		 */
-		
-		Set<Integer> pageIndices = null; // null means every page
-		
-		//pageIndices must be set here instead of being null because it gets used in ExportUtils
 		if (pageIndices == null){
 			pageIndices = new HashSet<Integer>();
 			for (int i = 0; i<docWithTags.getNPages(); i++){
@@ -809,17 +578,8 @@ public class TrpIobBuilder {
 		exportCache.storeCustomTagMapForDoc(docWithTags, false, pageIndices, null, false);
 		
 		TrpIobBuilder iob = new TrpIobBuilder();
-		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Desktop/what3.txt"), pageIndices, null, exportCache, true);
+		iob.writeIobForDoc(docWithTags, false, new File("/home/lateknight/Documents/NewsEye/NE_GT_dataset_v0.95/BNF/BNF_GT-IOB.txt"), pageIndices, null, exportCache, true);
 
-		System.out.println("finished");
-		
-		//TODO write test for IOB import
-		
-		
-//		TrpDoc docWithoutTags = LocalDocReader.load("/home/lateknight/Desktop/Iob_Import/ONB_nfp_18950706_NE_GT_duplicated/");
-//		File file = new File("/home/lateknight/Desktop/Iob_Import/ONB_NE_GT_tags.txt");
-//		
-//		iob.importIOBForDoc(docWithoutTags, file, "/home/lateknight/Desktop/Iob_Import/ONB_nfp_18950706_NE_GT_duplicated/");
 	}
 	
 	public class CustomPair<L,R> {
@@ -834,6 +594,8 @@ public class TrpIobBuilder {
 	    public void setL(L l){ this.l = l; }
 	    public void setR(R r){ this.r = r; }
 	}
+	
+	
 
 
 }
