@@ -176,6 +176,7 @@ public class DescriptorUtils {
 		}
 		List<PageDescriptor> pdList = new ArrayList<>(selectedPages.size());
 		for (TrpPage p : selectedPages) {
+			logger.trace("Selecting transcript with status = {}", status);
 			//delegate the selection and data check to the given TrainDataSelector implementation
 			TrpTranscriptMetadata selection = selector.selectTranscript(p, status);
 			logger.debug("Page {}: selected transcript {}", p.getPageNr(), selection == null ? null : selection.getTsId());
