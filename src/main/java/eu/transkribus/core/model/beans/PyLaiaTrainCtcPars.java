@@ -60,6 +60,7 @@ public class PyLaiaTrainCtcPars extends ParameterMap {
 		pars.addParameter("--logging_file", "train-crnn.log");
 		pars.addParameter("--show_progress_bar", "False");
 		pars.addParameter("--use_distortions", "True");
+		pars.addParameter("--save_checkpoint_interval", "1");
 		
 		return pars;
 	}
