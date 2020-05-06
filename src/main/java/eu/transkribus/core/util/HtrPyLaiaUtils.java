@@ -39,6 +39,9 @@ public class HtrPyLaiaUtils {
 	public static final String CHECKPOINT_PREFIX_BEST_WER = "experiment.ckpt.lowest-valid-wer-";
 	public static final String CHECKPOINT_PREFIX_LATEST = "experiment.ckpt-";
 	
+	public static final String BASE_MODEL_ID_KEY = "baseModelId";
+	public static final String BASE_MODEL_NAME_KEY = "baseModelName";
+	
 	public static final String[] CHECKPOINT_PREFIXES = { CHECKPOINT_PREFIX_LATEST, CHECKPOINT_PREFIX_BEST_CER, CHECKPOINT_PREFIX_BEST_WER };
 	
 	public static String getCheckpointParameter(File modelDir, String preferred, boolean forTraining) throws IOException {
@@ -134,7 +137,7 @@ public class HtrPyLaiaUtils {
 	}
 
 	public static String getCharsetFromSymbolsFile(File charMapFile) throws IOException {
-		List<String> lines = Files.readAllLines(Paths.get(charMapFile.getAbsolutePath()), Charset.defaultCharset());
+		List<String> lines = Files.readAllLines(Paths.get(charMapFile.getAbsolutePath()), Charset.forName("UTF-8"));
 		String str = "";
 		for (String l : lines) {
 			str += l.split("\\s+")[0]+"\n";

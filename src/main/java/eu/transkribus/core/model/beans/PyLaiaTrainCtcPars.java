@@ -44,6 +44,10 @@ public class PyLaiaTrainCtcPars extends ParameterMap {
 	public PyLaiaTrainCtcPars() {
 	}
 	
+	public PyLaiaTrainCtcPars(PyLaiaTrainCtcPars copy) {
+		super(copy);
+	}
+	
 	public static PyLaiaTrainCtcPars getDefault() {
 		PyLaiaTrainCtcPars pars = new PyLaiaTrainCtcPars();
 		pars.addParameter("--max_nondecreasing_epochs", ""+DEFAULT_MAX_NONDECREASING_EPOCHS);
