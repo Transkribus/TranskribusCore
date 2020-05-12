@@ -90,6 +90,14 @@ public class IIIFUtils {
 		return manifest;
 	}
 	
+	public static Manifest getManifest(URL url) throws JsonParseException, JsonMappingException, IOException {
+		ObjectMapper iiifMapper = new IiifObjectMapper();
+		iiifMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+		String responseJson = getJSON(url.toString());
+		logger.info(responseJson);
+		Manifest manifest = iiifMapper.readValue(responseJson, Manifest.class);
+		return manifest;
+	}	
 	public static String getJSON(String url) {
 	    HttpURLConnection c = null;
 	    try {
@@ -136,7 +144,8 @@ public class IIIFUtils {
 	
 		logger.debug("Url transmitted to UploadManager : "+url.toString());
 		
-		Manifest manifest =  checkManifestValid(url);
+//		Do not use IIIF Validator as API seems to be down a lot
+		Manifest manifest =  getManifest(url);
 
 		TrpDocMetadata md = new TrpDocMetadata();
 		
