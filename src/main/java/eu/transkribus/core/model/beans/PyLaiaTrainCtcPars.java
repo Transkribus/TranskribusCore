@@ -44,6 +44,10 @@ public class PyLaiaTrainCtcPars extends ParameterMap {
 	public PyLaiaTrainCtcPars() {
 	}
 	
+	public PyLaiaTrainCtcPars(PyLaiaTrainCtcPars copy) {
+		super(copy);
+	}
+	
 	public static PyLaiaTrainCtcPars getDefault() {
 		PyLaiaTrainCtcPars pars = new PyLaiaTrainCtcPars();
 		pars.addParameter("--max_nondecreasing_epochs", ""+DEFAULT_MAX_NONDECREASING_EPOCHS);
@@ -60,6 +64,7 @@ public class PyLaiaTrainCtcPars extends ParameterMap {
 		pars.addParameter("--logging_file", "train-crnn.log");
 		pars.addParameter("--show_progress_bar", "False");
 		pars.addParameter("--use_distortions", "True");
+		pars.addParameter("--save_checkpoint_interval", "1");
 		
 		return pars;
 	}

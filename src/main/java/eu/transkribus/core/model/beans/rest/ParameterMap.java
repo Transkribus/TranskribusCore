@@ -30,6 +30,10 @@ public class ParameterMap extends AJaxbMap {
 		super();
 	}
 	
+	public ParameterMap(ParameterMap copy) {
+		this(copy.getParamMap());
+	}
+	
 	public ParameterMap(Map<String, ? extends Object> paramMap) {
 		super();
 		if(paramMap == null || paramMap.isEmpty()) {

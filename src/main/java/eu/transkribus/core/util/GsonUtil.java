@@ -29,6 +29,7 @@ public class GsonUtil {
 	
 	public static final Type MAP_TYPE = new TypeToken<Map<String, Object>>(){}.getType();
 	public static final Type MAP_TYPE_STRING_VALUES = new TypeToken<Map<String, String>>(){}.getType();
+	public static final Type MAP_TYPE_STRING_LIST_VALUES = new TypeToken<Map<String, List<String>>>(){}.getType();
 	public static final Type PAIR_OF_INT_TO_INT_MAP_TYPE = new TypeToken<Map<Pair<Integer, Integer>, Integer>>(){}.getType();
 	
 //	public static final Type MAP_TYPE = new TypeToken<Map<String, Object>>(){}.getType();
@@ -100,7 +101,11 @@ public class GsonUtil {
 	
 	public static Map<String, String> toMapWithStringValues(String json) {
 		return GSON.fromJson(json, MAP_TYPE_STRING_VALUES);
-	}	
+	}
+	
+	public static Map<String, List<String>> toMapWithStringListValues(String json) {
+		return GSON.fromJson(json, MAP_TYPE_STRING_LIST_VALUES);
+	}
 	
 //	public static Map<Pair<Integer,Integer>, Object> toMap(String json) {
 //		return GSON.fromJson(json, MAP_TYPE);
