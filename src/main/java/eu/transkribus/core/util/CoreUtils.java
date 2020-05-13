@@ -629,13 +629,23 @@ public class CoreUtils {
 	}
 	
 	public static String readStringFromResource(String fn) throws IOException {
+		return readStringFromResource(fn, null);
+	}
+	
+	public static String readStringFromResource(String fn, Map<String, String> replacementProps) throws IOException {
 		try (InputStream is = CoreUtils.class.getClassLoader().getResourceAsStream(fn)) {
 			StringWriter writer = new StringWriter();
 	        IOUtils.copy(is, writer, StandardCharsets.UTF_8);
-	        return writer.toString();
+	        String str = writer.toString();
+	        if (replacementProps != null) {
+	        	for (String key : replacementProps.keySet()) {
+	        		str = str.replaceAll(key, replacementProps.get(key));
+	        	}
+	        }
+	        return str;
 		}
 	}
-
+	
 	public static void setLibraryPath(String path) throws Exception {
 		System.setProperty("java.library.path", path);
 
