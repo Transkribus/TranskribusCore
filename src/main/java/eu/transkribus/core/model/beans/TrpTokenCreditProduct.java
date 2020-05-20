@@ -29,6 +29,12 @@ public class TrpTokenCreditProduct {
 	@Column(name = "LABEL")
 	private String label;
 
+	//Column(name= "SHAREABLE")
+	private Boolean shareable;
+	
+	//Column(name = "SUBSCRIPTION")
+	private String subscription;
+
 	@Column(name = "AVAILABLE_FROM")
 	private Date availableFrom;
 
@@ -68,7 +74,23 @@ public class TrpTokenCreditProduct {
 	public void setLabel(String label) {
 		this.label = label;
 	}
+	
+	public Boolean getShareable() {
+		return shareable;
+	}
 
+	public void setShareable(Boolean shareable) {
+		this.shareable = shareable;
+	}
+
+	public String getSubscription() {
+		return subscription;
+	}
+
+	public void setSubscription(String subscription) {
+		this.subscription = subscription;
+	}
+	
 	public Date getAvailableFrom() {
 		return availableFrom;
 	}
@@ -95,6 +117,8 @@ public class TrpTokenCreditProduct {
 		result = prime * result + ((label == null) ? 0 : label.hashCode());
 		result = prime * result + nrOfTokens;
 		result = prime * result + ((productId == null) ? 0 : productId.hashCode());
+		result = prime * result + ((shareable == null) ? 0 : shareable.hashCode());
+		result = prime * result + ((subscription == null) ? 0 : subscription.hashCode());
 		return result;
 	}
 
@@ -134,13 +158,23 @@ public class TrpTokenCreditProduct {
 				return false;
 		} else if (!productId.equals(other.productId))
 			return false;
+		if (shareable == null) {
+			if (other.shareable != null)
+				return false;
+		} else if (!shareable.equals(other.shareable))
+			return false;
+		if (subscription == null) {
+			if (other.subscription != null)
+				return false;
+		} else if (!subscription.equals(other.subscription))
+			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
 		return "TrpTokenCreditProduct [productId=" + productId + ", creditType=" + creditType + ", nrOfTokens="
-				+ nrOfTokens + ", label=" + label + ", availableFrom=" + availableFrom + ", availableUntil="
-				+ availableUntil + "]";
+				+ nrOfTokens + ", label=" + label + ", shareable=" + shareable + ", subscription=" + subscription
+				+ ", availableFrom=" + availableFrom + ", availableUntil=" + availableUntil + "]";
 	}
 }
