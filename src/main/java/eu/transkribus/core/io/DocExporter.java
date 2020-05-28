@@ -67,6 +67,7 @@ import eu.transkribus.core.model.builder.tei.ATeiBuilder;
 import eu.transkribus.core.model.builder.tei.TeiExportPars;
 import eu.transkribus.core.model.builder.tei.TrpTeiStringBuilder;
 import eu.transkribus.core.model.builder.txt.TrpTxtBuilder;
+import eu.transkribus.core.model.builder.txt.TxtExporter;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.ImgUtils;
 import eu.transkribus.core.util.JaxbUtils;
@@ -79,6 +80,7 @@ public class DocExporter extends APassthroughObservable {
 	
 	private final ExportCache cache;
 	private final AltoExporter altoEx;
+	private final TxtExporter txtEx;
 	protected final IFimgStoreGetClient getter;
 	
 	protected CommonExportPars pars;
@@ -100,6 +102,7 @@ public class DocExporter extends APassthroughObservable {
 			this.cache = cache;
 		}
         altoEx = new AltoExporter();
+        txtEx = new TxtExporter();
         getter = getClient;
 	}
 	
@@ -392,7 +395,10 @@ public class DocExporter extends APassthroughObservable {
 			pages.set(i, exportedPage);
 		}
 		
-		if (pars.isDoWriteMets()) {
+		/*
+		 * reason for second check: if we only export txt files no Mets is necessary
+		 */
+		if (pars.isDoWriteMets() && (pars.isDoExportAltoXml()||pars.isDoExportPageXml()||pars.isDoWriteImages())) {
 			//load the exported doc from its new location
 			//FIXME this does not work for export of PAGE XMLs only!
 //			final TrpDoc localDoc = LocalDocReader.load(outputDir.getAbsolutePath(), false);
@@ -439,7 +445,7 @@ public class DocExporter extends APassthroughObservable {
 			imgOutputDir = rootOutputDir;
 		}
 		
-		File pageOutputDir = null, altoOutputDir = null;
+		File pageOutputDir = null, altoOutputDir = null, txtOutputDir = null;
 		
 		// check PAGE export settings and create output directory
 		String pageDirName = pars.getPageDirName();
@@ -459,7 +465,11 @@ public class DocExporter extends APassthroughObservable {
 		if (pars.isDoExportAltoXml()){
 			altoOutputDir = altoEx.createAltoOuputDir(rootOutputDir.getAbsolutePath());
 		}
-		outputDir = new OutputDirStructure(rootOutputDir, imgOutputDir, pageOutputDir, altoOutputDir);
+		// check TXT export settings and create output directory
+		if (pars.isDoExportSingleTxtFiles()){
+			txtOutputDir = txtEx.createTxtOuputDir(rootOutputDir.getAbsolutePath());
+		}
+		outputDir = new OutputDirStructure(rootOutputDir, imgOutputDir, pageOutputDir, altoOutputDir, txtOutputDir);
 	}
 
 	/**
@@ -544,13 +554,14 @@ public class DocExporter extends APassthroughObservable {
 		//create copy of TrpPage to not mess with the original object
 		TrpPage pageExport = new TrpPage(page);
 		
-		File imgFile = null, xmlFile = null, altoFile = null;
+		File imgFile = null, xmlFile = null, altoFile = null, txtFile = null;
 		
 		URL imgUrl = pageExport.getUrl(); 
 		
 		final String baseFileName;
 		final String imgExt = "." + FilenameUtils.getExtension(pageExport.getImgFileName());
 		final String xmlExt = ".xml";
+		final String txtExt = ".txt";
 		
 		// gather remote files and export document
 		if (!pageExport.isLocalFile()) {
@@ -670,6 +681,10 @@ public class DocExporter extends APassthroughObservable {
 		if (pars.isDoExportAltoXml()) {
 			altoFile = altoEx.exportAltoFile(pageExport, baseFileName + xmlExt, outputDir.getAltoOutputDir(), pars.isSplitIntoWordsInAltoXml(), pars.isWriteTextOnWordLevel());
 		}
+		// export single txt files:
+		if (pars.isDoExportSingleTxtFiles()) {
+			txtFile = txtEx.exportTxtFile(pageExport, baseFileName + txtExt, outputDir.getTxtOutputDir());
+		}
 		
 		/**
 		 * FIXME please resolve parent of image file in places where this URL is used as all exported pages miss the image URL which is 
@@ -783,13 +798,14 @@ public class DocExporter extends APassthroughObservable {
 	}
 		
 	protected static class OutputDirStructure {
-		final File rootOutputDir, imgOutputDir, pageOutputDir, altoOutputDir;
+		final File rootOutputDir, imgOutputDir, pageOutputDir, altoOutputDir, txtOutputDir;
 		
-		public OutputDirStructure(File rootOutputDir, File imgOutputDir, File pageOutputDir, File altoOutputDir) {
+		public OutputDirStructure(File rootOutputDir, File imgOutputDir, File pageOutputDir, File altoOutputDir, File txtOutputDir) {
 			this.rootOutputDir = rootOutputDir;
 			this.imgOutputDir = imgOutputDir;
 			this.pageOutputDir = pageOutputDir;
 			this.altoOutputDir = altoOutputDir;
+			this.txtOutputDir = txtOutputDir;
 		}
 
 		public File getRootOutputDir() {
@@ -806,6 +822,10 @@ public class DocExporter extends APassthroughObservable {
 
 		public File getAltoOutputDir() {
 			return altoOutputDir;
+		}
+		
+		public File getTxtOutputDir() {
+			return txtOutputDir;
 		}
 	}
 

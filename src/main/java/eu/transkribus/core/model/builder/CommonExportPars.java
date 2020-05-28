@@ -35,10 +35,11 @@ public class CommonExportPars {
 	boolean doWriteImages=true;
 	boolean doExportPageXml=true; 
 	boolean doExportAltoXml=true;
+	boolean doExportSingleTxtFiles=false;
 	boolean doWritePdf=false;
 	boolean doWriteTei=false;
 	boolean doWriteDocx=false;
-	boolean doWriteTxt=false;
+	boolean doWriteOneTxt=false;
 	boolean doWriteTagsXlsx = false;
 	boolean doWriteTagsIob = false;
 	boolean doWriteTablesXlsx = false;
@@ -73,19 +74,19 @@ public class CommonExportPars {
 	public CommonExportPars() {
 	}
 	
-	//TODO: for backward compatibility - old export document job, delete when replaced
-	public CommonExportPars(String pages, boolean doWriteMets, boolean doWriteImages, boolean doExportPageXml,
-			boolean doExportAltoXml, boolean doWritePdf, boolean doWriteTei, boolean doWriteDocx, 
-			boolean doWriteTxt, boolean doWriteTagsXlsx, boolean doWriteTagsIob, boolean doWriteTablesXlsx,
-			boolean doCreateTitle, String useVersionStatus, boolean writeTextOnWordLevel, 
-			boolean doBlackening, Set<String> selectedTags) {
-		
-		this(pages, doWriteMets, doWriteImages, doExportPageXml, doExportAltoXml, doWritePdf, doWriteTei, doWriteDocx, 
-				doWriteTxt, doWriteTagsXlsx, doWriteTablesXlsx, doWriteTagsIob, doCreateTitle, useVersionStatus, writeTextOnWordLevel, doBlackening, null, null);
-	}
+//	//TODO: for backward compatibility - old export document job, delete when replaced
+//	public CommonExportPars(String pages, boolean doWriteMets, boolean doWriteImages, boolean doExportPageXml,
+//			boolean doExportAltoXml, boolean doWritePdf, boolean doWriteTei, boolean doWriteDocx, 
+//			boolean doWriteTxt, boolean doWriteTagsXlsx, boolean doWriteTagsIob, boolean doWriteTablesXlsx,
+//			boolean doCreateTitle, String useVersionStatus, boolean writeTextOnWordLevel, 
+//			boolean doBlackening, Set<String> selectedTags) {
+//		
+//		this(pages, doWriteMets, doWriteImages, doExportPageXml, doExportAltoXml, false, doWritePdf, doWriteTei, doWriteDocx, 
+//				doWriteTxt, doWriteTagsXlsx, doWriteTablesXlsx, doWriteTagsIob, doCreateTitle, useVersionStatus, writeTextOnWordLevel, doBlackening, null, null);
+//	}
 
 	public CommonExportPars(String pages, boolean doWriteMets, boolean doWriteImages, boolean doExportPageXml,
-			boolean doExportAltoXml, boolean doWritePdf, boolean doWriteTei, boolean doWriteDocx, 
+			boolean doExportAltoXml, boolean doExportSingleTxtFiles, boolean doWritePdf, boolean doWriteTei, boolean doWriteDocx, 
 			boolean doWriteTxt, boolean doWriteTagsXlsx,boolean doWriteTagsIob, boolean doWriteTablesXlsx,
 			boolean doCreateTitle, String useVersionStatus, boolean writeTextOnWordLevel, 
 			boolean doBlackening, Set<String> selectedTags, String font) {
@@ -95,10 +96,11 @@ public class CommonExportPars {
 		this.doWriteImages = doWriteImages;
 		this.doExportPageXml = doExportPageXml;
 		this.doExportAltoXml = doExportAltoXml;
+		this.doExportSingleTxtFiles = doExportSingleTxtFiles;
 		this.doWritePdf = doWritePdf;
 		this.doWriteTei = doWriteTei;
 		this.doWriteDocx = doWriteDocx;
-		this.doWriteTxt = doWriteTxt;
+		this.doWriteOneTxt = doWriteTxt;
 		this.doWriteTagsXlsx = doWriteTagsXlsx;
 		this.doWriteTagsIob = doWriteTagsIob;
 		this.doWriteTablesXlsx = doWriteTablesXlsx;
@@ -240,6 +242,14 @@ public class CommonExportPars {
 		this.doExportAltoXml = doExportAltoXml;
 	}
 
+	public boolean isDoExportSingleTxtFiles() {
+		return doExportSingleTxtFiles;
+	}
+
+	public void setDoExportSingleTxtFiles(boolean doExportSingleTxtFiles) {
+		this.doExportSingleTxtFiles = doExportSingleTxtFiles;
+	}
+
 	public boolean isDoWritePdf() {
 		return doWritePdf;
 	}
@@ -265,11 +275,11 @@ public class CommonExportPars {
 	}
 
 	public boolean isDoWriteTxt() {
-		return doWriteTxt;
+		return doWriteOneTxt;
 	}
 
 	public void setDoWriteTxt(boolean doWriteTxt) {
-		this.doWriteTxt = doWriteTxt;
+		this.doWriteOneTxt = doWriteTxt;
 	}
 
 	public boolean isDoCreateTitle() {
@@ -389,7 +399,7 @@ public class CommonExportPars {
 	 * export only images - that means we do not load the transcripts during export and save time
 	 */
 	public boolean exportImagesOnly(){
-		return (isDoWriteMets() && doWriteImages && !doExportAltoXml && !doExportPageXml && 
+		return (isDoWriteMets() && doWriteImages && !doExportAltoXml && !doExportPageXml && !doExportSingleTxtFiles &&
 				!(isDoWritePdf() || isDoWriteDocx() || isDoWriteTxt() || isDoWriteTagsXlsx() || isDoWriteTei() || isDoWriteTablesXlsx()));
 		
 	}
@@ -397,8 +407,8 @@ public class CommonExportPars {
 	@Override
 	public String toString() {
 		return "CommonExportPars [pages=" + pages + ", doWriteMets=" + doWriteMets + ", doWriteImages=" + doWriteImages
-				+ ", doExportPageXml=" + doExportPageXml + ", doExportAltoXml=" + doExportAltoXml + ", doWritePdf="
-				+ doWritePdf + ", doWriteTei=" + doWriteTei + ", doWriteDocx=" + doWriteDocx + ", doWriteTagsXlsx="
+				+ ", doExportPageXml=" + doExportPageXml + ", doExportAltoXml=" + doExportAltoXml + ", doExportSingleTxtFiles=" + doExportSingleTxtFiles
+				+ ", doWritePdf=" + doWritePdf + ", doWriteTei=" + doWriteTei + ", doWriteDocx=" + doWriteDocx + ", doWriteTagsXlsx="
 				+ doWriteTagsXlsx + ", doWriteTagsIob="+doWriteTagsIob+", doWriteTablesXlsx=" + doWriteTablesXlsx + ", doCreateTitle=" + doCreateTitle
 				+ ", useVersionStatus=" + useVersionStatus + ", writeTextOnWordLevel=" + writeTextOnWordLevel
 				+ ", doBlackening=" + doBlackening + ", selectedTags=" + selectedTags + ", dir=" + dir
@@ -445,6 +455,7 @@ public class CommonExportPars {
 		result = prime * result + (doBlackening ? 1231 : 1237);
 		result = prime * result + (doCreateTitle ? 1231 : 1237);
 		result = prime * result + (doExportAltoXml ? 1231 : 1237);
+		result = prime * result + (doExportSingleTxtFiles ? 1231 : 1237);
 		result = prime * result + (doExportPageXml ? 1231 : 1237);
 		result = prime * result + (doOverwrite ? 1231 : 1237);
 		result = prime * result + (doWriteDocx ? 1231 : 1237);
@@ -454,7 +465,7 @@ public class CommonExportPars {
 		result = prime * result + (doWriteTablesXlsx ? 1231 : 1237);
 		result = prime * result + (doWriteTagsXlsx ? 1231 : 1237);
 		result = prime * result + (doWriteTei ? 1231 : 1237);
-		result = prime * result + (doWriteTxt ? 1231 : 1237);
+		result = prime * result + (doWriteOneTxt ? 1231 : 1237);
 		result = prime * result + (exportTranscriptMetadata ? 1231 : 1237);
 		result = prime * result + ((fileNamePattern == null) ? 0 : fileNamePattern.hashCode());
 		result = prime * result + ((font == null) ? 0 : font.hashCode());
@@ -495,6 +506,8 @@ public class CommonExportPars {
 			return false;
 		if (doExportPageXml != other.doExportPageXml)
 			return false;
+		if (doExportSingleTxtFiles != other.doExportSingleTxtFiles)
+			return false;
 		if (doOverwrite != other.doOverwrite)
 			return false;
 		if (doWriteDocx != other.doWriteDocx)
@@ -513,7 +526,7 @@ public class CommonExportPars {
 			return false;
 		if (doWriteTei != other.doWriteTei)
 			return false;
-		if (doWriteTxt != other.doWriteTxt)
+		if (doWriteOneTxt != other.doWriteOneTxt)
 			return false;
 		if (exportTranscriptMetadata != other.exportTranscriptMetadata)
 			return false;

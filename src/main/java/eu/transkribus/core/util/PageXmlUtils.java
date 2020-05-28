@@ -1673,6 +1673,38 @@ public class PageXmlUtils {
 		return newCreator;
 	}
 	
+	public static void applyStructureTypesByOverlap(PcGtsType pc, PcGtsType structTypePc, boolean labelRegions, boolean labelLines, boolean labelWords) {
+		TrpPageType page = (TrpPageType) pc.getPage();
+		TrpPageType pageStruct = (TrpPageType) structTypePc.getPage();
+		
+		for (ITrpShapeType st : page.getAllShapes(true)) {
+			double maxOverLap = -1;
+			String structType = null;
+						
+			for (TrpTextRegionType tr : pageStruct.getTextRegions(true)) {
+				if (StringUtils.isEmpty(tr.getStructure())) {
+					continue;
+				}
+				
+				try {
+					double overlap = PointStrUtils.getPolygonIntersectionArea(st.getCoordinates(), tr.getCoordinates());
+					if (overlap > maxOverLap) {
+						maxOverLap = overlap;
+						structType = tr.getStructure();
+					}
+				} catch (Exception e) {
+					logger.error("Error computing intersection area between polygons: "+e.getMessage(), e);
+				}
+			}
+
+			logger.debug("structType = "+structType+", st = "+st);
+			if (structType != null && ((st instanceof TrpRegionType && labelRegions) || (st instanceof TrpTextLineType && labelLines) || (st instanceof TrpWordType && labelWords))) {
+				logger.debug("found matching structure type for shape: "+structType);
+				st.setStructure(structType, false, null);
+			}
+		}
+	}
+	
 	public static void main(String[] args) throws Exception {
 		PageXmlFileProcessor p = PageXmlUtils.rectifyAllRegions(new PageXmlFileProcessor("https://files.transkribus.eu/Get?id=XTQBSHYLZUPUGOMECBOAVDDA"));
 		
