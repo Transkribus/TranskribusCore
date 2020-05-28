@@ -74,16 +74,16 @@ public class CommonExportPars {
 	public CommonExportPars() {
 	}
 	
-	//TODO: for backward compatibility - old export document job, delete when replaced
-	public CommonExportPars(String pages, boolean doWriteMets, boolean doWriteImages, boolean doExportPageXml,
-			boolean doExportAltoXml, boolean doWritePdf, boolean doWriteTei, boolean doWriteDocx, 
-			boolean doWriteTxt, boolean doWriteTagsXlsx, boolean doWriteTagsIob, boolean doWriteTablesXlsx,
-			boolean doCreateTitle, String useVersionStatus, boolean writeTextOnWordLevel, 
-			boolean doBlackening, Set<String> selectedTags) {
-		
-		this(pages, doWriteMets, doWriteImages, doExportPageXml, doExportAltoXml, false, doWritePdf, doWriteTei, doWriteDocx, 
-				doWriteTxt, doWriteTagsXlsx, doWriteTablesXlsx, doWriteTagsIob, doCreateTitle, useVersionStatus, writeTextOnWordLevel, doBlackening, null, null);
-	}
+//	//TODO: for backward compatibility - old export document job, delete when replaced
+//	public CommonExportPars(String pages, boolean doWriteMets, boolean doWriteImages, boolean doExportPageXml,
+//			boolean doExportAltoXml, boolean doWritePdf, boolean doWriteTei, boolean doWriteDocx, 
+//			boolean doWriteTxt, boolean doWriteTagsXlsx, boolean doWriteTagsIob, boolean doWriteTablesXlsx,
+//			boolean doCreateTitle, String useVersionStatus, boolean writeTextOnWordLevel, 
+//			boolean doBlackening, Set<String> selectedTags) {
+//		
+//		this(pages, doWriteMets, doWriteImages, doExportPageXml, doExportAltoXml, false, doWritePdf, doWriteTei, doWriteDocx, 
+//				doWriteTxt, doWriteTagsXlsx, doWriteTablesXlsx, doWriteTagsIob, doCreateTitle, useVersionStatus, writeTextOnWordLevel, doBlackening, null, null);
+//	}
 
 	public CommonExportPars(String pages, boolean doWriteMets, boolean doWriteImages, boolean doExportPageXml,
 			boolean doExportAltoXml, boolean doExportSingleTxtFiles, boolean doWritePdf, boolean doWriteTei, boolean doWriteDocx, 
