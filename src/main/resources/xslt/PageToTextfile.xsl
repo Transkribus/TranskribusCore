@@ -11,14 +11,7 @@
             <xsl:variable name="lineString">
                 <xsl:value-of select="./TextEquiv/Unicode/text()"/>
             </xsl:variable>
-            <xsl:choose>
-                <xsl:when test="ends-with($lineString, '¬')">
-                    <xsl:value-of select="replace($lineString,'¬','=')"></xsl:value-of>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:value-of select="$lineString"></xsl:value-of>   
-                </xsl:otherwise>
-            </xsl:choose>
+            <xsl:value-of select="replace($lineString, '(^.*)[&#x00AC;|&#x002D;|&#x2212;|&#x201E;|&#x003D;]$', '$1&#x2010;')" />
             <xsl:text>&#xa;</xsl:text>
         </xsl:for-each>
     </xsl:template>
