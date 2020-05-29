@@ -265,8 +265,9 @@ public class TrpPdfDocument extends APdfDocument {
 //		byte[] imageBytes = baos.toByteArray();
 //		Image img = Image.getInstance(imageBytes);
 		
+		
 		//direct access instead of the version above
-		Image img = Image.getInstance(imgUrl);
+		Image img = Image.getInstance(imgBuffer, null);
 		
 		//baos.close();
 		imgBuffer.flush();
@@ -282,11 +283,6 @@ public class TrpPdfDocument extends APdfDocument {
 			img.setDpi((int)resolutionX, (int)resolutionY);
 		}
 		
-
-//		else{
-//		
-//		 Image img = Image.getInstance(imgUrl);
-//		}
 		int cutoffLeft=0;
 		int cutoffTop=0;
 		
