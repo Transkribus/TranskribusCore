@@ -279,8 +279,24 @@ public class TrpPdfDocument extends APdfDocument {
 		if(md != null){
 			double resolutionX = (float) md.getxResolution();
 			double resolutionY = (float) md.getyResolution();
-			//logger.debug("Dpi: " + md.getXResolution());
-			img.setDpi((int)resolutionX, (int)resolutionY);
+			
+			
+			/*
+			 * sometimes images have set a totally huge (most probably wrong) dpi - here we correct this automatically
+			 * the 'aksossimon' bug
+			 */
+			
+			if(resolutionX > 666){
+				logger.debug("Dpi seems to be too big: " + md.getxResolution());
+				img.setDpi(300, 300);
+			}
+			else{
+				img.setDpi((int)resolutionX, (int)resolutionY);
+			}
+			
+		}
+		else{
+			logger.debug("md is null ");
 		}
 		
 		int cutoffLeft=0;
@@ -298,9 +314,10 @@ public class TrpPdfDocument extends APdfDocument {
 //			logger.debug("Vertical size in cm: img.getPlainHeight() / (img.getDpiY()/2,54): " + img.getPlainHeight() / (img.getDpiY()/2.54));
 			
 			
-
+			//logger.debug("printspace is null ");
 			setPageSize(img);
 		} else {
+			//logger.debug("printspace.getWidth " + printspace.getWidth());
 			int width=(int)printspace.getWidth();
 			int height=(int)printspace.getHeight();
 			setPageSize(new com.itextpdf.text.Rectangle(width, height));
@@ -310,16 +327,16 @@ public class TrpPdfDocument extends APdfDocument {
 		
 		float xSize;
 		float ySize;
-		
-		//FimgStoreImgMd imgMd = storage.getImageMetadata();
-		
+			
 
-		
 		/*
+		 * 
 		 * calculate size of image with respect to Dpi of the image and the default points of PDF which is 72
 		 * PDF also uses the same basic measurement unit as PostScript: 72 points == 1 inch
 		 */
 		if (img.getDpiX() > 72f){
+//			logger.debug("img.getDpiX() > 72f, img.getPlainWidth(); " + img.getPlainWidth());
+//			logger.debug("img.getDpiX(); " + img.getDpiX());
 			 xSize = (float) (img.getPlainWidth() / img.getDpiX()*72);
 			 ySize = (float) (img.getPlainHeight() / img.getDpiY()*72);
 			 scaleFactorX = scaleFactorY = (float) (72f / img.getDpiX());
