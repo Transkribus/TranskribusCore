@@ -37,13 +37,16 @@ public class TrpTokenTransaction {
 	 * Positive or negative "token" value of this transaction.
 	 */
 	@Column(name = "TOKEN_VALUE")
-	private int tokenValue;
+	private double tokenValue;
+	
+	@Column(name = "COST_FACTOR")
+	private Double costFactor;
 	
 	@Column(name = "NR_OF_PAGES")
-	private Integer nrOfPages;
+	private Double nrOfPages;
 
 	@Column(name = "CREDIT_BALANCE")
-	private int creditBalance;
+	private double creditBalance;
 	
 	@Column(name = "DESCRIPTION")
 	private String description;
@@ -57,6 +60,7 @@ public class TrpTokenTransaction {
 		this.creditId = other.creditId;
 		this.time = other.time;
 		this.tokenValue = other.tokenValue;
+		this.costFactor = other.costFactor;
 		this.nrOfPages = other.nrOfPages;
 		this.creditBalance = other.creditBalance;
 		this.description = other.description;
@@ -94,27 +98,35 @@ public class TrpTokenTransaction {
 		this.time = time;
 	}
 
-	public int getTokenValue() {
+	public double getTokenValue() {
 		return tokenValue;
 	}
 
-	public void setTokenValue(int tokenValue) {
+	public void setTokenValue(double tokenValue) {
 		this.tokenValue = tokenValue;
 	}
 	
-	public Integer getNrOfPages() {
+	public Double getCostFactor() {
+		return costFactor;
+	}
+	
+	public void setCostFactor(Double costFactor) {
+		this.costFactor = costFactor;
+	}
+	
+	public Double getNrOfPages() {
 		return nrOfPages;
 	}
 	
-	public void setNrOfPages(Integer nrOfPages) {
+	public void setNrOfPages(Double nrOfPages) {
 		this.nrOfPages = nrOfPages;
 	}
 
-	public int getCreditBalance() {
+	public double getCreditBalance() {
 		return creditBalance;
 	}
 
-	public void setCreditBalance(int creditBalance) {
+	public void setCreditBalance(double creditBalance) {
 		this.creditBalance = creditBalance;
 	}
 	
@@ -126,24 +138,23 @@ public class TrpTokenTransaction {
 		this.description = description;
 	}
 	
-	@Override
-	public String toString() {
-		return "TrpTokenTransaction [transactionId=" + transactionId + ", jobId=" + jobId + ", creditId=" + creditId
-				+ ", time=" + time + ", tokenValue=" + tokenValue + ", nrOfPages=" + nrOfPages + ", creditBalance="
-				+ creditBalance + ", description=" + description + "]";
-	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + creditBalance;
+		long temp;
+		temp = Double.doubleToLongBits(costFactor);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(creditBalance);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + creditId;
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((jobId == null) ? 0 : jobId.hashCode());
 		result = prime * result + ((nrOfPages == null) ? 0 : nrOfPages.hashCode());
 		result = prime * result + ((time == null) ? 0 : time.hashCode());
-		result = prime * result + tokenValue;
+		temp = Double.doubleToLongBits(tokenValue);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + transactionId;
 		return result;
 	}
@@ -157,7 +168,9 @@ public class TrpTokenTransaction {
 		if (getClass() != obj.getClass())
 			return false;
 		TrpTokenTransaction other = (TrpTokenTransaction) obj;
-		if (creditBalance != other.creditBalance)
+		if (Double.doubleToLongBits(costFactor) != Double.doubleToLongBits(other.costFactor))
+			return false;
+		if (Double.doubleToLongBits(creditBalance) != Double.doubleToLongBits(other.creditBalance))
 			return false;
 		if (creditId != other.creditId)
 			return false;
@@ -181,10 +194,17 @@ public class TrpTokenTransaction {
 				return false;
 		} else if (!time.equals(other.time))
 			return false;
-		if (tokenValue != other.tokenValue)
+		if (Double.doubleToLongBits(tokenValue) != Double.doubleToLongBits(other.tokenValue))
 			return false;
 		if (transactionId != other.transactionId)
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "TrpTokenTransaction [transactionId=" + transactionId + ", jobId=" + jobId + ", creditId=" + creditId
+				+ ", time=" + time + ", tokenValue=" + tokenValue + ", costFactor=" + costFactor + ", nrOfPages=" + nrOfPages + ", creditBalance="
+				+ creditBalance + ", description=" + description + "]";
 	}
 }

@@ -33,7 +33,7 @@ public class TrpTokenCreditSerializationTest {
 		
 		TrpTokenCredit c = new TrpTokenCredit();
 		c.setActive(true);
-		c.setBalance(1543);
+		c.setBalance(1543d);
 		c.setExpirationDate(new Date());
 		c.setPaymentReceived(new Date());
 		c.setPurchaseDate(new Date());
