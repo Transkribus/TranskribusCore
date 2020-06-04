@@ -1,6 +1,7 @@
 package eu.transkribus.core.model.beans;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -32,6 +33,18 @@ public class TrpJobImplRegistry {
 	
 	@Column(name="job_type")
 	private String jobType;
+	
+	@Column
+	@Transient
+	private Integer costsId;
+	
+	@Column
+	@Transient
+	private Double costFactor;
+	
+	@Column
+	@Transient
+	private Date costDate;
 	
 	@Column
 	@XmlTransient
@@ -86,6 +99,30 @@ public class TrpJobImplRegistry {
 		this.jobType = jobType;
 	}
 	
+	public Integer getCostsId() {
+		return costsId;
+	}
+
+	public void setCostsId(Integer costsId) {
+		this.costsId = costsId;
+	}
+	
+	public Double getCostFactor() {
+		return costFactor;
+	}
+
+	public void setCostFactor(Double costFactor) {
+		this.costFactor = costFactor;
+	}
+
+	public Date getCostDate() {
+		return costDate;
+	}
+
+	public void setCostDate(Date costDate) {
+		this.costDate = costDate;
+	}
+
 	/**
 	 * Use the method from the DAO to check the relation table instead of selecting all objects and checking each one for allowance.
 	 * 
@@ -115,7 +152,7 @@ public class TrpJobImplRegistry {
 	@Override
 	public String toString() {
 		return "TrpJobImplRegistry [jobImplRegistryId=" + jobImplRegistryId + ", jobImpl=" + jobImpl + ", jobTasks="
-				+ jobTasks + ", jobType=" + jobType + ", users=" + users + "]";
+				+ jobTasks + ", jobType=" + jobType + ", costsId=" + costsId + ", costFactor=" + costFactor 
+				+ ", costDate=" + costDate + ", users=" + users + "]";
 	}
-
 }
