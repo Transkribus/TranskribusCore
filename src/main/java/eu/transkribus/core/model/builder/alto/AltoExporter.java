@@ -36,6 +36,8 @@ public class AltoExporter extends Observable {
 	private static final Logger logger = LoggerFactory.getLogger(AltoExporter.class);
 	
 	private static final String PAGE_TO_ALTO_WORD_LEVEL_XSLT = "xslt/PageToAltoWordLevel.xsl";
+	//not used anymore
+	@Deprecated
 	private static final String PAGE_TO_ALTO_XSLT = "xslt/PageToAlto.xsl";
 	
 	public AltoExporter(){}
