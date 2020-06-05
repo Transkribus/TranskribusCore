@@ -15,10 +15,10 @@ import javax.xml.bind.annotation.XmlRootElement;
  * this transaction.
  */
 @Entity
-@Table(name = "TOKEN_TRANSACTIONS")
+@Table(name = "CREDIT_TRANSACTIONS")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpTokenTransaction {
+public class TrpCreditTransaction {
 
 	@Id
 	@Column(name = "TRANSACTION_ID")
@@ -27,8 +27,8 @@ public class TrpTokenTransaction {
 	@Column(name = "JOBID")
 	private Integer jobId;
 
-	@Column(name = "CREDIT_ID")
-	private int creditId;
+	@Column(name = "PACKAGE_ID")
+	private int packageId;
 
 	@Column(name = "TIME")
 	private Date time;
@@ -36,8 +36,8 @@ public class TrpTokenTransaction {
 	/**
 	 * Positive or negative "token" value of this transaction.
 	 */
-	@Column(name = "TOKEN_VALUE")
-	private double tokenValue;
+	@Column(name = "CREDIT_VALUE")
+	private double creditValue;
 	
 	@Column(name = "COST_FACTOR")
 	private Double costFactor;
@@ -51,15 +51,15 @@ public class TrpTokenTransaction {
 	@Column(name = "DESCRIPTION")
 	private String description;
 	
-	public TrpTokenTransaction() {}
+	public TrpCreditTransaction() {}
 
-	public TrpTokenTransaction(TrpTokenTransaction other) {
+	public TrpCreditTransaction(TrpCreditTransaction other) {
 		this();
 		this.transactionId = other.transactionId;
 		this.jobId = other.jobId;
-		this.creditId = other.creditId;
+		this.packageId = other.packageId;
 		this.time = other.time;
-		this.tokenValue = other.tokenValue;
+		this.creditValue = other.creditValue;
 		this.costFactor = other.costFactor;
 		this.nrOfPages = other.nrOfPages;
 		this.creditBalance = other.creditBalance;
@@ -82,12 +82,12 @@ public class TrpTokenTransaction {
 		this.jobId = jobId;
 	}
 
-	public int getCreditId() {
-		return creditId;
+	public int getPackageId() {
+		return packageId;
 	}
 
-	public void setCreditId(int creditId) {
-		this.creditId = creditId;
+	public void setPackageId(int packageId) {
+		this.packageId = packageId;
 	}
 
 	public Date getTime() {
@@ -98,12 +98,12 @@ public class TrpTokenTransaction {
 		this.time = time;
 	}
 
-	public double getTokenValue() {
-		return tokenValue;
+	public double getCreditValue() {
+		return creditValue;
 	}
 
-	public void setTokenValue(double tokenValue) {
-		this.tokenValue = tokenValue;
+	public void setCreditValue(double creditValue) {
+		this.creditValue = creditValue;
 	}
 	
 	public Double getCostFactor() {
@@ -148,12 +148,12 @@ public class TrpTokenTransaction {
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(creditBalance);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + creditId;
+		result = prime * result + packageId;
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((jobId == null) ? 0 : jobId.hashCode());
 		result = prime * result + ((nrOfPages == null) ? 0 : nrOfPages.hashCode());
 		result = prime * result + ((time == null) ? 0 : time.hashCode());
-		temp = Double.doubleToLongBits(tokenValue);
+		temp = Double.doubleToLongBits(creditValue);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + transactionId;
 		return result;
@@ -167,12 +167,12 @@ public class TrpTokenTransaction {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TrpTokenTransaction other = (TrpTokenTransaction) obj;
+		TrpCreditTransaction other = (TrpCreditTransaction) obj;
 		if (Double.doubleToLongBits(costFactor) != Double.doubleToLongBits(other.costFactor))
 			return false;
 		if (Double.doubleToLongBits(creditBalance) != Double.doubleToLongBits(other.creditBalance))
 			return false;
-		if (creditId != other.creditId)
+		if (packageId != other.packageId)
 			return false;
 		if (description == null) {
 			if (other.description != null)
@@ -194,7 +194,7 @@ public class TrpTokenTransaction {
 				return false;
 		} else if (!time.equals(other.time))
 			return false;
-		if (Double.doubleToLongBits(tokenValue) != Double.doubleToLongBits(other.tokenValue))
+		if (Double.doubleToLongBits(creditValue) != Double.doubleToLongBits(other.creditValue))
 			return false;
 		if (transactionId != other.transactionId)
 			return false;
@@ -203,8 +203,8 @@ public class TrpTokenTransaction {
 
 	@Override
 	public String toString() {
-		return "TrpTokenTransaction [transactionId=" + transactionId + ", jobId=" + jobId + ", creditId=" + creditId
-				+ ", time=" + time + ", tokenValue=" + tokenValue + ", costFactor=" + costFactor + ", nrOfPages=" + nrOfPages + ", creditBalance="
+		return "TrpCreditTransaction [transactionId=" + transactionId + ", jobId=" + jobId + ", packageId=" + packageId
+				+ ", time=" + time + ", creditValue=" + creditValue + ", costFactor=" + costFactor + ", nrOfPages=" + nrOfPages + ", creditBalance="
 				+ creditBalance + ", description=" + description + "]";
 	}
 }

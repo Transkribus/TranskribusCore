@@ -22,16 +22,16 @@ public class TrpTokenCreditSerializationTest {
 	
 	@Test
 	public void test() throws JAXBException, JsonProcessingException {
-		TrpTokenCreditProduct p = new TrpTokenCreditProduct();
+		TrpCreditProduct p = new TrpCreditProduct();
 		p.setAvailableFrom(new Date());
 		p.setAvailableUntil(new Date());
 		p.setCreditType("HTR");
 		p.setLabel("Test Product");
-		p.setNrOfTokens(1543);
+		p.setNrOfCredits(1543);
 		p.setShareable(true);
 		p.setSubscription("Monthly");
 		
-		TrpTokenCredit c = new TrpTokenCredit();
+		TrpCreditPackage c = new TrpCreditPackage();
 		c.setActive(true);
 		c.setBalance(1543d);
 		c.setExpirationDate(new Date());

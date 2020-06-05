@@ -7,19 +7,19 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
-import eu.transkribus.core.model.beans.TrpTokenCredit;
-import eu.transkribus.core.model.beans.TrpTokenCreditProduct;
+import eu.transkribus.core.model.beans.TrpCreditPackage;
+import eu.transkribus.core.model.beans.TrpCreditProduct;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlSeeAlso({TrpTokenCredit.class, TrpTokenCreditProduct.class})
-public class TrpTokenCreditList extends JaxbPaginatedList<TrpTokenCredit> {
+@XmlSeeAlso({TrpCreditPackage.class, TrpCreditProduct.class})
+public class TrpTokenCreditList extends JaxbPaginatedList<TrpCreditPackage> {
 
 	public TrpTokenCreditList() {
 		super();
 	}
 
-	public TrpTokenCreditList(List<TrpTokenCredit> list, int total, int index, int nValues, String sortColumnField,
+	public TrpTokenCreditList(List<TrpCreditPackage> list, int total, int index, int nValues, String sortColumnField,
 			String sortDirection) {
 		super(list, total, index, nValues, sortColumnField, sortDirection);
 	}

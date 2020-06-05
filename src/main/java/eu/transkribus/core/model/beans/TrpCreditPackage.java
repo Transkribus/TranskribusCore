@@ -12,14 +12,14 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @Entity
-@Table(name = "TOKEN_CREDITS")
+@Table(name = "CREDIT_PACKAGES")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpTokenCredit {
+public class TrpCreditPackage {
 	
 	@Id
-	@Column(name = "CREDIT_ID")
-	private int creditId;
+	@Column(name = "PACKAGE_ID")
+	private int packageId;
 
 	@Column(name = "PRODUCT_ID")
 	private Integer productId;
@@ -44,21 +44,21 @@ public class TrpTokenCredit {
 	 * TODO this might be obsolete now as we do not need to model this stuff in Transkribus...
 	 */
 	@Transient
-	private TrpTokenCreditProduct product;
+	private TrpCreditProduct product;
 	
 	@Column(name = "CREDIT_BALANCE")
 	@Transient
 	private Double balance;
 	
 
-	public TrpTokenCredit() {}
+	public TrpCreditPackage() {}
 	
-	public int getCreditId() {
-		return creditId;
+	public int getPackageId() {
+		return packageId;
 	}
 
-	public void setCreditId(int creditId) {
-		this.creditId = creditId;
+	public void setPackageId(int packageId) {
+		this.packageId = packageId;
 	}
 
 	public Integer getProductId() {
@@ -109,11 +109,11 @@ public class TrpTokenCredit {
 		this.userId = userId;
 	}
 
-	public TrpTokenCreditProduct getProduct() {
+	public TrpCreditProduct getProduct() {
 		return product;
 	}
 	
-	public void setProduct(TrpTokenCreditProduct product) {
+	public void setProduct(TrpCreditProduct product) {
 		this.product = product;
 	}
 	
@@ -127,7 +127,7 @@ public class TrpTokenCredit {
 	
 	public int getNrOfTokens() {
 		//delegate to product
-		return product.getNrOfTokens();
+		return product.getNrOfCredits();
 	}
 
 	@Override
@@ -135,7 +135,7 @@ public class TrpTokenCredit {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((balance == null) ? 0 : balance.hashCode());
-		result = prime * result + creditId;
+		result = prime * result + packageId;
 		result = prime * result + ((expirationDate == null) ? 0 : expirationDate.hashCode());
 		result = prime * result + (active ? 1231 : 1237);
 		result = prime * result + ((paymentReceived == null) ? 0 : paymentReceived.hashCode());
@@ -154,13 +154,13 @@ public class TrpTokenCredit {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TrpTokenCredit other = (TrpTokenCredit) obj;
+		TrpCreditPackage other = (TrpCreditPackage) obj;
 		if (balance == null) {
 			if (other.balance != null)
 				return false;
 		} else if (!balance.equals(other.balance))
 			return false;
-		if (creditId != other.creditId)
+		if (packageId != other.packageId)
 			return false;
 		if (expirationDate == null) {
 			if (other.expirationDate != null)
@@ -196,7 +196,7 @@ public class TrpTokenCredit {
 
 	@Override
 	public String toString() {
-		return "TrpTokenCredit [creditId=" + creditId + ", productId=" + productId + ", purchaseDate=" + purchaseDate
+		return "TrpCreditPackage [packageId=" + packageId + ", productId=" + productId + ", purchaseDate=" + purchaseDate
 				+ ", expirationDate=" + expirationDate + ", paymentReceived=" + paymentReceived + ", active="
 				+ active + ", userId=" + userId + ", product=" + product + ", balance=" + balance + "]";
 	}

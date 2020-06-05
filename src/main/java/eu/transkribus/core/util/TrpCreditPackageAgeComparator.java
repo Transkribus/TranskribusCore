@@ -5,16 +5,16 @@ import java.util.Comparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.transkribus.core.model.beans.TrpTokenCredit;
+import eu.transkribus.core.model.beans.TrpCreditPackage;
 
 /**
  * Compares TrpTokenCredit objects by purchaseDate. Older Credits are ranked first. purchaseDate null values are considered oldest.
  */
-public class TrpTokenCreditAgeComparator implements Comparator<TrpTokenCredit> {
-	private static final Logger logger = LoggerFactory.getLogger(TrpTokenCreditAgeComparator.class);
+public class TrpCreditPackageAgeComparator implements Comparator<TrpCreditPackage> {
+	private static final Logger logger = LoggerFactory.getLogger(TrpCreditPackageAgeComparator.class);
 	
 	@Override
-	public int compare(TrpTokenCredit o1, TrpTokenCredit o2) {
+	public int compare(TrpCreditPackage o1, TrpCreditPackage o2) {
 		//-1 => o1 is older
 		//0 => age is equal
 		//1 => o1 is younger

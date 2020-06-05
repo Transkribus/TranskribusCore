@@ -10,11 +10,15 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * A "Product" is the entity as shown in the web shop and defines the base attributes of a credit package. 
+ * Upon purchase an instance of a TrpCreditPackage is created and stored for the user, linking to the respective product.
+ */
 @Entity
-@Table(name = "TOKEN_CREDITS_PRODUCTS")
+@Table(name = "CREDIT_PRODUCTS")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TrpTokenCreditProduct {
+public class TrpCreditProduct {
 	
 	@Id
 	@Column(name = "PRODUCT_ID")
@@ -23,8 +27,8 @@ public class TrpTokenCreditProduct {
 	@Column(name = "CREDIT_TYPE")
 	private String creditType;
 	
-	@Column(name = "NR_OF_TOKENS")
-	private int nrOfTokens;
+	@Column(name = "NR_OF_CREDITS")
+	private int nrOfCredits;
 	
 	@Column(name = "LABEL")
 	private String label;
@@ -41,7 +45,7 @@ public class TrpTokenCreditProduct {
 	@Column(name = "AVAILABLE_UNTIL")
 	private Date availableUntil;
 
-	public TrpTokenCreditProduct() {}
+	public TrpCreditProduct() {}
 
 	public Integer getProductId() {
 		return productId;
@@ -59,12 +63,12 @@ public class TrpTokenCreditProduct {
 		this.creditType = creditType;
 	}
 	
-	public int getNrOfTokens() {
-		return nrOfTokens;
+	public int getNrOfCredits() {
+		return nrOfCredits;
 	}
 
-	public void setNrOfTokens(int nrOfTokens) {
-		this.nrOfTokens = nrOfTokens;
+	public void setNrOfCredits(int nrOfCredits) {
+		this.nrOfCredits = nrOfCredits;
 	}
 
 	public String getLabel() {
@@ -115,7 +119,7 @@ public class TrpTokenCreditProduct {
 		result = prime * result + ((availableUntil == null) ? 0 : availableUntil.hashCode());
 		result = prime * result + ((creditType == null) ? 0 : creditType.hashCode());
 		result = prime * result + ((label == null) ? 0 : label.hashCode());
-		result = prime * result + nrOfTokens;
+		result = prime * result + nrOfCredits;
 		result = prime * result + ((productId == null) ? 0 : productId.hashCode());
 		result = prime * result + ((shareable == null) ? 0 : shareable.hashCode());
 		result = prime * result + ((subscription == null) ? 0 : subscription.hashCode());
@@ -130,7 +134,7 @@ public class TrpTokenCreditProduct {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TrpTokenCreditProduct other = (TrpTokenCreditProduct) obj;
+		TrpCreditProduct other = (TrpCreditProduct) obj;
 		if (availableFrom == null) {
 			if (other.availableFrom != null)
 				return false;
@@ -151,7 +155,7 @@ public class TrpTokenCreditProduct {
 				return false;
 		} else if (!label.equals(other.label))
 			return false;
-		if (nrOfTokens != other.nrOfTokens)
+		if (nrOfCredits != other.nrOfCredits)
 			return false;
 		if (productId == null) {
 			if (other.productId != null)
@@ -173,8 +177,8 @@ public class TrpTokenCreditProduct {
 
 	@Override
 	public String toString() {
-		return "TrpTokenCreditProduct [productId=" + productId + ", creditType=" + creditType + ", nrOfTokens="
-				+ nrOfTokens + ", label=" + label + ", shareable=" + shareable + ", subscription=" + subscription
+		return "TrpCreditProduct [productId=" + productId + ", creditType=" + creditType + ", nrOfCredits="
+				+ nrOfCredits + ", label=" + label + ", shareable=" + shareable + ", subscription=" + subscription
 				+ ", availableFrom=" + availableFrom + ", availableUntil=" + availableUntil + "]";
 	}
 }
