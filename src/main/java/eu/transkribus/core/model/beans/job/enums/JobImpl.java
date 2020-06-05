@@ -74,6 +74,8 @@ public enum JobImpl {
 	CITlabKwsJob(JobTask.Kws, "CITlab " + JobTask.Kws.getLabel(), "CITlabKwsJob", null),
 	
 	CITlabClusterRecognitionJob(JobTask.Htr, "CITlab Cluster Recognition", "CITlabClusterRecognition", null),
+
+	DocUnderstandingDecodeJob(JobTask.Htr, "DU Decoding", "DocUnderstandingDecodeJob", null),
 	
 	//for testing
 	DummyJob(JobTask.CreateDocument, "Dummy Job", "DummyJob", null),

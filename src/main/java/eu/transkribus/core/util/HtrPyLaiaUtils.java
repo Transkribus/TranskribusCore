@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -44,6 +45,31 @@ public class HtrPyLaiaUtils {
 	
 	public static final String[] CHECKPOINT_PREFIXES = { CHECKPOINT_PREFIX_LATEST, CHECKPOINT_PREFIX_BEST_CER, CHECKPOINT_PREFIX_BEST_WER };
 	
+	public static void removeOldCheckpoints(File modelDir, int nKeep) {
+		logger.debug("removing old checkpoints from "+modelDir+", nKeep = "+nKeep);
+		int c=0;
+		for (String prefix : CHECKPOINT_PREFIXES) {
+			List<File> ckpts = listCheckpoints(modelDir, prefix);
+			ckpts.sort(new Comparator<File>() {
+				@Override
+				public int compare(File o1, File o2) {
+					int e1 = getEpochFromCheckpointFile2(o1);
+					int e2 = getEpochFromCheckpointFile2(o2);
+					return Integer.compare(e1, e2);
+				}
+			});
+			if (ckpts.size() > nKeep) {
+				for (int i=0; i<ckpts.size()-nKeep; ++i) {
+					File f = ckpts.get(i);
+					logger.debug("deleting old checkpoint file: "+f.getName());
+					f.delete();
+					++c;
+				}
+			}
+		}
+		logger.debug("deleting "+c+" old checkpoints!");
+	}
+	
 	public static String getCheckpointParameter(File modelDir, String preferred, boolean forTraining) throws IOException {
 		String p = getCheckpointPrefix(modelDir, preferred);
 		
@@ -55,6 +81,18 @@ public class HtrPyLaiaUtils {
 		List<File> ckpts = listCheckpoints(modelDir, p);
 		Collections.sort(ckpts);
 		File f = ckpts.get(ckpts.size()-1);
+		return getEpochFromCheckpointFile(f);
+	}
+	
+	public static int getEpochFromCheckpointFile2(File f) {
+		try {
+			return getEpochFromCheckpointFile(f);
+		} catch (IOException e) {
+			return -1;
+		}
+	}
+	
+	public static int getEpochFromCheckpointFile(File f) throws IOException {
 		String epochStr = f.getName().substring(f.getName().lastIndexOf("-")+1);
 		try {
 			return Integer.parseInt(epochStr);

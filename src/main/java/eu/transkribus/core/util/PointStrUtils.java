@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import math.geom2d.Point2D;
+import math.geom2d.polygon.Polygon2D;
+import math.geom2d.polygon.Polygons2D;
 import math.geom2d.polygon.SimplePolygon2D;
 
 public class PointStrUtils {
@@ -309,6 +311,14 @@ public class PointStrUtils {
 	
 	public static String getBoundsPointStr(String pointsStr) {
 		return PointStrUtils.pointsToString(PointStrUtils.buildPolygon(pointsStr).getBounds());
+	}
+	
+	public static double getPolygonIntersectionArea(String coords1, String coords2) {
+		List<Point2D> p1 = PointStrUtils.buildPoints2DList(coords1);
+		List<Point2D> p2 = PointStrUtils.buildPoints2DList(coords2);
+		
+		Polygon2D i = Polygons2D.intersection(SimplePolygon2D.create(p1), SimplePolygon2D.create(p2));
+		return i==null ? 0 : i.area();
 	}
 	
 	public static void main(String[] args) {

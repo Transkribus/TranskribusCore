@@ -500,9 +500,9 @@ public class TrpHtr {
 	public String toString() {
 		return "TrpHtr [htrId=" + htrId + ", name=" + name + ", description=" + description + ", provider=" + provider
 				+ ", path=" + path + ", created=" + created + ", gtDocId=" + gtDocId + ", testGtDocId=" + testGtDocId
-				+ ", language=" + language + ", baseHtrId=" + baseHtrId + ", trainJobId=" + trainJobId + ", cerString="
-				+ cerString + ", cerTestString=" + cerTestString + ", charList=" + charList + ", charSetString="
-				+ charSetString + ", bestNetStored=" + bestNetStored + ", languageModelExists=" + languageModelExists
+				+ ", language=" + language + ", baseHtrId=" + baseHtrId + ", trainJobId=" + trainJobId 
+//				+ ", cerString="+ cerString + ", cerTestString=" + cerTestString + ", charList=" + charList + ", charSetString="+ charSetString // produces very long output!! 
+				+ ", bestNetStored=" + bestNetStored + ", languageModelExists=" + languageModelExists
 				+ ", nrOfLines=" + nrOfLines + ", nrOfWords=" + nrOfWords + ", params=" + params + ", userName="
 				+ userName + ", userId=" + userId + ", nrOfTrainGtPages=" + nrOfTrainGtPages
 				+ ", nrOfValidationGtPages=" + nrOfValidationGtPages + ", releaseLevelValue=" + releaseLevelValue
