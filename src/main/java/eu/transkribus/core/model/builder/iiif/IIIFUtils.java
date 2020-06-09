@@ -35,7 +35,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
-import de.digitalcollections.core.model.api.MimeType;
+import de.digitalcollections.iiif.model.*;
 import de.digitalcollections.iiif.model.ImageContent;
 import de.digitalcollections.iiif.model.MetadataEntry;
 import de.digitalcollections.iiif.model.Motivation;
@@ -93,11 +93,14 @@ public class IIIFUtils {
 	public static Manifest getManifest(URL url) throws JsonParseException, JsonMappingException, IOException {
 		ObjectMapper iiifMapper = new IiifObjectMapper();
 		iiifMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+		iiifMapper.enable(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT);
 		String responseJson = getJSON(url.toString());
 		logger.info(responseJson);
 		Manifest manifest = iiifMapper.readValue(responseJson, Manifest.class);
 		return manifest;
 	}	
+	
+	
 	public static String getJSON(String url) {
 	    HttpURLConnection c = null;
 	    try {
