@@ -1266,8 +1266,20 @@ public class DocxBuilder {
 			 * First arg is not sign and was initially used for soft hyphen by Diggitexx
 			 * need to be at the line end - otherwise 
 			 * 
+			 * &#x00AC;|&#x002D;|&#x2212;|&#x201E;|&#x003D;]$', '$1&#x2010;'
+			 * 
 			 */
-			if ( (currText.equals("¬") || currText.equals("­") || currText.equals("-") ) && !preserveLineBreaks && shapeEnded){
+			//if ( (currText.equals("¬") || currText.equals("­") || currText.equals("-") ) && !preserveLineBreaks && shapeEnded){
+			if ( (currText.equals("\u00AC") || currText.equals("\u002D") || currText.equals("\u201E") || currText.equals("\u003D") || currText.equals("\u2010")) && !preserveLineBreaks && shapeEnded){
+				org.docx4j.wml.Text  space = factory.createText();
+				space.setValue("\u0020");
+				space.setSpace("preserve");
+				
+				org.docx4j.wml.R  runSpace = factory.createR();
+				//p.getContent().add(runSpace);
+				runSpace.getContent().add(space);
+				
+				listOfallRuns.add(runSpace);
 				break;
 			}	
 			
@@ -1419,7 +1431,7 @@ public class DocxBuilder {
 			 */
 			if (!preserveLineBreaks && shapeEnded){
 				org.docx4j.wml.Text  space = factory.createText();
-				space.setValue(" ");
+				space.setValue("\u0020");
 				space.setSpace("preserve");
 				
 				org.docx4j.wml.R  runSpace = factory.createR();
@@ -1427,6 +1439,7 @@ public class DocxBuilder {
 				runSpace.getContent().add(space);
 				
 				listOfallRuns.add(runSpace);
+				break;
 			}
 
 			//runs.add(run);
