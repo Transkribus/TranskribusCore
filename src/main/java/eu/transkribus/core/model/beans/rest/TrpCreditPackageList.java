@@ -13,13 +13,13 @@ import eu.transkribus.core.model.beans.TrpCreditProduct;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlSeeAlso({TrpCreditPackage.class, TrpCreditProduct.class})
-public class TrpTokenCreditList extends JaxbPaginatedList<TrpCreditPackage> {
+public class TrpCreditPackageList extends JaxbPaginatedList<TrpCreditPackage> {
 
-	public TrpTokenCreditList() {
+	public TrpCreditPackageList() {
 		super();
 	}
 
-	public TrpTokenCreditList(List<TrpCreditPackage> list, int total, int index, int nValues, String sortColumnField,
+	public TrpCreditPackageList(List<TrpCreditPackage> list, int total, int index, int nValues, String sortColumnField,
 			String sortDirection) {
 		super(list, total, index, nValues, sortColumnField, sortDirection);
 	}

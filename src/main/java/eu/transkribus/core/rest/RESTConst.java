@@ -36,6 +36,7 @@ public final class RESTConst {
 	public static final String UPLOADS_PATH = "uploads";
 	public static final String TRAIN_PATH = "train";
 	public static final String CREDITS_PATH = "credits";
+	public static final String CREDIT_TRANSACTIONS_PATH = "creditTransactions";
 		
 	/* jobMgmt */
 	public static final String JOB_MGMT_PATH = "jobMgmt";
