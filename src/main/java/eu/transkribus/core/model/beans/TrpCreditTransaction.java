@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * A transaction on a set of credits. May reference a job with the workload of
+ * A transaction on a credit package. May reference a job with the workload of
  * this transaction.
  */
 @Entity
@@ -34,7 +34,7 @@ public class TrpCreditTransaction {
 	private Date time;
 
 	/**
-	 * Positive or negative "token" value of this transaction.
+	 * Positive or negative nr. of credits accounted in this transaction.
 	 */
 	@Column(name = "CREDIT_VALUE")
 	private double creditValue;

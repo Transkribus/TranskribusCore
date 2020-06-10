@@ -40,7 +40,7 @@ public class TrpCreditPackage {
 	private int userId;
 	
 	/**
-	 * The product instance as in webshop. Defines nrOfTokens
+	 * The product instance as in webshop. Defines nrOfCredits
 	 * TODO this might be obsolete now as we do not need to model this stuff in Transkribus...
 	 */
 	@Transient
