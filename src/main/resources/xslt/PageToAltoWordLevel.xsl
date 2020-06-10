@@ -124,9 +124,15 @@
                 <xsl:variable name="lineID" select="@id"/>
                 <xsl:variable name="id"
                     select="concat('Tag_', $lineID, '_', $offset, '_', $length, '_', substring($type,1,3))"/>
+                <xsl:variable name="wordWithoutPunctuation">
+                    <xsl:value-of select="replace($wordString, '(^.*)[\p{P}|&#x00AC;|&#x002D;|&#x2010;|&#x2212;|&#x201E;|&#x003D;]$', '$1')" />
+                </xsl:variable> 
+<!--                   <xsl:message>
+                       <xsl:value-of select="$wordWithoutPunctuation"/>
+        </xsl:message> -->
                 <xsl:variable name="ref">
                     <xsl:choose>
-                        <xsl:when test="contains($tagValue, $wordString)">
+                        <xsl:when test="contains($tagValue, $wordWithoutPunctuation)">
                             <xsl:value-of select="concat($tagref, $id)"/>
                         </xsl:when>
                         <xsl:otherwise>
@@ -147,7 +153,6 @@
                     <xsl:otherwise>
                         <xsl:if test="string-length(normalize-space($ref))>0">
                             <xsl:attribute name="TAGREFS" select="normalize-space($ref)"/>
-
                         </xsl:if>
                     </xsl:otherwise>
                 </xsl:choose>

@@ -335,12 +335,7 @@ public class TrpDoc implements Serializable, Comparable<TrpDoc> {
 	}
 	
 	public TrpPage getPageWithId(int pageid) {
-		for (TrpPage page : pages) {
-			if (page.getPageId() == pageid) {
-				return page;
-			}
-		}
-		return null;
+		return pages.stream().filter(p -> p.getPageId()==pageid).findFirst().orElse(null);
 	}
 	
 	public void filterPagesByPageDescriptors(List<PageDescriptor> pds) {

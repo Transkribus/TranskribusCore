@@ -41,6 +41,10 @@ public class PyLaiaCreateModelPars extends ParameterMap {
 	public PyLaiaCreateModelPars() {
 	}
 	
+	public PyLaiaCreateModelPars(PyLaiaCreateModelPars copy) {
+		super(copy);
+	}
+	
 	public static PyLaiaCreateModelPars getDefault() {
 		PyLaiaCreateModelPars pars = new PyLaiaCreateModelPars();
 		pars.addParameter("--print_args", "True");

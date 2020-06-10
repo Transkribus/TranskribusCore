@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -55,6 +56,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
@@ -627,13 +629,23 @@ public class CoreUtils {
 	}
 	
 	public static String readStringFromResource(String fn) throws IOException {
+		return readStringFromResource(fn, null);
+	}
+	
+	public static String readStringFromResource(String fn, Map<String, String> replacementProps) throws IOException {
 		try (InputStream is = CoreUtils.class.getClassLoader().getResourceAsStream(fn)) {
 			StringWriter writer = new StringWriter();
 	        IOUtils.copy(is, writer, StandardCharsets.UTF_8);
-	        return writer.toString();
+	        String str = writer.toString();
+	        if (replacementProps != null) {
+	        	for (String key : replacementProps.keySet()) {
+	        		str = str.replaceAll(key, replacementProps.get(key));
+	        	}
+	        }
+	        return str;
 		}
 	}
-
+	
 	public static void setLibraryPath(String path) throws Exception {
 		System.setProperty("java.library.path", path);
 
@@ -1516,6 +1528,23 @@ public class CoreUtils {
 	
 	public static double roundTo2(double v) {
 		return Math.round(v*100.0d)/100.0d;
+	}
+	
+	public static <T extends Comparable<? super T>> T min(List<T> vals) {
+		if (!CoreUtils.isEmpty(vals)) {
+			return Collections.min(vals);
+		}
+		return null;
+	}
+	
+	public static <T extends Comparable<? super T>> Pair<Integer, T> minWithIndex(List<T> vals) {
+		if (!CoreUtils.isEmpty(vals)) {
+			// FIXME: parses the list twice -> not very efficient...
+			T min = Collections.min(vals);
+			int i = vals.indexOf(min);
+			return Pair.of(i, min);
+		}
+		return null;
 	}
 	
 	public static void main(String[] args) throws Exception {

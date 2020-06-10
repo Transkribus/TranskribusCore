@@ -3,7 +3,7 @@
 
 	<groupId>eu.transkribus</groupId>
 	<artifactId>TranskribusCore</artifactId>
-	<version>0.11.2</version>
+	<version>0.11.5</version>
 	<packaging>jar</packaging>
 	<name>TranskribusCore</name>
 	<organization>
@@ -27,7 +27,7 @@
 		<repository>
 			<id>dea-artifactory</id>
 			<name>dea-artifactory-releases</name>
-			<url>http://dbis-halvar.uibk.ac.at/artifactory/libs-release/</url>
+			<url>https://dbis-halvar.uibk.ac.at/artifactory/libs-release/</url>
 		</repository>
 		<repository>
 			<id>swt-repo</id>
@@ -36,19 +36,19 @@
 <!-- 		<repository> -->
 <!-- 			<id>com.springsource.repository.bundles.external</id> -->
 <!-- 			<name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name> -->
-<!-- 			<url>http://repository.springsource.com/maven/bundles/external</url> -->
+<!-- 			<url>https://repository.springsource.com/maven/bundles/external</url> -->
 <!-- 		</repository> -->
 <!--     <repository> -->
 <!--         <id>www.dcm4che.org</id> -->
 <!--         <name>dcm4che Repository</name> -->
-<!--         <url>http://www.dcm4che.org/maven2</url> -->
+<!--         <url>https://www.dcm4che.org/maven2</url> -->
 <!--     </repository>		 -->
 		</repositories>
 	<distributionManagement>
 	    <repository>
 	        <id>dbis-halvar-artifactory</id>
 	        <name>dbis-halvar-releases</name>
-	        <url>http://dbis-halvar.uibk.ac.at/artifactory/libs-release-local</url>
+	        <url>https://dbis-halvar.uibk.ac.at/artifactory/libs-release-local</url>
 	    </repository>
 	    <site>
 			<id>website</id>
