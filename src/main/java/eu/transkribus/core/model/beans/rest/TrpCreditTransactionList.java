@@ -7,13 +7,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
-import eu.transkribus.core.model.beans.TrpCreditPackage;
-import eu.transkribus.core.model.beans.TrpCreditProduct;
 import eu.transkribus.core.model.beans.TrpCreditTransaction;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlSeeAlso({TrpCreditPackage.class, TrpCreditProduct.class})
+@XmlSeeAlso({TrpCreditTransaction.class})
 public class TrpCreditTransactionList extends JaxbPaginatedList<TrpCreditTransaction> {
 
 	public TrpCreditTransactionList() {
