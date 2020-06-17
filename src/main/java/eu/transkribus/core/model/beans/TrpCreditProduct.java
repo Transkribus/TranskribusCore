@@ -33,8 +33,8 @@ public class TrpCreditProduct {
 	@Column(name = "LABEL")
 	private String label;
 
-	//Column(name= "SHAREABLE")
-	private Boolean shareable;
+	@Column(name= "SHAREABLE")
+	private boolean shareable;
 	
 	//Column(name = "SUBSCRIPTION")
 	private String subscription;
@@ -79,11 +79,11 @@ public class TrpCreditProduct {
 		this.label = label;
 	}
 	
-	public Boolean getShareable() {
+	public boolean getShareable() {
 		return shareable;
 	}
 
-	public void setShareable(Boolean shareable) {
+	public void setShareable(boolean shareable) {
 		this.shareable = shareable;
 	}
 
@@ -121,7 +121,7 @@ public class TrpCreditProduct {
 		result = prime * result + ((label == null) ? 0 : label.hashCode());
 		result = prime * result + nrOfCredits;
 		result = prime * result + ((productId == null) ? 0 : productId.hashCode());
-		result = prime * result + ((shareable == null) ? 0 : shareable.hashCode());
+		result = prime * result + (shareable ? 1231 : 1237);
 		result = prime * result + ((subscription == null) ? 0 : subscription.hashCode());
 		return result;
 	}
@@ -162,10 +162,7 @@ public class TrpCreditProduct {
 				return false;
 		} else if (!productId.equals(other.productId))
 			return false;
-		if (shareable == null) {
-			if (other.shareable != null)
-				return false;
-		} else if (!shareable.equals(other.shareable))
+		if (shareable != other.shareable)
 			return false;
 		if (subscription == null) {
 			if (other.subscription != null)
