@@ -29,9 +29,6 @@ public class TrpCreditPackage {
 
 	@Column(name = "EXPIRATION_DATE")
 	private Date expirationDate;
-
-	@Column(name = "PAYMENT_RECEIVED")
-	private Date paymentReceived;
 	
 	@Column(name = "IS_ACTIVE")
 	private boolean active;
@@ -40,8 +37,7 @@ public class TrpCreditPackage {
 	private int userId;
 	
 	/**
-	 * The product instance as in webshop. Defines nrOfCredits
-	 * TODO this might be obsolete now as we do not need to model this stuff in Transkribus...
+	 * The product instance as in organized in webshop. Defines e.g. nrOfCredits.
 	 */
 	@Transient
 	private TrpCreditProduct product;
@@ -84,15 +80,7 @@ public class TrpCreditPackage {
 	public void setExpirationDate(Date expirationDate) {
 		this.expirationDate = expirationDate;
 	}
-
-	public Date getPaymentReceived() {
-		return paymentReceived;
-	}
-
-	public void setPaymentReceived(Date paymentReceived) {
-		this.paymentReceived = paymentReceived;
-	}
-
+	
 	public boolean isActive() {
 		return active;
 	}
@@ -134,11 +122,10 @@ public class TrpCreditPackage {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((balance == null) ? 0 : balance.hashCode());
-		result = prime * result + packageId;
-		result = prime * result + ((expirationDate == null) ? 0 : expirationDate.hashCode());
 		result = prime * result + (active ? 1231 : 1237);
-		result = prime * result + ((paymentReceived == null) ? 0 : paymentReceived.hashCode());
+		result = prime * result + ((balance == null) ? 0 : balance.hashCode());
+		result = prime * result + ((expirationDate == null) ? 0 : expirationDate.hashCode());
+		result = prime * result + packageId;
 		result = prime * result + ((product == null) ? 0 : product.hashCode());
 		result = prime * result + ((productId == null) ? 0 : productId.hashCode());
 		result = prime * result + ((purchaseDate == null) ? 0 : purchaseDate.hashCode());
@@ -155,24 +142,19 @@ public class TrpCreditPackage {
 		if (getClass() != obj.getClass())
 			return false;
 		TrpCreditPackage other = (TrpCreditPackage) obj;
+		if (active != other.active)
+			return false;
 		if (balance == null) {
 			if (other.balance != null)
 				return false;
 		} else if (!balance.equals(other.balance))
-			return false;
-		if (packageId != other.packageId)
 			return false;
 		if (expirationDate == null) {
 			if (other.expirationDate != null)
 				return false;
 		} else if (!expirationDate.equals(other.expirationDate))
 			return false;
-		if (active != other.active)
-			return false;
-		if (paymentReceived == null) {
-			if (other.paymentReceived != null)
-				return false;
-		} else if (!paymentReceived.equals(other.paymentReceived))
+		if (packageId != other.packageId)
 			return false;
 		if (product == null) {
 			if (other.product != null)
@@ -196,8 +178,8 @@ public class TrpCreditPackage {
 
 	@Override
 	public String toString() {
-		return "TrpCreditPackage [packageId=" + packageId + ", productId=" + productId + ", purchaseDate=" + purchaseDate
-				+ ", expirationDate=" + expirationDate + ", paymentReceived=" + paymentReceived + ", active="
-				+ active + ", userId=" + userId + ", product=" + product + ", balance=" + balance + "]";
+		return "TrpCreditPackage [packageId=" + packageId + ", productId=" + productId + ", purchaseDate="
+				+ purchaseDate + ", expirationDate=" + expirationDate + ", active=" + active + ", userId=" + userId
+				+ ", product=" + product + ", balance=" + balance + "]";
 	}
 }
