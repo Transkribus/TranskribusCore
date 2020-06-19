@@ -34,11 +34,13 @@ import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementReadingOrderCom
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpPageType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpShapeTypeUtils;
+import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableCellType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextLineType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTextRegionType;
 import eu.transkribus.core.model.builder.ExportCache;
 import eu.transkribus.core.model.builder.ExportUtils;
+import eu.transkribus.core.util.SysUtils;
 
 public class TrpTxtBuilder {
 	
@@ -146,43 +148,24 @@ public class TrpTxtBuilder {
 			if (r instanceof TrpTableRegionType){
 				/*
 				 * TODO: for simple txt export: how to handle tables
+				 * for now the text for each cell gets exported one after the other
 				 */
-				continue;
+				TrpTableRegionType tr = (TrpTableRegionType) r;
+				List<ITrpShapeType> cells = tr.getChildren(false);
+				for (ITrpShapeType cell : cells){
+					TrpTableCellType tableCell = (TrpTableCellType) cell;
+					getContentFromLines(tableCell.getTextLine(), content, wordBased);
+				}
+				//continue;
 			}
 			else if (r instanceof TrpTextRegionType){
 				
 				TrpTextRegionType tr = (TrpTextRegionType) r;
 				List<TextLineType> lines = tr.getTextLine();
 				
-				for (int i=0; i<lines.size(); ++i) {
-					TrpTextLineType trpL = (TrpTextLineType) lines.get(i);
-											
-					String textOfCurrLine = trpL.getUnicodeText();
-					
-					if (wordBased && trpL.getWord().size()>0){
-						for (WordType word : trpL.getWord()){
-							content.add(((ITrpShapeType) word).getUnicodeText());
-						}
-					}
-					else if (textOfCurrLine != ""){
-						content.add(textOfCurrLine);
-					}
-//					if(preserveLineBreaks){
-//						content.add(System.lineSeparator());
-//					}
-				}
+				getContentFromLines(lines, content, wordBased);
 				
-				if (lines.size() > 0){
-					content.add(System.lineSeparator());
-//					try {
-//						//Add line separator after each region
-//						Files.write(Paths.get(file.getAbsolutePath()), new ArrayList<String>() {{ add(System.lineSeparator()); }}, utf8,
-//						        StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-//					} catch (IOException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-				}
+
 			}
 
 		}
@@ -197,6 +180,34 @@ public class TrpTxtBuilder {
 				
 	}
 	
+	private void getContentFromLines(List<TextLineType> lines, List<String> content, boolean wordBased) {
+		for (int i=0; i<lines.size(); ++i) {
+			TrpTextLineType trpL = (TrpTextLineType) lines.get(i);
+									
+			String textOfCurrLine = trpL.getUnicodeText();
+			
+			if (wordBased && trpL.getWord().size()>0){
+				for (WordType word : trpL.getWord()){
+					content.add(((ITrpShapeType) word).getUnicodeText());
+				}
+			}
+			else if (textOfCurrLine != ""){
+				content.add(textOfCurrLine);
+			}
+
+		}
+		
+		if (lines.size() > 0){
+			/*
+			 * TODO works only for client export correctly, for server export it takes the server system
+			 * hence: the final output may not work for all apps in the user system
+			 * 
+			 */
+			content.add(System.lineSeparator());
+		}
+		
+	}
+
 	public void addTitlePage(TrpDoc doc, File file) {
 		
 		List<String> titleContent = new ArrayList<String>();
