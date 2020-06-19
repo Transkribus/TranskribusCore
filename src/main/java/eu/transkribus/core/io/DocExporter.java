@@ -326,7 +326,7 @@ public class DocExporter extends APassthroughObservable {
 	        Document xslDoc = dBuilder.parse(xslInputSource);
 	        DOMSource xslDomSource = new DOMSource(xslDoc);
 			
-	        TransformerFactory transFact = TransformerFactory.newInstance();
+	        TransformerFactory transFact = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
 	        
 	        //may? this is the only way to dynamically include a xsl in the xsl-source
 	        transFact.setURIResolver(new MyURIResolver(dBuilder));

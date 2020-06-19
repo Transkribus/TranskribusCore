@@ -96,8 +96,7 @@ public class TxtExporter extends Observable {
 			StreamSource xslSource = new StreamSource(xslIS);
 	
 	        // das Factory-Pattern unterstützt verschiedene XSLT-Prozessoren
-	        TransformerFactory transFact =
-	                TransformerFactory.newInstance();
+	        TransformerFactory transFact = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
 	        Transformer trans = transFact.newTransformer(xslSource);
 			trans.transform(mySrc, new StreamResult(fos));
 			
