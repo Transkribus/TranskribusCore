@@ -1,7 +1,5 @@
 package eu.transkribus.core.model.beans;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -33,17 +31,11 @@ public class TrpCreditProduct {
 	@Column(name = "LABEL")
 	private String label;
 
-	//Column(name= "SHAREABLE")
-	private Boolean shareable;
+	@Column(name= "SHAREABLE")
+	private boolean shareable;
 	
-	//Column(name = "SUBSCRIPTION")
+	@Column(name = "SUBSCRIPTION")
 	private String subscription;
-
-	@Column(name = "AVAILABLE_FROM")
-	private Date availableFrom;
-
-	@Column(name = "AVAILABLE_UNTIL")
-	private Date availableUntil;
 
 	public TrpCreditProduct() {}
 
@@ -79,11 +71,11 @@ public class TrpCreditProduct {
 		this.label = label;
 	}
 	
-	public Boolean getShareable() {
+	public boolean getShareable() {
 		return shareable;
 	}
 
-	public void setShareable(Boolean shareable) {
+	public void setShareable(boolean shareable) {
 		this.shareable = shareable;
 	}
 
@@ -94,34 +86,16 @@ public class TrpCreditProduct {
 	public void setSubscription(String subscription) {
 		this.subscription = subscription;
 	}
-	
-	public Date getAvailableFrom() {
-		return availableFrom;
-	}
-
-	public void setAvailableFrom(Date availableFrom) {
-		this.availableFrom = availableFrom;
-	}
-
-	public Date getAvailableUntil() {
-		return availableUntil;
-	}
-
-	public void setAvailableUntil(Date availableUntil) {
-		this.availableUntil = availableUntil;
-	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((availableFrom == null) ? 0 : availableFrom.hashCode());
-		result = prime * result + ((availableUntil == null) ? 0 : availableUntil.hashCode());
 		result = prime * result + ((creditType == null) ? 0 : creditType.hashCode());
 		result = prime * result + ((label == null) ? 0 : label.hashCode());
 		result = prime * result + nrOfCredits;
 		result = prime * result + ((productId == null) ? 0 : productId.hashCode());
-		result = prime * result + ((shareable == null) ? 0 : shareable.hashCode());
+		result = prime * result + (shareable ? 1231 : 1237);
 		result = prime * result + ((subscription == null) ? 0 : subscription.hashCode());
 		return result;
 	}
@@ -135,16 +109,6 @@ public class TrpCreditProduct {
 		if (getClass() != obj.getClass())
 			return false;
 		TrpCreditProduct other = (TrpCreditProduct) obj;
-		if (availableFrom == null) {
-			if (other.availableFrom != null)
-				return false;
-		} else if (!availableFrom.equals(other.availableFrom))
-			return false;
-		if (availableUntil == null) {
-			if (other.availableUntil != null)
-				return false;
-		} else if (!availableUntil.equals(other.availableUntil))
-			return false;
 		if (creditType == null) {
 			if (other.creditType != null)
 				return false;
@@ -162,10 +126,7 @@ public class TrpCreditProduct {
 				return false;
 		} else if (!productId.equals(other.productId))
 			return false;
-		if (shareable == null) {
-			if (other.shareable != null)
-				return false;
-		} else if (!shareable.equals(other.shareable))
+		if (shareable != other.shareable)
 			return false;
 		if (subscription == null) {
 			if (other.subscription != null)
@@ -179,6 +140,6 @@ public class TrpCreditProduct {
 	public String toString() {
 		return "TrpCreditProduct [productId=" + productId + ", creditType=" + creditType + ", nrOfCredits="
 				+ nrOfCredits + ", label=" + label + ", shareable=" + shareable + ", subscription=" + subscription
-				+ ", availableFrom=" + availableFrom + ", availableUntil=" + availableUntil + "]";
+				+ "]";
 	}
 }

@@ -44,7 +44,7 @@ public enum JobImpl {
 	UpvlcLaJob(JobTask.DetectLines, JobTask.DetectLines.getLabel(), "LaJob", null),
 	P2PaLAJob(JobTask.DetectLines, "Layout and structure analysis", "P2PaLAJob", null),
 	P2PaLAJobMultiThread(JobTask.DetectLines, "Layout and structure analysis", "P2PaLAJobMultiThread", null),
-	P2PaLATrainJob(JobTask.P2PaLATraining, "Training of a P2PaLA model", "P2PaLATrainJob", null),	
+	P2PaLATrainJob(JobTask.LaTraining, "P2PaLATraining", "P2PaLATrainJob", null),	
 	
 	T2IJob(JobTask.DetectLines, "Text2Image", "T2IJob", null),
 	T2IJobMultiThread(JobTask.DetectLines, "Text2Image", "T2IJobMultiThread", null),	
@@ -63,7 +63,7 @@ public enum JobImpl {
 	CITlabHtrTrainingJob(JobTask.HtrTraining, "CITlab " + JobTask.HtrTraining.getLabel(), "CITlabHtrTrainingJob", null),
 	CITlabHtrPlusTrainingJob(JobTask.HtrTraining, "CITlab HTR+ Training", "CITlabHtrPlusTrainingJob", null),
 	PyLaiaTrainingJob(JobTask.HtrTraining, "PyLaia Training", "PyLaiaTrainJob", null),
-	PyLaiaDecodingJob(JobTask.HtrTraining, "PyLaia Decoding", "PyLaiaDecodingJob", null),
+	PyLaiaDecodingJob(JobTask.Htr, "PyLaia Decoding", "PyLaiaDecodingJob", null),
 	
 	CITlabSemiSupervisedHtrTrainingJob(JobTask.HtrTraining, "CITlab Text2Image", "CITlabSemiSupervisedHtrTrainingJob", null),
 	CITlabHtrJob(JobTask.Htr, "CITlab " + JobTask.Htr.getLabel(), "CITlabHtrJob", null),
