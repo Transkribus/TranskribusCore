@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -178,8 +179,11 @@ public class PointStrUtils {
 				logger.trace("pt = "+pt);
 				String [] tmp = pt.split(",");
 				if (tmp.length>1){
-					int x = Integer.valueOf(tmp[0].trim());
-					int y = Integer.valueOf(tmp[1].trim());
+					// check if not float coordinates from TWI 
+					BigDecimal xCoord = new BigDecimal(tmp[0]).setScale(0,BigDecimal.ROUND_HALF_UP);
+					BigDecimal yCoord = new BigDecimal(tmp[1]).setScale(0,BigDecimal.ROUND_HALF_UP);
+					int x = xCoord.intValue();
+					int y = yCoord.intValue();
 					ptsList.add(new Point(x, y));
 				}
 			}
