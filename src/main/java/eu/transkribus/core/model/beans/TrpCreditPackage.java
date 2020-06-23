@@ -36,6 +36,9 @@ public class TrpCreditPackage {
 	@Column(name = "USER_ID")
 	private int userId;
 	
+	@Column(name = "USERNAME")
+	private String userName;
+	
 	/**
 	 * The product instance as in organized in webshop. Defines e.g. nrOfCredits.
 	 */
@@ -96,6 +99,14 @@ public class TrpCreditPackage {
 	public void setUserId(int userId) {
 		this.userId = userId;
 	}
+	
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
 
 	public TrpCreditProduct getProduct() {
 		return product;
@@ -130,6 +141,7 @@ public class TrpCreditPackage {
 		result = prime * result + ((productId == null) ? 0 : productId.hashCode());
 		result = prime * result + ((purchaseDate == null) ? 0 : purchaseDate.hashCode());
 		result = prime * result + userId;
+		result = prime * result + ((userName == null) ? 0 : userName.hashCode());
 		return result;
 	}
 
@@ -173,6 +185,11 @@ public class TrpCreditPackage {
 			return false;
 		if (userId != other.userId)
 			return false;
+		if (userName == null) {
+			if (other.userName != null)
+				return false;
+		} else if (!userName.equals(other.userName))
+			return false;
 		return true;
 	}
 
@@ -180,6 +197,6 @@ public class TrpCreditPackage {
 	public String toString() {
 		return "TrpCreditPackage [packageId=" + packageId + ", productId=" + productId + ", purchaseDate="
 				+ purchaseDate + ", expirationDate=" + expirationDate + ", active=" + active + ", userId=" + userId
-				+ ", product=" + product + ", balance=" + balance + "]";
+				+ ", userName=" + userName + ", product=" + product + ", balance=" + balance + "]";
 	}
 }
