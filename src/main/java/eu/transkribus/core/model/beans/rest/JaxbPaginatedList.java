@@ -47,7 +47,10 @@ public abstract class JaxbPaginatedList<T> {
 	@XmlAnyElement(lax=true)
 	protected List<T> list;
 
-    public JaxbPaginatedList(){}
+    public JaxbPaginatedList(){
+    	//uncomment line to always have a possibly emtpy list field in the string represenation (and no nullpointers on access)
+//    	list = new ArrayList<>(0);
+    }
 
     public JaxbPaginatedList(List<T> list, int total, int index, int nValues, 
     		String sortColumnField, String sortDirection){

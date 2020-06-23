@@ -37,6 +37,8 @@ public final class RESTConst {
 	public static final String TRAIN_PATH = "train";
 	public static final String CREDITS_PATH = "credits";
 	public static final String CREDIT_TRANSACTIONS_PATH = "creditTransactions";
+	public static final String CREDIT_PRODUCTS_PATH = "products";
+	public static final String CREDIT_COSTS_PATH = "costs";
 		
 	/* jobMgmt */
 	public static final String JOB_MGMT_PATH = "jobMgmt";
@@ -379,6 +381,8 @@ public final class RESTConst {
 	public static final String TYPE_FACE_PARAM = "typeFace";
 	public static final String LANGUAGE_PARAM = "language";
 	public static final String DO_BLOCK_SEG_ONLY_PARAM = "doBlockSegOnly";
+	
+	public static final String SOURCE_PACKAGE_ID_PARAM = "sourcePackageId";
 	
 	//OAuth stuff
 	public static final String LOGIN_OAUTH_PATH = "oauth";
