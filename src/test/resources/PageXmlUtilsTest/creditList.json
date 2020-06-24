@@ -1,0 +1,155 @@
+{
+    "type": "trpCreditPackageList",
+    "total": 10,
+    "index": 0,
+    "nValues": 0,
+    "trpCreditPackage": [
+        {
+            "packageId": 1,
+            "productId": 1,
+            "purchaseDate": "2020-06-05T12:49:33.936+02:00",
+            "paymentReceived": "2020-06-05T12:49:34.042+02:00",
+            "active": true,
+            "userId": 43,
+            "product": {
+                "productId": 1,
+                "creditType": "recognition",
+                "nrOfCredits": 10,
+                "label": "10 credits for testing"
+            },
+            "balance": 10.0
+        },
+        {
+            "packageId": 2,
+            "productId": 2,
+            "purchaseDate": "2020-06-05T12:49:34.185+02:00",
+            "paymentReceived": "2020-06-05T12:49:34.2+02:00",
+            "active": true,
+            "userId": 43,
+            "product": {
+                "productId": 2,
+                "creditType": "recognition",
+                "nrOfCredits": 0,
+                "label": "empty package for testing"
+            },
+            "balance": 0.0
+        },
+        {
+            "packageId": 3,
+            "productId": 1,
+            "purchaseDate": "2020-06-05T12:49:34.737+02:00",
+            "paymentReceived": "2020-06-05T12:49:34.75+02:00",
+            "active": true,
+            "userId": 43,
+            "product": {
+                "productId": 1,
+                "creditType": "recognition",
+                "nrOfCredits": 10,
+                "label": "10 credits for testing"
+            },
+            "balance": 10.0
+        },
+        {
+            "packageId": 4,
+            "productId": 1,
+            "purchaseDate": "2020-06-05T12:49:34.833+02:00",
+            "paymentReceived": "2020-06-05T12:49:34.846+02:00",
+            "active": true,
+            "userId": 43,
+            "product": {
+                "productId": 1,
+                "creditType": "recognition",
+                "nrOfCredits": 10,
+                "label": "10 credits for testing"
+            },
+            "balance": 10.0
+        },
+        {
+            "packageId": 5,
+            "productId": 1,
+            "purchaseDate": "2020-06-05T12:49:34.862+02:00",
+            "paymentReceived": "2020-06-05T12:49:34.878+02:00",
+            "active": true,
+            "userId": 43,
+            "product": {
+                "productId": 1,
+                "creditType": "recognition",
+                "nrOfCredits": 10,
+                "label": "10 credits for testing"
+            },
+            "balance": 10.0
+        },
+        {
+            "packageId": 6,
+            "productId": 1,
+            "purchaseDate": "2020-06-05T12:50:44.429+02:00",
+            "paymentReceived": "2020-06-05T12:50:44.445+02:00",
+            "active": true,
+            "userId": 43,
+            "product": {
+                "productId": 1,
+                "creditType": "recognition",
+                "nrOfCredits": 10,
+                "label": "10 credits for testing"
+            },
+            "balance": 10.0
+        },
+        {
+            "packageId": 7,
+            "productId": 2,
+            "purchaseDate": "2020-06-05T12:50:44.456+02:00",
+            "paymentReceived": "2020-06-05T12:50:44.466+02:00",
+            "active": true,
+            "userId": 43,
+            "product": {
+                "productId": 2,
+                "creditType": "recognition",
+                "nrOfCredits": 0,
+                "label": "empty package for testing"
+            },
+            "balance": 0.0
+        },
+        {
+            "packageId": 12,
+            "productId": 4,
+            "purchaseDate": "2020-06-05T12:54:54.801+02:00",
+            "active": false,
+            "userId": 43,
+            "product": {
+                "productId": 4,
+                "creditType": "HTR",
+                "nrOfCredits": 1543,
+                "label": "Test Package Shareable"
+            },
+            "balance": 1543.0
+        },
+        {
+            "packageId": 23,
+            "productId": 4,
+            "purchaseDate": "2020-06-10T11:57:04.595+02:00",
+            "active": false,
+            "userId": 43,
+            "product": {
+                "productId": 4,
+                "creditType": "HTR",
+                "nrOfCredits": 1543,
+                "label": "Test Package Shareable"
+            },
+            "balance": 1543.0
+        },
+        {
+            "packageId": 29,
+            "productId": 4,
+            "purchaseDate": "2020-06-10T18:01:32.473+02:00",
+            "active": false,
+            "userId": 43,
+            "product": {
+                "productId": 4,
+                "creditType": "HTR",
+                "nrOfCredits": 1543,
+                "label": "Test Package Shareable"
+            },
+            "balance": 1543.0
+        }
+    ]
+}
