@@ -36,6 +36,9 @@ public class TrpCreditProduct {
 	
 	@Column(name = "SUBSCRIPTION")
 	private String subscription;
+	
+	@Column(name = "STATUS")
+	private Integer status;
 
 	public TrpCreditProduct() {}
 
@@ -86,6 +89,14 @@ public class TrpCreditProduct {
 	public void setSubscription(String subscription) {
 		this.subscription = subscription;
 	}
+	
+	public Integer getStatus() {
+		return status;
+	}
+	
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
 
 	@Override
 	public int hashCode() {
@@ -96,6 +107,7 @@ public class TrpCreditProduct {
 		result = prime * result + nrOfCredits;
 		result = prime * result + ((productId == null) ? 0 : productId.hashCode());
 		result = prime * result + (shareable ? 1231 : 1237);
+		result = prime * result + ((status == null) ? 0 : status.hashCode());
 		result = prime * result + ((subscription == null) ? 0 : subscription.hashCode());
 		return result;
 	}
@@ -128,6 +140,11 @@ public class TrpCreditProduct {
 			return false;
 		if (shareable != other.shareable)
 			return false;
+		if (status == null) {
+			if (other.status != null)
+				return false;
+		} else if (!status.equals(other.status))
+			return false;
 		if (subscription == null) {
 			if (other.subscription != null)
 				return false;
@@ -140,6 +157,6 @@ public class TrpCreditProduct {
 	public String toString() {
 		return "TrpCreditProduct [productId=" + productId + ", creditType=" + creditType + ", nrOfCredits="
 				+ nrOfCredits + ", label=" + label + ", shareable=" + shareable + ", subscription=" + subscription
-				+ "]";
+				+ ", status=" + status + "]";
 	}
 }

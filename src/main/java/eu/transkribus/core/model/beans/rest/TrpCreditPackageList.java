@@ -15,12 +15,30 @@ import eu.transkribus.core.model.beans.TrpCreditProduct;
 @XmlSeeAlso({TrpCreditPackage.class, TrpCreditProduct.class})
 public class TrpCreditPackageList extends JaxbPaginatedList<TrpCreditPackage> {
 
+	private Double overallBalance;
+
 	public TrpCreditPackageList() {
 		super();
 	}
 
-	public TrpCreditPackageList(List<TrpCreditPackage> list, int total, int index, int nValues, String sortColumnField,
+	public TrpCreditPackageList(List<TrpCreditPackage> list, Double overallBalance, int total, int index, int nValues, String sortColumnField,
 			String sortDirection) {
 		super(list, total, index, nValues, sortColumnField, sortDirection);
+		this.overallBalance = overallBalance;
+	}
+	
+	public Double getOverallBalance() {
+		return overallBalance;
+	}
+
+	public void setOverallBalance(Double overallBalance) {
+		this.overallBalance = overallBalance;
+	}
+
+	@Override
+	public String toString() {
+		return "TrpCreditPackageList [overallBalance=" + overallBalance + ", total=" + total + ", index=" + index
+				+ ", nValues=" + nValues + ", sortColumnField=" + sortColumnField + ", sortDirection=" + sortDirection
+				+ ", list=" + list + "]";
 	}
 }
