@@ -6,7 +6,12 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.lang3.StringUtils;
+import org.dea.fimgstoreclient.beans.ImgType;
+
 import eu.transkribus.core.io.util.TrpProperties;
+import eu.transkribus.core.model.beans.rest.ParameterMap;
+import eu.transkribus.core.rest.JobConst;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -40,6 +45,7 @@ public class PyLaiaHtrTrainConfig extends HtrTrainConfig implements Serializable
 	public PyLaiaHtrTrainConfig() {
 		super();
 		
+		customParams = new ParameterMap();
 		textFeatsCfg = new TextFeatsCfg();
 		createModelPars = PyLaiaCreateModelPars.getDefault();
 		trainCtcPars = PyLaiaTrainCtcPars.getDefault();
@@ -108,7 +114,7 @@ public class PyLaiaHtrTrainConfig extends HtrTrainConfig implements Serializable
 	public void setTrainCtcPars(PyLaiaTrainCtcPars trainCtcPars) {
 		this.trainCtcPars = trainCtcPars;
 	}
-
+	
 	@Hidden
 	public TrpProperties getParamProps() {
 		TrpProperties p = new TrpProperties();
@@ -121,6 +127,7 @@ public class PyLaiaHtrTrainConfig extends HtrTrainConfig implements Serializable
 		if (trainCtcPars != null) { // shouldn't be null anymore...
 			p.getProperties().put("trainCtcPars", trainCtcPars.toSingleLineString());
 		}
+		
 		return p;
 	}
 
@@ -131,6 +138,7 @@ public class PyLaiaHtrTrainConfig extends HtrTrainConfig implements Serializable
 				+ ", colId=" + colId + ", provider=" + provider + ", train=" + train
 				+ ", test=" + test + ", trainGt=" + trainGt + ", testGt=" + testGt
 				+ ", textFeatsCfg="+ textFeatsCfg+ ", createModelPars="+createModelPars+ ", trainCtcPars="+trainCtcPars
+				+ ", imgType="+getImgType()
 				+"]";
 	}
 	

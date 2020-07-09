@@ -10,8 +10,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.dea.fimgstoreclient.beans.ImgType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import eu.transkribus.core.model.beans.DocumentSelectionDescriptor.PageDescriptor;
 import eu.transkribus.core.model.beans.rest.ParameterMap;
+import eu.transkribus.core.rest.JobConst;
 import eu.transkribus.core.util.HtrCITlabUtils;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,6 +24,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class HtrTrainConfig implements Serializable {
+	private static final Logger logger = LoggerFactory.getLogger(HtrTrainConfig.class);
 
 	private static final long serialVersionUID = 1434111712220564100L;
 	@Schema(description = "the name of the new HTR model", required=true)
@@ -35,7 +41,7 @@ public class HtrTrainConfig implements Serializable {
 	
 	public HtrTrainConfig() {
 		provider = null;
-		customParams = null;
+		customParams = new ParameterMap();
 	}
 	
 	@XmlElementWrapper(name="trainList")
@@ -95,6 +101,10 @@ public class HtrTrainConfig implements Serializable {
 	}
 
 	public ParameterMap getCustomParams() {
+		if (customParams == null) {
+			customParams = new ParameterMap();
+		}
+		
 		return customParams;
 	}
 
@@ -103,10 +113,28 @@ public class HtrTrainConfig implements Serializable {
 	}
 
 	public void setCustomParam(String key, Object value) {
-		if(getCustomParams() == null) {
-			setCustomParams(new ParameterMap());
-		}
 		getCustomParams().addParameter(key, value);
+	}
+	
+	public void removeCustomParam(String key) {
+		getCustomParams().remove(key);
+	}
+	
+	public void setImgType(ImgType imgType) {
+		setCustomParam(JobConst.PROP_IMG_TYPE, imgType);
+	}
+	
+	public ImgType getImgType() {
+		String imgTypeStr = getCustomParams().getParameterValue(JobConst.PROP_IMG_TYPE);
+		if (imgTypeStr == null) {
+			return ImgType.orig;
+		}
+		try {	
+			return ImgType.valueOf(imgTypeStr);
+		} catch (Exception e) {
+			logger.warn("Could not parse image type: "+imgTypeStr+" - using imgType "+ImgType.orig);
+			return ImgType.orig;
+		}
 	}
 	
 	public List<DocumentSelectionDescriptor> getTrain() {

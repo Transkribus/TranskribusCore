@@ -64,6 +64,7 @@ public class JobConst {
 	public static final String PROP_BASE_MODEL = "baseModel";
 	public static final String PROP_EARLY_STOPPING = "earlyStopping";
 	public static final String PROP_HTR_OMIT_LINES_BY_TAG = "omitLinesByTag";
+	public static final String PROP_IMG_TYPE = "imgType";
 	
 	/**
 	 * Use {@link #PROP_PARAMETERS} for consistency
