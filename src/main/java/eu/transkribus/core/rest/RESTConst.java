@@ -21,6 +21,7 @@ public final class RESTConst {
 	public static final String P2PALA_PATH = "p2pala";
 	public static final String PYLAIA_PATH = "pylaia";
 //	public static final String P2PALA_TRAIN_PATH = "p2palaTrain";
+	public static final String DU_PATH = "du";
 	
 	public static final String JOBS_PATH = "jobs";
 	public static final String USER_PATH = "user";
