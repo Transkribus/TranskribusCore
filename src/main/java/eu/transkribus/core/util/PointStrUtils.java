@@ -227,8 +227,13 @@ public class PointStrUtils {
 			final String[] coordsArr = pointsStr.split(" ");
 			for (int i = 0; i < coordsArr.length; i++) {
 				final String[] xy = coordsArr[i].split(",");
-				final Integer x = Integer.parseInt(xy[0]);
-				final Integer y = Integer.parseInt(xy[1]);
+				//handle floats gracefully (they should not occur though)
+				final Integer x = new BigDecimal(xy[0])
+						.setScale(0, BigDecimal.ROUND_HALF_UP)
+						.intValue();
+				final Integer y = new BigDecimal(xy[1])
+						.setScale(0, BigDecimal.ROUND_HALF_UP)
+						.intValue();
 				collector.accumulator().accept(container, constr.apply(x, y));
 			}
 		} catch(NumberFormatException e){
