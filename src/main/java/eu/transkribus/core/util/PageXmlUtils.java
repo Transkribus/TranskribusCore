@@ -1678,7 +1678,8 @@ public class PageXmlUtils {
 		TrpPageType pageStruct = (TrpPageType) structTypePc.getPage();
 		
 		for (ITrpShapeType st : page.getAllShapes(true)) {
-			double maxOverLap = -1;
+			final double MIN_OVERLAP=10; // overlap of at least that number of pixels for tagging
+			double maxOverLap = MIN_OVERLAP;
 			String structType = null;
 						
 			for (TrpTextRegionType tr : pageStruct.getTextRegions(true)) {
