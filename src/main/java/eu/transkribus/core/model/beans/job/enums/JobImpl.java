@@ -75,12 +75,15 @@ public enum JobImpl {
 	
 	CITlabClusterRecognitionJob(JobTask.Htr, "CITlab Cluster Recognition", "CITlabClusterRecognition", null),
 
+	ErrorRateJob(JobTask.Htr, "Error Rate Computation", "ErrorRateJob", null),
+	
 	DocUnderstandingRecognitionJob(JobTask.Htr, "DU Decoding", "DocUnderstandingRecognitionJob", null),
 	
 	//for testing
 	DummyJob(JobTask.CreateDocument, "Dummy Job", "DummyJob", null),
-	DummyMailJob(JobTask.CreateDocument, "Dummy Mail Job", "DummyMailJob", null), 
-	ErrorRateJob(JobTask.Htr, "Error Rate Computation", "ErrorRateJob", null);
+	DummyMailJob(JobTask.CreateDocument, "Dummy Mail Job", "DummyMailJob", null),
+	DummyCrashingJob(JobTask.Htr, "Dummy Crashing Job", "DummyCrashingJob", null);
+	
 	
 	private final static Logger logger = LoggerFactory.getLogger(JobImpl.class);
 	public final static String MULTI_THREAD_LA_JOB_SUFFIX = "MultiThread";
