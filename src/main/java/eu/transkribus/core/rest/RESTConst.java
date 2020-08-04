@@ -463,6 +463,9 @@ public final class RESTConst {
 	public static final String USE_VERSION_STATUS_PARAM = "useVersionStatus";
 	public static final String SKIP_PAGES_WITH_MISSING_STATUS_PARAM = "skipPagesWithMissingStatus";
 	
+	//credits
+	public static final String CREDITS_MIN_BALANCE_PARAM = "minBalance";
+	
 	//uploads
 	public static final String UPLOAD_ID_PARAM = "uploadId";
 	public static final String DETAILS_PATH = "details";
