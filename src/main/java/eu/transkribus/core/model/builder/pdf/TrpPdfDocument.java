@@ -230,7 +230,12 @@ public class TrpPdfDocument extends APdfDocument {
 		
 		/*
 		 * try to read image - if the image is not readable try the original one
+		 * imgBuffer contains after reading the imgUrl the 'rotated' image
 		 */
+//		logger.debug("mimetype to export: " + md.getMimetype());
+//		logger.debug("mimetype to export: " + md.getCompression());
+//		logger.debug("bitdepth to export: " + md.getBitdepth());
+		
 		BufferedImage imgBuffer = null;
 		try {			
 			imgBuffer = TrpImageIO.read(imgUrl);
@@ -245,6 +250,8 @@ public class TrpPdfDocument extends APdfDocument {
 			logger.debug("try alternative file location " + imgUrl);
 			imgBuffer = TrpImageIO.read(imgUrl);
 		}
+		
+		
 				
 	    Graphics2D graph = imgBuffer.createGraphics();
 	    graph.setColor(Color.BLACK);
@@ -277,6 +284,7 @@ public class TrpPdfDocument extends APdfDocument {
 				
 		graph.dispose();
 		
+		
 		/*
 		 * FIXME how to load the image to not blow up the PDF a lot?
 		 * 
@@ -285,18 +293,29 @@ public class TrpPdfDocument extends APdfDocument {
 		 */
 		Image img;
 		//direct access instead of the version above
-		img = Image.getInstance(imgBuffer, null);
+		//img = Image.getInstance(imgBuffer, null);
 		
 //		if(doBlackening) {
 			/*
 			 * 1. Compressing to JPEG Byte array yields the smallest PDF (3,6 MB on test doc). Image quality OK?
+			 * -> drawback: for binarised images size of PDF is much higher then with 2nd approach and as the user expected from its origin files:
+			 * instead of 2,3 MB -> 8,8 MB (we used JPEG as format)
+			 * But: if we use the given filetype as formatName this problem is solved
+			 * TODO: find out if this works for all scenarios resp. formats, compressions,...
 			 * 
 			 */
-//			try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) { 
-//				ImageIO.write(imgBuffer, "JPEG", baos);
-//				byte[] imageBytes = baos.toByteArray();
-//				img = Image.getInstance(imageBytes);
-//			}
+		
+		String filetype = "JPEG";
+		if (md != null && md.getFiletype() != null && !md.getFiletype().contentEquals("undefined") && imgUrl.getFile().contains("orig")) {
+			filetype = md.getFiletype();
+		}
+		logger.debug("filetype to export: " + md.getFiletype());
+		
+		try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) { 
+			ImageIO.write(imgBuffer, filetype, baos);
+			byte[] imageBytes = baos.toByteArray();
+			img = Image.getInstance(imageBytes);
+		}
 //		} else {
 			/*
 			 * 2. This method is in current prod systems but produces large files. PDF is ~50 MB on test doc!
@@ -306,9 +325,10 @@ public class TrpPdfDocument extends APdfDocument {
 			
 			/*
 			 * 3. Adding the image by (viewing) imgUrl produces a ~5,6 MB PDF on test doc relies on existing compression (?) 
-			 * BUT "blackening" from above is not included and correct EXIF orientation *might* also be ignored! TODO test exif orientation
+			 * BUT "blackening" from above is not included and correct EXIF orientation *might* also be ignored! 
+			 * TEST result: orientation is ignored hence not usable
 			 */
-//			img = Image.getInstance(imgUrl, true);
+			//img = Image.getInstance(imgUrl, true);
 //		}
 		imgBuffer.flush();
 		imgBuffer = null;
