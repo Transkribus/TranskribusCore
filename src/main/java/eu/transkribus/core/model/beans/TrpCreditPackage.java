@@ -40,6 +40,12 @@ public class TrpCreditPackage {
 	private String userName;
 	
 	/**
+	 * Store the original owner's ID, since the rights to manage a package (userId & -Name) may be assigned.
+	 */
+	@Column(name = "ORIG_USER_ID")
+	private int origUserId;
+	
+	/**
 	 * The product instance as in organized in webshop. Defines e.g. nrOfCredits.
 	 */
 	@Transient
@@ -107,6 +113,14 @@ public class TrpCreditPackage {
 	public void setUserName(String userName) {
 		this.userName = userName;
 	}
+	
+	public int getOrigUserId() {
+		return origUserId;
+	}
+
+	public void setOrigUserId(int origUserId) {
+		this.origUserId = origUserId;
+	}
 
 	public TrpCreditProduct getProduct() {
 		return product;
@@ -136,6 +150,7 @@ public class TrpCreditPackage {
 		result = prime * result + (active ? 1231 : 1237);
 		result = prime * result + ((balance == null) ? 0 : balance.hashCode());
 		result = prime * result + ((expirationDate == null) ? 0 : expirationDate.hashCode());
+		result = prime * result + origUserId;
 		result = prime * result + packageId;
 		result = prime * result + ((product == null) ? 0 : product.hashCode());
 		result = prime * result + ((productId == null) ? 0 : productId.hashCode());
@@ -165,6 +180,8 @@ public class TrpCreditPackage {
 			if (other.expirationDate != null)
 				return false;
 		} else if (!expirationDate.equals(other.expirationDate))
+			return false;
+		if (origUserId != other.origUserId)
 			return false;
 		if (packageId != other.packageId)
 			return false;
@@ -197,6 +214,7 @@ public class TrpCreditPackage {
 	public String toString() {
 		return "TrpCreditPackage [packageId=" + packageId + ", productId=" + productId + ", purchaseDate="
 				+ purchaseDate + ", expirationDate=" + expirationDate + ", active=" + active + ", userId=" + userId
-				+ ", userName=" + userName + ", product=" + product + ", balance=" + balance + "]";
+				+ ", userName=" + userName + ", origUserId=" + origUserId + ", product=" + product + ", balance="
+				+ balance + "]";
 	}
 }
