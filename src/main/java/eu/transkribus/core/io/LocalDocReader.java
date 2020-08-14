@@ -8,6 +8,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Observer;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import javax.xml.bind.JAXBException;
@@ -26,8 +30,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.pdfbox.jbig2.segments.TextRegion;
-import org.apache.pdfbox.pdmodel.PDDocument;
 import org.dea.util.pdf.PageImageWriter;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.mozilla.universalchardet.UniversalDetector;
@@ -58,7 +60,6 @@ import eu.transkribus.core.model.beans.enums.TranscriptionLevel;
 import eu.transkribus.core.model.beans.mets.Mets;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
-import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.rest.JaxbList;
 import eu.transkribus.core.model.builder.mets.TrpMetsBuilder;
@@ -69,8 +70,8 @@ import eu.transkribus.core.util.JaxbUtils;
 import eu.transkribus.core.util.NaturalOrderComparator;
 import eu.transkribus.core.util.NaturalOrderFileComparator;
 import eu.transkribus.core.util.PageXmlUtils;
-import eu.transkribus.core.util.XmlUtils;
 import eu.transkribus.core.util.SebisStopWatch.SSW;
+import eu.transkribus.core.util.XmlUtils;
 
 /**
  * Reader class for loading a TRP Document from the local filesystem.<br>
@@ -959,23 +960,37 @@ public class LocalDocReader {
 		}
 	}
 	
-	public static File findFile(String imgName, File inputDir, String extension) {
-		File file = new File(inputDir.getAbsolutePath() + File.separatorChar + imgName
-				+ "."+extension.toLowerCase());
-
-		if (file.canRead()) {
-			return file;
-		} else {
-			// try uppercase extension
-			file = new File(inputDir.getAbsolutePath() + File.separatorChar + imgName
-					+ "."+extension.toUpperCase());
-			
-			if (file.canRead()) {
-				return file;
-			} else {
-				return null;
+	
+	/**
+	 * 
+	 * Find first file if filename just contains image name 
+	 * 
+	 * @param imgName
+	 * @param dir
+	 * @param extension
+	 * @return
+	 */
+	public static File findFile(String imgName, File dir, String extension) {
+		try {
+			Optional<Path> optionalFile = Files
+					.list(Paths.get(dir.getAbsolutePath()))
+					.filter(p -> p.toString().contains(imgName))
+					.findFirst();
+			if (optionalFile.isPresent()) {
+				File f = optionalFile.get().toFile();
+				if (f.canRead()) {
+					if(logger.isDebugEnabled()) {
+						logger.debug("found {} for image {} in {}", f, imgName, dir);
+					}
+					return f;
+				}
+			}
+		} catch (IOException e) {
+			if(logger.isWarnEnabled()) {
+				logger.warn("no match file for image {} in {} ", imgName, dir);
 			}
 		}
+		return null;
 	}
 	
 	public static File findDefaultPageXmlForImage(String imagePath) {
