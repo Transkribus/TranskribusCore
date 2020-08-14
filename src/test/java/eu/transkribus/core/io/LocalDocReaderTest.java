@@ -73,6 +73,56 @@ public class LocalDocReaderTest {
 		assertNotNull(actual);
 		assertEquals("1667522809_J_0013_0001.xml", actual.getName());
 	}
+	
+	/**
+	 * 
+	 * Test: 
+	 * Put multiple matching files in the folder, prefer the one with an exact match.
+	 * 
+	 * {@link LocalDocReader#findXml(imgName, xmlInputDir, ignorePrefix)}
+	 * 
+	 * @throws IOException
+	 */	
+	@Test
+	public void testLoadALTOFilePreferSameName() throws IOException {
+		String projectName = "1667522809_J_0013_0001";
+		File projectFolder = tmpFolder.newFolder(projectName);
+		File altoSubFolder = new File(projectFolder, "alto");
+		File altoFile = new File(altoSubFolder, "1667522809_J_0013_0001.xml");
+		FileUtils.writeStringToFile(altoFile, "");
+		File altoFile2 = new File(altoSubFolder, "0_i_am_also_matching_but_listed_before_1667522809_J_0013_0001.xml");
+		FileUtils.writeStringToFile(altoFile2, "");
+		
+		String imageName = "1667522809_j_0013_0001"; // note the lowercase 'j' letter -> case insensitity!
+		File actual = LocalDocReader.findXml(imageName, altoSubFolder, true);
+		
+		assertNotNull(actual);
+		assertEquals("1667522809_J_0013_0001.xml", actual.getName());
+	}	
+	
+	/**
+	 * 
+	 * Test: 
+	 * Put multiple matching files in the folder, prefer the one with an exact match.
+	 * 
+	 * {@link LocalDocReader#findXml(imgName, xmlInputDir, ignorePrefix)}
+	 * 
+	 * @throws IOException
+	 */	
+	@Test
+	public void testLoadALTOFileCaseInsensitive() throws IOException {
+		String projectName = "1667522809_J_0013_0001";
+		File projectFolder = tmpFolder.newFolder(projectName);
+		File altoSubFolder = new File(projectFolder, "alto");
+		File altoFile = new File(altoSubFolder, "i_am_a_file.xml");
+		FileUtils.writeStringToFile(altoFile, "");
+		
+		String imageName = "I_AM_A_FILE";
+		File actual = LocalDocReader.findXml(imageName, altoSubFolder, true);
+		
+		assertNotNull(actual);
+		assertEquals("i_am_a_file.xml", actual.getName());
+	}	
 
 	
 	/**

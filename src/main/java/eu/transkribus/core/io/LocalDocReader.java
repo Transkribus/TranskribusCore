@@ -19,8 +19,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Observer;
-import java.util.Optional;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -972,25 +972,27 @@ public class LocalDocReader {
 	 */
 	public static File findFile(String imgName, File dir, String extension) {
 		try {
-			Optional<Path> optionalFile = Files
+			List<Path> candidateFiles = Files
 					.list(Paths.get(dir.getAbsolutePath()))
-					.filter(p -> p.toString().contains(imgName))
-					.findFirst();
-			if (optionalFile.isPresent()) {
-				File f = optionalFile.get().toFile();
+					.filter(p -> StringUtils.containsIgnoreCase(p.toString(), imgName)).collect(Collectors.toList());
+			logger.trace("candidateFiles = "+candidateFiles);
+			
+			if (!CoreUtils.isEmpty(candidateFiles)) {
+				Path exactMatch = candidateFiles.stream()
+									.filter(p -> StringUtils.equalsIgnoreCase(imgName+"."+extension, p.toFile().getName()))
+									.findFirst().orElse(null);
+				File f = exactMatch!=null ? exactMatch.toFile() : candidateFiles.get(0).toFile();
+				
 				if (f.canRead()) {
-					if(logger.isDebugEnabled()) {
-						logger.debug("found {} for image {} in {}", f, imgName, dir);
-					}
+					logger.debug("found {} for image {} in {}", f, imgName, dir);
 					return f;
 				}
 			}
 		} catch (IOException e) {
-			if(logger.isWarnEnabled()) {
-				logger.warn("no match file for image {} in {} ", imgName, dir);
-			}
+			logger.warn("error while searching file for image {} in {}, msg = {} ", imgName, dir, e.getMessage());
 		}
-		return null;
+		logger.warn("no match file for image {} in {} ", imgName, dir);
+		return null;		
 	}
 	
 	public static File findDefaultPageXmlForImage(String imagePath) {
