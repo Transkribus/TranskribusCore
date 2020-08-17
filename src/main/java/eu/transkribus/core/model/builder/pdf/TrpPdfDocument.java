@@ -286,7 +286,7 @@ public class TrpPdfDocument extends APdfDocument {
 		
 		
 		/*
-		 * FIXME how to load the image to not blow up the PDF a lot?
+		 * How to load the image to not blow up the PDF a lot?
 		 * 
 		 * See eu.transkribus.core.model.builder.PdfExporterTest.testPdfCompression() for the test document used to produce the figures.
 		 * 
@@ -306,10 +306,13 @@ public class TrpPdfDocument extends APdfDocument {
 			 */
 		
 		String filetype = "JPEG";
-		if (md != null && md.getFiletype() != null && !md.getFiletype().contentEquals("undefined") && imgUrl.getFile().contains("orig")) {
+		if (md != null && md.getFiletype() != null && !md.getFiletype().contentEquals("undefined") && imgUrl.getFile().contains("orig")) {	
+
+			//FIXME this block is not reached if request URL refers to orig image *without* explicit "fileType=orig" parameter!	
 			filetype = md.getFiletype();
+			logger.debug("Using filetype from file metadata.");
 		}
-		logger.debug("filetype to export: " + md.getFiletype());
+		logger.debug("filetype to export: " + filetype);
 		
 		try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) { 
 			ImageIO.write(imgBuffer, filetype, baos);
