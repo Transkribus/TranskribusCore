@@ -95,7 +95,7 @@ public class TrpUserLogin extends TrpUser implements Principal, Serializable {
 	
 	@Override
 	public String getName() {
-		return this.getEmail();
+		return this.getUserName();
 	}
 	
 	public void setOAuthProvider(OAuthProvider prov) {
