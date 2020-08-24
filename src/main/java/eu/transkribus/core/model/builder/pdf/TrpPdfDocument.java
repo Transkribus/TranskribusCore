@@ -171,9 +171,9 @@ public class TrpPdfDocument extends APdfDocument {
 		//logger.debug(" path to fonts : " + this.getClass().getClassLoader().getResource("fonts").getPath());
 		FontFactory.registerDirectory(this.getClass().getClassLoader().getResource("fonts").getPath());
 	    Set<String> fonts = new TreeSet<String>(FontFactory.getRegisteredFonts());
-//	    for (String fontname : fonts) {
-//	        logger.debug("registered font name : " + fontname);
-//	    }
+	    for (String fontname : fonts) {
+	        logger.debug("registered font name : " + fontname);
+	    }
 	    
 	    if (exportFontname != null){
 		    logger.debug("chosen font name: " + exportFontname);
