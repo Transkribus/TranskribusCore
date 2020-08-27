@@ -285,6 +285,19 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		return tList.get(0);
 	}
 	
+	/*
+	 * position means: transcripts are sorted with respect to creation time, i=0 means the current, i=1 means the second youngest, and so on
+	 */
+	public TrpTranscriptMetadata getTranscriptInCreationHistoryAtPosition(int i) {
+		List<TrpTranscriptMetadata> tList = getTranscripts();
+		if(tList.isEmpty()) {
+			//might happen if image file is broken and no PAGE XML can be generated
+			return new TrpTranscriptMetadata();
+		}
+		Collections.sort(tList, Collections.reverseOrder());
+		return tList.get(i);
+	}
+	
 	/**
 	 * Return the most recent transcript with status. If status is not found return current.
 	 * 
@@ -610,6 +623,25 @@ public class TrpPage implements ITrpFile, Serializable, Comparable<TrpPage> {
 		if(!getTranscripts().isEmpty()) {
 			for(TrpTranscriptMetadata t : getTranscripts()) {
 				if(t.getTsId() == tsId) {
+					tmd = t;
+					break;
+				}
+			}
+		}
+		return tmd;
+	}
+	
+	/**
+	 * returns the transcript with the given jobID from the transcript list or null if not found
+	 * 
+	 * @param tsId
+	 * @return
+	 */
+	public TrpTranscriptMetadata getTranscriptByJobId(int jobId) {
+		TrpTranscriptMetadata tmd = null;
+		if(!getTranscripts().isEmpty()) {
+			for(TrpTranscriptMetadata t : getTranscripts()) {
+				if(t.getJobId() != null && t.getJobId() == jobId) {
 					tmd = t;
 					break;
 				}
