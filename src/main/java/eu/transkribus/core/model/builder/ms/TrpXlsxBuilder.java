@@ -68,11 +68,16 @@ public class TrpXlsxBuilder {
 		CustomTagList cl = element.getCustomTagList();
 		
 		if (cl == null){
+			logger.debug("line 72: set continued possible to false");
 			continuedTagPossible = false;
 			throw new IOException("Element xtShapelass: "+element.getClass().getName());
 		}
 		
+//		logger.debug("cl.getIndexedTags() " + cl.getIndexedTags());
+//		logger.debug("cl.getIndexedTags().size() " + cl.getIndexedTags().size());
+		
 		if(cl.getIndexedTags().size()==0){
+			//logger.debug("line 78: set continued possible to false");
 			continuedTagPossible = false;
 		}
 			
@@ -85,13 +90,17 @@ public class TrpXlsxBuilder {
 
 			if (!indexedTag.getTagName().equals(TextStyleTag.TAG_NAME)){
 				
-				//logger.debug("indexed tag found " + indexedTag.getTagName());
+				logger.debug("indexed tag found " + indexedTag.getTagName());
 				String tagname = indexedTag.getTagName();
 				if (!selectedTags.contains(tagname)){
+					logger.debug("selectedTags does not contain tagname");
 					break;
 				}
 				
 				Map<String, Object> attributes = indexedTag.getAttributeNamesValuesMap();
+				
+				logger.debug("continued possible: " + continuedTagPossible);
+				logger.debug("tag with attributes: " + attributes);
 				
 				updateExcelWB(true, imgFilename, tagname, attributes, textStr, context, doc, page, regionID, lineID, wordId);
 				nextShape = false;
@@ -262,47 +271,55 @@ public class TrpXlsxBuilder {
 //			}
 			
 			boolean continued = (Boolean) attributes.get("continued");
+			logger.debug("continued is " +continued);
+			
 			if(continued == true){
 				//check previous tag is continued as well
 				if (lastRowIdxOfFirstSheet == 0){
-					return;
+					//return;
 				}
 				
-				Sheet tagnameSheet;
+				Sheet tagnameSheet = null;
 				//either find existent sheet or create new one
 				if (wb.getSheet(tagname) != null){
 					tagnameSheet = wb.getSheet(tagname);
 					//logger.debug("existent sheet " + tagname);
-				}
-				else{
-					return;
-				}
-				
-				int lastRowIdx = tagnameSheet.getLastRowNum();
-				int cellIdxContinued = 0;
-				
-				Row prevRowOfTagnameSheet = tagnameSheet.getRow(lastRowIdx);
-				
-				Row fstRowOfTagnameSheet = tagnameSheet.getRow(0);
-				for (int i = 0; i<fstRowOfTagnameSheet.getLastCellNum(); i++){
-					if (fstRowOfTagnameSheet.getCell(i).getStringCellValue().equals("continued")){
-						cellIdxContinued = i;
-						break;
+					int lastRowIdx = tagnameSheet.getLastRowNum();
+					int cellIdxContinued = 0;
+					
+					Row prevRowOfTagnameSheet = tagnameSheet.getRow(lastRowIdx);
+					
+					Row fstRowOfTagnameSheet = tagnameSheet.getRow(0);
+					for (int i = 0; i<fstRowOfTagnameSheet.getLastCellNum(); i++){
+						if (fstRowOfTagnameSheet.getCell(i).getStringCellValue().equals("continued")){
+							cellIdxContinued = i;
+							break;
+						}
 					}
-				}
-				
-				String continuedAttr = prevRowOfTagnameSheet.getCell(cellIdxContinued).getStringCellValue();
-//				logger.debug("tagname " + tagname);
-//				logger.debug("continuedAttr " + continuedAttr);
-				if (continuedAttr.contains("true") && (( continuedTagPossible && offset == 0)  || (offset == 0 && !nextShape))){
-					handleContinuedTags(tmpTextStr, tagnameSheet, tagname);
-					if (offset == 0 && textStr.length() > length){
-						continuedTagPossible = false;
+					
+					String continuedAttr = prevRowOfTagnameSheet.getCell(cellIdxContinued).getStringCellValue();
+					logger.debug("tagname " + tagname);
+					logger.debug("continuedAttr " + continuedAttr);
+					
+					if (continuedAttr.contains("true") && (( continuedTagPossible && offset == 0)  || (offset == 0 && !nextShape))){
+						handleContinuedTags(tmpTextStr, tagnameSheet, tagname);
+						if (offset == 0 && textStr.length() > length){
+							logger.debug("line 305: set continued possible to false");
+							continuedTagPossible = false;
+							return;
+						}
+						
 					}
-					return;
+					
+					logger.debug("line 312: set continued possible to true");
+					continuedTagPossible = true;
+				}
+				else {
+					tagnameSheet = wb.createSheet(WorkbookUtil.createSafeSheetName(tagname));
+					continuedTagPossible = true;
 				}
 				
-				continuedTagPossible = true;
+
 			}
 			
 			
@@ -473,11 +490,13 @@ public class TrpXlsxBuilder {
 		 * otherwise the user doesn't know what's happening
 		 */
 		if (!cache.getCustomTagMapForDoc().isEmpty()) {
-			logger.info("Tags available for export!");
+			logger.info("Tags available for export: amount of tags: " + cache.getCustomTagMapForDoc().size());
 			//throw new NoTagsException("No tags available to store into Xlsx");
 
 			List<TrpPage> pages = doc.getPages();
 			Set<String> selectedTags = cache.getOnlySelectedTagnames(ExportUtils.getOnlyWantedTagnames(CustomTagFactory.getRegisteredTagNames()));
+			
+			logger.debug("selectedTags " + selectedTags);
 			
 			//to test if it works if no tags are selected
 			//selectedTags.clear();
