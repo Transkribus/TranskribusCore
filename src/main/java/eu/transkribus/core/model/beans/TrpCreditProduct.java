@@ -1,5 +1,7 @@
 package eu.transkribus.core.model.beans;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -39,6 +41,9 @@ public class TrpCreditProduct {
 	
 	@Column(name = "STATUS")
 	private Integer status;
+	
+	@Column(name = "CREATED")
+	private Date created;
 
 	public TrpCreditProduct() {}
 
@@ -98,10 +103,19 @@ public class TrpCreditProduct {
 		this.status = status;
 	}
 
+	public Date getCreated() {
+		return created;
+	}
+
+	public void setCreated(Date created) {
+		this.created = created;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((created == null) ? 0 : created.hashCode());
 		result = prime * result + ((creditType == null) ? 0 : creditType.hashCode());
 		result = prime * result + ((label == null) ? 0 : label.hashCode());
 		result = prime * result + nrOfCredits;
@@ -121,6 +135,11 @@ public class TrpCreditProduct {
 		if (getClass() != obj.getClass())
 			return false;
 		TrpCreditProduct other = (TrpCreditProduct) obj;
+		if (created == null) {
+			if (other.created != null)
+				return false;
+		} else if (!created.equals(other.created))
+			return false;
 		if (creditType == null) {
 			if (other.creditType != null)
 				return false;
@@ -157,6 +176,6 @@ public class TrpCreditProduct {
 	public String toString() {
 		return "TrpCreditProduct [productId=" + productId + ", creditType=" + creditType + ", nrOfCredits="
 				+ nrOfCredits + ", label=" + label + ", shareable=" + shareable + ", subscription=" + subscription
-				+ ", status=" + status + "]";
+				+ ", status=" + status + ", created=" + created + "]";
 	}
 }
