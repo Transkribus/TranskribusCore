@@ -51,6 +51,9 @@ public class TrpCreditTransaction {
 	@Column(name = "DESCRIPTION")
 	private String description;
 	
+	@Column(name = "PARENT_ID")
+	private Integer parentId;
+	
 	public TrpCreditTransaction() {}
 
 	public TrpCreditTransaction(TrpCreditTransaction other) {
@@ -137,24 +140,31 @@ public class TrpCreditTransaction {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	
+
+	public Integer getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(Integer parentId) {
+		this.parentId = parentId;
+	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((costFactor == null) ? 0 : costFactor.hashCode());
 		long temp;
-		temp = Double.doubleToLongBits(costFactor);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(creditBalance);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + packageId;
+		temp = Double.doubleToLongBits(creditValue);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((jobId == null) ? 0 : jobId.hashCode());
 		result = prime * result + ((nrOfPages == null) ? 0 : nrOfPages.hashCode());
+		result = prime * result + packageId;
+		result = prime * result + ((parentId == null) ? 0 : parentId.hashCode());
 		result = prime * result + ((time == null) ? 0 : time.hashCode());
-		temp = Double.doubleToLongBits(creditValue);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + transactionId;
 		return result;
 	}
@@ -168,11 +178,14 @@ public class TrpCreditTransaction {
 		if (getClass() != obj.getClass())
 			return false;
 		TrpCreditTransaction other = (TrpCreditTransaction) obj;
-		if (Double.doubleToLongBits(costFactor) != Double.doubleToLongBits(other.costFactor))
+		if (costFactor == null) {
+			if (other.costFactor != null)
+				return false;
+		} else if (!costFactor.equals(other.costFactor))
 			return false;
 		if (Double.doubleToLongBits(creditBalance) != Double.doubleToLongBits(other.creditBalance))
 			return false;
-		if (packageId != other.packageId)
+		if (Double.doubleToLongBits(creditValue) != Double.doubleToLongBits(other.creditValue))
 			return false;
 		if (description == null) {
 			if (other.description != null)
@@ -189,12 +202,17 @@ public class TrpCreditTransaction {
 				return false;
 		} else if (!nrOfPages.equals(other.nrOfPages))
 			return false;
+		if (packageId != other.packageId)
+			return false;
+		if (parentId == null) {
+			if (other.parentId != null)
+				return false;
+		} else if (!parentId.equals(other.parentId))
+			return false;
 		if (time == null) {
 			if (other.time != null)
 				return false;
 		} else if (!time.equals(other.time))
-			return false;
-		if (Double.doubleToLongBits(creditValue) != Double.doubleToLongBits(other.creditValue))
 			return false;
 		if (transactionId != other.transactionId)
 			return false;
@@ -204,7 +222,8 @@ public class TrpCreditTransaction {
 	@Override
 	public String toString() {
 		return "TrpCreditTransaction [transactionId=" + transactionId + ", jobId=" + jobId + ", packageId=" + packageId
-				+ ", time=" + time + ", creditValue=" + creditValue + ", costFactor=" + costFactor + ", nrOfPages=" + nrOfPages + ", creditBalance="
-				+ creditBalance + ", description=" + description + "]";
+				+ ", time=" + time + ", creditValue=" + creditValue + ", costFactor=" + costFactor + ", nrOfPages="
+				+ nrOfPages + ", creditBalance=" + creditBalance + ", description=" + description + ", parentId="
+				+ parentId + "]";
 	}
 }
