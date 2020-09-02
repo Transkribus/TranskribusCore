@@ -51,6 +51,13 @@ public class TrpCreditPackage {
 	@Transient
 	private TrpCreditProduct product;
 	
+	/**
+	 * The ID of the most recent transaction booked on this package. Null if none exists yet.
+	 */
+	@Column(name = "LATEST_TRANSACTION_ID")
+	@Transient
+	private Integer latestTransactionId;
+	
 	@Column(name = "CREDIT_BALANCE")
 	@Transient
 	private Double balance;
@@ -142,6 +149,14 @@ public class TrpCreditPackage {
 		//delegate to product
 		return product.getNrOfCredits();
 	}
+	
+	public void setLatestTransactionId(Integer latestTransactionId) {
+		this.latestTransactionId = latestTransactionId;
+	}
+	
+	public Integer getLatestTransactionId() {
+		return latestTransactionId;
+	}
 
 	@Override
 	public int hashCode() {
@@ -214,7 +229,7 @@ public class TrpCreditPackage {
 	public String toString() {
 		return "TrpCreditPackage [packageId=" + packageId + ", productId=" + productId + ", purchaseDate="
 				+ purchaseDate + ", expirationDate=" + expirationDate + ", active=" + active + ", userId=" + userId
-				+ ", userName=" + userName + ", origUserId=" + origUserId + ", product=" + product + ", balance="
-				+ balance + "]";
+				+ ", userName=" + userName + ", origUserId=" + origUserId + ", product=" + product
+				+ ", latestTransactionId=" + latestTransactionId + ", balance=" + balance + "]";
 	}
 }
