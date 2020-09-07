@@ -3,14 +3,20 @@ package eu.transkribus.core.util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import eu.transkribus.core.io.exec.util.CommandLine;
 
 public class SysUtils {	
 	private final static Logger logger = LoggerFactory.getLogger(SysUtils.class);
@@ -93,6 +99,20 @@ public class SysUtils {
 		return getOSName().equals("linux");
 	}
 	
+	public static String getLinuxUname() {
+		if(!isLinux()) {
+			return null;
+		}
+		String uname = null;
+		LinkedList<String> stdOut = new LinkedList<>(), stdErr = new LinkedList<>();
+		try {
+			CommandLine.runProcess(2000, stdOut, stdErr, "uname", "-a");
+			uname = stdOut.stream().collect(Collectors.joining("\n"));
+		} catch (IOException | TimeoutException | InterruptedException e) {
+			logger.warn("Could not run uname.", e);
+		}
+		return uname;
+	}
 	
 	public static Long processId(Process process) {
 		if (isLinux() || isOsx()) {
