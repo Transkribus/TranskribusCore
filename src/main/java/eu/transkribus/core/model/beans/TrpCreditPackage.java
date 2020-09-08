@@ -39,6 +39,9 @@ public class TrpCreditPackage {
 	@Column(name = "USERNAME")
 	private String userName;
 	
+	@Column(name = "ORDER_ID")
+	private Integer orderId;
+	
 	/**
 	 * Store the original owner's ID, since the rights to manage a package (userId & -Name) may be assigned.
 	 */
@@ -121,6 +124,14 @@ public class TrpCreditPackage {
 		this.userName = userName;
 	}
 	
+	public Integer getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(Integer orderId) {
+		this.orderId = orderId;
+	}
+
 	public int getOrigUserId() {
 		return origUserId;
 	}
@@ -165,6 +176,8 @@ public class TrpCreditPackage {
 		result = prime * result + (active ? 1231 : 1237);
 		result = prime * result + ((balance == null) ? 0 : balance.hashCode());
 		result = prime * result + ((expirationDate == null) ? 0 : expirationDate.hashCode());
+		result = prime * result + ((latestTransactionId == null) ? 0 : latestTransactionId.hashCode());
+		result = prime * result + ((orderId == null) ? 0 : orderId.hashCode());
 		result = prime * result + origUserId;
 		result = prime * result + packageId;
 		result = prime * result + ((product == null) ? 0 : product.hashCode());
@@ -195,6 +208,16 @@ public class TrpCreditPackage {
 			if (other.expirationDate != null)
 				return false;
 		} else if (!expirationDate.equals(other.expirationDate))
+			return false;
+		if (latestTransactionId == null) {
+			if (other.latestTransactionId != null)
+				return false;
+		} else if (!latestTransactionId.equals(other.latestTransactionId))
+			return false;
+		if (orderId == null) {
+			if (other.orderId != null)
+				return false;
+		} else if (!orderId.equals(other.orderId))
 			return false;
 		if (origUserId != other.origUserId)
 			return false;
@@ -229,7 +252,7 @@ public class TrpCreditPackage {
 	public String toString() {
 		return "TrpCreditPackage [packageId=" + packageId + ", productId=" + productId + ", purchaseDate="
 				+ purchaseDate + ", expirationDate=" + expirationDate + ", active=" + active + ", userId=" + userId
-				+ ", userName=" + userName + ", origUserId=" + origUserId + ", product=" + product
-				+ ", latestTransactionId=" + latestTransactionId + ", balance=" + balance + "]";
+				+ ", userName=" + userName + ", orderId=" + orderId + ", origUserId=" + origUserId + ", product="
+				+ product + ", latestTransactionId=" + latestTransactionId + ", balance=" + balance + "]";
 	}
 }
