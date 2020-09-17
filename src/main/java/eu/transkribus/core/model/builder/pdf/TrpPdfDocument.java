@@ -1428,16 +1428,26 @@ public class TrpPdfDocument extends APdfDocument {
 		//currChunk.setFont(FontFactory.getFont("times-roman", BaseFont.CP1252, BaseFont.EMBEDDED));
 		currChunk.setFont(mainExportFont);
 		
-		Set<Entry<CustomTag, String>> commentSet = ExportUtils.getAllTagsOfThisTypeForShapeElement(currShape, "comment").entrySet();
-		for (Map.Entry<CustomTag, String> currEntry : commentSet){
+		if (highlightTags) {
 			
-			int beginIndex = currEntry.getKey().getOffset();
-			int endIndex = beginIndex + currEntry.getKey().getLength();
+			Set<String> wantedTags = cache.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
 			
-			if(currentIndex >= beginIndex && currentIndex < endIndex){
-				//hex string #FFF8B0: yellow color
-				currChunk.setBackground(new BaseColor(Color.decode("#FFF8B0").getRGB()));
+			if (wantedTags.contains("comment")){
+				Set<Entry<CustomTag, String>> commentSet = ExportUtils.getAllTagsOfThisTypeForShapeElement(currShape, "comment").entrySet();
+
+				for (Map.Entry<CustomTag, String> currEntry : commentSet){
+					
+					int beginIndex = currEntry.getKey().getOffset();
+					int endIndex = beginIndex + currEntry.getKey().getLength();
+					
+					if(currentIndex >= beginIndex && currentIndex < endIndex){
+						//hex string #FFF8B0: yellow color
+						currChunk.setBackground(new BaseColor(Color.decode("#FFF8B0").getRGB()));
+					}
+				}
 			}
+			
+
 		}
 //		TrpWordType w = null;
 //		if (useWordLevel){
