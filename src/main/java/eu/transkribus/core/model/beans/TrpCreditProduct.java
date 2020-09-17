@@ -44,6 +44,9 @@ public class TrpCreditProduct {
 	
 	@Column(name = "CREATED")
 	private Date created;
+	
+	@Column(name = "EXTERNAL_PRODUCT_ID")
+	private Integer externalProductId;
 
 	public TrpCreditProduct() {}
 
@@ -111,12 +114,21 @@ public class TrpCreditProduct {
 		this.created = created;
 	}
 
+	public Integer getExternalProductId() {
+		return externalProductId;
+	}
+
+	public void setExternalProductId(Integer externalProductId) {
+		this.externalProductId = externalProductId;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((created == null) ? 0 : created.hashCode());
 		result = prime * result + ((creditType == null) ? 0 : creditType.hashCode());
+		result = prime * result + ((externalProductId == null) ? 0 : externalProductId.hashCode());
 		result = prime * result + ((label == null) ? 0 : label.hashCode());
 		result = prime * result + nrOfCredits;
 		result = prime * result + ((productId == null) ? 0 : productId.hashCode());
@@ -144,6 +156,11 @@ public class TrpCreditProduct {
 			if (other.creditType != null)
 				return false;
 		} else if (!creditType.equals(other.creditType))
+			return false;
+		if (externalProductId == null) {
+			if (other.externalProductId != null)
+				return false;
+		} else if (!externalProductId.equals(other.externalProductId))
 			return false;
 		if (label == null) {
 			if (other.label != null)
@@ -176,6 +193,6 @@ public class TrpCreditProduct {
 	public String toString() {
 		return "TrpCreditProduct [productId=" + productId + ", creditType=" + creditType + ", nrOfCredits="
 				+ nrOfCredits + ", label=" + label + ", shareable=" + shareable + ", subscription=" + subscription
-				+ ", status=" + status + ", created=" + created + "]";
+				+ ", status=" + status + ", created=" + created + ", externalProductId=" + externalProductId + "]";
 	}
 }
