@@ -43,7 +43,7 @@ public class TrpJobStatus implements Serializable {
 	public static final String UNFINISHED = "UNFINISHED"; // meta-status -> all but FINISHED
 
 	/**
-	 * TODO this is acutually int now!
+	 * TODO this is actually int now!
 	 */
 	@Id
 	@Column
@@ -109,17 +109,13 @@ public class TrpJobStatus implements Serializable {
 	
 	@Column(name="JOB_IMPL")
 	private String jobImpl;	
-	
-	// NEW cols
-//	@XmlTransient
+
 	@Column(name="MODULE_URL")
 	private String moduleUrl;
-	
-//	@XmlTransient
+
 	@Column(name="MODULE_NAME")
 	private String moduleName;
-	
-//	@XmlTransient
+
 	@Column(name="MODULE_VERSION")
 	private String moduleVersion;
 	
@@ -129,8 +125,7 @@ public class TrpJobStatus implements Serializable {
 	private java.util.Date ended;
 	@Column(name="CREATED")
 	private java.util.Date created;
-	
-//	@XmlTransient
+
 	@Column(name="PID")
 	private String pid;
 	
@@ -151,8 +146,7 @@ public class TrpJobStatus implements Serializable {
 	
 	@Column
 	private Integer parent_batchid;
-	
-//	@XmlTransient
+
 	@Column(name="STACKTRACE")
 	private String stackTrace;
 	
@@ -168,10 +162,12 @@ public class TrpJobStatus implements Serializable {
 	@Transient
 	@Column
 	private int nrOfErrors;
-	
-//	@XmlTransient
+
 	@Column(name="OUTPUT")
 	private String output;
+	
+	@Column(name="MODEL_ID")
+	private Integer modelId;
 
 	/**
 	 * Empty, public constructor for Jaxb and DbUtils
@@ -695,19 +691,29 @@ public class TrpJobStatus implements Serializable {
 	public void setOutput(String output) {
 		this.output = output;
 	}
+	
+	public Integer getModelId() {
+		return modelId;
+	}
+	
+	public void setModelId(Integer modelId) {
+		this.modelId = modelId;
+	}
 
 	@Override
 	public String toString() {
-		return "TrpJobStatus [jobId=" + jobId + ", colId=" + colId+", docId=" + docId + ", pageNr=" + pageNr + ", pages=" + pages
+		return "TrpJobStatus [jobId=" + jobId + ", docId=" + docId + ", pageNr=" + pageNr + ", pages=" + pages
 				+ ", type=" + type + ", state=" + state + ", success=" + success + ", description=" + description
 				+ ", userName=" + userName + ", userId=" + userId + ", createTime=" + createTime + ", startTime="
-				+ startTime + ", endTime=" + endTime + ", jobData=" + jobData + ", resumable=" + resumable
-				+ ", className=" + className + ", result=" + result + ", session_history_id=" + session_history_id
-				+ ", jobImpl=" + jobImpl + ", moduleUrl=" + moduleUrl + ", moduleName=" + moduleName
-				+ ", moduleVersion=" + moduleVersion + ", started=" + started + ", ended=" + ended + ", created="
-				+ created + ", pid=" + pid + ", batchId=" + batchId + ", pageid=" + pageid + ", tsid=" + tsid
-				+ ", regionids=" + regionids + ", parent_jobid=" + parent_jobid + ", parent_batchid=" + parent_batchid
-				+ ", stackTrace="+stackTrace+", progress="+progress+", totalWork="+totalWork+", output="+output+"]";
+				+ startTime + ", endTime=" + endTime + ", jobData=" + jobData + ", jobDataOld=" + jobDataOld
+				+ ", resumable=" + resumable + ", className=" + className + ", result=" + result
+				+ ", session_history_id=" + session_history_id + ", jobImpl=" + jobImpl + ", moduleUrl=" + moduleUrl
+				+ ", moduleName=" + moduleName + ", moduleVersion=" + moduleVersion + ", started=" + started
+				+ ", ended=" + ended + ", created=" + created + ", pid=" + pid + ", batchId=" + batchId + ", pageid="
+				+ pageid + ", tsid=" + tsid + ", regionids=" + regionids + ", parent_jobid=" + parent_jobid
+				+ ", parent_batchid=" + parent_batchid + ", stackTrace=" + stackTrace + ", colId=" + colId
+				+ ", progress=" + progress + ", totalWork=" + totalWork + ", nrOfErrors=" + nrOfErrors + ", output="
+				+ output + ", modelId=" + modelId + "]";
 	}
 
 	/**
@@ -725,7 +731,7 @@ public class TrpJobStatus implements Serializable {
 				+ ", moduleVersion=" + moduleVersion + ", started=" + started + ", ended=" + ended + ", created="
 				+ created + ", pid=" + pid + ", batchId=" + batchId + ", pageid=" + pageid + ", tsid=" + tsid
 				+ ", regionids=" + regionids + ", parent_jobid=" + parent_jobid + ", parent_batchid=" + parent_batchid
-				+ ", stackTrace="+stackTrace+", progress="+progress+", totalWork="+totalWork+"]";
+				+ ", stackTrace="+stackTrace+", progress="+progress+", totalWork="+totalWork+",  modelId=" + modelId + "]";
 	}
 
 	@Override
@@ -745,6 +751,7 @@ public class TrpJobStatus implements Serializable {
 		result = prime * result + ((jobDataOld == null) ? 0 : jobDataOld.hashCode());
 		result = prime * result + ((jobId == null) ? 0 : jobId.hashCode());
 		result = prime * result + ((jobImpl == null) ? 0 : jobImpl.hashCode());
+		result = prime * result + ((modelId == null) ? 0 : modelId.hashCode());
 		result = prime * result + ((moduleName == null) ? 0 : moduleName.hashCode());
 		result = prime * result + ((moduleUrl == null) ? 0 : moduleUrl.hashCode());
 		result = prime * result + ((moduleVersion == null) ? 0 : moduleVersion.hashCode());
@@ -841,6 +848,11 @@ public class TrpJobStatus implements Serializable {
 			if (other.jobImpl != null)
 				return false;
 		} else if (!jobImpl.equals(other.jobImpl))
+			return false;
+		if (modelId == null) {
+			if (other.modelId != null)
+				return false;
+		} else if (!modelId.equals(other.modelId))
 			return false;
 		if (moduleName == null) {
 			if (other.moduleName != null)
@@ -956,7 +968,4 @@ public class TrpJobStatus implements Serializable {
 			return false;
 		return true;
 	}
-	
-	
-
 }
