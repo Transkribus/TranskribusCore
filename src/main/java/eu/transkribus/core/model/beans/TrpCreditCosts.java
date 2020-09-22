@@ -37,6 +37,9 @@ public class TrpCreditCosts {
 	@Transient
 	private String jobImpl;
 	
+	@Column(name="DOC_TYPE")
+	private String docType;
+	
 	public Integer getCostsId() {
 		return costsId;
 	}
@@ -76,6 +79,14 @@ public class TrpCreditCosts {
 	public void setJobImpl(String jobImpl) {
 		this.jobImpl = jobImpl;
 	}
+	
+	public String getDocType() {
+		return docType;
+	}
+	
+	public void setDocType(String docType) {
+		this.docType = docType;
+	}
 
 	@Override
 	public int hashCode() {
@@ -84,6 +95,7 @@ public class TrpCreditCosts {
 		result = prime * result + ((costDate == null) ? 0 : costDate.hashCode());
 		result = prime * result + ((costFactor == null) ? 0 : costFactor.hashCode());
 		result = prime * result + ((costsId == null) ? 0 : costsId.hashCode());
+		result = prime * result + ((docType == null) ? 0 : docType.hashCode());
 		result = prime * result + ((jobImpl == null) ? 0 : jobImpl.hashCode());
 		result = prime * result + jobImplRegistryId;
 		return result;
@@ -113,6 +125,11 @@ public class TrpCreditCosts {
 				return false;
 		} else if (!costsId.equals(other.costsId))
 			return false;
+		if (docType == null) {
+			if (other.docType != null)
+				return false;
+		} else if (!docType.equals(other.docType))
+			return false;
 		if (jobImpl == null) {
 			if (other.jobImpl != null)
 				return false;
@@ -126,6 +143,6 @@ public class TrpCreditCosts {
 	@Override
 	public String toString() {
 		return "TrpCreditCosts [costsId=" + costsId + ", costFactor=" + costFactor + ", costDate=" + costDate
-				+ ", jobImplRegistryId=" + jobImplRegistryId + ", jobImpl=" + jobImpl + "]";
+				+ ", jobImplRegistryId=" + jobImplRegistryId + ", jobImpl=" + jobImpl + ", docType=" + docType + "]";
 	}
 }
