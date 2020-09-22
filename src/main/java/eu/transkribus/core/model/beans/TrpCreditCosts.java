@@ -38,7 +38,7 @@ public class TrpCreditCosts {
 	private String jobImpl;
 	
 	@Column(name="DOC_TYPE")
-	private String docType;
+	private Integer docType;
 	
 	public Integer getCostsId() {
 		return costsId;
@@ -80,11 +80,11 @@ public class TrpCreditCosts {
 		this.jobImpl = jobImpl;
 	}
 	
-	public String getDocType() {
+	public Integer getDocType() {
 		return docType;
 	}
 	
-	public void setDocType(String docType) {
+	public void setDocType(Integer docType) {
 		this.docType = docType;
 	}
 
