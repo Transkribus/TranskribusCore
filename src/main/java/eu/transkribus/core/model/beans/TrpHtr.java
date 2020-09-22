@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.transkribus.core.model.beans.adapters.SqlTimestampAdapter;
+import eu.transkribus.core.model.beans.enums.DocType;
 import eu.transkribus.core.util.CoreUtils;
 import eu.transkribus.core.util.HtrCITlabUtils;
 import eu.transkribus.core.util.HtrPyLaiaUtils;
@@ -135,7 +136,16 @@ public class TrpHtr {
 	private double[] cerLog = null;
 	private double[] cerTestLog = null;
 	
-	public TrpHtr() {}
+	/**
+	 * Specifies the document type this model is trained on, i.e. print or handwritten. The field is required to determine the credit cost factor applying to recognition.
+	 */
+	@Column(name="DOC_TYPE")
+	private int docType;
+	
+	public TrpHtr() {
+		//docType = handwritten if nothing else is specified
+		this.docType = DocType.HANDWRITTEN.getValue();
+	}
 	
 	public TrpHtr(TrpHtr otherHtr) {
 		super();
@@ -168,6 +178,7 @@ public class TrpHtr {
 		this.delTime = otherHtr.delTime;
 		this.cerLog = otherHtr.cerLog;
 		this.cerTestLog = otherHtr.cerTestLog;
+		this.docType = otherHtr.docType;
 	}
 
 	public int getHtrId() {
@@ -474,6 +485,14 @@ public class TrpHtr {
 		return this.delTime != null;
 	}
 	
+	public int getDocType() {
+		return docType;
+	}
+	
+	public void setDocType(int docType) {
+		this.docType = docType;
+	}
+		
 	public boolean hasTrainGt() {
 		return getNrOfTrainGtPages() != null && getNrOfTrainGtPages() > 0;
 	}
@@ -500,13 +519,14 @@ public class TrpHtr {
 	public String toString() {
 		return "TrpHtr [htrId=" + htrId + ", name=" + name + ", description=" + description + ", provider=" + provider
 				+ ", path=" + path + ", created=" + created + ", gtDocId=" + gtDocId + ", testGtDocId=" + testGtDocId
-				+ ", language=" + language + ", baseHtrId=" + baseHtrId + ", trainJobId=" + trainJobId 
-//				+ ", cerString="+ cerString + ", cerTestString=" + cerTestString + ", charList=" + charList + ", charSetString="+ charSetString // produces very long output!! 
-				+ ", bestNetStored=" + bestNetStored + ", languageModelExists=" + languageModelExists
+				+ ", language=" + language + ", baseHtrId=" + baseHtrId + ", trainJobId=" + trainJobId + ", cerString="
+				+ cerString + ", cerTestString=" + cerTestString + ", charList=" + charList + ", charSetString="
+				+ charSetString + ", bestNetStored=" + bestNetStored + ", languageModelExists=" + languageModelExists
 				+ ", nrOfLines=" + nrOfLines + ", nrOfWords=" + nrOfWords + ", params=" + params + ", userName="
 				+ userName + ", userId=" + userId + ", nrOfTrainGtPages=" + nrOfTrainGtPages
 				+ ", nrOfValidationGtPages=" + nrOfValidationGtPages + ", releaseLevelValue=" + releaseLevelValue
-				+ ", collectionIdLink=" + collectionIdLink + ", cerLog=" + Arrays.toString(cerLog)
-				+ ", cerTestLog=" + Arrays.toString(cerTestLog) + "]";
+				+ ", collectionIdLink=" + collectionIdLink + ", delTime=" + delTime + ", cerLog="
+				+ Arrays.toString(cerLog) + ", cerTestLog=" + Arrays.toString(cerTestLog) + ", docType=" + docType
+				+ "]";
 	}
 }
