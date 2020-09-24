@@ -11,9 +11,9 @@
   <!-- Errors were reported during translation. -->
   <!-- No root logger configuration was found -->
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>%-5p %c - %m%n</pattern>
-    </encoder>
+    	<encoder>
+			<pattern>%d{MM/dd HH:mm:ss.SSS} %5p | [%c{1}] %m%n</pattern>
+		</encoder>
   </appender>
   
   
