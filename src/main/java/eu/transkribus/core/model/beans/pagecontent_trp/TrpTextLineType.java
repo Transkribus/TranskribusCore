@@ -269,7 +269,7 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	}
 	
 	@Override public void setUnicodeText(String unicode, Object who) {
-		this.setUnicodeText(unicode, who, false);
+		this.setUnicodeText(unicode, who, true);
 	}
 	
 	public void setUnicodeText(String unicode, Object who, boolean applyTextToRegion) {
