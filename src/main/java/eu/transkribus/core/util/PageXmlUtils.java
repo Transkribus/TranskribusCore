@@ -1512,6 +1512,18 @@ public class PageXmlUtils {
 		return nRemoved;
 	}
 	
+	public static PcGtsType copyShapes(PcGtsType pc, List<TrpRegionType> shapes) {
+		TrpPageType page = (TrpPageType) pc.getPage();
+		for (TrpRegionType shape : shapes) {
+			/*
+			 * ToDO user can choose if he wants to copy (or omit to copy) the children (=text lines) as well
+			 * shape.removeChildren();
+			 */
+			page.getTextRegionOrImageRegionOrLineDrawingRegion().add(shape);			
+		}
+		return pc;
+	}
+	
 	public static PageXmlFileProcessor filterOutSmallRegions(String filePathOrUrl, double thresh) throws XPathExpressionException, SAXException, IOException, XPathFactoryConfigurationException, ParserConfigurationException {
 		PageXmlFileProcessor p = new PageXmlFileProcessor(filePathOrUrl);
 		return filterOutSmallRegions(p, thresh);
