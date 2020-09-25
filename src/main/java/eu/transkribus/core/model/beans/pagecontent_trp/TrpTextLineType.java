@@ -269,6 +269,10 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 	}
 	
 	@Override public void setUnicodeText(String unicode, Object who) {
+		this.setUnicodeText(unicode, who, true);
+	}
+	
+	public void setUnicodeText(String unicode, Object who, boolean applyTextToRegion) {
 		TrpShapeTypeUtils.setUnicodeText(this, unicode, who);
 		
 //		int lBefore = getUnicodeText().length();
@@ -279,7 +283,9 @@ public class TrpTextLineType  extends TextLineType implements ITrpShapeType {
 //		observable.setChangedAndNotifyObservers(new TrpTextChangedEvent(who, 0, lBefore, unicode));
 							    
 		// apply changes to region:
-		if (region!=null) region.applyTextFromLines();	    
+		if (applyTextToRegion && region!=null) {
+			region.applyTextFromLines();	    
+		}
 	}
 	
 	@Override public void editUnicodeText(int start, int end, String replacement, Object who) {

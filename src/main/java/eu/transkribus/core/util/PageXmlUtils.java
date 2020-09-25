@@ -106,6 +106,8 @@ public class PageXmlUtils {
 	public static final String FONT_FAM_XSL_PARAM_NAME = "preserveFontFam";
 	
 	public static final String NO_EVENTS_MSG = "No events occured during marshalling xml file!";
+	
+	public static final int MAX_CHARS_FOR_PLAINTEXT_ASSIGNMENT = 25000;  
 
 	//	private final static SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 	//	private static Schema schema=null;
@@ -457,7 +459,7 @@ public class PageXmlUtils {
 				line.setCoordinates(defaultCoords, null);
 				region.getTextLine().add(line);
 				if (level == TranscriptionLevel.LINE_BASED) {
-					line.setUnicodeText(lineText, null);
+					line.setUnicodeText(lineText, null, false);
 				}
 				else if (level == TranscriptionLevel.WORD_BASED) {
 					int wc=1;
