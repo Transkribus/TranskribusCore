@@ -88,6 +88,7 @@ public class JobConst {
 	
 	public static final String PROP_KEEP_ORIGINAL_LINE_POLYGONS = "keepOriginalLinePolygons";
 	public static final String PROP_DO_LINE_POLYGON_SIMPLIFICATION = "doLinePolygonSimplification";
+	public static final String PROP_USE_EXISTING_LINE_POLYGONS = "useExistingLinePolygons";
 	public static final String PROP_DO_STORE_CONFMATS = "doStoreConfMats";
 	public static final String PROP_CLEAR_LINES = "clearLines";
 	public static final String PROP_BATCH_SIZE = "batchSize";
