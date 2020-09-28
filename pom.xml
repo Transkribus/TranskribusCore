@@ -3,7 +3,7 @@
 
 	<groupId>eu.transkribus</groupId>
 	<artifactId>TranskribusCore</artifactId>
-	<version>0.11.6</version>
+	<version>0.12.0</version>
 	<packaging>jar</packaging>
 	<name>TranskribusCore</name>
 	<organization>
@@ -17,7 +17,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
 		<!-- Transkribus components' version numbers -->
-		<fimagestore-http-client.version>0.4.4</fimagestore-http-client.version>
+		<fimagestore-http-client.version>0.4.5</fimagestore-http-client.version>
 		<pdfUtils.version>0.0.4</pdfUtils.version>
 		<interfaces.version>0.0.7</interfaces.version>
 	</properties>
@@ -285,8 +285,10 @@
 		<!-- For IProgressMonitor  -->
 		<dependency>
 			<groupId>org.eclipse.equinox</groupId>
-			<artifactId>org.eclipse.equinox.common</artifactId>
-			<version>3.6.0.v20110523</version>
+<!-- 			<artifactId>org.eclipse.equinox.common</artifactId> -->
+			<artifactId>common</artifactId>
+<!-- 			<version>3.6.0.v20110523</version> -->
+			<version>3.12.0.v20200504</version>
 		</dependency>
 
 		<dependency>

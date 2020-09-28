@@ -1547,6 +1547,13 @@ public class CoreUtils {
 		return null;
 	}
 	
+	public static String strOrEmpty(Object o) {
+		if (o == null) {
+			return "";
+		}
+		return StringUtils.defaultIfEmpty(""+o, "");
+	}
+	
 	public static void main(String[] args) throws Exception {
 		System.out.println(regularizedPath("c:\\hello\\world/by\\me\\"));
 		

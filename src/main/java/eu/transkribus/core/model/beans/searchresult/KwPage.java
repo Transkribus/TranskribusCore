@@ -22,7 +22,7 @@ public class KwPage{
 	@XmlElement(name="spots")
 	private ArrayList<KwPageWord> words;
 	
-	KwPage(){
+	public KwPage(){
 		words = new ArrayList<KwPageWord>();
 	}
 	

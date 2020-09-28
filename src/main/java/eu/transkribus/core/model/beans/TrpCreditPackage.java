@@ -29,9 +29,6 @@ public class TrpCreditPackage {
 
 	@Column(name = "EXPIRATION_DATE")
 	private Date expirationDate;
-
-	@Column(name = "PAYMENT_RECEIVED")
-	private Date paymentReceived;
 	
 	@Column(name = "IS_ACTIVE")
 	private boolean active;
@@ -39,12 +36,30 @@ public class TrpCreditPackage {
 	@Column(name = "USER_ID")
 	private int userId;
 	
+	@Column(name = "USERNAME")
+	private String userName;
+	
+	@Column(name = "ORDER_ID")
+	private Integer orderId;
+	
 	/**
-	 * The product instance as in webshop. Defines nrOfCredits
-	 * TODO this might be obsolete now as we do not need to model this stuff in Transkribus...
+	 * Store the original owner's ID, since the rights to manage a package (userId & -Name) may be assigned.
+	 */
+	@Column(name = "ORIG_USER_ID")
+	private int origUserId;
+	
+	/**
+	 * The product instance as in organized in webshop. Defines e.g. nrOfCredits.
 	 */
 	@Transient
 	private TrpCreditProduct product;
+	
+	/**
+	 * The ID of the most recent transaction booked on this package. Null if none exists yet.
+	 */
+	@Column(name = "LATEST_TRANSACTION_ID")
+	@Transient
+	private Integer latestTransactionId;
 	
 	@Column(name = "CREDIT_BALANCE")
 	@Transient
@@ -84,15 +99,7 @@ public class TrpCreditPackage {
 	public void setExpirationDate(Date expirationDate) {
 		this.expirationDate = expirationDate;
 	}
-
-	public Date getPaymentReceived() {
-		return paymentReceived;
-	}
-
-	public void setPaymentReceived(Date paymentReceived) {
-		this.paymentReceived = paymentReceived;
-	}
-
+	
 	public boolean isActive() {
 		return active;
 	}
@@ -107,6 +114,30 @@ public class TrpCreditPackage {
 
 	public void setUserId(int userId) {
 		this.userId = userId;
+	}
+	
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	
+	public Integer getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(Integer orderId) {
+		this.orderId = orderId;
+	}
+
+	public int getOrigUserId() {
+		return origUserId;
+	}
+
+	public void setOrigUserId(int origUserId) {
+		this.origUserId = origUserId;
 	}
 
 	public TrpCreditProduct getProduct() {
@@ -129,20 +160,31 @@ public class TrpCreditPackage {
 		//delegate to product
 		return product.getNrOfCredits();
 	}
+	
+	public void setLatestTransactionId(Integer latestTransactionId) {
+		this.latestTransactionId = latestTransactionId;
+	}
+	
+	public Integer getLatestTransactionId() {
+		return latestTransactionId;
+	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((balance == null) ? 0 : balance.hashCode());
-		result = prime * result + packageId;
-		result = prime * result + ((expirationDate == null) ? 0 : expirationDate.hashCode());
 		result = prime * result + (active ? 1231 : 1237);
-		result = prime * result + ((paymentReceived == null) ? 0 : paymentReceived.hashCode());
+		result = prime * result + ((balance == null) ? 0 : balance.hashCode());
+		result = prime * result + ((expirationDate == null) ? 0 : expirationDate.hashCode());
+		result = prime * result + ((latestTransactionId == null) ? 0 : latestTransactionId.hashCode());
+		result = prime * result + ((orderId == null) ? 0 : orderId.hashCode());
+		result = prime * result + origUserId;
+		result = prime * result + packageId;
 		result = prime * result + ((product == null) ? 0 : product.hashCode());
 		result = prime * result + ((productId == null) ? 0 : productId.hashCode());
 		result = prime * result + ((purchaseDate == null) ? 0 : purchaseDate.hashCode());
 		result = prime * result + userId;
+		result = prime * result + ((userName == null) ? 0 : userName.hashCode());
 		return result;
 	}
 
@@ -155,24 +197,31 @@ public class TrpCreditPackage {
 		if (getClass() != obj.getClass())
 			return false;
 		TrpCreditPackage other = (TrpCreditPackage) obj;
+		if (active != other.active)
+			return false;
 		if (balance == null) {
 			if (other.balance != null)
 				return false;
 		} else if (!balance.equals(other.balance))
-			return false;
-		if (packageId != other.packageId)
 			return false;
 		if (expirationDate == null) {
 			if (other.expirationDate != null)
 				return false;
 		} else if (!expirationDate.equals(other.expirationDate))
 			return false;
-		if (active != other.active)
-			return false;
-		if (paymentReceived == null) {
-			if (other.paymentReceived != null)
+		if (latestTransactionId == null) {
+			if (other.latestTransactionId != null)
 				return false;
-		} else if (!paymentReceived.equals(other.paymentReceived))
+		} else if (!latestTransactionId.equals(other.latestTransactionId))
+			return false;
+		if (orderId == null) {
+			if (other.orderId != null)
+				return false;
+		} else if (!orderId.equals(other.orderId))
+			return false;
+		if (origUserId != other.origUserId)
+			return false;
+		if (packageId != other.packageId)
 			return false;
 		if (product == null) {
 			if (other.product != null)
@@ -191,13 +240,19 @@ public class TrpCreditPackage {
 			return false;
 		if (userId != other.userId)
 			return false;
+		if (userName == null) {
+			if (other.userName != null)
+				return false;
+		} else if (!userName.equals(other.userName))
+			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "TrpCreditPackage [packageId=" + packageId + ", productId=" + productId + ", purchaseDate=" + purchaseDate
-				+ ", expirationDate=" + expirationDate + ", paymentReceived=" + paymentReceived + ", active="
-				+ active + ", userId=" + userId + ", product=" + product + ", balance=" + balance + "]";
+		return "TrpCreditPackage [packageId=" + packageId + ", productId=" + productId + ", purchaseDate="
+				+ purchaseDate + ", expirationDate=" + expirationDate + ", active=" + active + ", userId=" + userId
+				+ ", userName=" + userName + ", orderId=" + orderId + ", origUserId=" + origUserId + ", product="
+				+ product + ", latestTransactionId=" + latestTransactionId + ", balance=" + balance + "]";
 	}
 }

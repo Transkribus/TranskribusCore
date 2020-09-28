@@ -94,11 +94,22 @@ public class JaxbUtils {
 	}
 
 	public static <T> T unmarshal(URL url, Class<T> targetClass, Class<?>... nestedClasses) throws JAXBException, IOException {
-		return unmarshal(url.openStream(), targetClass, nestedClasses);
+		try (InputStream is = url.openStream()) {
+			return unmarshal(is, targetClass, nestedClasses);
+		}
 	}
 	
 	public static <T> T unmarshal(File file, Class<T> targetClass, Class<?>... nestedClasses) throws JAXBException, FileNotFoundException {
-		return unmarshal(new FileInputStream(file), targetClass, nestedClasses);
+		InputStream is = new FileInputStream(file);
+		try {
+			return unmarshal(is, targetClass, nestedClasses);
+		} finally {
+			try {
+				is.close();
+			} catch(IOException ioe) {
+				logger.error("Could not close input stream on file: " + file.getAbsolutePath(), ioe);
+			}
+		}
 	}
 	
 	public static <T> T unmarshal(InputStream is, Class<T> targetClass, Class<?>... nestedClasses) throws JAXBException {
@@ -283,17 +294,21 @@ public class JaxbUtils {
 		return object;
 	}
 
-	
-
-
-	
 	public static <T> T clone(T object, Class<?>... nestedClasses) throws JAXBException {
 		byte[] data = marshalToBytes(object, nestedClasses);
 		ByteArrayInputStream in = new ByteArrayInputStream(data);
-		Object newO = unmarshal(in, object.getClass(), nestedClasses);
-		@SuppressWarnings("unchecked")
-		T newT = (T)newO;
-		return newT;
+		try {
+			Object newO = unmarshal(in, object.getClass(), nestedClasses);
+			@SuppressWarnings("unchecked")
+			T newT = (T)newO;
+			return newT;
+		} finally {
+			try {
+				in.close();
+			} catch(IOException ioe) {
+				logger.error("Could not close input stream on byte array", ioe);
+			}
+		}
 	}
 	
 	private static void checkEvents(ValidationEventCollector vec) {

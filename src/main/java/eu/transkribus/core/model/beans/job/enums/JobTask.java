@@ -19,11 +19,9 @@ public enum JobTask {
 	LayoutAnalysis(JobType.layoutAnalysis, "Layout Analysis", "ncsr"),
 	
 	Htr(JobType.recognition, "Handwritten Text Recognition", "uro"),
-	HtrTraining(JobType.recognition, "HTR Training", "uro"),
+	HtrTraining(JobType.training, "HTR Training", "uro"),
 	Ocr(JobType.recognition, "Optical Character Recognition", "uibk"),
-	UpvlcHtr(JobType.upvlc, "Handwritten Text Recognition", "upvlc"),
-	UpvlcHtrTraining(JobType.upvlc, "HTR Training", "upvlc"),
-	P2PaLATraining(JobType.upvlc, "P2PaLA Training", "upvlc"),
+	LaTraining(JobType.training, "LA Training", "upvlc"),
 	
 	Kws(JobType.kws, "Keyword Spotting", "uro");
 	

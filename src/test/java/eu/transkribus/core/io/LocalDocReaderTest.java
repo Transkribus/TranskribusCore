@@ -1,140 +1,194 @@
 package eu.transkribus.core.io;
 
-import java.awt.Dimension;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.junit.Assert;
-import org.junit.Assume;
+import javax.imageio.ImageIO;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.Rule;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.rules.TemporaryFolder;
 
-import eu.transkribus.core.exceptions.CorruptImageException;
-import eu.transkribus.core.util.ImgUtils;
-import eu.transkribus.core.util.SysUtils;
-import eu.transkribus.core.util.SebisStopWatch.SSW;
 
+/**
+ * 
+ * Specification for {@link LocalDocReader}
+ * 
+ * @author m3ssman
+ *
+ */
 public class LocalDocReaderTest {
-	private static final Logger logger = LoggerFactory.getLogger(LocalDocReaderTest.class);
-
-	private static final String BASE = "/mnt/dea_scratch/TRP/";
-
-	public static final String TEST_DOC1 = BASE + "TrpTestDoc_20140127/";
-	public static final String TEST_DOC2 = BASE + "TrpTestDoc_20140508/";
+	
+	@Rule
+	public TemporaryFolder tmpFolder = new TemporaryFolder();
+	
+	/**
+	 * 
+	 * Load fails if XML exists but is invalid
+	 * 
+	 * @throws IOException
+	 */
+	@Test(expected = IOException.class)
+	public void testLoadFailsOnInvalidFile() throws IOException {
+		String projectName = "1667522809_J_0013_0001";
+		File projectFolder = tmpFolder.newFolder(projectName);
+		File altoSubFolder = new File(projectFolder, "alto");
+		File altoFile = new File(altoSubFolder, "1667522809_J_0013_0001.xml");
+		FileUtils.writeStringToFile(altoFile, "");
+		String imageName = "1667522809_J_0013_0001";
+		File tifFile = new File(projectFolder, imageName + ".tif");
+		BufferedImage bufferedImage = new BufferedImage(1, 1, BufferedImage.TYPE_BYTE_GRAY); 
+		ImageIO.write(bufferedImage, "TIFF", tifFile);
 		
-//	@Test
+		String projectPath = projectFolder.getAbsolutePath();
+		LocalDocReader.load(projectPath);
+	}
+	
+	/**
+	 * 
+	 * Test: 
+	 * Exact match of image name and XML name (minus file extensions):
+	 * XML and Image can be matched
+	 * 
+	 * {@link LocalDocReader#findXml(imgName, xmlInputDir, ignorePrefix)}
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void testLoadALTOFileWithSameName() throws IOException {
+		String projectName = "1667522809_J_0013_0001";
+		File projectFolder = tmpFolder.newFolder(projectName);
+		File altoSubFolder = new File(projectFolder, "alto");
+		File altoFile = new File(altoSubFolder, "1667522809_J_0013_0001.xml");
+		FileUtils.writeStringToFile(altoFile, "");
+		
+		String imageName = "1667522809_J_0013_0001";
+		File actual = LocalDocReader.findXml(imageName, altoSubFolder, true);
+		
+		assertNotNull(actual);
+		assertEquals("1667522809_J_0013_0001.xml", actual.getName());
+	}
+	
+	/**
+	 * 
+	 * Test: 
+	 * Put multiple matching files in the folder, prefer the one with an exact match.
+	 * 
+	 * {@link LocalDocReader#findXml(imgName, xmlInputDir, ignorePrefix)}
+	 * 
+	 * @throws IOException
+	 */	
+	@Test
+	public void testLoadALTOFilePreferSameName() throws IOException {
+		String projectName = "1667522809_J_0013_0001";
+		File projectFolder = tmpFolder.newFolder(projectName);
+		File altoSubFolder = new File(projectFolder, "alto");
+		File altoFile = new File(altoSubFolder, "1667522809_J_0013_0001.xml");
+		FileUtils.writeStringToFile(altoFile, "");
+		File altoFile2 = new File(altoSubFolder, "0_i_am_also_matching_but_listed_before_1667522809_J_0013_0001.xml");
+		FileUtils.writeStringToFile(altoFile2, "");
+		
+		String imageName = "1667522809_j_0013_0001"; // note the lowercase 'j' letter -> case insensitity!
+		File actual = LocalDocReader.findXml(imageName, altoSubFolder, true);
+		
+		assertNotNull(actual);
+		assertEquals("1667522809_J_0013_0001.xml", actual.getName());
+	}	
+	
+	/**
+	 * 
+	 * Test: 
+	 * Put multiple matching files in the folder, prefer the one with an exact match.
+	 * 
+	 * {@link LocalDocReader#findXml(imgName, xmlInputDir, ignorePrefix)}
+	 * 
+	 * @throws IOException
+	 */	
+	@Test
+	public void testLoadALTOFileCaseInsensitive() throws IOException {
+		String projectName = "1667522809_J_0013_0001";
+		File projectFolder = tmpFolder.newFolder(projectName);
+		File altoSubFolder = new File(projectFolder, "alto");
+		File altoFile = new File(altoSubFolder, "i_am_a_file.xml");
+		FileUtils.writeStringToFile(altoFile, "");
+		
+		String imageName = "I_AM_A_FILE";
+		File actual = LocalDocReader.findXml(imageName, altoSubFolder, true);
+		
+		assertNotNull(actual);
+		assertEquals("i_am_a_file.xml", actual.getName());
+	}	
+
+	
+	/**
+	 * 
+	 * Test: 
+	 * Match image name and XML name with additional extension?
+	 * XML and Image can be matched
+	 * 
+	 * {@link LocalDocReader#findXml(imgName, xmlInputDir, ignorePrefix)}
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void testLoadALTOFileWithGTExtension() throws IOException {
+		String projectName = "1667522809_J_0013_0001";
+		File projectFolder = tmpFolder.newFolder(projectName);
+		File altoSubFolder = new File(projectFolder, "alto");
+		File altoFile = new File(altoSubFolder, "1667522809_J_0013_0001.gt.art.xml");
+		FileUtils.writeStringToFile(altoFile, "");
+		
+		String imageName = "1667522809_J_0013_0001";
+		File actual = LocalDocReader.findFile(imageName, altoSubFolder, "xml");
+		
+		assertNotNull(actual);
+		assertEquals("1667522809_J_0013_0001.gt.art.xml", actual.getName());
+	}
+	
+	
+	/**
+	 * 
+	 * Test: 
+	 * Match image name and XML name with large additional name section?
+	 * XML and Image can be matched
+	 * 
+	 * {@link LocalDocReader#findXml(imgName, xmlInputDir, ignorePrefix)}
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void testLoadALTOFileWithLargeSuffix() throws IOException {
+		String projectName = "1667522809_J_0025_0384";
+		File projectFolder = tmpFolder.newFolder(projectName);
+		File altoSubFolder = new File(projectFolder, "alto");
+		File altoFile = new File(altoSubFolder, "1667522809_J_0025_0384_2350x350_6425x5300.xml");
+		FileUtils.writeStringToFile(altoFile, "");
+		
+		String imageName = "1667522809_J_0025_0384";
+		File actual = LocalDocReader.findFile(imageName, altoSubFolder, "xml");
+		
+		assertNotNull(actual);
+		assertEquals("1667522809_J_0025_0384_2350x350_6425x5300.xml", actual.getName());
+	}
+	
+	
+	@Test
 	public void testListImgFiles() throws IOException {
-		Assume.assumeTrue(SysUtils.isLinux());
+		String projectName = "1667522809_J_0013_0001";
+		File projectFolder = tmpFolder.newFolder(projectName);
+		String imageName = "1667522809_J_0013_0001";
+		File tifFile = new File(projectFolder, imageName + ".tif");
+		FileUtils.writeByteArrayToFile(tifFile, new byte[] {});
 		
 		int nrOfFiles1 = 0, nrOfFiles2 = 0;
-		final String path = "/mnt/transkribus/user_storage/philip.kahle@transkribus.eu/AAK_scans_scaled";
-		SSW sw = new SSW();
-		
-		sw.start();
-		new File(path).list();
-		nrOfFiles1 = LocalDocReader.findImgFiles(new File(path)).size();
-		sw.stop();
-	
-		sw.start();
-		new File(path).list();
-		nrOfFiles2 = LocalDocReader.findImgFilenames(new File(path)).size();
-		sw.stop();
-		
-		Assert.assertEquals(nrOfFiles1, nrOfFiles2);
+		nrOfFiles1 = LocalDocReader.findImgFiles(projectFolder).size();
+		nrOfFiles2 = LocalDocReader.findImgFilenames(projectFolder).size();
+		assertEquals(nrOfFiles1, nrOfFiles2);
 	}
-	
-	public static void main(String[] args) throws FileNotFoundException, IOException {
-		
-		String pageDirPath = "C:/Neuer Ordner/Briefe_aus_allen_Jahrhunderten_der_christlichen_Zeitrechnung_1/Briefe_aus_allen_Jahrhunderten_der_christlichen_Zeitrechnung_1/alto";
-		
-	    File altoFile = new File("C:/Neuer Ordner/Briefe_aus_allen_Jahrhunderten_der_christlichen_Zeitrechnung_1/Briefe_aus_allen_Jahrhunderten_der_christlichen_Zeitrechnung_1/alto/0014_ubr16515_0014.xml");
-		File pageDirFile = new File(pageDirPath);
-		File pageOutFile = new File(pageDirPath + File.separatorChar + "pageTest.xml");
-		
-		File imgFile = new File("C:/Neuer Ordner/Briefe_aus_allen_Jahrhunderten_der_christlichen_Zeitrechnung_1/Briefe_aus_allen_Jahrhunderten_der_christlichen_Zeitrechnung_1/0014_ubr16515_0014.jpg");
-		Dimension dim = null;
-		
-		if(imgFile.isFile()) {
-			try {
-				dim = ImgUtils.readImageDimensions(imgFile);
-			} catch (CorruptImageException cie) {
-				logger.error("Image is corrupted!", cie);
-				//the image dimension can not be read from the downloaded file
-			}
-		}
-		
-		File pageXml = LocalDocReader.createPageXml(pageOutFile, true, null, altoFile, 
-				null, true, true, false, imgFile.getName(), dim, false);
-		
-//		logger.debug("Setting up doc loading process...");
-//		try {
-//
-//			
-//			TrpDoc doc = LocalDocReader.load("C:\\Users\\lange\\Desktop\\testimages");
-//			System.out.print("Logging messages from this / LocalDocReader: ");
-//			System.out.println(logger.isDebugEnabled() + " / " +LoggerFactory.getLogger(LocalDocReader.class).isDebugEnabled());
-//			System.out.println(doc.toString());
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			logger.error(e.toString());
-//		}
 
-//		String[] docs = {
-		//				BASE + "TrpTestDoc_20131209/"
-		//				TEST_DOC1, 
-		//				BASE + "Bentham_box_002/",
-		//				BASE + "test/JustImages", 
-		//				BASE + "test/OneImage", 
-		//				BASE + "test/ImagesOldPageXml",
-		//				BASE + "test/Schauplatz_test"
-		//				BASE + "test/page_xsl_test2"
-//		BASE + "test/bsb00089816",
-//		BASE + "test/II._ZvS_1908_1.Q"};
-
-		//		//Just 28 images w/o metadata
-		//		final String polenTagebuch = "/mnt/dea_scratch/tmp_philip/04_polen_tagebuecher/tagebuch";
-		//		//a test document with metadata and 3 pages with PAGE XMLs
-		//		final String testDocWithMd = "/mnt/dea_scratch/TRP/TrpTestDoc_20131209_convert/";
-
-//				for (String d : docs) {
-//					try {
-//						try {
-//							TrpDoc doc = LocalDocReader.load(d);
-//							System.out.println(doc.toString());
-		//					//				writeMdFile(doc.getMd(), d + "new_metadata.xml");
-		//
-		//									Mets mets = MetsBuilder.buildMets(doc);
-		//					//				JaxbUtils.marshalToFile(mets, new File("/tmp/mets.xml"), TrpDocMetadata.class);
-		//									JaxbUtils.marshalToSysOut(mets, TrpDocMetadata.class);
-//						} catch (UnsupportedFormatException ufe) {
-//							logger.error("Caught: " + ufe.getMessage(), ufe);
-//							//					PageXmlUtils.updatePageFormat(d);
-//						}
-//					} catch (Exception e) {
-//						// TODO Auto-generated catch block
-//						logger.error(e);
-//					}
-//				}
-
-		//		try {
-		//			try {
-		//				TrpDoc doc = LocalDocReader.load(TEST_DOC2);
-		//				System.out.println(doc.toString());
-		//				//				writeMdFile(doc.getMd(), d + "new_metadata.xml");
-		//
-		//								Mets mets = MetsBuilder.buildMets(doc);
-		//								JaxbUtils.marshalToFile(mets, new File(TEST_DOC2 + "/mets.xml"), TrpDocMetadata.class);
-		//								JaxbUtils.marshalToSysOut(mets, TrpDocMetadata.class);
-		//			} catch (UnsupportedFormatException ufe) {
-		//				logger.error("Caught: " + ufe.getMessage(), ufe);
-		//				//					PageXmlUtils.updatePageFormat(d);
-		//			}
-		//		} catch (Exception e) {
-		//			// TODO Auto-generated catch block
-		//			logger.error(e);
-		//		}
-	}
 }

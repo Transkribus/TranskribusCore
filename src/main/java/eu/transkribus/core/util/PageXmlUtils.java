@@ -106,6 +106,8 @@ public class PageXmlUtils {
 	public static final String FONT_FAM_XSL_PARAM_NAME = "preserveFontFam";
 	
 	public static final String NO_EVENTS_MSG = "No events occured during marshalling xml file!";
+	
+	public static final int MAX_CHARS_FOR_PLAINTEXT_ASSIGNMENT = 25000;  
 
 	//	private final static SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 	//	private static Schema schema=null;
@@ -337,37 +339,11 @@ public class PageXmlUtils {
 		return msg;
 	}
 	
-	public static Polygon buildPolygon(final CoordsType coords) {
-    	return buildPolygon(coords.getPoints());
-	}
-	
 	/**
-	 * 
-	 * See PointStrUtils
-	 * @param pointsStr
-	 * @return
+	 * @deprecated use {@link PointStrUtils#buildPolygon(String)}
 	 */
-	@Deprecated 
-	public static Polygon buildPolygon(String pointsStr) {
-		Polygon p = new Polygon();
-		//pointsStr MIGHT contain leading or trailing whitespace from some tool..
-		pointsStr = pointsStr.trim();
-		if(pointsStr == null || pointsStr.isEmpty()){
-    		return p;
-    	}
-		try{
-			final String[] coordsArr = pointsStr.split(" ");
-			for (int i = 0; i < coordsArr.length; i++) {
-				final String[] xy = coordsArr[i].split(",");
-				final int x = Integer.parseInt(xy[0]);
-				final int y = Integer.parseInt(xy[1]);
-				p.addPoint(x, y);
-			}
-		} catch(NumberFormatException e){
-			logger.error("Bad coords String: " + pointsStr);
-			throw e;
-		}
-		return p;
+	public static Polygon buildPolygon(final CoordsType coords) {
+    	return PointStrUtils.buildPolygon(coords.getPoints());
 	}
 	
 	public static Polygon getOffsetPolygon(Polygon poly, Rectangle boundRect) {
@@ -483,7 +459,7 @@ public class PageXmlUtils {
 				line.setCoordinates(defaultCoords, null);
 				region.getTextLine().add(line);
 				if (level == TranscriptionLevel.LINE_BASED) {
-					line.setUnicodeText(lineText, null);
+					line.setUnicodeText(lineText, null, false);
 				}
 				else if (level == TranscriptionLevel.WORD_BASED) {
 					int wc=1;
@@ -1678,7 +1654,8 @@ public class PageXmlUtils {
 		TrpPageType pageStruct = (TrpPageType) structTypePc.getPage();
 		
 		for (ITrpShapeType st : page.getAllShapes(true)) {
-			double maxOverLap = -1;
+			final double MIN_OVERLAP=10; // overlap of at least that number of pixels for tagging
+			double maxOverLap = MIN_OVERLAP;
 			String structType = null;
 						
 			for (TrpTextRegionType tr : pageStruct.getTextRegions(true)) {

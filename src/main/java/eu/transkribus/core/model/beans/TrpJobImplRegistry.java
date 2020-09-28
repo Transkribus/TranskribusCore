@@ -1,7 +1,6 @@
 package eu.transkribus.core.model.beans;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -34,17 +33,8 @@ public class TrpJobImplRegistry {
 	@Column(name="job_type")
 	private String jobType;
 	
-	@Column
 	@Transient
-	private Integer costsId;
-	
-	@Column
-	@Transient
-	private Double costFactor;
-	
-	@Column
-	@Transient
-	private Date costDate;
+	private TrpCreditCosts costs;
 	
 	@Column
 	@XmlTransient
@@ -99,28 +89,12 @@ public class TrpJobImplRegistry {
 		this.jobType = jobType;
 	}
 	
-	public Integer getCostsId() {
-		return costsId;
+	public TrpCreditCosts getCosts() {
+		return costs;
 	}
 
-	public void setCostsId(Integer costsId) {
-		this.costsId = costsId;
-	}
-	
-	public Double getCostFactor() {
-		return costFactor;
-	}
-
-	public void setCostFactor(Double costFactor) {
-		this.costFactor = costFactor;
-	}
-
-	public Date getCostDate() {
-		return costDate;
-	}
-
-	public void setCostDate(Date costDate) {
-		this.costDate = costDate;
+	public void setCosts(TrpCreditCosts costs) {
+		this.costs = costs;
 	}
 
 	/**
@@ -152,7 +126,6 @@ public class TrpJobImplRegistry {
 	@Override
 	public String toString() {
 		return "TrpJobImplRegistry [jobImplRegistryId=" + jobImplRegistryId + ", jobImpl=" + jobImpl + ", jobTasks="
-				+ jobTasks + ", jobType=" + jobType + ", costsId=" + costsId + ", costFactor=" + costFactor 
-				+ ", costDate=" + costDate + ", users=" + users + "]";
+				+ jobTasks + ", jobType=" + jobType + ", costs=" + costs + ", users=" + users + "]";
 	}
 }

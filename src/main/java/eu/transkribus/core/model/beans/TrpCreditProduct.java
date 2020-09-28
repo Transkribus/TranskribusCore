@@ -33,17 +33,20 @@ public class TrpCreditProduct {
 	@Column(name = "LABEL")
 	private String label;
 
-	//Column(name= "SHAREABLE")
-	private Boolean shareable;
+	@Column(name= "SHAREABLE")
+	private boolean shareable;
 	
-	//Column(name = "SUBSCRIPTION")
+	@Column(name = "SUBSCRIPTION")
 	private String subscription;
-
-	@Column(name = "AVAILABLE_FROM")
-	private Date availableFrom;
-
-	@Column(name = "AVAILABLE_UNTIL")
-	private Date availableUntil;
+	
+	@Column(name = "STATUS")
+	private Integer status;
+	
+	@Column(name = "CREATED")
+	private Date created;
+	
+	@Column(name = "EXTERNAL_PRODUCT_ID")
+	private Integer externalProductId;
 
 	public TrpCreditProduct() {}
 
@@ -79,11 +82,11 @@ public class TrpCreditProduct {
 		this.label = label;
 	}
 	
-	public Boolean getShareable() {
+	public boolean getShareable() {
 		return shareable;
 	}
 
-	public void setShareable(Boolean shareable) {
+	public void setShareable(boolean shareable) {
 		this.shareable = shareable;
 	}
 
@@ -95,33 +98,42 @@ public class TrpCreditProduct {
 		this.subscription = subscription;
 	}
 	
-	public Date getAvailableFrom() {
-		return availableFrom;
+	public Integer getStatus() {
+		return status;
+	}
+	
+	public void setStatus(Integer status) {
+		this.status = status;
 	}
 
-	public void setAvailableFrom(Date availableFrom) {
-		this.availableFrom = availableFrom;
+	public Date getCreated() {
+		return created;
 	}
 
-	public Date getAvailableUntil() {
-		return availableUntil;
+	public void setCreated(Date created) {
+		this.created = created;
 	}
 
-	public void setAvailableUntil(Date availableUntil) {
-		this.availableUntil = availableUntil;
+	public Integer getExternalProductId() {
+		return externalProductId;
+	}
+
+	public void setExternalProductId(Integer externalProductId) {
+		this.externalProductId = externalProductId;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((availableFrom == null) ? 0 : availableFrom.hashCode());
-		result = prime * result + ((availableUntil == null) ? 0 : availableUntil.hashCode());
+		result = prime * result + ((created == null) ? 0 : created.hashCode());
 		result = prime * result + ((creditType == null) ? 0 : creditType.hashCode());
+		result = prime * result + ((externalProductId == null) ? 0 : externalProductId.hashCode());
 		result = prime * result + ((label == null) ? 0 : label.hashCode());
 		result = prime * result + nrOfCredits;
 		result = prime * result + ((productId == null) ? 0 : productId.hashCode());
-		result = prime * result + ((shareable == null) ? 0 : shareable.hashCode());
+		result = prime * result + (shareable ? 1231 : 1237);
+		result = prime * result + ((status == null) ? 0 : status.hashCode());
 		result = prime * result + ((subscription == null) ? 0 : subscription.hashCode());
 		return result;
 	}
@@ -135,20 +147,20 @@ public class TrpCreditProduct {
 		if (getClass() != obj.getClass())
 			return false;
 		TrpCreditProduct other = (TrpCreditProduct) obj;
-		if (availableFrom == null) {
-			if (other.availableFrom != null)
+		if (created == null) {
+			if (other.created != null)
 				return false;
-		} else if (!availableFrom.equals(other.availableFrom))
-			return false;
-		if (availableUntil == null) {
-			if (other.availableUntil != null)
-				return false;
-		} else if (!availableUntil.equals(other.availableUntil))
+		} else if (!created.equals(other.created))
 			return false;
 		if (creditType == null) {
 			if (other.creditType != null)
 				return false;
 		} else if (!creditType.equals(other.creditType))
+			return false;
+		if (externalProductId == null) {
+			if (other.externalProductId != null)
+				return false;
+		} else if (!externalProductId.equals(other.externalProductId))
 			return false;
 		if (label == null) {
 			if (other.label != null)
@@ -162,10 +174,12 @@ public class TrpCreditProduct {
 				return false;
 		} else if (!productId.equals(other.productId))
 			return false;
-		if (shareable == null) {
-			if (other.shareable != null)
+		if (shareable != other.shareable)
+			return false;
+		if (status == null) {
+			if (other.status != null)
 				return false;
-		} else if (!shareable.equals(other.shareable))
+		} else if (!status.equals(other.status))
 			return false;
 		if (subscription == null) {
 			if (other.subscription != null)
@@ -179,6 +193,6 @@ public class TrpCreditProduct {
 	public String toString() {
 		return "TrpCreditProduct [productId=" + productId + ", creditType=" + creditType + ", nrOfCredits="
 				+ nrOfCredits + ", label=" + label + ", shareable=" + shareable + ", subscription=" + subscription
-				+ ", availableFrom=" + availableFrom + ", availableUntil=" + availableUntil + "]";
+				+ ", status=" + status + ", created=" + created + ", externalProductId=" + externalProductId + "]";
 	}
 }

@@ -21,6 +21,7 @@ public final class RESTConst {
 	public static final String P2PALA_PATH = "p2pala";
 	public static final String PYLAIA_PATH = "pylaia";
 //	public static final String P2PALA_TRAIN_PATH = "p2palaTrain";
+	public static final String DU_PATH = "du";
 	
 	public static final String JOBS_PATH = "jobs";
 	public static final String USER_PATH = "user";
@@ -37,6 +38,8 @@ public final class RESTConst {
 	public static final String TRAIN_PATH = "train";
 	public static final String CREDITS_PATH = "credits";
 	public static final String CREDIT_TRANSACTIONS_PATH = "creditTransactions";
+	public static final String CREDIT_PRODUCTS_PATH = "products";
+	public static final String CREDIT_COSTS_PATH = "costs";
 		
 	/* jobMgmt */
 	public static final String JOB_MGMT_PATH = "jobMgmt";
@@ -380,6 +383,8 @@ public final class RESTConst {
 	public static final String LANGUAGE_PARAM = "language";
 	public static final String DO_BLOCK_SEG_ONLY_PARAM = "doBlockSegOnly";
 	
+	public static final String SOURCE_PACKAGE_ID_PARAM = "sourcePackageId";
+	
 	//OAuth stuff
 	public static final String LOGIN_OAUTH_PATH = "oauth";
 	public static final String CODE_PARAM = "code";
@@ -457,6 +462,9 @@ public final class RESTConst {
 	public static final String DO_CREATE_TITLE_PARAM = "doCreateTitle";
 	public static final String USE_VERSION_STATUS_PARAM = "useVersionStatus";
 	public static final String SKIP_PAGES_WITH_MISSING_STATUS_PARAM = "skipPagesWithMissingStatus";
+	
+	//credits
+	public static final String CREDITS_MIN_BALANCE_PARAM = "minBalance";
 	
 	//uploads
 	public static final String UPLOAD_ID_PARAM = "uploadId";

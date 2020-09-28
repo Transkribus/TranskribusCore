@@ -1405,7 +1405,7 @@ public class DocxBuilder {
 //			}
 			
 			//find position of footnote/comment
-			if (commentList.containsKey(i)){
+			if (commentList.containsKey(i) && exportTags && tagnames.contains("comment")){
 //				logger.debug("position of comment: " + i);
 //				logger.debug("value of comment: " + commentList.get(i));
 				

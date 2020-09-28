@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,7 +15,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.imageio.ImageIO;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.IOUtils;
@@ -66,7 +67,6 @@ import eu.transkribus.core.model.beans.pagecontent.WordType;
 import eu.transkribus.core.model.beans.pagecontent_trp.ITrpShapeType;
 import eu.transkribus.core.model.beans.pagecontent_trp.RegionTypeUtil;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpBaselineType;
-import eu.transkribus.core.model.beans.pagecontent_trp.TrpElementReadingOrderComparator;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpRegionType;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpShapeTypeUtils;
 import eu.transkribus.core.model.beans.pagecontent_trp.TrpTableCellType;
@@ -127,6 +127,7 @@ public class TrpPdfDocument extends APdfDocument {
 	BaseFont boldItalicBaseFont;
 	
 	ImgType imgType = ImgType.view;
+	Integer imgCompressionLevel;
 	
 	/*
 	 * divide page into twelth * twelth regions to have a nice print
@@ -170,9 +171,9 @@ public class TrpPdfDocument extends APdfDocument {
 		//logger.debug(" path to fonts : " + this.getClass().getClassLoader().getResource("fonts").getPath());
 		FontFactory.registerDirectory(this.getClass().getClassLoader().getResource("fonts").getPath());
 	    Set<String> fonts = new TreeSet<String>(FontFactory.getRegisteredFonts());
-//	    for (String fontname : fonts) {
-//	        logger.debug("registered font name : " + fontname);
-//	    }
+	    for (String fontname : fonts) {
+	        logger.debug("registered font name : " + fontname);
+	    }
 	    
 	    if (exportFontname != null){
 		    logger.debug("chosen font name: " + exportFontname);
@@ -198,6 +199,22 @@ public class TrpPdfDocument extends APdfDocument {
     	logger.info("main base font for PDF export is: " + mainExportBaseFont.getPostscriptFontName());
 	}
 	
+	/**
+	 * Set compressionLevel for subsequent images to be added to the PDF.
+	 * <br><br>
+	 * For Transkribus documents it does not make much of a difference regarding filesize and is not fully tested. That's why its visibility is restricted.
+	 *   
+	 * @param imgCompressionLevel value in 0-9. See {@link Image#setCompressionLevel(int)}
+	 */
+	void setCompressionLevel(int imgCompressionLevel) {
+		if(imgCompressionLevel >= 0 && imgCompressionLevel < 10) {
+			logger.debug("Setting image compression level = {}", imgCompressionLevel);
+			this.imgCompressionLevel = imgCompressionLevel;
+		} else {
+			logger.debug("Invalid or no imgCompressionLevel passed: {}. Using default.", imgCompressionLevel);
+			this.imgCompressionLevel = null;
+		}
+	}
 
 	@SuppressWarnings("unused")
 	public void addPage(URL imgUrl, TrpDoc doc, PcGtsType pc, boolean addAdditionalPlainTextPage, boolean imageOnly, ImageMetadata md, boolean doBlackening, ExportCache cache) throws MalformedURLException, IOException, DocumentException, JAXBException, URISyntaxException {
@@ -213,7 +230,12 @@ public class TrpPdfDocument extends APdfDocument {
 		
 		/*
 		 * try to read image - if the image is not readable try the original one
+		 * imgBuffer contains after reading the imgUrl the 'rotated' image
 		 */
+//		logger.debug("mimetype to export: " + md.getMimetype());
+//		logger.debug("mimetype to export: " + md.getCompression());
+//		logger.debug("bitdepth to export: " + md.getBitdepth());
+		
 		BufferedImage imgBuffer = null;
 		try {			
 			imgBuffer = TrpImageIO.read(imgUrl);
@@ -228,6 +250,8 @@ public class TrpPdfDocument extends APdfDocument {
 			logger.debug("try alternative file location " + imgUrl);
 			imgBuffer = TrpImageIO.read(imgUrl);
 		}
+		
+		
 				
 	    Graphics2D graph = imgBuffer.createGraphics();
 	    graph.setColor(Color.BLACK);
@@ -260,16 +284,55 @@ public class TrpPdfDocument extends APdfDocument {
 				
 		graph.dispose();
 		
-//		ByteArrayOutputStream baos=new ByteArrayOutputStream();
-//		ImageIO.write(imgBuffer,"JPEG",baos);
-//		byte[] imageBytes = baos.toByteArray();
-//		Image img = Image.getInstance(imageBytes);
 		
-		
+		/*
+		 * How to load the image to not blow up the PDF a lot?
+		 * 
+		 * See eu.transkribus.core.model.builder.PdfExporterTest.testPdfCompression() for the test document used to produce the figures.
+		 * 
+		 */
+		Image img;
 		//direct access instead of the version above
-		Image img = Image.getInstance(imgBuffer, null);
+		//img = Image.getInstance(imgBuffer, null);
 		
-		//baos.close();
+//		if(doBlackening) {
+			/*
+			 * 1. Compressing to JPEG Byte array yields the smallest PDF (3,6 MB on test doc). Image quality OK?
+			 * -> drawback: for binarised images size of PDF is much higher then with 2nd approach and as the user expected from its origin files:
+			 * instead of 2,3 MB -> 8,8 MB (we used JPEG as format)
+			 * But: if we use the given filetype as formatName this problem is solved
+			 * TODO: find out if this works for all scenarios resp. formats, compressions,...
+			 * 
+			 */
+		
+		String filetype = "JPEG";
+		if (md != null && md.getFiletype() != null && !md.getFiletype().contentEquals("undefined") && imgUrl.getFile().contains("orig")) {	
+
+			//FIXME this block is not reached if request URL refers to orig image *without* explicit "fileType=orig" parameter!	
+			filetype = md.getFiletype();
+			logger.debug("Using filetype from file metadata.");
+		}
+		logger.debug("filetype to export: " + filetype);
+		
+		try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) { 
+			ImageIO.write(imgBuffer, filetype, baos);
+			byte[] imageBytes = baos.toByteArray();
+			img = Image.getInstance(imageBytes);
+		}
+//		} else {
+			/*
+			 * 2. This method is in current prod systems but produces large files. PDF is ~50 MB on test doc!
+			 */
+			//direct access instead of the version above
+//			img = Image.getInstance(imgBuffer, null);
+			
+			/*
+			 * 3. Adding the image by (viewing) imgUrl produces a ~5,6 MB PDF on test doc relies on existing compression (?) 
+			 * BUT "blackening" from above is not included and correct EXIF orientation *might* also be ignored! 
+			 * TEST result: orientation is ignored hence not usable
+			 */
+			//img = Image.getInstance(imgUrl, true);
+//		}
 		imgBuffer.flush();
 		imgBuffer = null;
 		
@@ -446,7 +509,7 @@ public class TrpPdfDocument extends APdfDocument {
 			cb.endLayer();
 		}
 				
-		cb.beginLayer(imgLayer);		
+		cb.beginLayer(imgLayer);
 		cb.addImage(img);
 		cb.endLayer();
 		
@@ -1365,16 +1428,26 @@ public class TrpPdfDocument extends APdfDocument {
 		//currChunk.setFont(FontFactory.getFont("times-roman", BaseFont.CP1252, BaseFont.EMBEDDED));
 		currChunk.setFont(mainExportFont);
 		
-		Set<Entry<CustomTag, String>> commentSet = ExportUtils.getAllTagsOfThisTypeForShapeElement(currShape, "comment").entrySet();
-		for (Map.Entry<CustomTag, String> currEntry : commentSet){
+		if (highlightTags) {
 			
-			int beginIndex = currEntry.getKey().getOffset();
-			int endIndex = beginIndex + currEntry.getKey().getLength();
+			Set<String> wantedTags = cache.getOnlySelectedTagnames(CustomTagFactory.getRegisteredTagNames());
 			
-			if(currentIndex >= beginIndex && currentIndex < endIndex){
-				//hex string #FFF8B0: yellow color
-				currChunk.setBackground(new BaseColor(Color.decode("#FFF8B0").getRGB()));
+			if (wantedTags.contains("comment")){
+				Set<Entry<CustomTag, String>> commentSet = ExportUtils.getAllTagsOfThisTypeForShapeElement(currShape, "comment").entrySet();
+
+				for (Map.Entry<CustomTag, String> currEntry : commentSet){
+					
+					int beginIndex = currEntry.getKey().getOffset();
+					int endIndex = beginIndex + currEntry.getKey().getLength();
+					
+					if(currentIndex >= beginIndex && currentIndex < endIndex){
+						//hex string #FFF8B0: yellow color
+						currChunk.setBackground(new BaseColor(Color.decode("#FFF8B0").getRGB()));
+					}
+				}
 			}
+			
+
 		}
 //		TrpWordType w = null;
 //		if (useWordLevel){

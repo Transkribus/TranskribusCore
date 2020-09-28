@@ -8,6 +8,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -17,6 +20,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Observer;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -26,8 +30,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.pdfbox.jbig2.segments.TextRegion;
-import org.apache.pdfbox.pdmodel.PDDocument;
 import org.dea.util.pdf.PageImageWriter;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.mozilla.universalchardet.UniversalDetector;
@@ -58,7 +60,6 @@ import eu.transkribus.core.model.beans.enums.TranscriptionLevel;
 import eu.transkribus.core.model.beans.mets.Mets;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
-import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
 import eu.transkribus.core.model.beans.pagecontent.TextRegionType;
 import eu.transkribus.core.model.beans.rest.JaxbList;
 import eu.transkribus.core.model.builder.mets.TrpMetsBuilder;
@@ -69,8 +70,8 @@ import eu.transkribus.core.util.JaxbUtils;
 import eu.transkribus.core.util.NaturalOrderComparator;
 import eu.transkribus.core.util.NaturalOrderFileComparator;
 import eu.transkribus.core.util.PageXmlUtils;
-import eu.transkribus.core.util.XmlUtils;
 import eu.transkribus.core.util.SebisStopWatch.SSW;
+import eu.transkribus.core.util.XmlUtils;
 
 /**
  * Reader class for loading a TRP Document from the local filesystem.<br>
@@ -959,23 +960,39 @@ public class LocalDocReader {
 		}
 	}
 	
-	public static File findFile(String imgName, File inputDir, String extension) {
-		File file = new File(inputDir.getAbsolutePath() + File.separatorChar + imgName
-				+ "."+extension.toLowerCase());
-
-		if (file.canRead()) {
-			return file;
-		} else {
-			// try uppercase extension
-			file = new File(inputDir.getAbsolutePath() + File.separatorChar + imgName
-					+ "."+extension.toUpperCase());
+	
+	/**
+	 * 
+	 * Find first file if filename just contains image name 
+	 * 
+	 * @param imgName
+	 * @param dir
+	 * @param extension
+	 * @return
+	 */
+	public static File findFile(String imgName, File dir, String extension) {
+		try {
+			List<Path> candidateFiles = Files
+					.list(Paths.get(dir.getAbsolutePath()))
+					.filter(p -> StringUtils.containsIgnoreCase(p.toString(), imgName)).collect(Collectors.toList());
+			logger.trace("candidateFiles = "+candidateFiles);
 			
-			if (file.canRead()) {
-				return file;
-			} else {
-				return null;
+			if (!CoreUtils.isEmpty(candidateFiles)) {
+				Path exactMatch = candidateFiles.stream()
+									.filter(p -> StringUtils.equalsIgnoreCase(imgName+"."+extension, p.toFile().getName()))
+									.findFirst().orElse(null);
+				File f = exactMatch!=null ? exactMatch.toFile() : candidateFiles.get(0).toFile();
+				
+				if (f.canRead()) {
+					logger.debug("found {} for image {} in {}", f, imgName, dir);
+					return f;
+				}
 			}
+		} catch (IOException e) {
+			logger.warn("error while searching file for image {} in {}, msg = {} ", imgName, dir, e.getMessage());
 		}
+		logger.warn("no match file for image {} in {} ", imgName, dir);
+		return null;		
 	}
 	
 	public static File findDefaultPageXmlForImage(String imagePath) {

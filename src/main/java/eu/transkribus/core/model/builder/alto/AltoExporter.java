@@ -13,7 +13,10 @@ import java.util.Observable;
 import java.util.Map.Entry;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.transform.Source;
+import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
@@ -110,7 +113,7 @@ public class AltoExporter extends Observable {
 			params.put("includeTags", new Boolean(splitIntoWords));
 			params.put("splitIntoWords", new Boolean(splitIntoWords));
 			params.put("useWordLayer", new Boolean(useWordLayer));
-
+		
 			//we can use params in xsl to controll the output and use only one xsl for both scenarios (line-based or word based)
 			InputStream is = XslTransformer.class.getClassLoader().getResourceAsStream(PAGE_TO_ALTO_WORD_LEVEL_XSLT);
 			
@@ -125,10 +128,11 @@ public class AltoExporter extends Observable {
 			xslIS = new BufferedInputStream(is);
 			StreamSource xslSource = new StreamSource(xslIS);
 	
-	        // das Factory-Pattern unterstützt verschiedene XSLT-Prozessoren
-	        TransformerFactory transFact =
-	                TransformerFactory.newInstance();
-	        Transformer trans = transFact.newTransformer(xslSource);
+			// Create a transform factory instance. specify saxon for XSLT 2.0 support
+			TransformerFactory transFact = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
+			Transformer trans = transFact.newTransformer(xslSource);
+	        
+	        logger.debug("new transformer created!");
 	        
 			if(params != null && !params.entrySet().isEmpty()){
 				for(Entry<String, Object> e : params.entrySet()){
@@ -141,6 +145,9 @@ public class AltoExporter extends Observable {
 			return altoFile;
 		} catch (JAXBException e) {
 			throw new IOException("Could not read PAGE XML at: " + t.getUrl(), e);
+		} catch (TransformerConfigurationException e){
+			logger.error("error message!" + e.getMessageAndLocation());
+			throw new IOException("Could not create transformer.", e);
 		} catch (TransformerException e) {
 			throw new IOException("Could not create ALTO file.", e);
 		} finally {

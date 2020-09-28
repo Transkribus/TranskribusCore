@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -178,8 +179,11 @@ public class PointStrUtils {
 				logger.trace("pt = "+pt);
 				String [] tmp = pt.split(",");
 				if (tmp.length>1){
-					int x = Integer.valueOf(tmp[0].trim());
-					int y = Integer.valueOf(tmp[1].trim());
+					// check if not float coordinates from TWI 
+					BigDecimal xCoord = new BigDecimal(tmp[0]).setScale(0,BigDecimal.ROUND_HALF_UP);
+					BigDecimal yCoord = new BigDecimal(tmp[1]).setScale(0,BigDecimal.ROUND_HALF_UP);
+					int x = xCoord.intValue();
+					int y = yCoord.intValue();
 					ptsList.add(new Point(x, y));
 				}
 			}
@@ -223,8 +227,13 @@ public class PointStrUtils {
 			final String[] coordsArr = pointsStr.split(" ");
 			for (int i = 0; i < coordsArr.length; i++) {
 				final String[] xy = coordsArr[i].split(",");
-				final Integer x = Integer.parseInt(xy[0]);
-				final Integer y = Integer.parseInt(xy[1]);
+				//handle floats gracefully (they should not occur though)
+				final Integer x = new BigDecimal(xy[0])
+						.setScale(0, BigDecimal.ROUND_HALF_UP)
+						.intValue();
+				final Integer y = new BigDecimal(xy[1])
+						.setScale(0, BigDecimal.ROUND_HALF_UP)
+						.intValue();
 				collector.accumulator().accept(container, constr.apply(x, y));
 			}
 		} catch(NumberFormatException e){
