@@ -259,6 +259,22 @@ public class TrpShapeTypeUtils {
 		}).collect(Collectors.toList());
 	}
 	
+	public static List<? extends ITrpShapeType> filterShapesByRegionThreshold(List<? extends ITrpShapeType> shapes, double thresholdRegion, ITrpShapeType region) {
+		return shapes.stream().filter(s -> {
+			try {
+				double lineWidth = PointStrUtils.getBoundingBox(s.getCoordinates()).getWidth();
+				double regionWidth = PointStrUtils.getBoundingBox(region.getCoordinates()).getWidth();
+				double treshhold = regionWidth*thresholdRegion;
+				logger.trace("id = "+s.getId()+", shape width = "+lineWidth+", threshold = "+treshhold);
+				return lineWidth>=treshhold;
+			}
+			catch (Exception e) {
+				logger.error("Error calculating  width of shape: "+e.getMessage(), e);
+				return false;
+			}
+		}).collect(Collectors.toList());
+	}
+	
 //	public static void reinsertIntoParent(ITrpShapeType shape) {
 //		reinsertIntoParent(shape, null);
 //	}
