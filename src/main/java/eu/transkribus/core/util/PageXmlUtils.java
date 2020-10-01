@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -70,6 +71,7 @@ import eu.transkribus.core.model.beans.pagecontent.PageType;
 import eu.transkribus.core.model.beans.pagecontent.PcGtsType;
 import eu.transkribus.core.model.beans.pagecontent.PrintSpaceType;
 import eu.transkribus.core.model.beans.pagecontent.RegionType;
+import eu.transkribus.core.model.beans.pagecontent.TableCellType;
 import eu.transkribus.core.model.beans.pagecontent.TableRegionType;
 import eu.transkribus.core.model.beans.pagecontent.TextEquivType;
 import eu.transkribus.core.model.beans.pagecontent.TextLineType;
@@ -1512,6 +1514,92 @@ public class PageXmlUtils {
 		}
 		
 		return nRemoved;
+	}
+	
+	public static int filterOutSmallLines(PcGtsType pcGtsType, double thresh, List<TrpRegionType> selectedShapes) {
+		logger.debug("filterOutSmallLines, thresh = "+thresh);
+		List<TrpRegionType> regions = pcGtsType.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+		
+		logger.debug(" amount of regions: " + (regions != null? regions.size() : "0"));
+		logger.debug(" trpShapes size: " + (selectedShapes != null? selectedShapes.size() : "0"));
+		
+		List<String> ids = new ArrayList<String>();
+		
+//		for (TrpRegionType region : regions) {
+//			logger.debug(" region type: " + region.getName());
+//		}
+
+		List<TrpRegionType> textRegions2handle = (selectedShapes==null) ? regions : selectedShapes;
+		
+		for (TrpRegionType sel : textRegions2handle) {
+			logger.debug(" selected region type: " + sel.getName());
+			ids.add(sel.getId());
+		}
+		
+		int nRemoved = 0;
+		
+		for (TrpRegionType currRegion : regions) {
+			int currRemoved = 0;
+			boolean processCompleteTable = false;
+			if (currRegion instanceof TableRegionType) {
+				if(ids.contains(currRegion.getId())) {
+					//to process the selected region(s) only
+					logger.debug("table was selected - process the complete table: ");
+					processCompleteTable = true;
+				}
+				logger.debug("table region: ");
+				TableRegionType table = (TableRegionType) currRegion;
+				List<TableCellType> tableRegions = table.getTableCell();
+				logger.debug("nr of cells of table: " + tableRegions.size());
+				for (TableCellType tableCell : tableRegions) {
+					//to process the selected region(s) only
+					if (processCompleteTable || ids.contains(tableCell.getId())) {
+						currRemoved = filterShapesforRegion(tableCell, thresh, textRegions2handle);
+						nRemoved += currRemoved;
+					}
+				}
+			}
+			
+			if (currRegion instanceof TextRegionType) {
+				//logger.debug("text region type: " + currRegion.getId());
+				if (ids.contains(currRegion.getId())) {
+					currRemoved = filterShapesforRegion(currRegion, thresh, textRegions2handle);
+					nRemoved += currRemoved;
+				}
+			}
+
+		}
+		return nRemoved;
+	}
+	
+	private static int filterShapesforRegion(ITrpShapeType region, double thresh, List<TrpRegionType> textRegions2handle) {
+				
+		List<ITrpShapeType> shapes = region.getChildren(false);
+		List<? extends ITrpShapeType> filtered =  (List<? extends ITrpShapeType>) TrpShapeTypeUtils.filterShapesByRegionThreshold(shapes, thresh, region);
+		logger.debug("N before / after = "+shapes.size()+" / "+filtered.size());
+		int currRemoved = shapes.size() - filtered.size();
+		logger.debug("currRemoved:" + currRemoved);
+				
+		if (currRemoved > 0) {
+			
+			((TextRegionType) region).getTextLine().clear();
+			((TextRegionType) region).getTextLine().addAll((Collection<? extends TextLineType>) filtered);			
+			
+		}
+		
+		return currRemoved;
+	}
+
+	public static PcGtsType copyShapes(PcGtsType pc, List<TrpRegionType> shapes) {
+		TrpPageType page = (TrpPageType) pc.getPage();
+		for (TrpRegionType shape : shapes) {
+			/*
+			 * ToDO user can choose if he wants to copy (or omit to copy) the children (=text lines) as well
+			 * shape.removeChildren();
+			 */
+			page.getTextRegionOrImageRegionOrLineDrawingRegion().add(shape);			
+		}
+		return pc;
 	}
 	
 	public static PageXmlFileProcessor filterOutSmallRegions(String filePathOrUrl, double thresh) throws XPathExpressionException, SAXException, IOException, XPathFactoryConfigurationException, ParserConfigurationException {
