@@ -1634,7 +1634,7 @@ public class PageXmlUtils {
 	private static int filterShapesforRegion(ITrpShapeType region, double thresh, List<TrpRegionType> textRegions2handle) {
 				
 		List<ITrpShapeType> shapes = region.getChildren(false);
-		@SuppressWarnings("unchecked")
+
 		List<? extends ITrpShapeType> filtered =  (List<? extends ITrpShapeType>) TrpShapeTypeUtils.filterShapesByRegionThreshold(shapes, thresh, region);
 		logger.debug("N before / after = "+shapes.size()+" / "+filtered.size());
 		int currRemoved = shapes.size() - filtered.size();
