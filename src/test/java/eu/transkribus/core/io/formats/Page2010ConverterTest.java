@@ -62,6 +62,7 @@ public class Page2010ConverterTest {
 	
 	@Test
 	public void test2010ConversionSingleFileOldMethod() throws IOException, JAXBException {		
+		assumeTrue(SysUtils.IS_LINUX);
 		File page2010Xml = new File("src/test/resources/page2010/002_080_001.xml");
 		Assert.assertTrue("Could not find test resource: " + page2010Xml.getAbsolutePath(), page2010Xml.exists());
 		
