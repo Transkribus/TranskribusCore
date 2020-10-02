@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 import javax.xml.bind.JAXBException;
 
 import org.dea.fimgstoreclient.beans.ImgType;
+import org.junit.Assume;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import com.itextpdf.text.DocumentException;
 import eu.transkribus.core.io.LocalDocReader;
 import eu.transkribus.core.model.beans.TrpDoc;
 import eu.transkribus.core.model.builder.pdf.PdfExporter;
+import eu.transkribus.core.util.SysUtils;
 import eu.transkribus.core.util.SebisStopWatch.SSW;
 
 public class PdfExporterTest {
@@ -23,13 +25,20 @@ public class PdfExporterTest {
 	
 	@Test
 	public void testPdfCompression() throws IOException, DocumentException, JAXBException, URISyntaxException, InterruptedException {
-//		final String path = "/mnt/dea_scratch/TRP/Bentham_baselines";
-		final String path = "/mnt/dea_scratch/TRP/Bentham_box_002_GT";
-		//final String path = "C:/Neuer Ordner/t2i_test_with_font/doc";
-//		final String path = "/mnt/dea_scratch/TRP/Schauplatz_Small";
+
+		final String path;
 		SSW sw = new SSW();
-		
-		TrpDoc doc = LocalDocReader.load(path);
+		if(SysUtils.isWin()) {
+			path = "X:/TRP/Bentham_box_002_GT";
+//			final String path = "C:/Neuer Ordner/t2i_test_with_font/doc";
+		} else {
+			path = "/mnt/dea_scratch/TRP/Bentham_box_002_GT";
+//			final String path = "/mnt/dea_scratch/TRP/Schauplatz_Small";
+//			final String path = "/mnt/dea_scratch/TRP/Bentham_baselines";
+		}
+		File dir = new File(path);
+		Assume.assumeTrue(dir.isDirectory());
+		TrpDoc doc = LocalDocReader.load(dir.getAbsolutePath());
 		
 		PdfExporter pe = new PdfExporter();
 		
