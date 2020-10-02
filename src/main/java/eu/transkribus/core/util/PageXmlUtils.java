@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -64,6 +65,7 @@ import eu.transkribus.core.model.beans.TrpTranscriptMetadata;
 import eu.transkribus.core.model.beans.TrpTranscriptStatistics;
 import eu.transkribus.core.model.beans.customtags.CustomTagUtil;
 import eu.transkribus.core.model.beans.enums.TranscriptionLevel;
+import eu.transkribus.core.model.beans.pagecontent.BaselineType;
 import eu.transkribus.core.model.beans.pagecontent.CoordsType;
 import eu.transkribus.core.model.beans.pagecontent.MetadataType;
 import eu.transkribus.core.model.beans.pagecontent.ObjectFactory;
@@ -1572,9 +1574,67 @@ public class PageXmlUtils {
 		return nRemoved;
 	}
 	
+	public static int mergeSmallLines(PcGtsType pcGtsType, double thresh, List<TrpRegionType> selectedShapes) {
+		logger.debug("mergeSmallLines, thresh = "+thresh);
+		List<TrpRegionType> regions = pcGtsType.getPage().getTextRegionOrImageRegionOrLineDrawingRegion();
+		
+		logger.debug(" amount of regions: " + (regions != null? regions.size() : "0"));
+		logger.debug(" trpShapes size: " + (selectedShapes != null? selectedShapes.size() : "0"));
+		
+		List<String> ids = new ArrayList<String>();
+		
+//		for (TrpRegionType region : regions) {
+//			logger.debug(" region type: " + region.getName());
+//		}
+
+		List<TrpRegionType> textRegions2handle = (selectedShapes==null) ? regions : selectedShapes;
+		
+		for (TrpRegionType sel : textRegions2handle) {
+			logger.debug(" selected region type: " + sel.getName());
+			ids.add(sel.getId());
+		}
+		
+		int nMerged = 0;
+		
+		for (TrpRegionType currRegion : regions) {
+			int currMerged = 0;
+			boolean processCompleteTable = false;
+			if (currRegion instanceof TableRegionType) {
+				if(ids.contains(currRegion.getId())) {
+					//to process the selected region(s) only
+					logger.debug("table was selected - process the complete table: ");
+					processCompleteTable = true;
+				}
+				logger.debug("table region: ");
+				TableRegionType table = (TableRegionType) currRegion;
+				List<TableCellType> tableRegions = table.getTableCell();
+				logger.debug("nr of cells of table: " + tableRegions.size());
+				for (TableCellType tableCell : tableRegions) {
+					//to process the selected region(s) only
+					if (processCompleteTable || ids.contains(tableCell.getId())) {
+						currMerged = mergeShapesOfRegion(tableCell, thresh, textRegions2handle);
+						nMerged += currMerged;
+					}
+				}
+			}
+			
+			if (currRegion instanceof TextRegionType) {
+				logger.debug("text region type: " + currRegion.getId());
+				if (ids.contains(currRegion.getId())) {
+					logger.debug("contained: " + currRegion.getId());
+					currMerged = mergeShapesOfRegion(currRegion, thresh, textRegions2handle);
+					nMerged += currMerged;
+				}
+			}
+
+		}
+		return nMerged;
+	}
+
 	private static int filterShapesforRegion(ITrpShapeType region, double thresh, List<TrpRegionType> textRegions2handle) {
 				
 		List<ITrpShapeType> shapes = region.getChildren(false);
+
 		List<? extends ITrpShapeType> filtered =  (List<? extends ITrpShapeType>) TrpShapeTypeUtils.filterShapesByRegionThreshold(shapes, thresh, region);
 		logger.debug("N before / after = "+shapes.size()+" / "+filtered.size());
 		int currRemoved = shapes.size() - filtered.size();
@@ -1588,6 +1648,80 @@ public class PageXmlUtils {
 		}
 		
 		return currRemoved;
+	}
+	
+	private static int mergeShapesOfRegion(ITrpShapeType region, double thresh, List<TrpRegionType> textRegions2handle) {
+		
+		List<ITrpShapeType> shapes = region.getChildren(false);
+
+		List<List<ITrpShapeType>> filtered =  TrpShapeTypeUtils.mergeShapesInRow(shapes, thresh, region);
+		
+		List<TrpTextLineType> linesAfterMerge = new ArrayList<TrpTextLineType>();
+		
+		/*
+		 * here we do the merge
+		 * ToDo: also keep the custom tags
+		 */
+		for (List<ITrpShapeType> currList : filtered) {
+			TrpTextLineType mergedLine = null;
+			if (currList.size()>1){
+				TrpShapeTypeUtils.sortShapesByXY(currList);
+				//merge the lines
+				ListIterator iterate = currList.listIterator();
+				while (iterate.hasNext()) {
+					if (mergedLine == null) {
+						mergedLine = (TrpTextLineType) iterate.next();
+					}
+					else {
+						TrpTextLineType tmp = (TrpTextLineType) iterate.next();
+						String coordsTmp = tmp.getCoordinates();
+						BaselineType baselineTmp = tmp.getBaseline();
+						
+						/*
+						 * just adding coordinates is not correct since the polygon of each lines goes back to the beginning
+						 * to keep it simple we calculate the coords from the bounding box
+						 */
+						//newCoords += mergedLine.getCoordinates().concat(" ")+coordsTmp;
+						mergedLine.setCoordinates(mergedLine.getCoordinates().concat(" ")+coordsTmp, "mergeShapesOfRegion");
+						Rectangle rect = PointStrUtils.getBoundingBox(mergedLine.getCoordinates());
+						String simpleCoords = getCoords(rect);
+						
+						mergedLine.setCoordinates(simpleCoords, "mergeShapesOfRegion");
+						mergedLine.getBaseline().setPoints(mergedLine.getBaseline().getPoints()+" "+baselineTmp.getPoints());
+						mergedLine.setUnicodeText(mergedLine.getUnicodeText()+" "+tmp.getUnicodeText(), "mergeShapesOfRegion");
+					}					
+				}
+			}
+			else if (currList.size()==1) {
+				mergedLine = (TrpTextLineType) currList.get(0);
+			}
+			
+			linesAfterMerge.add(mergedLine);
+		}
+		
+		
+		logger.debug("N before / after = "+shapes.size()+" / "+filtered.size());
+		int currMerged = shapes.size() - filtered.size();
+				
+		if (currMerged > 0) {
+			
+			((TextRegionType) region).getTextLine().clear();
+			((TextRegionType) region).getTextLine().addAll(linesAfterMerge);			
+			
+		}
+		
+		return filtered.size();
+	}
+
+	private static String getCoords(Rectangle rect) {
+		int x = rect.x;
+		int y = rect.y;
+		int maxX = rect.x+rect.width;
+		int maxY = rect.y+rect.height;
+		
+		String lineCoords = x + "," + y + " " + maxX + "," + y + " " + maxX + "," + maxY + " " + x + "," + maxY;
+		
+		return lineCoords;
 	}
 
 	public static PcGtsType copyShapes(PcGtsType pc, List<TrpRegionType> shapes) {

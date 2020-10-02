@@ -1,8 +1,12 @@
 package eu.transkribus.core.model.beans.pagecontent_trp;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -273,6 +277,53 @@ public class TrpShapeTypeUtils {
 				return false;
 			}
 		}).collect(Collectors.toList());
+	}
+	
+	public static List<List<ITrpShapeType>> mergeShapesInRow(List<? extends ITrpShapeType> shapes, double thresholdRow, ITrpShapeType region) {
+		
+		List<List<ITrpShapeType>> result = new ArrayList();
+		
+		boolean alreadyProcessed = false;
+		
+		for (ITrpShapeType shape : shapes) {
+			alreadyProcessed = false;
+			
+			//check if the next shape was already added to another list
+			for (List<?> formerList : result) {
+				//logger.debug("former list found: size is: " + formerList.size());
+				if (formerList.contains(shape)) {
+					alreadyProcessed = true;
+					break;
+				}
+			}
+			
+			if (!alreadyProcessed) {
+				logger.debug("this shape is not already processed: " + shape.getId() );
+				double firstY = PointStrUtils.getBoundingBox(shape.getCoordinates()).getY();
+				List<ITrpShapeType> currList = new ArrayList<ITrpShapeType>();
+				currList = addShapesOfSameHeigth(shapes, firstY, thresholdRow);
+				result.add(currList);
+			}
+//			else {
+//				logger.debug("already processed: " + shape.getId() );
+//			}
+
+		}
+
+		return result;
+	
+	}
+
+	private static List<ITrpShapeType> addShapesOfSameHeigth(List<? extends ITrpShapeType> shapes, double firstY, double thresholdRow) {
+		
+		List<ITrpShapeType> newList = shapes.stream()
+		        .filter(x -> {
+		        	return Math.abs(PointStrUtils.getBoundingBox(x.getCoordinates()).getY()-firstY)<thresholdRow;
+		        }).collect(Collectors.toList());
+		                        
+		        
+		return newList;
+
 	}
 	
 //	public static void reinsertIntoParent(ITrpShapeType shape) {
