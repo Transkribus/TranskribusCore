@@ -7,10 +7,13 @@ import java.nio.file.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import eu.transkribus.core.util.SysUtils;
 
 public class ImgFilenameFilterTest {
 	private static final Logger logger = LoggerFactory.getLogger(ImgFilenameFilterTest.class);
@@ -43,6 +46,7 @@ public class ImgFilenameFilterTest {
 	 */
 	@Test
 	public void testAcceptSymlink() throws IOException {
+		Assume.assumeFalse(SysUtils.isWin());
 		File tmp = Files.createTempDirectory("ImgFilenameFilterTest-").toFile();
 		File testFile = new File(tmp, "test01.JPG");
 		File source = new File(testDir, "test01.JPG");
