@@ -1,5 +1,6 @@
 package eu.transkribus.core.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -7,9 +8,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import javax.xml.xpath.XPathFactoryConfigurationException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -250,4 +261,54 @@ public abstract class PageXmlProcessor extends TrpXPathProcessor {
 		XPathExpression exp = super.compile(xPath);
 		return super.getNodeList(doc, exp);
 	}
+	
+	/*
+	 * to delete a node found with the xPathExpression
+	 * used for e.g deleting the TranskribusMetadata during import
+	 * PageXmlProcessor.deleteNode(pageXml, "//Metadata/TranskribusMetadata");
+	 */
+	public static void deleteNode(File pageXml, String xPathExpression) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException, TransformerException {
+		
+		logger.info("called the new delete method");
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        Document document;
+
+		document = dbf.newDocumentBuilder().parse(pageXml);
+
+        XPathFactory xpf = XPathFactory.newInstance();
+        XPath xpath = xpf.newXPath();
+        XPathExpression expression = xpath.compile(xPathExpression);
+
+        Node mdNode = (Node) expression.evaluate(document, XPathConstants.NODE);
+        if (mdNode != null) {
+        	Node parent = mdNode.getParentNode();
+	        parent.removeChild(mdNode);
+	        deleteEmptyNode(parent);
+        }
+
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer t = tf.newTransformer();
+        t.transform(new DOMSource(document), new StreamResult(pageXml));
+	        
+	}
+	
+    /*
+     *  remove empty text nodes (ie nothing else than spaces and carriage return)
+     *  this means also the linebreaks are removed is the PAGE XML in the Metadata
+     */
+    // 
+     private static void deleteEmptyNode(Node node){                      
+         NodeList childs = node.getChildNodes();
+         for (int i = 0; i < childs.getLength(); i++) {
+        	 
+        	 Node childNode = childs.item(i);
+        	 //logger.debug("&&&&&text content of child: " + childNode.getTextContent());
+        	 if(childNode.getNodeType() == Node.TEXT_NODE
+        	            && childNode.getNodeValue().trim().isEmpty()){
+        		 logger.debug("empty node found - will be removed");
+        		 childNode.getParentNode().removeChild(childNode);
+        		 i--;
+        	 }
+         }
+     }
 }
