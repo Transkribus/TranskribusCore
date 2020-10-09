@@ -24,6 +24,8 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import javax.xml.xpath.XPathFactoryConfigurationException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -39,6 +41,8 @@ import org.xml.sax.SAXException;
  *
  */
 public class TrpXPathProcessor {
+	private static final Logger logger = LoggerFactory.getLogger(TrpXPathProcessor.class);
+	
 	public final static DocBuilderFactoryImpl DEFAULT_DOC_BUILDER_FACTORY_IMPL = DocBuilderFactoryImpl.ApacheXerces;
 	public final static XPathFactoryImpl DEFAULT_XPATH_FACTORY_IMPL = XPathFactoryImpl.SunApache;
 	private final DocumentBuilder builder;
@@ -202,6 +206,35 @@ public class TrpXPathProcessor {
 	public Node getNodeAttribute(Node n, String attributeName) {
 		return n.getAttributes().getNamedItem(attributeName);
 	}
+	
+	public Document deleteNodeByXPath(Document doc, String xPathExpression) throws XPathExpressionException {
+		Node node = getNode(doc, xPathExpression);
+		if (node != null) {
+        	Node parent = node.getParentNode();
+	        parent.removeChild(node);
+	        deleteEmptyTextNode(parent);
+        }
+		return doc;
+	}
+	
+	/*
+     *  remove empty text nodes (ie nothing else than spaces and carriage return)
+     *  this means also the linebreaks are removed is the PAGE XML in the Metadata
+     */
+     protected void deleteEmptyTextNode(Node node){                      
+         NodeList childs = node.getChildNodes();
+         for (int i = 0; i < childs.getLength(); i++) {
+        	 
+        	 Node childNode = childs.item(i);
+        	 //logger.debug("&&&&&text content of child: " + childNode.getTextContent());
+        	 if(childNode.getNodeType() == Node.TEXT_NODE
+        	            && childNode.getNodeValue().trim().isEmpty()){
+        		 logger.debug("empty node found - will be removed");
+        		 childNode.getParentNode().removeChild(childNode);
+        		 i--;
+        	 }
+         }
+     }
 	
 //	protected Object evaluate(Document doc, XPathExpression xPathExp, QName returnType) throws XPathExpressionException {
 //		if(doc == null || xPathExp == null) {

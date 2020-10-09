@@ -22,6 +22,10 @@ public class PageXmlFileProcessor extends PageXmlProcessor {
 	private String filePathOrUrl;
 	private Document doc;
 
+	public PageXmlFileProcessor() throws XPathFactoryConfigurationException, ParserConfigurationException {
+		super();
+	}
+	
 	public PageXmlFileProcessor(String filePathOrUrl) throws XPathFactoryConfigurationException, ParserConfigurationException {
 		super();
 		this.filePathOrUrl = filePathOrUrl;
