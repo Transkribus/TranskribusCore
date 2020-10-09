@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import eu.transkribus.core.model.beans.TrpCreditPackage;
 
 /**
- * Compares TrpTokenCredit objects by purchaseDate. Older Credits are ranked first. purchaseDate null values are considered oldest.
+ * Compares TrpTokenCredit objects by purchaseDate and sorts in ascending order, so older Credits are ranked first. purchaseDate null values are considered oldest.
  */
 public class TrpCreditPackageAgeComparator implements Comparator<TrpCreditPackage> {
 	private static final Logger logger = LoggerFactory.getLogger(TrpCreditPackageAgeComparator.class);
