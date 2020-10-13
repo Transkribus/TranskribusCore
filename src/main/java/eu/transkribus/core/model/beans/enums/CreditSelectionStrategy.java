@@ -17,4 +17,15 @@ public enum CreditSelectionStrategy {
 	 * Consider collection-linked packages with higher priority than user-owned packages
 	 */
 	COLLECTION_THEN_USER;
+	
+	public static CreditSelectionStrategy fromString(final String value) {
+		if(value == null) {
+			return null;
+		}
+		try {
+			return valueOf(value);
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
+	}
 }
