@@ -290,6 +290,12 @@ public class TrpXPathProcessor {
 		return builder.parse(xmlFile);
 	}
 	
+	/**
+	 * @deprecated this method creates a new TransformerFactory instance on each call and does not specific the implementation to use.
+	 * This might cause indeterministic behavior at runtime!
+	 * 
+	 * Fix by defining a global TransformerFactory instance using a specific implementation.
+	 */
 	public void writeToFile(Document doc, File outFile, boolean doIndent) throws TransformerFactoryConfigurationError, TransformerException {
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
        	transformer.setOutputProperty(OutputKeys.INDENT, doIndent ? "yes" : "no");
