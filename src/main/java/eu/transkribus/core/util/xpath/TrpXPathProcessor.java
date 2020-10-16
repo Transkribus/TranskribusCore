@@ -2,8 +2,11 @@ package eu.transkribus.core.util.xpath;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 
 import javax.xml.namespace.QName;
@@ -14,7 +17,6 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
@@ -48,6 +50,7 @@ public class TrpXPathProcessor {
 	private final DocumentBuilder builder;
 	private final ClassLoader classLoader;
 	private final XPathFactory xPathFactory;
+	private final TransformerFactory transformerFactory;
 	private final XPath xPath;
 	
 	/**
@@ -80,6 +83,9 @@ public class TrpXPathProcessor {
 				xPathFactoryImpl, 
 				classLoader
 				);
+		transformerFactory = TransformerFactory.newInstance(
+				TransformerFactoryImpl.ApacheXalan.getClassName(), 
+				classLoader);
 		xPath = xPathFactory.newXPath();
 	}
 	
@@ -291,17 +297,29 @@ public class TrpXPathProcessor {
 	}
 	
 	/**
-	 * @deprecated this method creates a new TransformerFactory instance on each call and does not specific the implementation to use.
-	 * This might cause indeterministic behavior at runtime!
+	 * Write an XML document to a file.
 	 * 
-	 * Fix by defining a global TransformerFactory instance using a specific implementation.
+	 * @param doc the document to write
+	 * @param outFile file to be written to
+	 * @param doIndent true if additional whitespace should be added when outputting the result tree
+	 * @throws TransformerException
 	 */
-	public void writeToFile(Document doc, File outFile, boolean doIndent) throws TransformerFactoryConfigurationError, TransformerException {
-        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+	public void writeToFile(Document doc, File outFile, boolean doIndent) throws TransformerException {
+        Transformer transformer = transformerFactory.newTransformer();
+        logger.debug("Created Transformer: {}", transformer.getClass().getCanonicalName());
        	transformer.setOutputProperty(OutputKeys.INDENT, doIndent ? "yes" : "no");
         DOMSource source = new DOMSource(doc);
-        StreamResult file = new StreamResult(outFile);
-        transformer.transform(source, file);
+        //use FileOutputStream, not StreamResult(outFile) as the filename encoding might be messed up then
+        //https://github.com/Transkribus/TranskribusAppServerModules/issues/86
+        try (OutputStream os = new FileOutputStream(outFile)) {
+        	StreamResult result = new StreamResult(os);
+	        transformer.transform(source, result);
+        } catch (FileNotFoundException e) {
+        	//wrap FileNotFoundException same as the transformer would do
+        	throw new TransformerException("Could not write to outFile at " + outFile.getAbsolutePath(), e);
+        } catch (IOException e) {
+        	logger.warn("FileOutputStream to {} could not be closed!", outFile.getAbsolutePath(), e);
+        }
 	}
 	
 	/**
@@ -353,6 +371,18 @@ public class TrpXPathProcessor {
 		Oracle("oracle.xml.jaxp.JXDocumentBuilderFactory");
 		private final String className;
 		private DocBuilderFactoryImpl(final String impl) {
+			this.className = impl;
+		}
+		public String getClassName() {
+			return this.className;
+		}
+	}
+	
+	public enum TransformerFactoryImpl {
+		ApacheXalan("org.apache.xalan.processor.TransformerFactoryImpl");
+		
+		private final String className;
+		private TransformerFactoryImpl(final String impl) {
 			this.className = impl;
 		}
 		public String getClassName() {

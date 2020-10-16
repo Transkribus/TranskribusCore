@@ -3,6 +3,7 @@ package eu.transkribus.core.util;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -125,5 +126,51 @@ public class PageXmlProcessorTest {
 		logger.info(new String(PageXmlUtils.marshalToBytes(pc)));
 		TranskribusMetadataType md3 = pc.getMetadata().getTranskribusMetadata();
 		Assert.assertNull(md3);
+	}
+	
+	@Test
+	public void testWriteToFile() throws IOException, TransformerFactoryConfigurationError, TransformerException, XPathFactoryConfigurationException, ParserConfigurationException, SAXException, XPathExpressionException {
+		//any XML will work
+		URL testResource = this.getClass().getClassLoader().getResource("PageContentFilter/deterioratedRegion.xml");
+				
+		PageXmlFileProcessor xmlProc = new PageXmlFileProcessor();
+		Document xmlDoc = xmlProc.parse(testResource);
+		xmlProc.deleteNodeByXPath(xmlDoc, "//TranskribusMetadata");
+		//construct a filename with spaces, brackets and umlaut
+		final File outFile = new File("/tmp/test_write_to_file with spaces in name (ü).xml");
+		logger.debug("Out file path = {}", outFile.getAbsolutePath());
+		
+		//this is how LocalDocReader constructs the URL from it.
+		final URL outFileUrl = outFile.toURI().toURL();
+		logger.debug("File URL = {}", outFileUrl);
+		
+		//In ADocImportJob the URL is used for writing the output of the file operation
+		final File pageFile = FileUtils.toFile(outFileUrl);
+		logger.debug("File shall be written to: {}", pageFile.getAbsolutePath());
+		
+		//this must point to the same file as before
+		Assert.assertTrue(pageFile.getAbsolutePath().equals(outFile.getAbsolutePath()));
+		
+		//PageXmlProcessor instantiated StreamResult from the file and not from a FileOutputStream and this is what was written to disk.
+		final String badOutFilePath = "/tmp/test_write_to_file%20with%20spaces%20in%20name%20(%C3%BC).xml";
+		
+		try {
+			xmlProc.writeToFile(xmlDoc, pageFile, true);
+			logger.debug("Output written to: {}", pageFile.getAbsolutePath());
+			
+			Assert.assertFalse("TrpXPathProcessor wrote the file to the wrong location!", new File(badOutFilePath).isFile());
+			
+			//The must be at the expected location.
+			Assert.assertTrue("TrpXPathProcessor did not write the expected output file!", pageFile.isFile());
+		} finally {
+			if(pageFile.isFile()) {
+				FileUtils.deleteQuietly(pageFile);
+			}
+			File badOutFile = new File(badOutFilePath);
+			if(badOutFile.isFile()) {
+				FileUtils.deleteQuietly(badOutFile);
+			}
+		}
+		
 	}
 }
