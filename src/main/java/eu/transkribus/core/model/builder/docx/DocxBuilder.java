@@ -634,15 +634,17 @@ public class DocxBuilder {
 				 * create one paragraph for each text region
 				 * but only if there is some text in it
 				 */
-				String helper = tr.getUnicodeText().replaceAll("\n", "");
+//				String helper = tr.getUnicodeText().replaceAll("\n", "");
+//				
+//				//logger.debug("region unicode text " + helper);
+//				
+//				if (!helper.equals("")){
+//					
+//					exportTextRegion(tr, wordBased, null, null, mdp);
+//		
+//				}
 				
-				//logger.debug("region unicode text " + helper);
-				
-				if (!helper.equals("")){
-					
-					exportTextRegion(tr, wordBased, null, null, mdp);
-		
-				}
+				exportTextRegion(tr, wordBased, null, null, mdp);
 			}
 		}				
 	}
