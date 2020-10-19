@@ -23,6 +23,12 @@ public class TrpEvent implements Comparable<TrpEvent> {
 	@Column
 	private Timestamp time;
 	
+	@Column(name="SHOW_FROM")
+	private Timestamp showFrom;
+	
+	@Column(name="SHOW_UNTIL")
+	private Timestamp showUntil;
+	
 	@Column
 	private String title;
 	
@@ -47,6 +53,22 @@ public class TrpEvent implements Comparable<TrpEvent> {
 		this.time = time;
 	}
 
+	public Timestamp getShowFrom() {
+		return showFrom;
+	}
+
+	public void setShowFrom(Timestamp showFrom) {
+		this.showFrom = showFrom;
+	}
+
+	public Timestamp getShowUntil() {
+		return showUntil;
+	}
+
+	public void setShowUntil(Timestamp showUntil) {
+		this.showUntil = showUntil;
+	}
+
 	public String getTitle(){
 		return title;
 	}
@@ -62,10 +84,11 @@ public class TrpEvent implements Comparable<TrpEvent> {
 	public void setMessage(String message) {
 		this.message = message;
 	}
-	
-	@Override public String toString() {
-		String str = "TrpEvent { eventId=" + id + ", time=" + time.toString() + ", title=" + title + ", message=" + message + "}";
-		return str;
+
+	@Override
+	public String toString() {
+		return "TrpEvent [id=" + id + ", time=" + time + ", showFrom=" + showFrom + ", showUntil=" + showUntil
+				+ ", title=" + title + ", message=" + message + "]";
 	}
 
 	public Date getDate() {
@@ -86,6 +109,4 @@ public class TrpEvent implements Comparable<TrpEvent> {
 		}
 		return result;
 	}
-	
-	
 }
